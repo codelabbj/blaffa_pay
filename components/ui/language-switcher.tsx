@@ -11,15 +11,15 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="Switch language">
+        <Button variant="outline" size="icon" className="h-10 w-10 rounded-lg" aria-label="Switch language">
           <Languages className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setLanguage("en")} className={language === "en" ? "bg-accent" : ""}>
+        <DropdownMenuItem onClick={() => setLanguage("en")} className={language === "en" ? "bg-blue-50 text-blue-900 dark:bg-blue-900/20 dark:text-blue-100" : ""}>
           English
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLanguage("fr")} className={language === "fr" ? "bg-accent" : ""}>
+        <DropdownMenuItem onClick={() => setLanguage("fr")} className={language === "fr" ? "bg-blue-50 text-blue-900 dark:bg-blue-900/20 dark:text-blue-100" : ""}>
           Français
         </DropdownMenuItem>
       </DropdownMenuContent>

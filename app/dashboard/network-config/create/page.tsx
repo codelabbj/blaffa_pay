@@ -11,8 +11,24 @@ import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { ArrowLeft, Save, Loader2, Settings, Globe, MessageSquare, AlertTriangle, Clock } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 export default function NetworkConfigCreatePage() {
   const router = useRouter()
@@ -104,9 +120,10 @@ export default function NetworkConfigCreatePage() {
       })
       
       toast({
-        title: t("networkConfig.success"),
+        title: t("networkConfig.created"),
         description: t("networkConfig.createdSuccessfully"),
       })
+      
       router.push("/dashboard/network-config/list")
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("networkConfig.failedToCreate")
@@ -121,197 +138,279 @@ export default function NetworkConfigCreatePage() {
     }
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">{t("networkConfig.loading")}</span>
-      </div>
-    )
-  }
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("networkConfig.create")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Network Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="network">{t("networkConfig.network")}</Label>
-            <div className="relative">
-              <select
-                id="network"
-                value={network}
-                onChange={(e) => setNetwork(e.target.value)}
-                className="w-full h-10 px-3 py-2 pr-10 rounded-md border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors duration-300 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
-                required
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button 
+                variant="outline" 
+                onClick={() => router.back()}
+                className="flex items-center space-x-2"
               >
-                <option value="">{t("networkConfig.selectNetwork")}</option>
-                {networks.map((net: any) => (
-                  <option key={net.uid} value={net.uid}>
-                    {net.nom}
-                  </option>
-                ))}
-              </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  {t("networkConfig.create") || "Create Network Configuration"}
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                  Add a new network configuration
+                </p>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Status */}
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="is-active"
-              checked={isActive}
-              onCheckedChange={setIsActive}
-            />
-            <Label htmlFor="is-active">{t("networkConfig.active")}</Label>
-          </div>
+        {error && (
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+            <CardContent className="p-6">
+              <ErrorDisplay error={error} />
+            </CardContent>
+          </Card>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Settings */}
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <Settings className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                </div>
+                <span>Basic Settings</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="network">Network</Label>
+                  <Select value={network} onValueChange={setNetwork}>
+                    <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                      <SelectValue placeholder="Select network" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {networks.map((net) => (
+                        <SelectItem key={net.id || net.uid} value={net.id || net.uid}>
+                          {net.nom}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isActive"
+                    checked={isActive}
+                    onCheckedChange={setIsActive}
+                  />
+                  <Label htmlFor="isActive">Active</Label>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* USSD Commands */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">{t("networkConfig.ussdCommands")}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="ussd-balance">{t("networkConfig.balanceCommand")}</Label>
-                <Textarea
-                  id="ussd-balance"
-                  value={ussdBalance}
-                  onChange={(e) => setUssdBalance(e.target.value)}
-                  placeholder="*880#\n1\n{pin}"
-                  rows={3}
-                />
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <Globe className="h-5 w-5 text-green-600 dark:text-green-300" />
+                </div>
+                <span>USSD Commands</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="ussdBalance">Balance Command</Label>
+                  <Textarea
+                    id="ussdBalance"
+                    value={ussdBalance}
+                    onChange={(e) => setUssdBalance(e.target.value)}
+                    placeholder="*880#\n1\n{pin}"
+                    rows={3}
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ussdDeposit">Deposit Command</Label>
+                  <Textarea
+                    id="ussdDeposit"
+                    value={ussdDeposit}
+                    onChange={(e) => setUssdDeposit(e.target.value)}
+                    placeholder="*880#\n2\n1\n{phone}\n{phone}\n{amount}\n{pin}"
+                    rows={3}
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="ussdWithdrawal">Withdrawal Command</Label>
+                  <Textarea
+                    id="ussdWithdrawal"
+                    value={ussdWithdrawal}
+                    onChange={(e) => setUssdWithdrawal(e.target.value)}
+                    placeholder="*880#\n3\n1\n{phone}\n{phone}\n{amount}\n{object}\n{pin}"
+                    rows={3}
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="ussd-deposit">{t("networkConfig.depositCommand")}</Label>
-                <Textarea
-                  id="ussd-deposit"
-                  value={ussdDeposit}
-                  onChange={(e) => setUssdDeposit(e.target.value)}
-                  placeholder="*880#\n2\n1\n{phone}\n{phone}\n{amount}\n{pin}"
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="ussd-withdrawal">{t("networkConfig.withdrawalCommand")}</Label>
-                <Textarea
-                  id="ussd-withdrawal"
-                  value={ussdWithdrawal}
-                  onChange={(e) => setUssdWithdrawal(e.target.value)}
-                  placeholder="*880#\n3\n1\n{phone}\n{phone}\n{amount}\n{object}\n{pin}"
-                  rows={3}
-                />
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* SMS Keywords */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">{t("networkConfig.smsKeywords")}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="sms-balance">{t("networkConfig.balanceKeywords")}</Label>
-                <Input
-                  id="sms-balance"
-                  value={smsBalanceKeywords}
-                  onChange={(e) => setSmsBalanceKeywords(e.target.value)}
-                  placeholder="solde actuel, votre solde"
-                />
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+                </div>
+                <span>SMS Keywords</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="smsBalance">Balance Keywords (comma-separated)</Label>
+                  <Input
+                    id="smsBalance"
+                    value={smsBalanceKeywords}
+                    onChange={(e) => setSmsBalanceKeywords(e.target.value)}
+                    placeholder="solde actuel, votre solde"
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="smsDeposit">Deposit Keywords (comma-separated)</Label>
+                  <Input
+                    id="smsDeposit"
+                    value={smsDepositKeywords}
+                    onChange={(e) => setSmsDepositKeywords(e.target.value)}
+                    placeholder="depot effectue, retrait effectue"
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="smsWithdrawal">Withdrawal Keywords (comma-separated)</Label>
+                  <Input
+                    id="smsWithdrawal"
+                    value={smsWithdrawalKeywords}
+                    onChange={(e) => setSmsWithdrawalKeywords(e.target.value)}
+                    placeholder="vous avez envoye, transfert effectue"
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="sms-deposit">{t("networkConfig.depositKeywords")}</Label>
-                <Input
-                  id="sms-deposit"
-                  value={smsDepositKeywords}
-                  onChange={(e) => setSmsDepositKeywords(e.target.value)}
-                  placeholder="depot effectue, retrait effectue"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="sms-withdrawal">{t("networkConfig.withdrawalKeywords")}</Label>
-                <Input
-                  id="sms-withdrawal"
-                  value={smsWithdrawalKeywords}
-                  onChange={(e) => setSmsWithdrawalKeywords(e.target.value)}
-                  placeholder="vous avez envoye, transfert effectue"
-                />
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Error Keywords */}
-          <div className="space-y-2">
-            <Label htmlFor="error-keywords">{t("networkConfig.errorKeywordsInput")}</Label>
-            <Input
-              id="error-keywords"
-              value={errorKeywords}
-              onChange={(e) => setErrorKeywords(e.target.value)}
-              placeholder="solde insuffisant, code incorrect, service indisponible"
-            />
-          </div>
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                  <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-300" />
+                </div>
+                <span>Error Keywords</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div>
+                <Label htmlFor="errorKeywords">Error Keywords (comma-separated)</Label>
+                <Input
+                  id="errorKeywords"
+                  value={errorKeywords}
+                  onChange={(e) => setErrorKeywords(e.target.value)}
+                  placeholder="solde insuffisant, code incorrect, service indisponible"
+                  className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Custom Settings */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">{t("networkConfig.customSettings")}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="timeout">{t("networkConfig.timeout")}</Label>
-                <Input
-                  id="timeout"
-                  type="number"
-                  value={timeoutSeconds}
-                  onChange={(e) => setTimeoutSeconds(parseInt(e.target.value))}
-                  min="1"
-                  max="300"
-                />
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                  <Clock className="h-5 w-5 text-orange-600 dark:text-orange-300" />
+                </div>
+                <span>Custom Settings</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="timeoutSeconds">Timeout (seconds)</Label>
+                  <Input
+                    id="timeoutSeconds"
+                    type="number"
+                    value={timeoutSeconds}
+                    onChange={(e) => setTimeoutSeconds(parseInt(e.target.value) || 30)}
+                    min="1"
+                    max="300"
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="maxRetries">Max Retries</Label>
+                  <Input
+                    id="maxRetries"
+                    type="number"
+                    value={maxRetries}
+                    onChange={(e) => setMaxRetries(parseInt(e.target.value) || 3)}
+                    min="1"
+                    max="10"
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="autoConfirm"
+                    checked={autoConfirm}
+                    onCheckedChange={setAutoConfirm}
+                  />
+                  <Label htmlFor="autoConfirm">Auto Confirm</Label>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="max-retries">{t("networkConfig.maxRetries")}</Label>
-                <Input
-                  id="max-retries"
-                  type="number"
-                  value={maxRetries}
-                  onChange={(e) => setMaxRetries(parseInt(e.target.value))}
-                  min="0"
-                  max="10"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="auto-confirm"
-                  checked={autoConfirm}
-                  onCheckedChange={setAutoConfirm}
-                />
-                <Label htmlFor="auto-confirm">{t("networkConfig.autoConfirm")}</Label>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {error && (
-            <ErrorDisplay
-              error={error}
-              variant="inline"
-              showRetry={false}
-              className="mb-4"
-            />
-          )}
-          
-          <div className="flex gap-4">
-            <Button type="submit" disabled={loading}>
-              {loading ? t("networkConfig.creating") : t("networkConfig.create")}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push("/dashboard/network-config/list")}
+          {/* Submit Button */}
+          <div className="flex justify-end space-x-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => router.back()}
             >
-              {t("networkConfig.cancel")}
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Create Configuration
+                </>
+              )}
             </Button>
           </div>
         </form>
-      </CardContent>
-    </Card>
+
+      </div>
+    </div>
   )
 } 

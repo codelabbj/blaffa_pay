@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,24 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { WebSocketProvider, useWebSocket } from "@/components/providers/websocket-provider"
+import { ArrowLeft, Save, Loader2, Zap, Smartphone, Settings, CheckCircle, AlertTriangle } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -24,6 +43,7 @@ function RemoteCommandCreatePage() {
   const { toast } = useToast();
   const [devices, setDevices] = useState<any[]>([])
   const { sendRemoteCommand } = useWebSocket();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -89,65 +109,204 @@ function RemoteCommandCreatePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">{t("remoteCommand.sending")}</span>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center py-12">
+            <div className="flex flex-col items-center space-y-4">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+              <span className="text-gray-600 dark:text-gray-300">{t("remoteCommand.sending")}</span>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("remoteCommand.create")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label>{t("remoteCommand.command")}</label>
-            <Input value={command} onChange={e => setCommand(e.target.value)} required />
-          </div>
-          <div>
-            <label>{t("remoteCommand.deviceId")}</label>
-            <div className="relative">
-              <select
-                value={deviceId}
-                onChange={e => setDeviceId(e.target.value)}
-                required
-                className="w-full h-10 px-3 py-2 pr-10 rounded-md border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors duration-300 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button 
+                variant="outline" 
+                onClick={() => router.back()}
+                className="flex items-center space-x-2"
               >
-                <option value="" disabled>{t("remoteCommand.selectDeviceId") || "Select a device"}</option>
-                {devices.map((device: any) => (
-                  <option key={device.device_id || device.uid} value={device.device_id || device.uid}>
-                    {device.device_id || device.uid} {device.name ? `- ${device.name}` : ""}
-                  </option>
-                ))}
-              </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  {t("remoteCommand.create") || "Create Remote Command"}
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                  Send commands to devices remotely
+                </p>
+              </div>
             </div>
           </div>
-          <div>
-            <label>{t("remoteCommand.parameters")}</label>
-            <Input value={parameters} onChange={e => setParameters(e.target.value)} required />
+        </div>
+
+        {error && (
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+            <CardContent className="p-6">
+              <ErrorDisplay error={error} />
+            </CardContent>
+          </Card>
+        )}
+
+        {success && (
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-2 text-green-600">
+                <CheckCircle className="h-5 w-5" />
+                <span className="font-medium">{success}</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Command Details */}
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <Zap className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                </div>
+                <span>Command Details</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div>
+                <Label htmlFor="command" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("remoteCommand.command") || "Command"}
+                </Label>
+                <Input 
+                  id="command"
+                  value={command} 
+                  onChange={e => setCommand(e.target.value)} 
+                  placeholder="Enter command to execute"
+                  className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  required 
+                />
+              </div>
+              <div>
+                <Label htmlFor="deviceId" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("remoteCommand.deviceId") || "Device ID"}
+                </Label>
+                <Select value={deviceId} onValueChange={setDeviceId}>
+                  <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                    <SelectValue placeholder={t("remoteCommand.selectDeviceId") || "Select a device"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {devices.map((device: any) => (
+                      <SelectItem key={device.device_id || device.uid} value={device.device_id || device.uid}>
+                        {device.device_id || device.uid} {device.name ? `- ${device.name}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Parameters */}
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <Settings className="h-5 w-5 text-green-600 dark:text-green-300" />
+                </div>
+                <span>Parameters</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div>
+                <Label htmlFor="parameters" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("remoteCommand.parameters") || "Parameters (JSON)"}
+                </Label>
+                <Textarea 
+                  id="parameters"
+                  value={parameters} 
+                  onChange={e => setParameters(e.target.value)} 
+                  placeholder='{"key": "value"}'
+                  className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  rows={4}
+                  required 
+                />
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Enter valid JSON parameters for the command
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Priority Settings */}
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <Smartphone className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+                </div>
+                <span>Priority Settings</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div>
+                <Label htmlFor="priority" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("remoteCommand.priority") || "Priority Level"}
+                </Label>
+                <Input 
+                  id="priority"
+                  type="number" 
+                  value={priority} 
+                  onChange={e => setPriority(Number(e.target.value))} 
+                  min="1"
+                  max="10"
+                  className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  required 
+                />
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Priority level from 1 (lowest) to 10 (highest)
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Submit Button */}
+          <div className="flex justify-end space-x-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => router.back()}
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={loading}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {t("remoteCommand.sending") || "Sending..."}
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  {t("remoteCommand.sendCommand") || "Send Command"}
+                </>
+              )}
+            </Button>
           </div>
-          <div>
-            <label>{t("remoteCommand.priority")}</label>
-            <Input type="number" value={priority} onChange={e => setPriority(Number(e.target.value))} required />
-          </div>
-          {error && (
-            <ErrorDisplay
-              error={error}
-              variant="inline"
-              showRetry={false}
-              className="mb-4"
-            />
-          )}
-          {success && <div className="text-green-600">{success}</div>}
-          <Button type="submit" disabled={loading}>{loading ? t("remoteCommand.sending") : t("remoteCommand.sendCommand")}</Button>
         </form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }
 

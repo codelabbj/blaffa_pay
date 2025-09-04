@@ -18,14 +18,12 @@ export default function DashboardLayout({
   }
   return (
     <WebSocketProvider token={token}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <Sidebar />
         <div className="lg:pl-64">
           <Header />
-          <main className="py-6">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              {children}
-            </div>
+          <main className="min-h-screen">
+            {children}
           </main>
         </div>
       </div>

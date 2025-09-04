@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash, CreditCard, TrendingUp, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Plus, Filter, MoreHorizontal, Eye, TrendingDown } from "lucide-react"
 import {
   Dialog,
   DialogTrigger,
@@ -34,12 +34,31 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { useWebSocket } from "@/components/providers/websocket-provider"
-import { Plus } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback } from "react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -100,45 +119,42 @@ export default function TransactionsPage() {
           params.append("trans_type", typeFilter);
         }
         if (sortField) {
-          const orderBy = sortField === "date" ? "created_at" : "amount";
-          const prefix = sortDirection === "desc" ? "-" : "+";
-          params.append("ordering", `${prefix}${orderBy}`);
-          
+          params.append("ordering", `${sortDirection === "asc" ? "+" : "-"}${sortField}`);
         }
-        endpoint = `${baseUrl}api/payments/transactions/?${params.toString()}`;
+        endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/?${params.toString()}`;
       } else {
         const params = new URLSearchParams({
           page: currentPage.toString(),
           page_size: itemsPerPage.toString(),
         });
-        endpoint = `${baseUrl}api/payments/transactions/?${params.toString()}`;
+        endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/?${params.toString()}`;
       }
-      const data = await apiFetch(endpoint)
-      setTransactions(data.results || [])
-      setTotalCount(data.count || 0)
+      console.log("Transaction API endpoint:", endpoint);
+      const data = await apiFetch(endpoint);
+      setTransactions(data.results || []);
+      setTotalCount(data.count || 0);
       toast({
         title: t("transactions.success"),
         description: t("transactions.loadedSuccessfully"),
-      })
+      });
     } catch (err: any) {
-      const errorMessage = extractErrorMessages(err) || t("transactions.failedToLoad")
-      setError(errorMessage)
-      setTransactions([])
-      setTotalCount(0)
+      const errorMessage = extractErrorMessages(err) || t("transactions.failedToLoad");
+      setError(errorMessage);
+      setTransactions([]);
       toast({
         title: t("transactions.failedToLoad"),
         description: errorMessage,
         variant: "destructive",
-      })
-      console.error('Transactions fetch error:', err)
+      });
+      console.error('Transactions fetch error:', err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchTransactions()
-  }, [currentPage, itemsPerPage, baseUrl, searchTerm, statusFilter, typeFilter, sortField, sortDirection])
+    fetchTransactions();
+  }, [searchTerm, statusFilter, typeFilter, currentPage, sortField, sortDirection]);
 
   // Remove client-side filtering and sorting since it's now handled by the API
   const filteredAndSortedTransactions = transactions
@@ -362,6 +378,13 @@ export default function TransactionsPage() {
   const [successError, setSuccessError] = useState("")
   const [successTransaction, setSuccessTransaction] = useState<any | null>(null)
 
+  // Mark as failed modal state
+  const [failedModalOpen, setFailedModalOpen] = useState(false)
+  const [failedReason, setFailedReason] = useState("Tentative de relance après timeout")
+  const [failedLoading, setFailedLoading] = useState(false)
+  const [failedError, setFailedError] = useState("")
+  const [failedTransaction, setFailedTransaction] = useState<any | null>(null)
+
   // Extract a user uid from transaction, trying several likely fields
   const extractUserUid = (tx: any): string | null => {
     return tx?.user_uid || tx?.user_id || tx?.user?.uid || tx?.owner_uid || null
@@ -525,6 +548,47 @@ export default function TransactionsPage() {
     }
   }
 
+  // Open/submit failed
+  const openFailedModal = (tx: any) => {
+    setFailedTransaction(tx)
+    setFailedReason("Tentative de relance après timeout")
+    setFailedError("")
+    setFailedModalOpen(true)
+  }
+  const handleFailedSubmit = async () => {
+    if (!failedTransaction) return
+    if (!failedReason.trim()) {
+      setFailedError(t("transactions.failedReasonRequired") || "Reason is required")
+      return
+    }
+    setFailedLoading(true)
+    setFailedError("")
+    try {
+      const endpoint = `${baseUrl}api/payments/transactions/${failedTransaction.uid}/mark-failed/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: failedReason.trim() }),
+      })
+      toast({
+        title: t("transactions.failedQueued") || "Mark as failed queued",
+        description: t("transactions.failedRequested") || "Mark as failed request sent successfully.",
+      })
+      setFailedModalOpen(false)
+      setFailedTransaction(null)
+      setFailedReason("Tentative de relance après timeout")
+      setCurrentPage(1)
+      router.refresh()
+      await fetchTransactions()
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err) || t("transactions.failedFailed") || "Failed to mark transaction as failed"
+      setFailedError(errorMessage)
+      toast({ title: t("transactions.failedFailed") || "Mark as failed failed", description: errorMessage, variant: "destructive" })
+    } finally {
+      setFailedLoading(false)
+    }
+  }
+
   if (false && loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -545,449 +609,788 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Create Transaction Button */}
-      <div className="flex justify-end">
-        {/* <Button onClick={() => setCreateModalOpen(true)} className="mb-4" variant="default">
-          <Plus className="w-4 h-4 mr-2" />
-          {t("transactions.createTransaction") || "Create Transaction"}
-        </Button> */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
+                {t("transactions.title")}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                Monitor and manage payment transactions
+              </p>
       </div>
-      {/* Create Transaction Modal */}
-      <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("transactions.createTransaction") || "Create Transaction"}</DialogTitle>
-            <DialogDescription>
-              {t("transactions.chooseType") || "Choose transaction type"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-4 justify-center mt-4">
-            <Button
-              variant="outline"
-              className="w-32"
-              onClick={() => {
-                setCreateModalOpen(false)
-                router.push("/dashboard/transactions/deposit")
-              }}
-            >
-              {t("transactions.deposit") || "Deposit"}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-32"
-              onClick={() => {
-                setCreateModalOpen(false)
-                router.push("/dashboard/transactions/withdraw")
-              }}
-            >
-              {t("transactions.withdrawal") || "Withdraw"}
-            </Button>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <CreditCard className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {totalCount} transactions
+                  </span>
+                </div>
+              </div>
+            {/* <Button
+                onClick={() => setCreateModalOpen(true)}
+                className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Transaction
+            </Button> */}
           </div>
-        </DialogContent>
-      </Dialog>
-     
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("transactions.title")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Filters */}
-          <div className="flex flex-col lg:flex-row gap-4 mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          </div>
+        </div>
+
+        {/* Filters and Search */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder={t("common.search")}
+                  placeholder={t("transactions.searchPlaceholder")}
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value)
-                  setCurrentPage(1)
-                }}
-                className="pl-10"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
               />
             </div>
+
+              {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full lg:w-48">
-                <SelectValue placeholder={t("transactions.allStatuses")} />
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder={t("transactions.filterByStatus")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("transactions.allStatuses")}</SelectItem>
                 <SelectItem value="completed">{t("transactions.completed")}</SelectItem>
-                <SelectItem value="success">{t("transactions.success")}</SelectItem>
                 <SelectItem value="pending">{t("transactions.pending")}</SelectItem>
                 <SelectItem value="failed">{t("transactions.failed")}</SelectItem>
-                <SelectItem value="sent_to_user">{t("transactions.sentToUser")}</SelectItem>
+                  <SelectItem value="processing">{t("transactions.processing")}</SelectItem>
               </SelectContent>
             </Select>
+
+              {/* Type Filter */}
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full lg:w-48">
-                <SelectValue placeholder={t("transactions.allTypes")} />
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder={t("transactions.filterByType")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t("transactions.allTypes")}</SelectItem>
                 <SelectItem value="deposit">{t("transactions.deposit")}</SelectItem>
                 <SelectItem value="withdrawal">{t("transactions.withdrawal")}</SelectItem>
-                <SelectItem value="transfer">{t("transactions.transfer")}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Sort */}
+              <Select 
+                value={sortField || ""} 
+                onValueChange={(value) => setSortField(value as "amount" | "date" | null)}
+              >
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="amount">Amount</SelectItem>
+                  <SelectItem value="date">Date</SelectItem>
               </SelectContent>
             </Select>
           </div>
+          </CardContent>
+        </Card>
 
-          {/* Inline error display to avoid unmounting the page */}
-          {error && (
-            <div className="mb-4">
-              <ErrorDisplay
-                error={error}
-                onRetry={fetchTransactions}
-                variant="full"
-                showDismiss={false}
-              />
+        {/* Transactions Table */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <CreditCard className="h-5 w-5 text-green-600 dark:text-green-300" />
             </div>
-          )}
-          {/* Table */}
-          <div className="rounded-md border min-h-[200px]">
+              <span>Liste des transactions</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
             {loading ? (
-              <div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
+              <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="text-gray-600 dark:text-gray-300">Loading transactions...</span>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="p-6 text-center">
+                <ErrorDisplay error={error} onRetry={fetchTransactions} />
+              </div>
             ) : (
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("transactions.reference")}</TableHead> {/* NEW COLUMN */}
-                    <TableHead>
-                      <Button type="button" variant="ghost" onClick={() => handleSort("amount")} className="h-auto p-0 font-semibold">
-                        {t("transactions.amount")}
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </TableHead>
-                    <TableHead>{t("transactions.recipientName")}</TableHead> {/* NEW COLUMN */}
-                    <TableHead>{t("transactions.recipientPhone")}</TableHead> {/* NEW COLUMN */}
-                    <TableHead>
-                      <Button type="button" variant="ghost" onClick={() => handleSort("date")} className="h-auto p-0 font-semibold">
-                        {t("transactions.date")}
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </TableHead>
-                    <TableHead>{t("transactions.type")}</TableHead>
-                    {/* <TableHead>{t("transactions.reference")}</TableHead> */}
-                    <TableHead>{t("transactions.network")}</TableHead>
-                    <TableHead>{t("transactions.status")}</TableHead>
-                    <TableHead>{t("transactions.actions")}</TableHead>
+                    <TableRow className="bg-gray-50 dark:bg-gray-900/50">
+                      <TableHead className="font-semibold">Transaction ID</TableHead>
+                      <TableHead className="font-semibold">Recipient</TableHead>
+                      <TableHead className="font-semibold">Type</TableHead>
+                      <TableHead className="font-semibold">Amount</TableHead>
+                      <TableHead className="font-semibold">Created By</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Date</TableHead>
+                      <TableHead className="font-semibold text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedTransactions.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground">{t("transactions.noTransactionsFound")}</TableCell>
-                    </TableRow>
-                  ) : (
-                    paginatedTransactions.map((transaction) => (
-                      <TableRow key={transaction.uid}>
-                        <TableCell>{transaction.reference || "-"}</TableCell> {/* NEW COLUMN */}
-                        <TableCell className="font-medium">{parseFloat(transaction.amount).toLocaleString()} FCFA</TableCell>
-                        <TableCell>{transaction.display_recipient_name || "-"}</TableCell> {/* NEW CELL */}
-                        <TableCell>{transaction.recipient_phone || "-"}</TableCell> {/* NEW CELL */}
-                        <TableCell>{transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : "-"}</TableCell>
-                        <TableCell>{getTypeBadge(transaction.type)}</TableCell>
-                        <TableCell>{transaction.network_name || "-"}</TableCell>
-                        <TableCell>{getStatusBadge(transaction.status)}</TableCell>
+                    {transactions.map((transaction) => (
+                      <TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                         <TableCell>
-                          <div className="flex items-center gap-1">
-                            {/* <Button
-                              variant="secondary"
-                              size="sm"
-                              title={t("transactions.assign") || "Assign"}
-                              onClick={() => handleAssign(transaction)}
-                            >
-                              {t("transactions.assign") || "Assign"}
-                            </Button> */}
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300 dark:bg-blue-900 dark:hover:bg-blue-800 dark:text-blue-200 dark:border-blue-700"
-                              title={t("transactions.retry") || "Retry"}
-                              onClick={() => openRetryModal(transaction)}
-                            >
-                              {t("transactions.retry") || "Retry"}
-                            </Button>
-
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="bg-red-100 hover:bg-red-200 text-red-800 border-red-300 dark:bg-red-900 dark:hover:bg-red-800 dark:text-red-200 dark:border-red-700"
-                              title={t("transactions.cancelAction") || "Cancel Transaction"}
-                              onClick={() => openCancelModal(transaction)}
-                            >
-                              {t("transactions.cancelAction") || "Cancel Transaction"}
-                            </Button>
-
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="bg-green-100 hover:bg-green-200 text-green-800 border-green-300 dark:bg-green-900 dark:hover:bg-green-800 dark:text-green-200 dark:border-green-700"
-                              title={t("transactions.markSuccess") || "Mark as Success"}
-                              onClick={() => openSuccessModal(transaction)}
-                            >
-                              {t("transactions.markSuccess") || "Mark as Success"}
-                            </Button>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              asChild
-                              className="text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
-                              title={t("transactions.edit")}
-                            >
-                              <a href={`/dashboard/transactions/${transaction.uid}/edit`}>
-                                <Pencil className="w-4 h-4" />
-                              </a>
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                {/* <Button variant="ghost" size="icon" title={t("transactions.delete")} onClick={() => setDeleteUid(transaction.uid)}>
-                                  <Trash className="w-4 h-4 text-red-500" />
-                                </Button> */}
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                                                <AlertDialogTitle>{t("transactions.deleteTransaction")}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  {t("transactions.deleteConfirmation")}
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel onClick={() => setDeleteUid(null)}>{t("transactions.cancel")}</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDelete}>{t("transactions.delete")}</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                          <div className="font-mono text-sm text-gray-900 dark:text-gray-100">
+                            {transaction.uid}
                           </div>
                         </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            {/* <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                              {transaction.recipient_name?.charAt(0)?.toUpperCase() || transaction.user?.email?.charAt(0)?.toUpperCase() }
+                            </div> */}
+                            <div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {transaction.recipient_phone || 'Unknown User'}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {transaction.recipient_name}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            className={
+                              transaction.trans_type === 'deposit'
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                : "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
+                            }
+                          >
+                            {transaction.trans_type === 'deposit' ? 'Deposit' : 'Withdrawal'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {parseFloat(transaction.amount || 0).toFixed(2)} FCFA
+                          </div>
+                          {transaction.fees && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              Fees: ${parseFloat(transaction.fees).toFixed(2)}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            {/* <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                              {transaction.recipient_name?.charAt(0)?.toUpperCase() || transaction.user?.email?.charAt(0)?.toUpperCase() }
+                            </div> */}
+                            <div>
+                              <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                {transaction.created_by_name}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {transaction.created_by_email}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            className={
+                              transaction.status === 'success'
+                                ? "bg-green-100 text-green-400 dark:bg-green-900/20 dark:text-green-300"
+                                : transaction.status === 'sent_to_user'
+                                ? "bg-yellow-100 text-yellow-400 dark:bg-yellow-900/20 dark:text-yellow-300"
+                                : transaction.status === 'failed'
+                                ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+                            }
+                          >
+                            <div className="flex items-center space-x-1">
+                              {transaction.status === 'success' && <CheckCircle className="h-3 w-3" />}
+                              {transaction.status === 'pending' && <Clock className="h-3 w-3" />}
+                              {transaction.status === 'failed' && <XCircle className="h-3 w-3" />}
+                              {transaction.status === 'processing' && <AlertCircle className="h-3 w-3" />}
+                              <span>{transaction.status}</span>
+                            </div>
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {new Date(transaction.created_at).toLocaleDateString()}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {new Date(transaction.created_at).toLocaleTimeString()}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => router.push(`/dashboard/transactions/${transaction.uid}/edit`)}>
+                                <Pencil className="h-4 w-4 mr-2" />
+                               Edit
+                              </DropdownMenuItem>
+                              {/* <DropdownMenuItem onClick={() => handleOpenEdit(transaction)}>
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem> */}
+                              {/* <DropdownMenuItem 
+                                onClick={() => setDeleteUid(transaction.uid)}
+                                className="text-red-600 dark:text-red-400"
+                              >
+                                <Trash className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem> */}
+                              <DropdownMenuItem onClick={() => openRetryModal(transaction)} className="text-orange-600 dark:text-orange-400">
+                                <AlertCircle className="h-4 w-4 mr-2" />
+                                Retry
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openCancelModal(transaction)} className="text-red-600 dark:text-red-400">
+                                <XCircle className="h-4 w-4 mr-2" />
+                                Cancel
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openSuccessModal(transaction)} className="text-green-600 dark:text-green-400">
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Mark as Success
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => openFailedModal(transaction)} className="text-red-600 dark:text-red-400">
+                                <XCircle className="h-4 w-4 mr-2" />
+                                Mark as Failed
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
                       </TableRow>
-                    ))
-                  )}
+                    ))}
                 </TableBody>
               </Table>
-            )}
           </div>
+            )}
+          </CardContent>
+        </Card>
 
           {/* Pagination */}
+        {Math.ceil(totalCount / itemsPerPage) > 1 && (
           <div className="flex items-center justify-between mt-6">
-            <div className="text-sm text-muted-foreground">
-              {`${t("transactions.showingResults")}: ${startIndex + 1}-${Math.min(startIndex + itemsPerPage, totalCount)} / ${totalCount}`}
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} results
             </div>
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1 || loading}
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                {t("common.previous")}
+                <ChevronLeft className="h-4 w-4" />
+                Previous
               </Button>
-              <div className="text-sm">
-                {`${t("transactions.pageOf")}: ${currentPage}/${totalPages}`}
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: Math.min(5, Math.ceil(totalCount / itemsPerPage)) }, (_, i) => {
+                  const page = i + 1;
+                  return (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className={currentPage === page ? "bg-blue-600 text-white" : ""}
+                    >
+                      {page}
+                    </Button>
+                  );
+                })}
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages || loading}
+                onClick={() => setCurrentPage(Math.min(Math.ceil(totalCount / itemsPerPage), currentPage + 1))}
+                disabled={currentPage === Math.ceil(totalCount / itemsPerPage)}
               >
-                {t("common.next")}
-                <ChevronRight className="h-4 w-4 ml-1" />
+                Next
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {/* Edit Transaction Modal */}
-      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("transactions.editTransaction")}</DialogTitle>
-            <DialogDescription>{t("transactions.updateTransactionDetails")}</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleEditSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 gap-2">
-              <label>{t("transactions.status")}
-                <select
-                  name="status"
-                  value={editForm.status}
+        {/* Edit Modal */}
+        <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Transaction</DialogTitle>
+              <DialogDescription>
+                Update transaction details
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              {editError && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
+                  <p className="text-sm text-red-600 dark:text-red-400">{editError}</p>
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Status</label>
+                  <Select value={editForm.status} onValueChange={(value) => setEditForm(prev => ({ ...prev, status: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="processing">Processing</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">External Transaction ID</label>
+                  <Input
+                    name="external_transaction_id"
+                    value={editForm.external_transaction_id}
+                    onChange={handleEditChange}
+                    placeholder="External transaction ID"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Balance Before</label>
+                  <Input
+                    name="balance_before"
+                    value={editForm.balance_before}
+                    onChange={handleEditChange}
+                    placeholder="Balance before transaction"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Balance After</label>
+                  <Input
+                    name="balance_after"
+                    value={editForm.balance_after}
+                    onChange={handleEditChange}
+                    placeholder="Balance after transaction"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Fees</label>
+                  <Input
+                    name="fees"
+                    value={editForm.fees}
+                    onChange={handleEditChange}
+                    placeholder="Transaction fees"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Completed At</label>
+                  <Input
+                    name="completed_at"
+                    value={editForm.completed_at}
+                    onChange={handleEditChange}
+                    placeholder="Completion date"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Confirmation Message</label>
+                <textarea
+                  name="confirmation_message"
+                  value={editForm.confirmation_message}
                   onChange={handleEditChange}
-                  className="w-full border rounded p-2"
-                  required
+                  placeholder="Confirmation message"
+                  rows={3}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Raw SMS</label>
+                <textarea
+                  name="raw_sms"
+                  value={editForm.raw_sms}
+                  onChange={handleEditChange}
+                  placeholder="Raw SMS content"
+                  rows={3}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Error Message</label>
+                <textarea
+                  name="error_message"
+                  value={editForm.error_message}
+                  onChange={handleEditChange}
+                  placeholder="Error message"
+                  rows={3}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditModalOpen(false)}
+                  disabled={editLoading}
                 >
-                  <option value="completed">{t("transactions.completed")}</option>
-                  <option value="success">{t("transactions.success")}</option>
-                  <option value="pending">{t("transactions.pending")}</option>
-                  <option value="failed">{t("transactions.failed")}</option>
-                  <option value="sent_to_user">{t("transactions.sentToUser")}</option>
-                </select>
-              </label>
-              <label>{t("transactions.externalTransactionId")}
-                <Input name="external_transaction_id" value={editForm.external_transaction_id} onChange={handleEditChange} />
-              </label>
-              <label>{t("transactions.balanceBefore")}
-                <Input name="balance_before" value={editForm.balance_before} onChange={handleEditChange} />
-              </label>
-              <label>{t("transactions.balanceAfter")}
-                <Input name="balance_after" value={editForm.balance_after} onChange={handleEditChange} />
-              </label>
-              <label>{t("transactions.fees")}
-                <Input name="fees" value={editForm.fees} onChange={handleEditChange} />
-              </label>
-              <label>{t("transactions.confirmationMessage")}
-                <Input name="confirmation_message" value={editForm.confirmation_message} onChange={handleEditChange} />
-              </label>
-              <label>{t("transactions.rawSms")}
-                <Input name="raw_sms" value={editForm.raw_sms} onChange={handleEditChange} />
-              </label>
-              <label>{t("transactions.completedAt")}
-                <Input name="completed_at" value={editForm.completed_at} onChange={handleEditChange} type="datetime-local" />
-              </label>
-              <label>{t("transactions.errorMessage")}
-                <Input name="error_message" value={editForm.error_message} onChange={handleEditChange} />
-              </label>
-            </div>
-            {editError && (
-              <ErrorDisplay
-                error={editError}
-                variant="inline"
-                showRetry={false}
-                className="mb-4"
-              />
-            )}
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={editLoading}
+                  className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white"
+                >
+                  {editLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Transaction"
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Confirmation Modal */}
+        <Dialog open={showEditConfirm} onOpenChange={setShowEditConfirm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Transaction Update</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to update this transaction? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
             <DialogFooter>
-              <Button type="submit" disabled={editLoading}>{editLoading ? t("transactions.saving") : (t("transactions.reviewAndConfirm") || t("transactions.saveChanges"))}</Button>
-              <DialogClose asChild>
-                <Button type="button" variant="outline">{t("transactions.cancel")}</Button>
-              </DialogClose>
+              <Button
+                variant="outline"
+                onClick={() => setShowEditConfirm(false)}
+                disabled={editLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmEditAndSend}
+                disabled={editLoading}
+                className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white"
+              >
+                {editLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Updating...
+                  </>
+                ) : (
+                  "Update Transaction"
+                )}
+              </Button>
             </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
 
-      {/* Edit Confirmation Modal */}
-      <Dialog open={showEditConfirm} onOpenChange={setShowEditConfirm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("transactions.confirmEditTitle") || t("transactions.reviewAndConfirm") || "Confirm Changes"}</DialogTitle>
-            <DialogDescription>
-              {t("transactions.reviewBeforeSaving") || "Please review the details below before saving changes."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">UID:</span><span className="font-medium">{editTransaction?.uid}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.status")}:</span><span className="font-medium">{pendingEditPayload?.status || "-"}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.externalTransactionId")}:</span><span className="font-medium">{pendingEditPayload?.external_transaction_id || "-"}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.fees")}:</span><span className="font-medium">{pendingEditPayload?.fees || "-"}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.completedAt")}:</span><span className="font-medium">{pendingEditPayload?.completed_at || "-"}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.errorMessage")}:</span><span className="font-medium">{pendingEditPayload?.error_message || "-"}</span></div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditConfirm(false)} disabled={editLoading}>
-              {t("transactions.cancel")}
-            </Button>
-            <Button onClick={confirmEditAndSend} disabled={editLoading}>
-              {editLoading ? (t("transactions.saving") || "Saving...") : (t("transactions.submit") || "Submit")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Retry Modal */}
+        <Dialog open={retryModalOpen} onOpenChange={setRetryModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Retry Transaction</DialogTitle>
+              <DialogDescription>
+                Provide a reason for retrying this transaction
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {retryError && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
+                  <p className="text-sm text-red-600 dark:text-red-400">{retryError}</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <label htmlFor="retry-reason" className="text-sm font-medium">
+                  Reason *
+                </label>
+                <textarea
+                  id="retry-reason"
+                  value={retryReason}
+                  onChange={(e) => setRetryReason(e.target.value)}
+                  placeholder="Enter reason for retry"
+                  rows={3}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setRetryModalOpen(false)}
+                disabled={retryLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleRetrySubmit}
+                disabled={retryLoading}
+                className="bg-gradient-to-r from-orange-600 to-orange-600 hover:from-orange-700 hover:to-orange-700 text-white"
+              >
+                {retryLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Retrying...
+                  </>
+                ) : (
+                  "Retry Transaction"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Retry Transaction Modal */}
-      <Dialog open={retryModalOpen} onOpenChange={setRetryModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("transactions.retryTransaction") || "Retry Transaction"}</DialogTitle>
-            <DialogDescription>{t("transactions.enterRetryReason") || "Provide a reason for retrying this transaction."}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <label className="block text-sm font-medium">
-              {t("transactions.reason") || "Reason"}
-            </label>
-            <Input
-              placeholder={t("transactions.reasonPlaceholder") || "Tentative de relance après timeout"}
-              value={retryReason}
-              onChange={(e) => setRetryReason(e.target.value)}
-            />
-            {retryError && (
-              <ErrorDisplay error={retryError} variant="inline" showRetry={false} className="mb-2" />
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={handleRetrySubmit} disabled={retryLoading}>
-              {retryLoading ? (t("transactions.sending") || "Sending...") : (t("transactions.submit") || "Submit")}
-            </Button>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">{t("transactions.cancel")}</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Cancel Modal */}
+        <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Cancel Transaction</DialogTitle>
+              <DialogDescription>
+                Provide a reason for cancelling this transaction
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {cancelError && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
+                  <p className="text-sm text-red-600 dark:text-red-400">{cancelError}</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <label htmlFor="cancel-reason" className="text-sm font-medium">
+                  Reason *
+                </label>
+                <textarea
+                  id="cancel-reason"
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  placeholder="Enter reason for cancellation"
+                  rows={3}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setCancelModalOpen(false)}
+                disabled={cancelLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCancelSubmit}
+                disabled={cancelLoading}
+                className="bg-gradient-to-r from-red-600 to-red-600 hover:from-red-700 hover:to-red-700 text-white"
+              >
+                {cancelLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Cancelling...
+                  </>
+                ) : (
+                  "Cancel Transaction"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Cancel Transaction Modal */}
-      <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("transactions.cancelTransaction") || "Cancel Transaction"}</DialogTitle>
-            <DialogDescription>{t("transactions.enterCancelReason") || "Provide a reason for cancelling this transaction."}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <label className="block text-sm font-medium">
-              {t("transactions.reason") || "Reason"}
-            </label>
-            <Input
-              placeholder={t("transactions.reasonPlaceholder") || "Tentative de relance après timeout"}
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-            />
-            {cancelError && (
-              <ErrorDisplay error={cancelError} variant="inline" showRetry={false} className="mb-2" />
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={handleCancelSubmit} disabled={cancelLoading}>
-              {cancelLoading ? (t("transactions.sending") || "Sending...") : (t("transactions.submit") || "Submit")}
-            </Button>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">{t("transactions.cancel")}</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Success Modal */}
+        <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Mark as Success</DialogTitle>
+              <DialogDescription>
+                Provide a reason for marking this transaction as successful
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {successError && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
+                  <p className="text-sm text-red-600 dark:text-red-400">{successError}</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <label htmlFor="success-reason" className="text-sm font-medium">
+                  Reason *
+                </label>
+                <textarea
+                  id="success-reason"
+                  value={successReason}
+                  onChange={(e) => setSuccessReason(e.target.value)}
+                  placeholder="Enter reason for marking as success"
+                  rows={3}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setSuccessModalOpen(false)}
+                disabled={successLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSuccessSubmit}
+                disabled={successLoading}
+                className="bg-gradient-to-r from-green-600 to-green-600 hover:from-green-700 hover:to-green-700 text-white"
+              >
+                {successLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Marking...
+                  </>
+                ) : (
+                  "Mark as Success"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Mark as Success Modal */}
-      <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("transactions.successTransaction") || "Mark Transaction as Success"}</DialogTitle>
-            <DialogDescription>{t("transactions.enterSuccessReason") || "Provide a reason for marking this transaction as success."}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <label className="block text-sm font-medium">
-              {t("transactions.reason") || "Reason"}
-            </label>
-            <Input
-              placeholder={t("transactions.reasonPlaceholder") || "Tentative de relance après timeout"}
-              value={successReason}
-              onChange={(e) => setSuccessReason(e.target.value)}
-            />
-            {successError && (
-              <ErrorDisplay error={successError} variant="inline" showRetry={false} className="mb-2" />
-            )}
+        {/* Failed Modal */}
+        <Dialog open={failedModalOpen} onOpenChange={setFailedModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Mark as Failed</DialogTitle>
+              <DialogDescription>
+                Provide a reason for marking this transaction as failed
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {failedError && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-md">
+                  <p className="text-sm text-red-600 dark:text-red-400">{failedError}</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <label htmlFor="failed-reason" className="text-sm font-medium">
+                  Reason *
+                </label>
+                <textarea
+                  id="failed-reason"
+                  value={failedReason}
+                  onChange={(e) => setFailedReason(e.target.value)}
+                  placeholder="Enter reason for marking as failed"
+                  rows={3}
+                  className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setFailedModalOpen(false)}
+                disabled={failedLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleFailedSubmit}
+                disabled={failedLoading}
+                className="bg-gradient-to-r from-red-600 to-red-600 hover:from-red-700 hover:to-red-700 text-white"
+              >
+                {failedLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Marking...
+                  </>
+                ) : (
+                  "Mark as Failed"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Modal */}
+        <AlertDialog open={!!deleteUid} onOpenChange={(open) => { if (!open) setDeleteUid(null) }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this transaction? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={loading}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {loading ? "Deleting..." : "Delete"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Create Transaction Modal */}
+        <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Créer une nouvelle transaction</DialogTitle>
+              <DialogDescription>
+                Choisir le type de transaction que vous voulez créer
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <Button
+                  onClick={() => {
+                    setCreateModalOpen(false)
+                    router.push("/dashboard/transactions/deposit")
+                  }}
+                  className="h-20 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    <DollarSign className="h-6 w-6" />
+                    <span className="font-semibold">Dépôt</span>
+                    <span className="text-sm opacity-90">Ajouter de l'argent au compte</span>
+                  </div>
+                </Button>
+                
+                <Button
+                  onClick={() => {
+                    setCreateModalOpen(false)
+                    router.push("/dashboard/transactions/withdraw")
+                  }}
+                  className="h-20 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    <TrendingDown className="h-6 w-6" />
+                    <span className="font-semibold">Retrait</span>
+                    <span className="text-sm opacity-90">Retirer de l'argent du compte</span>
+                  </div>
+                </Button>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setCreateModalOpen(false)}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
           </div>
-          <DialogFooter>
-            <Button onClick={handleSuccessSubmit} disabled={successLoading}>
-              {successLoading ? (t("transactions.sending") || "Sending...") : (t("transactions.submit") || "Submit")}
-            </Button>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">{t("transactions.cancel")}</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

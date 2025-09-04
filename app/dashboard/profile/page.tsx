@@ -10,7 +10,21 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Edit, Save, X } from 'lucide-react';
+import { Loader2, Edit, Save, X, User, Mail, Phone, Shield, Calendar, CheckCircle, XCircle } from 'lucide-react';
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 interface UserProfile {
   uid: string;
@@ -127,12 +141,14 @@ export default function ProfilePage() {
 
   if (loading && !profile) {
     return (
-      <div className="container mx-auto py-8">
-        <Skeleton className="h-12 w-1/3 mb-6" />
-        <div className="grid gap-6">
-          {[...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="h-20 w-full" />
-          ))}
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Skeleton className="h-12 w-1/3 mb-6" />
+          <div className="grid gap-6">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-20 w-full" />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -140,8 +156,13 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="container mx-auto py-8 text-center">
-        <p>Failed to load profile. Please try again later.</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+          <div className="flex flex-col items-center space-y-4">
+            <XCircle className="h-12 w-12 text-red-500" />
+            <p className="text-lg text-gray-600 dark:text-gray-300">Failed to load profile. Please try again later.</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -155,167 +176,298 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">My Profile</h1>
-        {!editing ? (
-          <Button onClick={() => setEditing(true)} variant="outline">
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Profile
-          </Button>
-        ) : (
-          <div className="space-x-2">
-            <Button 
-              onClick={() => setEditing(false)} 
-              variant="outline" 
-              disabled={loading}
-            >
-              <X className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </>
-              )}
-            </Button>
-          </div>
-        )}
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src="" alt={profile.display_name} />
-              <AvatarFallback>{getInitials(profile.display_name)}</AvatarFallback>
-            </Avatar>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
             <div>
-              <div className="text-2xl font-bold">{profile.display_name}</div>
-              <div className="text-sm text-muted-foreground">
-                Member since {new Date(profile.created_at).toLocaleDateString()}
-              </div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                My Profile
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                Manage your account information and settings
+              </p>
             </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="first_name">First Name</Label>
-                {editing ? (
-                  <Input
-                    id="first_name"
-                    name="first_name"
-                    value={formData.first_name || ''}
-                    onChange={handleInputChange}
-                    disabled={loading}
-                  />
-                ) : (
-                  <div className="text-sm">{profile.first_name}</div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="last_name">Last Name</Label>
-                {editing ? (
-                  <Input
-                    id="last_name"
-                    name="last_name"
-                    value={formData.last_name || ''}
-                    onChange={handleInputChange}
-                    disabled={loading}
-                  />
-                ) : (
-                  <div className="text-sm">{profile.last_name}</div>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              {editing ? (
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email || ''}
-                  onChange={handleInputChange}
+            {!editing ? (
+              <Button 
+                onClick={() => setEditing(true)} 
+                variant="outline"
+                className="flex items-center space-x-2"
+              >
+                <Edit className="h-4 w-4" />
+                Edit Profile
+              </Button>
+            ) : (
+              <div className="space-x-2">
+                <Button 
+                  onClick={() => setEditing(false)} 
+                  variant="outline" 
                   disabled={loading}
-                />
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm">{profile.email}</span>
-                  {profile.email_verified ? (
-                    <Badge variant="outline" className="text-green-600 border-green-300">
-                      Verified
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-amber-600 border-amber-300">
-                      Unverified
-                    </Badge>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              {editing ? (
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone || ''}
-                  onChange={handleInputChange}
+                  className="flex items-center space-x-2"
+                >
+                  <X className="h-4 w-4" />
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSubmit} 
                   disabled={loading}
-                />
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm">{profile.phone}</span>
-                  {profile.phone_verified ? (
-                    <Badge variant="outline" className="text-green-600 border-green-300">
-                      Verified
-                    </Badge>
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
                   ) : (
-                    <Badge variant="outline" className="text-amber-600 border-amber-300">
-                      Unverified
-                    </Badge>
+                    <>
+                      <Save className="h-4 w-4" />
+                      Save Changes
+                    </>
                   )}
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
-              <div className="space-y-1">
-                <div className="text-sm font-medium">Account Status</div>
-                <div>
-                  <Badge variant={profile.is_active ? 'default' : 'secondary'}>
-                    {profile.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
+                </Button>
               </div>
-              <div className="space-y-1">
-                <div className="text-sm font-medium">Preferred Contact Method</div>
-                <div>
-                  <Badge variant="outline">
-                    {profile.contact_method === 'email' ? 'Email' : 'Phone'}
-                  </Badge>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
-        </CardContent>
-      </Card>
-       </div>
+        </div>
+
+        {/* Profile Overview */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src="" alt={profile.display_name} />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl font-semibold">
+                  {getInitials(profile.display_name)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{profile.display_name}</div>
+                <div className="text-gray-600 dark:text-gray-400 mt-1">
+                  Member since {new Date(profile.created_at).toLocaleDateString()}
+                </div>
+                <div className="flex items-center space-x-2 mt-2">
+                  <Badge 
+                    variant={profile.is_active ? "default" : "secondary"}
+                    className={
+                      profile.is_active 
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+                        : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                    }
+                  >
+                    <div className="flex items-center space-x-1">
+                      {profile.is_active ? (
+                        <CheckCircle className="h-3 w-3" />
+                      ) : (
+                        <XCircle className="h-3 w-3" />
+                      )}
+                      <span>{profile.is_active ? 'Active' : 'Inactive'}</span>
+                    </div>
+                  </Badge>
+                </div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid gap-6">
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                    <User className="h-4 w-4 text-blue-600 dark:text-blue-300" />
+                  </div>
+                  <span>Personal Information</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">First Name</Label>
+                    {editing ? (
+                      <Input
+                        id="first_name"
+                        name="first_name"
+                        value={formData.first_name || ''}
+                        onChange={handleInputChange}
+                        disabled={loading}
+                        className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                      />
+                    ) : (
+                      <div className="text-gray-900 dark:text-gray-100 font-medium">{profile.first_name}</div>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</Label>
+                    {editing ? (
+                      <Input
+                        id="last_name"
+                        name="last_name"
+                        value={formData.last_name || ''}
+                        onChange={handleInputChange}
+                        disabled={loading}
+                        className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                      />
+                    ) : (
+                      <div className="text-gray-900 dark:text-gray-100 font-medium">{profile.last_name}</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <Mail className="h-4 w-4 text-green-600 dark:text-green-300" />
+                  </div>
+                  <span>Contact Information</span>
+                </h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                      <Mail className="h-4 w-4" />
+                      <span>Email Address</span>
+                    </Label>
+                    {editing ? (
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email || ''}
+                        onChange={handleInputChange}
+                        disabled={loading}
+                        className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                      />
+                    ) : (
+                      <div className="flex items-center space-x-3">
+                        <span className="text-gray-900 dark:text-gray-100 font-medium">{profile.email}</span>
+                        {profile.email_verified ? (
+                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                            <div className="flex items-center space-x-1">
+                              <CheckCircle className="h-3 w-3" />
+                              <span>Verified</span>
+                            </div>
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+                            <div className="flex items-center space-x-1">
+                              <XCircle className="h-3 w-3" />
+                              <span>Unverified</span>
+                            </div>
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                      <Phone className="h-4 w-4" />
+                      <span>Phone Number</span>
+                    </Label>
+                    {editing ? (
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value={formData.phone || ''}
+                        onChange={handleInputChange}
+                        disabled={loading}
+                        className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                      />
+                    ) : (
+                      <div className="flex items-center space-x-3">
+                        <span className="text-gray-900 dark:text-gray-100 font-medium">{profile.phone}</span>
+                        {profile.phone_verified ? (
+                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                            <div className="flex items-center space-x-1">
+                              <CheckCircle className="h-3 w-3" />
+                              <span>Verified</span>
+                            </div>
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+                            <div className="flex items-center space-x-1">
+                              <XCircle className="h-3 w-3" />
+                              <span>Unverified</span>
+                            </div>
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Account Settings */}
+              <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                    <Shield className="h-4 w-4 text-purple-600 dark:text-purple-300" />
+                  </div>
+                  <span>Account Settings</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Account Status</div>
+                    <Badge 
+                      variant={profile.is_active ? "default" : "secondary"}
+                      className={
+                        profile.is_active 
+                          ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+                          : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                      }
+                    >
+                      <div className="flex items-center space-x-1">
+                        {profile.is_active ? (
+                          <CheckCircle className="h-3 w-3" />
+                        ) : (
+                          <XCircle className="h-3 w-3" />
+                        )}
+                        <span>{profile.is_active ? 'Active' : 'Inactive'}</span>
+                      </div>
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Preferred Contact Method</div>
+                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                      <div className="flex items-center space-x-1">
+                        {profile.contact_method === 'email' ? (
+                          <Mail className="h-3 w-3" />
+                        ) : (
+                          <Phone className="h-3 w-3" />
+                        )}
+                        <span>{profile.contact_method === 'email' ? 'Email' : 'Phone'}</span>
+                      </div>
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              {/* Account Information */}
+              <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                    <Calendar className="h-4 w-4 text-orange-600 dark:text-orange-300" />
+                  </div>
+                  <span>Account Information</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">User ID</div>
+                    <div className="text-gray-900 dark:text-gray-100 font-mono text-sm">{profile.uid}</div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Last Updated</div>
+                    <div className="text-gray-900 dark:text-gray-100">
+                      {new Date(profile.updated_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

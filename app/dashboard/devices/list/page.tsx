@@ -6,13 +6,29 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ArrowUpDown } from "lucide-react"
+import { Search, ArrowUpDown, Monitor, Plus, Filter, CheckCircle, XCircle, Wifi, WifiOff, Activity } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { useWebSocket } from "@/components/providers/websocket-provider"
+import { Badge } from "@/components/ui/badge"
+import { Pencil } from "lucide-react"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 export default function DevicesListPage() {
   const [devices, setDevices] = useState<any[]>([])
@@ -99,22 +115,17 @@ export default function DevicesListPage() {
               : device
           )
         );
-        toast({
-          title: t("devices.liveUpdate"),
-          description: `${t("devices.deviceId")} ${data.device_id} ${t("devices.statusUpdated")}`,
-        });
       }
-    } catch (err) {
-      // Optionally log or handle parse errors
+    } catch (error) {
+      console.error('Error parsing WebSocket message:', error);
     }
-  }, [lastMessage, t, toast]);
+  }, [lastMessage]);
 
-  // Remove client-side filtering since it's now handled by the API
   const filteredDevices = devices
 
   const handleSort = (field: "name" | "is_online") => {
     if (sortField === field) {
-      setSortDirection(prev => prev === "+" ? "-" : "+")
+      setSortDirection((prev) => (prev === "+" ? "-" : "+"))
       setSortField(field)
     } else {
       setSortField(field)
@@ -123,95 +134,212 @@ export default function DevicesListPage() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("devices.list")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Search and Filter Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {t("devices.list")}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                Monitor and manage connected devices
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <Monitor className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {devices.length} devices
+                  </span>
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <Activity className="h-5 w-5 text-green-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {devices.filter(d => d.is_online).length} online
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters and Search */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder={t("common.search")}
+                  placeholder="Search devices..."
               value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-                setCurrentPage(1)
-              }}
-              className="pl-10"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
             />
           </div>
+
+              {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder={t("devices.status")} />
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Devices</SelectItem>
+                  <SelectItem value="active">Online</SelectItem>
+                  <SelectItem value="inactive">Offline</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Sort */}
+              <Select 
+                value={sortField || ""} 
+                onValueChange={(value) => setSortField(value as "name" | "is_online" | null)}
+              >
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t("common.all")}</SelectItem>
-              <SelectItem value="active">{t("common.active")}</SelectItem>
-              <SelectItem value="inactive">{t("common.inactive")}</SelectItem>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="is_online">Status</SelectItem>
             </SelectContent>
           </Select>
         </div>
+          </CardContent>
+        </Card>
 
+        {/* Devices Table */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+                <Monitor className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />
+              </div>
+              <span>Device List</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
         {loading ? (
-          <div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
+              <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="text-gray-600 dark:text-gray-300">Loading devices...</span>
+                </div>
+              </div>
         ) : error ? (
-          <ErrorDisplay
-            error={error}
-            onRetry={() => {
-              setError("")
-              // This will trigger the useEffect to refetch
-            }}
-            variant="inline"
-            className="mb-6"
-          />
-        ) : (
+              <div className="p-6 text-center">
+                <ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>{t("devices.deviceId")}</TableHead>
-                <TableHead>
-                  <Button type="button" variant="ghost" onClick={() => handleSort("name")} className="h-auto p-0 font-semibold">
-                    {t("devices.name")}
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </TableHead>
-                <TableHead>
-                  <Button type="button" variant="ghost" onClick={() => handleSort("is_online")} className="h-auto p-0 font-semibold">
-                    {t("devices.status")}
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </TableHead>
-                <TableHead>Network</TableHead>
-                <TableHead>User</TableHead>
-                <TableHead>Total Txns</TableHead>
-                <TableHead>Success Rate</TableHead>
-                <TableHead>{t("devices.lastSync")}</TableHead>
-                <TableHead>{t("devices.actions")}</TableHead>
+                    <TableRow className="bg-gray-50 dark:bg-gray-900/50">
+                      <TableHead className="font-semibold">Device Name</TableHead>
+                      <TableHead className="font-semibold">Device ID</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Last Activity</TableHead>
+                      <TableHead className="font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDevices.map((device: any) => (
-                <TableRow key={device.device_id || device.uid || device.id}>
-                  <TableCell>{device.device_id || device.uid}</TableCell>
-                  <TableCell>{device.device_name || device.name || '-'}</TableCell>
-                  <TableCell>{device.is_online ? 'Online' : 'Offline'}</TableCell>
-                  <TableCell>{device.network_name || '-'}</TableCell>
-                  <TableCell>{device.user_name || '-'}</TableCell>
-                  <TableCell>{typeof device.total_transactions === 'number' ? device.total_transactions : (device.total_transactions ?? 0)}</TableCell>
-                  <TableCell>{device.success_rate !== undefined && device.success_rate !== null ? `${device.success_rate}%` : '0.00%'}</TableCell>
-                  <TableCell>{device.last_seen ? new Date(device.last_seen).toLocaleString() : '-'}</TableCell>
+                    {filteredDevices.map((device) => (
+                      <TableRow key={device.device_id || device.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                              {device.name?.charAt(0)?.toUpperCase() || 'D'}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900 dark:text-gray-100">
+                                {device.name || 'Unknown Device'}
+                              </div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                {device.device_type || 'Unknown Type'}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {device.device_id || device.id}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            className={
+                              device.is_online 
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+                                : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                            }
+                          >
+                            <div className="flex items-center space-x-1">
+                              {device.is_online ? (
+                                <Wifi className="h-3 w-3" />
+                              ) : (
+                                <WifiOff className="h-3 w-3" />
+                              )}
+                              <span>{device.is_online ? 'Online' : 'Offline'}</span>
+                            </div>
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {device.last_activity 
+                              ? new Date(device.last_activity).toLocaleString()
+                              : 'Never'
+                            }
+                          </div>
+                        </TableCell>
                   <TableCell>
-                    {/* TODO: Add device actions like edit, delete, etc. */}
-                    <span className="text-gray-500">{t("devices.noActionsAvailable")}</span>
+                          <div className="flex items-center space-x-2">
+                            <Button variant="outline" size="sm">
+                              <Pencil className="h-4 w-4 mr-1" />
+                              Edit
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className={
+                                device.is_online 
+                                  ? "text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-900/20" 
+                                  : "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
+                              }
+                            >
+                              {device.is_online ? 'Disconnect' : 'Connect'}
+                            </Button>
+                          </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+              </div>
         )}
       </CardContent>
     </Card>
+
+        {/* Empty State */}
+        {!loading && !error && filteredDevices.length === 0 && (
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mt-6">
+            <CardContent className="p-12 text-center">
+              <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                No devices found
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                {searchTerm ? `No devices match "${searchTerm}"` : "No devices have been registered yet."}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+      </div>
+    </div>
   )
 }

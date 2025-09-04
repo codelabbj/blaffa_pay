@@ -9,9 +9,9 @@ import { WebSocketProviderWrapper } from "@/components/providers/websocket-provi
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Connect Pro - Admin Dashboard",
-  description: "Professional admin dashboard for Connect Pro",
-    generator: 'v0.dev'
+  title: "Blaffa Pay - Admin Dashboard",
+  description: "Professional admin dashboard for Blaffa Pay",
+    // generator: 'v0.dev'
 }
 
 export default function RootLayout({

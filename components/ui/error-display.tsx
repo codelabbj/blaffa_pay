@@ -82,16 +82,16 @@ export function ErrorDisplay({
 
   if (variant === "full") {
     return (
-      <div className={`flex flex-col items-center justify-center min-h-[400px] space-y-4 ${className}`}>
+      <div className={`flex flex-col items-center justify-center min-h-[400px] space-y-6 ${className}`}>
         <div className="flex flex-col items-center space-y-4 text-center">
-          <div className="bg-red-100 dark:bg-red-900/20 p-4 rounded-full">
-            <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
+          <div className="bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 p-6 rounded-full shadow-lg">
+            <AlertTriangle className="h-10 w-10 text-red-600 dark:text-red-400" />
           </div>
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold text-red-600 dark:text-red-400">
+          <div className="space-y-3">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent dark:from-red-400 dark:to-red-300">
               {t("common.errorOccurred")}
             </h3>
-            <p className="text-sm text-muted-foreground max-w-md">
+            <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
               {errorMessage}
             </p>
           </div>
@@ -121,7 +121,7 @@ export function ErrorDisplay({
             <Button
               onClick={onDismiss}
               variant="ghost"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
               {t("common.dismiss")}
             </Button>
@@ -133,20 +133,20 @@ export function ErrorDisplay({
 
   if (variant === "modal") {
     return (
-      <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 ${className}`}>
-        <div className="bg-background border rounded-lg p-6 max-w-md mx-4 shadow-lg">
-          <div className="flex items-start space-x-3">
-            <div className="bg-red-100 dark:bg-red-900/20 p-2 rounded-full flex-shrink-0">
-              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+      <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 ${className}`}>
+        <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-2 border-gray-200/50 dark:border-gray-700/50 rounded-xl p-6 max-w-md mx-4 shadow-2xl">
+          <div className="flex items-start space-x-4">
+            <div className="bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 p-3 rounded-full flex-shrink-0 shadow-sm">
+              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
-            <div className="flex-1 space-y-2">
-              <h3 className="font-semibold text-red-600 dark:text-red-400">
+            <div className="flex-1 space-y-3">
+              <h3 className="font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent dark:from-red-400 dark:to-red-300">
                 {t("common.errorOccurred")}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {errorMessage}
               </p>
-              <div className="flex items-center space-x-2 pt-2">
+              <div className="flex items-center space-x-2 pt-3">
                 {showRetry && onRetry && (
                   <Button
                     onClick={handleRetry}
@@ -173,7 +173,7 @@ export function ErrorDisplay({
                     onClick={onDismiss}
                     size="sm"
                     variant="ghost"
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                   >
                     {t("common.dismiss")}
                   </Button>
@@ -185,7 +185,7 @@ export function ErrorDisplay({
                 onClick={onDismiss}
                 size="sm"
                 variant="ghost"
-                className="text-muted-foreground hover:text-foreground p-1 h-auto"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 p-1 h-auto rounded-lg"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -209,7 +209,7 @@ export function ErrorDisplay({
               disabled={isRetrying}
               size="sm"
               variant="outline"
-              className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 h-7 px-2"
+              className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20 h-8 px-3"
             >
               {isRetrying ? (
                 <>
@@ -229,7 +229,7 @@ export function ErrorDisplay({
               onClick={onDismiss}
               size="sm"
               variant="ghost"
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 h-7 px-2"
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20 h-8 px-3"
             >
               <X className="h-3 w-3" />
             </Button>

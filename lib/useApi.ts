@@ -4,6 +4,25 @@ import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./api";
 
+// Helper function to get access token from both localStorage and cookies
+function getAccessTokenFromStorage() {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('accessToken');
+}
+
+// Helper function to get access token from cookies
+function getAccessTokenFromCookie() {
+  if (typeof document === 'undefined') return null;
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'accessToken') {
+      return value;
+    }
+  }
+  return null;
+}
+
 export function useApi() {
   const router = useRouter();
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
@@ -52,7 +71,8 @@ export function useApi() {
   }, []);
 
   const apiFetch = useCallback(async (input: RequestInfo, init: RequestInit = {}) => {
-    let accessToken = getAccessToken();
+    // Try to get access token from both localStorage and cookies
+    let accessToken = getAccessTokenFromStorage() || getAccessTokenFromCookie();
     
     // Attach access token if available
     const headers = new Headers(init.headers || {});

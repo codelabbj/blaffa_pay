@@ -8,12 +8,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from "next/link"
 import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ArrowUpDown } from "lucide-react"
+import { Search, ArrowUpDown, Share2, Plus, Filter, CheckCircle, XCircle, Globe } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-
+import { Badge } from "@/components/ui/badge"
+import { Pencil } from "lucide-react"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 export default function NetworkListPage() {
   const [networks, setNetworks] = useState<any[]>([])
@@ -98,21 +113,12 @@ export default function NetworkListPage() {
           description: t("network.countriesLoadedSuccessfully"),
         })
       } catch (err: any) {
-        const errorMessage = extractErrorMessages(err) || t("network.failedToLoadCountries")
         console.error('Countries fetch error:', err)
-        setCountries([])
-        toast({
-          title: t("network.countriesFailedToLoad"),
-          description: errorMessage,
-          variant: "destructive",
-        })
       }
     }
-    
     fetchCountries()
   }, [])
 
-  // Remove client-side filtering since it's now handled by the API
   const filteredNetworks = networks
 
   const handleSort = (field: "nom" | "code") => {
@@ -126,127 +132,238 @@ export default function NetworkListPage() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("network.list")}</CardTitle>
-        <Link href="/dashboard/network/create"><Button className="mt-2">{t("network.add")}</Button></Link>
-      </CardHeader>
-      <CardContent>
-        {/* Search and Filter Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder={t("common.search")}
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-                setCurrentPage(1)
-              }}
-              className="pl-10"
-            />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {t("network.list")}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                Manage payment networks and providers
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <Share2 className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {networks.length} networks
+                  </span>
+                </div>
+              </div>
+              <Link href="/dashboard/network/create">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("network.add")}
+                </Button>
+              </Link>
+            </div>
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder={t("network.status")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("common.all")}</SelectItem>
-              <SelectItem value="active">{t("network.active")}</SelectItem>
-              <SelectItem value="inactive">{t("network.inactive")}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            value={countryFilter}
-            onValueChange={setCountryFilter}
-            disabled={loading || countries.length === 0}
-          >
-            <SelectTrigger className="w-full sm:w-48" aria-label={t("network.country")}> 
-              <SelectValue placeholder={loading ? t("common.loading") : t("network.country")} />
-            </SelectTrigger>
-            <SelectContent>
-              {loading ? (
-                <SelectItem value="loading" disabled>{t("common.loading")}</SelectItem>
-              ) : countries.length === 0 ? (
-                <SelectItem value="no-countries" disabled>{t("network.noCountries") || "No countries available"}</SelectItem>
-              ) : (
-                [<SelectItem value="all" key="all">{t("common.all")}</SelectItem>,
-                  ...countries.map((country: any) => (
-                    <SelectItem key={country.uid} value={country.uid}>
-                      {country.nom}
-                    </SelectItem>
-                  ))
-                ]
-              )}
-            </SelectContent>
-          </Select>
         </div>
 
-        {loading ? (
-          <div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
-        ) : error ? (
-          <ErrorDisplay
-            error={error}
-            onRetry={() => {
-              setError("")
-              // This will trigger the useEffect to refetch
-            }}
-            variant="inline"
-            className="mb-6"
-          />
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>
-                  <Button type="button" variant="ghost" onClick={() => handleSort("nom")} className="h-auto p-0 font-semibold">
-                    {t("network.name")}
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </TableHead>
-                <TableHead>
-                  <Button type="button" variant="ghost" onClick={() => handleSort("code")} className="h-auto p-0 font-semibold">
-                    {t("network.code")}
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </TableHead>
-                <TableHead>{t("network.country")}</TableHead>
-                <TableHead>{t("network.status")}</TableHead>
-                <TableHead>{t("network.sentDepositToModule") || "Sent deposit to module"}</TableHead>
-                <TableHead>{t("network.sentWithdrawalToModule") || "Sent withdrawal to module"}</TableHead>
-                <TableHead>{t("network.actions")}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredNetworks.map((network: any) => (
-                <TableRow key={network.uid}>
-                  <TableCell>{network.nom}</TableCell>
-                  <TableCell>{network.code}</TableCell>
-                  <TableCell>{network.country_name || network.country}</TableCell>
-                  <TableCell>{network.is_active ? t("network.active") : t("network.inactive")}</TableCell>
-                  <TableCell>
-                    {network.sent_deposit_to_module ? (
-                      <img src="/icon-yes.svg" alt="Yes" className="h-4 w-4" />
-                    ) : (
-                      <img src="/icon-no.svg" alt="No" className="h-4 w-4" />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {network.sent_withdrawal_to_module ? (
-                      <img src="/icon-yes.svg" alt="Yes" className="h-4 w-4" />
-                    ) : (
-                      <img src="/icon-no.svg" alt="No" className="h-4 w-4" />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/dashboard/network/edit/${network.uid}`}><Button size="sm">{t("network.editButton")}</Button></Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        {/* Filters and Search */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search networks..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                />
+              </div>
+
+              {/* Status Filter */}
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Networks</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Country Filter */}
+              <Select value={countryFilter} onValueChange={setCountryFilter}>
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Filter by country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Countries</SelectItem>
+                  {countries.map((country) => (
+                    <SelectItem 
+                      key={country.id || country.uid || Math.random()} 
+                      value={(country.id || country.uid || '').toString()}
+                    >
+                      {country.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Sort */}
+              <Select 
+                value={sortField || ""} 
+                onValueChange={(value) => setSortField(value as "nom" | "code" | null)}
+              >
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nom">Name</SelectItem>
+                  <SelectItem value="code">Code</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Networks Table */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                <Share2 className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+              </div>
+              <span>Network List</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="text-gray-600 dark:text-gray-300">Loading networks...</span>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="p-6 text-center">
+                <ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50 dark:bg-gray-900/50">
+                      <TableHead className="font-semibold">Network Name</TableHead>
+                      <TableHead className="font-semibold">Code</TableHead>
+                      <TableHead className="font-semibold">Country</TableHead>
+                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredNetworks.map((network) => (
+                      <TableRow key={network.id || network.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-semibold">
+                              {network.nom?.charAt(0)?.toUpperCase() || 'N'}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900 dark:text-gray-100">
+                                {network.nom}
+                              </div>
+                              {network.description && (
+                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                  {network.description}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-mono">
+                            {network.code}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Globe className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {network.country?.nom || network.country_name || 'Unknown'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            className={
+                              network.is_active 
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+                                : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                            }
+                          >
+                            <div className="flex items-center space-x-1">
+                              {network.is_active ? (
+                                <CheckCircle className="h-3 w-3" />
+                              ) : (
+                                <XCircle className="h-3 w-3" />
+                              )}
+                              <span>{network.is_active ? 'Active' : 'Inactive'}</span>
+                            </div>
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Link href={`/dashboard/network/edit/${network.id || network.uid}`}>
+                              <Button variant="outline" size="sm">
+                                <Pencil className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                            </Link>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className={
+                                network.is_active 
+                                  ? "text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-900/20" 
+                                  : "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
+                              }
+                            >
+                              {network.is_active ? 'Deactivate' : 'Activate'}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Empty State */}
+        {!loading && !error && filteredNetworks.length === 0 && (
+          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mt-6">
+            <CardContent className="p-12 text-center">
+              <Share2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                No networks found
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">
+                {searchTerm ? `No networks match "${searchTerm}"` : "No networks have been added yet."}
+              </p>
+              <Link href="/dashboard/network/create">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Network
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         )}
-      </CardContent>
-    </Card>
+
+      </div>
+    </div>
   )
 } 

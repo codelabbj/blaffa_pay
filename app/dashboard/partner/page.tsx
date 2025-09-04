@@ -10,12 +10,25 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 export default function PartnerPage() {
 	const [searchTerm, setSearchTerm] = useState("")
@@ -98,7 +111,7 @@ export default function PartnerPage() {
 			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${uid}/`
 			const data = await apiFetch(endpoint)
 			setDetailPartner(data)
-			toast({ title: t("partners.detailLoaded"), description: t("partners.partnerDetailLoadedSuccessfully") })
+			toast({ title: t("partners.detailLoaded"), description: t("partners.detailLoadedSuccessfully") })
 		} catch (err: any) {
 			setDetailError(extractErrorMessages(err))
 			toast({ title: t("partners.detailFailed"), description: extractErrorMessages(err), variant: "destructive" })
@@ -107,199 +120,377 @@ export default function PartnerPage() {
 		}
 	}
 
-	const handleCloseDetail = () => {
-		setDetailModalOpen(false)
-		setDetailPartner(null)
-		setDetailError("")
-	}
+	// Calculate summary stats
+	const activePartners = partners.filter(p => p.is_active).length
+	const totalCommission = partners.reduce((sum, partner) => sum + (parseFloat(partner.total_commission) || 0), 0)
 
 	return (
-		<>
-			<Card>
-				<CardHeader>
-					<CardTitle>{t("partners.title")}</CardTitle>
-				</CardHeader>
-				<CardContent>
-					{/* Search & Filter */}
-					<div className="flex flex-col sm:flex-row gap-4 mb-6 items-center">
-						<div className="relative flex-1">
-							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+				
+				{/* Page Header */}
+				<div className="mb-8">
+					<div className="flex items-center justify-between">
+						<div>
+							<h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+								{t("partners.title") || "Partner Management"}
+							</h1>
+							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+								Manage partner accounts and commission tracking
+							</p>
+						</div>
+						<div className="flex items-center space-x-4">
+							<div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+								<div className="flex items-center space-x-2">
+									<Users className="h-5 w-5 text-blue-600" />
+									<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+										{totalCount} partners
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{/* Summary Cards */}
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+						<CardContent className="p-6">
+							<div className="flex items-center space-x-3">
+								<div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+									<UserCheck className="h-6 w-6 text-green-600 dark:text-green-300" />
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Partners</p>
+									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+										{activePartners}
+									</p>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+
+					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+						<CardContent className="p-6">
+							<div className="flex items-center space-x-3">
+								<div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+									<Copy className="h-6 w-6 text-blue-600 dark:text-blue-300" />
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Commission</p>
+									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+										${totalCommission.toFixed(2)}
+									</p>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+
+				{/* Filters and Search */}
+				<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+					<CardContent className="p-6">
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+							{/* Search */}
+							<div className="relative">
+								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
 							<Input
-								placeholder={t("partners.search")}
+									placeholder="Search partners..."
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
-								className="pl-10"
+									className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
 							/>
 						</div>
+
+							{/* Status Filter */}
 						<Select value={statusFilter} onValueChange={setStatusFilter}>
-							<SelectTrigger className="w-full sm:w-48">
-								<SelectValue placeholder={t("partners.allStatuses")} />
+								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+									<SelectValue placeholder="Filter by status" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All Partners</SelectItem>
+									<SelectItem value="active">Active</SelectItem>
+									<SelectItem value="inactive">Inactive</SelectItem>
+								</SelectContent>
+							</Select>
+
+							{/* Sort */}
+							<Select 
+								value={sortField || ""} 
+								onValueChange={(value) => setSortField(value as "display_name" | "email" | "created_at" | null)}
+							>
+								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+									<SelectValue placeholder="Sort by" />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="all">{t("partners.allStatuses")}</SelectItem>
-								<SelectItem value="active">{t("partners.active")}</SelectItem>
-								<SelectItem value="inactive">{t("partners.inactive")}</SelectItem>
+									<SelectItem value="display_name">Name</SelectItem>
+									<SelectItem value="email">Email</SelectItem>
+									<SelectItem value="created_at">Date</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
+					</CardContent>
+				</Card>
 
-					{/* Table */}
-					<div className="rounded-md border">
+				{/* Partners Table */}
+				<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+					<CardHeader className="border-b border-gray-100 dark:border-gray-700">
+						<CardTitle className="flex items-center space-x-2">
+							<div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+								<Users className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+							</div>
+							<span>Partners List</span>
+						</CardTitle>
+					</CardHeader>
+					<CardContent className="p-0">
 						{loading ? (
-							<div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
+							<div className="flex items-center justify-center py-12">
+								<div className="flex flex-col items-center space-y-4">
+									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+									<span className="text-gray-600 dark:text-gray-300">Loading partners...</span>
+								</div>
+							</div>
 						) : error ? (
-							<ErrorDisplay
-								error={error}
-								onRetry={() => {
-									setCurrentPage(1)
-									setError("")
-								}}
-								variant="full"
-								showDismiss={false}
-							/>
+							<div className="p-6 text-center">
+								<ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+							</div>
 						) : (
+							<div className="overflow-x-auto">
 							<Table>
 								<TableHeader>
-									<TableRow>
-										<TableHead>{t("partners.uid")}</TableHead>
-										<TableHead>
-											<Button variant="ghost" onClick={() => handleSort("display_name")} className="h-auto p-0 font-semibold">
-												{t("partners.name")}
-												<ArrowUpDown className="ml-2 h-4 w-4" />
-											</Button>
-										</TableHead>
-										<TableHead>
-											<Button variant="ghost" onClick={() => handleSort("email")} className="h-auto p-0 font-semibold">
-												{t("partners.email")}
-												<ArrowUpDown className="ml-2 h-4 w-4" />
-											</Button>
-										</TableHead>
-										<TableHead>{t("partners.phone")}</TableHead>
-										<TableHead>{t("partners.status")}</TableHead>
-										<TableHead>{t("partners.createdAt")}</TableHead>
-										{/* <TableHead>{t("partners.details")}</TableHead> */}
-								<TableHead>Statistiques des commissions</TableHead>
+										<TableRow className="bg-gray-50 dark:bg-gray-900/50">
+											<TableHead className="font-semibold">Partner</TableHead>
+											<TableHead className="font-semibold">Email</TableHead>
+											<TableHead className="font-semibold">Status</TableHead>
+											<TableHead className="font-semibold">Commission</TableHead>
+											<TableHead className="font-semibold">Joined</TableHead>
+											<TableHead className="font-semibold">Actions</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
 									{partners.map((partner) => (
-										<TableRow key={partner.uid}>
-											<TableCell>{partner.uid}</TableCell>
-											<TableCell className="font-medium">{partner.display_name || `${partner.first_name || ""} ${partner.last_name || ""}`}</TableCell>
-											<TableCell>{partner.email}</TableCell>
-											<TableCell>{partner.phone}</TableCell>
+											<TableRow key={partner.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+												<TableCell>
+													<div className="flex items-center space-x-3">
+														<div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-semibold">
+															{partner.display_name?.charAt(0)?.toUpperCase() || 'P'}
+														</div>
+														<div>
+															<div className="font-medium text-gray-900 dark:text-gray-100">
+																{partner.display_name || 'Unknown Partner'}
+															</div>
+															<div className="text-sm text-gray-500 dark:text-gray-400">
+																{partner.phone_number || 'No phone'}
+															</div>
+														</div>
+													</div>
+												</TableCell>
+												<TableCell>
+													<div className="flex items-center space-x-2">
+														<Mail className="h-4 w-4 text-gray-400" />
+														<span className="text-sm text-gray-700 dark:text-gray-300">
+															{partner.email || 'No email'}
+														</span>
+													</div>
+												</TableCell>
 											<TableCell>
+													<Badge 
+														className={
+															partner.is_active 
+																? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+																: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+														}
+													>
+														<div className="flex items-center space-x-1">
 												{partner.is_active ? (
-													<img src="/icon-yes.svg" alt="Active" className="h-4 w-4" />
-												) : (
-													<img src="/icon-no.svg" alt="Inactive" className="h-4 w-4" />
-												)}
+																<CheckCircle className="h-3 w-3" />
+															) : (
+																<XCircle className="h-3 w-3" />
+															)}
+															<span>{partner.is_active ? 'Active' : 'Inactive'}</span>
+														</div>
+													</Badge>
+												</TableCell>
+												<TableCell>
+													<div className="flex items-center space-x-1">
+														<Copy className="h-4 w-4 text-gray-400" />
+														<span className="font-medium text-gray-900 dark:text-gray-100">
+															${parseFloat(partner.total_commission || 0).toFixed(2)}
+														</span>
+													</div>
+												</TableCell>
+												<TableCell>
+													<div className="flex items-center space-x-2">
+														<Calendar className="h-4 w-4 text-gray-400" />
+														<span className="text-sm text-gray-600 dark:text-gray-400">
+															{partner.created_at 
+																? new Date(partner.created_at).toLocaleDateString()
+																: 'Unknown'
+															}
+														</span>
+													</div>
 											</TableCell>
-											<TableCell>{partner.created_at ? partner.created_at.split("T")[0] : "-"}</TableCell>
-											{/* <TableCell>
-												<Button size="sm" variant="secondary" onClick={() => window.location.assign(`/dashboard/partner/details/${partner.uid}`)}>
-													{t("partners.details")}
+												<TableCell>
+													<div className="flex items-center space-x-2">
+														<Button 
+															variant="outline" 
+															size="sm"
+															onClick={() => handleOpenDetail(partner.uid)}
+														>
+															View Details
 												</Button>
-											</TableCell> */}
-									<TableCell>
-										<Button size="sm" variant="outline" onClick={() => window.location.assign(`/dashboard/partner/commission/${partner.uid}`)}>
-											Commission Stat
+														<Button 
+															variant="outline" 
+															size="sm"
+															className={
+																partner.is_active 
+																	? "text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-900/20" 
+																	: "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
+															}
+														>
+															{partner.is_active ? 'Deactivate' : 'Activate'}
 										</Button>
+													</div>
 									</TableCell>
 										</TableRow>
 									))}
 								</TableBody>
 							</Table>
+							</div>
 						)}
-					</div>
+					</CardContent>
+				</Card>
 
 					{/* Pagination */}
+				{totalPages > 1 && (
 					<div className="flex items-center justify-between mt-6">
-						<div className="text-sm text-muted-foreground">
-							{`${t("partners.showingResults")}: ${startIndex + 1}-${Math.min(startIndex + itemsPerPage, totalCount)} / ${totalCount}`}
+						<div className="text-sm text-gray-600 dark:text-gray-400">
+							Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, totalCount)} of {totalCount} results
 						</div>
 						<div className="flex items-center space-x-2">
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+								onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
 								disabled={currentPage === 1}
 							>
-								<ChevronLeft className="h-4 w-4 mr-1" />
-								{t("common.previous")}
+								<ChevronLeft className="h-4 w-4" />
+								Previous
 							</Button>
-							<div className="text-sm">
-								{`${t("partners.pageOf")}: ${currentPage}/${totalPages}`}
+							<div className="flex items-center space-x-1">
+								{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+									const page = i + 1;
+									return (
+										<Button
+											key={page}
+											variant={currentPage === page ? "default" : "outline"}
+											size="sm"
+											onClick={() => setCurrentPage(page)}
+											className={currentPage === page ? "bg-blue-600 text-white" : ""}
+										>
+											{page}
+							</Button>
+									);
+								})}
 							</div>
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+								onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
 								disabled={currentPage === totalPages}
 							>
-								{t("common.next")}
-								<ChevronRight className="h-4 w-4 ml-1" />
+								Next
+								<ChevronRight className="h-4 w-4" />
 							</Button>
 						</div>
 					</div>
+				)}
+
+				{/* Empty State */}
+				{!loading && !error && partners.length === 0 && (
+					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mt-6">
+						<CardContent className="p-12 text-center">
+							<Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+							<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+								No partners found
+							</h3>
+							<p className="text-gray-500 dark:text-gray-400 mb-4">
+								{searchTerm ? `No partners match "${searchTerm}"` : "No partners have been registered yet."}
+							</p>
 				</CardContent>
 			</Card>
+				)}
 
-			{/* Partner Details Modal */}
-			<Dialog open={detailModalOpen} onOpenChange={(open) => { if (!open) handleCloseDetail() }}>
-				<DialogContent>
+				{/* Detail Modal */}
+				<Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
+					<DialogContent className="max-w-2xl">
 					<DialogHeader>
-						<DialogTitle>{t("partners.details")}</DialogTitle>
+							<DialogTitle className="flex items-center space-x-2">
+								<Users className="h-5 w-5 text-purple-600" />
+								<span>Partner Details</span>
+							</DialogTitle>
 					</DialogHeader>
 					{detailLoading ? (
-						<div className="p-4 text-center">{t("common.loading")}</div>
-					) : detailError ? (
-						<ErrorDisplay
-							error={detailError}
-							variant="inline"
-							showRetry={false}
-							className="mb-4"
-						/>
-					) : detailPartner ? (
-						<div className="space-y-2">
-							<div className="flex items-center gap-2">
-								<b>{t("partners.uid")}:</b> {detailPartner.uid}
-								<Button
-									variant="ghost"
-									size="icon"
-									className="h-5 w-5"
-									onClick={() => {
-										navigator.clipboard.writeText(detailPartner.uid)
-										toast({ title: t("partners.copiedUid") || "UID copied!" })
-									}}
-									aria-label={t("partners.copyUid") || "Copy UID"}
-								>
-									<Copy className="h-4 w-4" />
-								</Button>
+							<div className="flex items-center justify-center py-8">
+								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
 							</div>
-							<div><b>{t("partners.name")}:</b> {detailPartner.display_name || `${detailPartner.first_name || ""} ${detailPartner.last_name || ""}`}</div>
-							<div><b>{t("partners.email")}:</b> {detailPartner.email}</div>
-							<div><b>{t("partners.phone")}:</b> {detailPartner.phone}</div>
-							<div><b>{t("partners.status")}:</b> {detailPartner.is_active ? t("partners.active") : t("partners.inactive")}</div>
-							<div><b>{t("partners.emailVerified")}:</b> {detailPartner.email_verified ? t("common.yes") : t("common.no")}</div>
-							<div><b>{t("partners.phoneVerified")}:</b> {detailPartner.phone_verified ? t("common.yes") : t("common.no")}</div>
-							<div><b>{t("partners.contactMethod")}:</b> {detailPartner.contact_method}</div>
-							<div><b>{t("partners.createdAt")}:</b> {detailPartner.created_at ? detailPartner.created_at.split("T")[0] : "-"}</div>
-							<div><b>{t("partners.lastLogin")}:</b> {detailPartner.last_login_at ? detailPartner.last_login_at.split("T")[0] : "-"}</div>
-							<div><b>{t("partners.accountBalance")}:</b> {detailPartner.account_balance}</div>
-							<div><b>{t("partners.accountIsActive")}:</b> {detailPartner.account_is_active ? t("common.yes") : t("common.no")}</div>
-							<div><b>{t("partners.accountIsFrozen")}:</b> {detailPartner.account_is_frozen ? t("common.yes") : t("common.no")}</div>
-							<div><b>{t("partners.totalTransactions")}:</b> {detailPartner.total_transactions}</div>
-							<div><b>{t("partners.completedTransactions")}:</b> {detailPartner.completed_transactions}</div>
-							<div><b>{t("partners.totalTransactionAmount")}:</b> {detailPartner.total_transaction_amount ?? "-"}</div>
-							<div><b>{t("partners.totalCommissionsReceived")}:</b> {detailPartner.total_commissions_received ?? "-"}</div>
+					) : detailError ? (
+							<ErrorDisplay error={detailError} />
+					) : detailPartner ? (
+							<div className="space-y-4">
+								<div className="grid grid-cols-2 gap-4">
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Name</label>
+										<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+											{detailPartner.display_name || 'Unknown'}
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailPartner.email || 'No email'}
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Phone</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailPartner.phone_number || 'No phone'}
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</label>
+										<Badge 
+											className={
+												detailPartner.is_active
+													? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+													: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+											}
+										>
+											{detailPartner.is_active ? 'Active' : 'Inactive'}
+										</Badge>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Commission</label>
+										<p className="text-lg font-semibold text-green-600">
+											${parseFloat(detailPartner.total_commission || 0).toFixed(2)}
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Joined</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailPartner.created_at 
+												? new Date(detailPartner.created_at).toLocaleString()
+												: 'Unknown'
+											}
+										</p>
+									</div>
+							</div>
 						</div>
 					) : null}
-					<DialogClose asChild>
-						<Button className="mt-4 w-full">{t("common.close")}</Button>
-					</DialogClose>
 				</DialogContent>
 			</Dialog>
-		</>
+
+			</div>
+		</div>
 	)
 }

@@ -10,7 +10,22 @@ import { Badge } from "@/components/ui/badge"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { Copy } from "lucide-react"
+import { Copy, ArrowLeft, Save, RefreshCw, FileText, Phone, User, Calendar, DollarSign, Network, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react"
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
+
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function EditTransactionPage() {
@@ -116,139 +131,453 @@ export default function EditTransactionPage() {
     }
   }
 
-  if (loading) return <div className="p-8 text-center">{t("common.loading")}</div>
-  if (error) return <ErrorDisplay error={error} />
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      completed: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300",
+      pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
+      failed: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300",
+      cancelled: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300"
+    } as const
+
+    return (
+      <Badge className={variants[status as keyof typeof variants] || variants.pending}>
+        {status === 'completed' && <CheckCircle className="h-3 w-3 mr-1" />}
+        {status === 'failed' && <XCircle className="h-3 w-3 mr-1" />}
+        {status === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+        {status === 'cancelled' && <AlertTriangle className="h-3 w-3 mr-1" />}
+        {t(`transactions.${status}`)}
+      </Badge>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="text-gray-600 dark:text-gray-300 text-lg">Loading transaction...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <div className="max-w-md w-full">
+          <ErrorDisplay error={error} />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <Card className=" mx-auto mt-8">
-      <CardHeader>
-        <CardTitle>{t("transactions.editTransaction")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Read-only info */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="flex items-center gap-2">
-              <strong>{t("transactions.reference")}:</strong> {transaction.reference}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
               <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="ml-1"
-                onClick={handleCopyReference}
-                title={copied ? t("smsLogs.copied") : t("smsLogs.copy")}
+                variant="outline"
+                size="sm"
+                onClick={() => router.back()}
+                className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
               >
-                <Copy className="w-4 h-4" />
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
               </Button>
-              {copied && <span className="text-xs text-green-600">{t("smsLogs.copied")}</span>}
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Edit Transaction
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                  Update transaction details and view logs
+                </p>
+              </div>
             </div>
-            <div><strong>{t("transactions.type")}:</strong> <Badge>{t(`transactions.${transaction.type}`)}</Badge></div>
-            <div><strong>{t("transactions.amount")}:</strong> {transaction.amount}</div>
-            <div><strong>{t("transactions.recipientName")}:</strong> {transaction.display_recipient_name || transaction.recipient_name}</div>
-            <div><strong>{t("transactions.recipientPhone")}:</strong> {transaction.recipient_phone}</div>
-            <div><strong>{t("transactions.network")}: </strong>{transaction.network_name}</div>
-            <div><strong>{t("transactions.status")}:</strong> <Badge>{t(`transactions.${transaction.status}`)}</Badge></div>
-            <div><strong>{t("transactions.createdAt")}:</strong> {transaction.created_at ? new Date(transaction.created_at).toLocaleString() : "-"}</div>
-            <div><strong>{t("transactions.completedAt")}:</strong> {transaction.completed_at ? new Date(transaction.completed_at).toLocaleString() : "-"}</div>
-            <div><strong>Processed By:</strong> {transaction.processed_by_name}</div>
-            {/* Additional read-only technical fields */}
-            <div><strong>{t("transactions.balanceBefore")}</strong>: {transaction.balance_before ?? "-"}</div>
-            <div><strong>{t("transactions.balanceAfter")}</strong>: {transaction.balance_after ?? "-"}</div>
-            <div><strong>{t("transactions.fees")}</strong>: {transaction.fees ?? "-"}</div>
-            <div className="col-span-2"><strong>{t("transactions.confirmationMessage")}</strong>: {transaction.confirmation_message ?? "-"}</div>
-            <div className="col-span-2"><strong>{t("transactions.errorMessage")}</strong>: {transaction.error_message ?? "-"}</div>
-          </div>
-          {/* USSD Path */}
-          {transaction.ussd_path && Array.isArray(transaction.ussd_path) && (
-            <div className="mb-4">
-                <strong>USSD Path:</strong>
-                <pre className="bg-muted p-2 rounded text-xs whitespace-pre-wrap font-mono">
-                {transaction.ussd_path.map((step: string, idx: number) => {
-                    const [key, ...rest] = step.split(":");
-                    const value = rest.join(":").trim();
-                    return (
-                    <div key={idx} style={{ marginBottom: "0.75em" }}>
-                        <span style={{ fontWeight: "bold" }}>{key}:</span>{" "}
-                        <span>{value}</span>
-                    </div>
-                    );
-                })}
-                </pre>
-            </div>
-            )}
-          {/* Editable fields (only requested keys) */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <label className="block text-sm font-medium">{t("transactions.recipientName") || "Recipient Name"}</label>
-              <Input name="recipient_name" value={form.recipient_name} onChange={handleChange} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Objet</label>
-              <Input name="objet" value={form.objet} onChange={handleChange} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">{t("transactions.externalTransactionId")}</label>
-              <Input name="external_transaction_id" value={form.external_transaction_id} onChange={handleChange} />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium">{t("transactions.rawSms")}</label>
-              <Textarea name="raw_sms" value={form.raw_sms} onChange={handleChange} rows={4} placeholder="Enter raw SMS content..." />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium">Processed By Phone</label>
-              <Input name="processed_by_phone" value={form.processed_by_phone} onChange={handleChange} />
-            </div>
-          </div>
-          <div className="mt-6 flex gap-2">
-            <Button type="submit" disabled={saving}>{saving ? t("transactions.saving") : t("transactions.saveChanges")}</Button>
-            <Button type="button" variant="outline" onClick={() => router.back()}>{t("common.cancel")}</Button>
-          </div>
-        </form>
-        {/* Transaction Logs */}
-        <div className="mt-10">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-lg font-semibold">{t("transactionLogs.title") || "Transaction Logs"}</h3>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={fetchTransactionLogs} disabled={logsLoading}>
-                {logsLoading ? (t("common.loading") || "Loading...") : (t("common.refresh") || "Refresh")}
-              </Button>
-            </div>
-          </div>
-          {logsError && (
-            <div className="mb-4">
-              <ErrorDisplay error={logsError} onRetry={fetchTransactionLogs} />
-            </div>
-          )}
-          {logsLoading && !logs.length ? (
-            <div className="p-4 text-sm text-muted-foreground">{t("common.loading") || "Loading..."}</div>
-          ) : logs.length === 0 ? (
-            <div className="p-4 text-sm text-muted-foreground">{t("transactionLogs.empty") || "No logs for this transaction."}</div>
-          ) : (
-            <div className="space-y-3">
-              {logs.map((log: any, idx: number) => (
-                <div key={log.uid || log.id || idx} className="rounded border p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="text-sm text-muted-foreground">
-                      {new Date(log.created_at || log.timestamp || Date.now()).toLocaleString()}
-                    </div>
-                    <div className="text-xs px-2 py-1 rounded bg-muted">
-                      {log.type || log.event || log.status || "event"}
-                    </div>
-                  </div>
-                  {log.message && (
-                    <div className="mt-2 text-sm">{log.message}</div>
-                  )}
-                  {(log.data || log.payload || log.meta) && (
-                    <pre className="mt-2 bg-muted p-2 rounded text-xs whitespace-pre-wrap break-words">
-{JSON.stringify(log.data || log.payload || log.meta, null, 2)}
-                    </pre>
-                  )}
+            <div className="flex items-center space-x-2">
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <FileText className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    ID: {uid}
+                  </span>
                 </div>
-              ))}
+              </div>
             </div>
-          )}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Transaction Information */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <FileText className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+              </div>
+              <span>Transaction Details</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <FileText className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Reference</div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{transaction.reference}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCopyReference}
+                      className="h-6 w-6 p-0"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                    {copied && <span className="text-xs text-green-600">Copied!</span>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <DollarSign className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Amount</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.amount}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <Network className="h-4 w-4 text-purple-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Network</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.network_name}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                  <User className="h-4 w-4 text-orange-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Recipient</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {transaction.display_recipient_name || transaction.recipient_name}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
+                  <Phone className="h-4 w-4 text-indigo-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Recipient Phone</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.recipient_phone}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                  <Calendar className="h-4 w-4 text-yellow-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Created</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {transaction.created_at ? new Date(transaction.created_at).toLocaleString() : "-"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-gray-100 dark:bg-gray-900 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-gray-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Status</div>
+                  <div>{getStatusBadge(transaction.status)}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <User className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Processed By</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.processed_by_name}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <DollarSign className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Fees</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.fees ?? "-"}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Balance Information */}
+            <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Balance Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Balance Before</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.balance_before ?? "-"}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Balance After</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.balance_after ?? "-"}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Type</div>
+                  <Badge variant="outline">{t(`transactions.${transaction.type}`)}</Badge>
+                </div>
+              </div>
+            </div>
+
+            {/* Messages */}
+            {(transaction.confirmation_message || transaction.error_message) && (
+              <div className="mt-6 space-y-4">
+                {transaction.confirmation_message && (
+                  <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="font-medium text-green-800 dark:text-green-200">Confirmation Message</span>
+                    </div>
+                    <div className="text-sm text-green-700 dark:text-green-300">{transaction.confirmation_message}</div>
+                  </div>
+                )}
+                {transaction.error_message && (
+                  <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <XCircle className="h-4 w-4 text-red-600" />
+                      <span className="font-medium text-red-800 dark:text-red-200">Error Message</span>
+                    </div>
+                    <div className="text-sm text-red-700 dark:text-red-300">{transaction.error_message}</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* USSD Path */}
+            {transaction.ussd_path && Array.isArray(transaction.ussd_path) && (
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">USSD Path</h3>
+                <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg">
+                  <pre className="text-xs whitespace-pre-wrap font-mono text-gray-700 dark:text-gray-300">
+                    {transaction.ussd_path.map((step: string, idx: number) => {
+                      const [key, ...rest] = step.split(":")
+                      const value = rest.join(":").trim()
+                      return (
+                        <div key={idx} className="mb-3 last:mb-0">
+                          <span className="font-bold text-blue-600">{key}:</span>{" "}
+                          <span>{value}</span>
+                        </div>
+                      )
+                    })}
+                  </pre>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Edit Form */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <Save className="h-5 w-5 text-green-600 dark:text-green-300" />
+              </div>
+              <span>Edit Transaction</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {t("transactions.recipientName") || "Recipient Name"}
+                  </label>
+                  <Input 
+                    name="recipient_name" 
+                    value={form.recipient_name} 
+                    onChange={handleChange}
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Objet</label>
+                  <Input 
+                    name="objet" 
+                    value={form.objet} 
+                    onChange={handleChange}
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {t("transactions.externalTransactionId")}
+                  </label>
+                  <Input 
+                    name="external_transaction_id" 
+                    value={form.external_transaction_id} 
+                    onChange={handleChange}
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    {t("transactions.rawSms")}
+                  </label>
+                  <Textarea 
+                    name="raw_sms" 
+                    value={form.raw_sms} 
+                    onChange={handleChange} 
+                    rows={4} 
+                    placeholder="Enter raw SMS content..."
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Processed By Phone
+                  </label>
+                  <Input 
+                    name="processed_by_phone" 
+                    value={form.processed_by_phone} 
+                    onChange={handleChange}
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <Button 
+                  type="submit" 
+                  disabled={saving}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  {saving ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      {t("transactions.saving")}
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4 mr-2" />
+                      {t("transactions.saveChanges")}
+                    </>
+                  )}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => router.back()}
+                  className="border-gray-200 dark:border-gray-600"
+                >
+                  {t("common.cancel")}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Transaction Logs */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                  <FileText className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+                </div>
+                <span>{t("transactionLogs.title") || "Transaction Logs"}</span>
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={fetchTransactionLogs} 
+                disabled={logsLoading}
+                className="border-gray-200 dark:border-gray-600"
+              >
+                {logsLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    {t("common.refresh") || "Refresh"}
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            {logsError && (
+              <div className="mb-6">
+                <ErrorDisplay error={logsError} onRetry={fetchTransactionLogs} />
+              </div>
+            )}
+            {logsLoading && !logs.length ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="text-gray-600 dark:text-gray-300">Loading logs...</span>
+                </div>
+              </div>
+            ) : logs.length === 0 ? (
+              <div className="text-center py-12">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">{t("transactionLogs.empty") || "No logs for this transaction."}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {logs.map((log: any, idx: number) => (
+                  <div key={log.uid || log.id || idx} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="p-1 bg-blue-100 dark:bg-blue-900 rounded">
+                          <FileText className="h-3 w-3 text-blue-600" />
+                        </div>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {new Date(log.created_at || log.timestamp || Date.now()).toLocaleString()}
+                        </span>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {log.type || log.event || log.status || "event"}
+                      </Badge>
+                    </div>
+                    {log.message && (
+                      <div className="text-sm text-gray-900 dark:text-gray-100 mb-3">{log.message}</div>
+                    )}
+                    {(log.data || log.payload || log.meta) && (
+                      <div className="bg-white dark:bg-gray-800 p-3 rounded border border-gray-200 dark:border-gray-600">
+                        <pre className="text-xs whitespace-pre-wrap break-words text-gray-700 dark:text-gray-300">
+                          {JSON.stringify(log.data || log.payload || log.meta, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   )
 }

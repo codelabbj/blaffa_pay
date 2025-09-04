@@ -11,6 +11,21 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { useLanguage } from "@/components/providers/language-provider"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { ArrowLeft, DollarSign, Phone, Network, FileText, CheckCircle, AlertTriangle, Loader2, TrendingDown } from "lucide-react"
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -18,7 +33,6 @@ export default function WithdrawPage() {
   const [networks, setNetworks] = useState<any[]>([])
   const [network, setNetwork] = useState("")
   const [amount, setAmount] = useState("")
-  // const [confirmAmount, setConfirmAmount] = useState("")
   const [recipientPhone, setRecipientPhone] = useState("")
   const [confirmRecipientPhone, setConfirmRecipientPhone] = useState("")
   const [objet, setObjet] = useState("")
@@ -46,11 +60,6 @@ export default function WithdrawPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Client-side validations for confirmations
-    // if (amount.trim() !== confirmAmount.trim()) {
-    //   setError(t("transactions.amountMismatch") || "Amount and Confirm Amount do not match")
-    //   return
-    // }
     if (recipientPhone.trim() !== confirmRecipientPhone.trim()) {
       setError(t("transactions.phoneMismatch") || "Phone number and Confirm Phone number do not match")
       return
@@ -96,101 +105,292 @@ export default function WithdrawPage() {
     }
   }
 
+  const selectedNetwork = networks.find(n => n.uid === network)
+
   return (
-    <div className="max-w-lg mx-auto mt-10">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("transactions.withdrawTitle") || "Withdraw"}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Select value={network} onValueChange={setNetwork}>
-              <SelectTrigger>
-                <SelectValue placeholder={t("transactions.selectNetwork") || "Select Network"} />
-              </SelectTrigger>
-              <SelectContent>
-                {networks.map((n) => (
-                  <SelectItem key={n.uid} value={n.uid}>{n.nom}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input
-              placeholder={t("transactions.amount") || "Amount"}
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              type="number"
-              required
-            />
-            {/* <Input
-              placeholder={t("transactions.confirmAmount") || "Confirm Amount"}
-              value={confirmAmount}
-              onChange={e => setConfirmAmount(e.target.value)}
-              type="number"
-              required
-            /> */}
-            <Input
-              placeholder={t("transactions.recipientPhone") || "Recipient Phone"}
-              value={recipientPhone}
-              onChange={e => setRecipientPhone(e.target.value)}
-              required
-            />
-            <Input
-              placeholder={t("transactions.confirmRecipientPhone") || "Confirm Recipient Phone"}
-              value={confirmRecipientPhone}
-              onChange={e => setConfirmRecipientPhone(e.target.value)}
-              required
-            />
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={confirmDetails}
-                onChange={e => setConfirmDetails(e.target.checked)}
-              />
-              {t("transactions.confirmationLabel") || "I confirm the phone number and amount are correct"}
-            </label>
-            <Input
-              placeholder={t("transactions.purpose") || "Objet"}
-              value={objet}
-              onChange={e => setObjet(e.target.value)}
-            />
-            {error && <ErrorDisplay error={error} variant="inline" />}
-            <Button
-              type="submit"
-              disabled={
-                loading ||
-                !network ||
-                !confirmDetails ||
-                // amount.trim() !== confirmAmount.trim() ||
-                recipientPhone.trim() !== confirmRecipientPhone.trim()
-              }
-            >
-              {loading ? (t("common.submitting") || "Submitting...") : (t("transactions.reviewAndConfirm") || t("transactions.createWithdrawal") || "Review & Submit")}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-      {/* Confirmation Modal */}
-      <Dialog open={showConfirmModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("transactions.confirmWithdrawalTitle") || t("transactions.reviewAndConfirm") || "Confirm Withdrawal"}</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.selectNetwork") || "Network"}:</span><span className="font-medium">{networks.find(n => n.uid === network)?.nom || network}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.amount") || "Amount"}:</span><span className="font-medium">{amount}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.recipientPhone") || "Recipient Phone"}:</span><span className="font-medium">{recipientPhone}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("transactions.purpose") || "Purpose"}:</span><span className="font-medium">{objet}</span></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.back()}
+                className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  {t("transactions.withdrawTitle") || "Withdraw"}
+                </h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                  Create a new withdrawal transaction
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <TrendingDown className="h-5 w-5 text-red-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    New Withdrawal
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmModal(false)} disabled={loading}>
-              {t("common.cancel") || "Cancel"}
-            </Button>
-            <Button onClick={handleConfirmSubmit} disabled={loading}>
-              {loading ? (t("common.submitting") || "Submitting...") : (t("transactions.submit") || "Submit")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        </div>
+
+        {/* Withdrawal Form */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                <TrendingDown className="h-5 w-5 text-red-600 dark:text-red-300" />
+              </div>
+              <span>Withdrawal Details</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              
+              {/* Network Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {t("transactions.selectNetwork") || "Select Network"}
+                </label>
+                <Select value={network} onValueChange={setNetwork}>
+                  <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                    <SelectValue placeholder={t("transactions.selectNetwork") || "Select Network"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {networks.map((n) => (
+                      <SelectItem key={n.uid} value={n.uid}>
+                        <div className="flex items-center space-x-2">
+                          <Network className="h-4 w-4 text-blue-600" />
+                          <span>{n.nom}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {t("transactions.amount") || "Amount"}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <DollarSign className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <Input
+                    placeholder={t("transactions.amount") || "Amount"}
+                    value={amount}
+                    onChange={e => setAmount(e.target.value)}
+                    type="number"
+                    required
+                    className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+              </div>
+
+              {/* Recipient Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {t("transactions.recipientPhone") || "Recipient Phone"}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Phone className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <Input
+                    placeholder={t("transactions.recipientPhone") || "Recipient Phone"}
+                    value={recipientPhone}
+                    onChange={e => setRecipientPhone(e.target.value)}
+                    required
+                    className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+              </div>
+
+              {/* Confirm Recipient Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {t("transactions.confirmRecipientPhone") || "Confirm Recipient Phone"}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Phone className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <Input
+                    placeholder={t("transactions.confirmRecipientPhone") || "Confirm Recipient Phone"}
+                    value={confirmRecipientPhone}
+                    onChange={e => setConfirmRecipientPhone(e.target.value)}
+                    required
+                    className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+                {recipientPhone && confirmRecipientPhone && recipientPhone.trim() !== confirmRecipientPhone.trim() && (
+                  <div className="mt-2 flex items-center space-x-2 text-sm text-red-600">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>Phone numbers do not match</span>
+                  </div>
+                )}
+                {recipientPhone && confirmRecipientPhone && recipientPhone.trim() === confirmRecipientPhone.trim() && (
+                  <div className="mt-2 flex items-center space-x-2 text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    <span>Phone numbers match</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Purpose/Objet */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  {t("transactions.purpose") || "Purpose"}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FileText className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <Input
+                    placeholder={t("transactions.purpose") || "Purpose"}
+                    value={objet}
+                    onChange={e => setObjet(e.target.value)}
+                    className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+                </div>
+              </div>
+
+              {/* Confirmation Checkbox */}
+              <div className="flex items-center space-x-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
+                <input
+                  type="checkbox"
+                  checked={confirmDetails}
+                  onChange={e => setConfirmDetails(e.target.checked)}
+                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                />
+                <label className="text-sm text-red-800 dark:text-red-200">
+                  {t("transactions.confirmationLabel") || "I confirm the phone number and amount are correct"}
+                </label>
+              </div>
+
+              {/* Error Display */}
+              {error && (
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+                  <ErrorDisplay error={error} variant="inline" />
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={
+                  loading ||
+                  !network ||
+                  !confirmDetails ||
+                  recipientPhone.trim() !== confirmRecipientPhone.trim()
+                }
+                className="w-full bg-red-600 hover:bg-red-700 text-white"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {t("common.submitting") || "Submitting..."}
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="h-4 w-4 mr-2" />
+                    {t("transactions.reviewAndConfirm") || t("transactions.createWithdrawal") || "Review & Submit"}
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Confirmation Modal */}
+        <Dialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+          <DialogContent className="bg-white dark:bg-gray-800 border-0 shadow-xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                  <TrendingDown className="h-5 w-5 text-red-600" />
+                </div>
+                <span>{t("transactions.confirmWithdrawalTitle") || t("transactions.reviewAndConfirm") || "Confirm Withdrawal"}</span>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <Network className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.selectNetwork") || "Network"}:</span>
+                  </div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{selectedNetwork?.nom || network}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <DollarSign className="h-4 w-4 text-red-600" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.amount") || "Amount"}:</span>
+                  </div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{amount}</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                  <div className="flex items-center space-x-2">
+                    <Phone className="h-4 w-4 text-indigo-600" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.recipientPhone") || "Recipient Phone"}:</span>
+                  </div>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{recipientPhone}</span>
+                </div>
+                {objet && (
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="h-4 w-4 text-purple-600" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.purpose") || "Purpose"}:</span>
+                    </div>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{objet}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <DialogFooter className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => { setShowConfirmModal(false); }} 
+                disabled={loading}
+                className="border-gray-200 dark:border-gray-600"
+              >
+                {t("common.cancel") || "Cancel"}
+              </Button>
+              <Button 
+                onClick={handleConfirmSubmit} 
+                disabled={loading}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {t("common.submitting") || "Submitting..."}
+                  </>
+                ) : (
+                  <>
+                    <TrendingDown className="h-4 w-4 mr-2" />
+                    {t("transactions.submit") || "Submit"}
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   )
 }

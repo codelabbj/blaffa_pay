@@ -8,11 +8,26 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, DollarSign, TrendingUp, Users, Calendar, Filter, CheckCircle, XCircle, Clock } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { useApi } from "@/lib/useApi"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 export default function EarningManagementPage() {
 	const [searchTerm, setSearchTerm] = useState("")
@@ -104,177 +119,372 @@ export default function EarningManagementPage() {
 		}
 	}
 
-	const handleCloseDetail = () => {
-		setDetailModalOpen(false)
-		setDetailEarning(null)
-		setDetailError("")
-	}
+	// Calculate summary stats
+	const totalEarnings = earnings.reduce((sum, earning) => sum + (parseFloat(earning.amount) || 0), 0)
+	const pendingEarnings = earnings.filter(e => e.status === 'pending').reduce((sum, earning) => sum + (parseFloat(earning.amount) || 0), 0)
+	const completedEarnings = earnings.filter(e => e.status === 'completed').reduce((sum, earning) => sum + (parseFloat(earning.amount) || 0), 0)
 
 		return (
-			<>
-				<Card>
-					<CardHeader>
-						<CardTitle>{t("earning.title") || "Earning Management"}</CardTitle>
-					</CardHeader>
-					<CardContent>
-						{/* Search & Filter */}
-						<div className="flex flex-col sm:flex-row gap-4 mb-6 items-center">
-							<div className="relative flex-1">
-								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+				
+				{/* Page Header */}
+				<div className="mb-8">
+					<div className="flex items-center justify-between">
+						<div>
+							<h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+								{t("earning.management") || "Earning Management"}
+							</h1>
+							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+								Monitor and manage commission payments
+							</p>
+						</div>
+						<div className="flex items-center space-x-4">
+							<div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+								<div className="flex items-center space-x-2">
+									<DollarSign className="h-5 w-5 text-green-600" />
+									<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+										{totalCount} payments
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{/* Summary Cards */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+						<CardContent className="p-6">
+							<div className="flex items-center space-x-3">
+								<div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+									<TrendingUp className="h-6 w-6 text-green-600 dark:text-green-300" />
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Earnings</p>
+									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+										{totalEarnings.toFixed(2)} FCFA
+									</p>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+
+					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+						<CardContent className="p-6">
+							<div className="flex items-center space-x-3">
+								<div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+									<Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-300" />
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
+									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+										{pendingEarnings.toFixed(2)} FCFA
+									</p>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+
+					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+						<CardContent className="p-6">
+							<div className="flex items-center space-x-3">
+								<div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+									<CheckCircle className="h-6 w-6 text-blue-600 dark:text-blue-300" />
+								</div>
+								<div>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completed</p>
+									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+										{completedEarnings.toFixed(2)} FCFA
+									</p>
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+
+				{/* Filters and Search */}
+				<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+					<CardContent className="p-6">
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+							{/* Search */}
+							<div className="relative">
+								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
 								<Input
-									placeholder={t("earning.search") || "Search"}
+									placeholder="Search earnings..."
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10"
+									className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
 								/>
 							</div>
-							{/* No status in new API, so remove filter or keep for future */}
-						</div>
 
-						{/* Table */}
-						<div className="rounded-md border">
+							{/* Status Filter */}
+							<Select value={statusFilter} onValueChange={setStatusFilter}>
+								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+									<SelectValue placeholder="Filter by status" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All Status</SelectItem>
+									<SelectItem value="pending">Pending</SelectItem>
+									<SelectItem value="completed">Completed</SelectItem>
+									<SelectItem value="failed">Failed</SelectItem>
+								</SelectContent>
+							</Select>
+
+							{/* Sort */}
+							<Select 
+								value={sortField || ""} 
+								onValueChange={(value) => setSortField(value as "amount" | "created_at" | "status" | null)}
+							>
+								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+									<SelectValue placeholder="Sort by" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="amount">Amount</SelectItem>
+									<SelectItem value="created_at">Date</SelectItem>
+									<SelectItem value="status">Status</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Earnings Table */}
+				<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+					<CardHeader className="border-b border-gray-100 dark:border-gray-700">
+						<CardTitle className="flex items-center space-x-2">
+							<div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+								<DollarSign className="h-5 w-5 text-green-600 dark:text-green-300" />
+							</div>
+							<span>Earnings List</span>
+						</CardTitle>
+					</CardHeader>
+					<CardContent className="p-0">
 							{loading ? (
-								<div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
+							<div className="flex items-center justify-center py-12">
+								<div className="flex flex-col items-center space-y-4">
+									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+									<span className="text-gray-600 dark:text-gray-300">Loading earnings...</span>
+								</div>
+							</div>
 							) : error ? (
-								<ErrorDisplay
-									error={error}
-									onRetry={() => {
-										setCurrentPage(1)
-										setError("")
-									}}
-									variant="full"
-									showDismiss={false}
-								/>
-							) : (
+							<div className="p-6 text-center">
+								<ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+							</div>
+						) : (
+							<div className="overflow-x-auto">
 								<Table>
 									<TableHeader>
-										<TableRow>
-											<TableHead>{t("earning.uid") || "UID"}</TableHead>
-											<TableHead>{t("earning.formattedAmount") || "Amount"}</TableHead>
-											<TableHead>{t("earning.periodStart") || "Period Start"}</TableHead>
-											<TableHead>{t("earning.periodEnd") || "Period End"}</TableHead>
-											<TableHead>{t("earning.adminNotes") || "Admin Notes"}</TableHead>
-											<TableHead>{t("earning.reference") || "Reference"}</TableHead>
-											<TableHead>{t("earning.createdAt") || "Created At"}</TableHead>
-											<TableHead>{t("earning.userName") || "User Name"}</TableHead>
-											<TableHead>{t("earning.paidByName") || "Paid By"}</TableHead>
-											<TableHead>{t("earning.transactionsCount") || "Transactions"}</TableHead>
-											<TableHead>{t("earning.details") || "Details"}</TableHead>
+										<TableRow className="bg-gray-50 dark:bg-gray-900/50">
+											<TableHead className="font-semibold">User</TableHead>
+											<TableHead className="font-semibold">Amount</TableHead>
+											<TableHead className="font-semibold">Status</TableHead>
+											<TableHead className="font-semibold">Date</TableHead>
+											<TableHead className="font-semibold">Actions</TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
-										{earnings.length === 0 ? (
-											<TableRow>
-												<TableCell colSpan={11} className="text-center text-muted-foreground py-8">
-													{t("earning.noData") || "No earning commissions found."}
+										{earnings.map((earning) => (
+											<TableRow key={earning.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+												<TableCell>
+													<div className="flex items-center space-x-3">
+														<div className="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+															{earning.user_name?.charAt(0)?.toUpperCase() || 'U'}
+														</div>
+														<div>
+															<div className="font-medium text-gray-900 dark:text-gray-100">
+																{earning.user_name || 'Unknown User'}
+															</div>
+															<div className="text-sm text-gray-500 dark:text-gray-400">
+																{earning.user_id || earning.uid}
+															</div>
+														</div>
+													</div>
 												</TableCell>
-											</TableRow>
-										) : (            
-											earnings.map((earning) => (
-												<TableRow key={earning.uid}>
-													<TableCell>{earning.uid}</TableCell>
-													<TableCell>{earning.formatted_amount}</TableCell>
-													<TableCell>{earning.period_start ? earning.period_start.split("T")[0] : "-"}</TableCell>
-													<TableCell>{earning.period_end ? earning.period_end.split("T")[0] : "-"}</TableCell>
-													<TableCell>{earning.admin_notes}</TableCell>
-													<TableCell>{earning.reference}</TableCell>
-													<TableCell>{earning.created_at ? earning.created_at.split("T")[0] : "-"}</TableCell>
-													<TableCell>{earning.user_name}</TableCell>
-													<TableCell>{earning.paid_by_name}</TableCell>
-													<TableCell>{earning.transactions_count}</TableCell>
+												<TableCell>
+													<div className="flex items-center space-x-1">
+														{/* <DollarSign className="h-4 w-4 text-gray-400" /> */}
+														<span className="font-medium text-gray-900 dark:text-gray-100">
+															{parseFloat(earning.amount).toFixed(2)} FCFA
+														</span>
+													</div>
+												</TableCell>
+												<TableCell>
+													<Badge 
+														className={
+															earning.status === 'completed'
+																? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+																: earning.status === 'pending'
+																? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+																: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+														}
+													>
+														<div className="flex items-center space-x-1">
+															{earning.status === 'completed' ? (
+																<CheckCircle className="h-3 w-3" />
+															) : earning.status === 'pending' ? (
+																<Clock className="h-3 w-3" />
+															) : (
+																<XCircle className="h-3 w-3" />
+															)}
+															<span>{earning.status}</span>
+														</div>
+													</Badge>
+												</TableCell>
+												<TableCell>
+													<div className="text-sm text-gray-600 dark:text-gray-400">
+														{earning.created_at 
+															? new Date(earning.created_at).toLocaleString()
+															: 'Unknown'
+														}
+													</div>
+												</TableCell>
 													<TableCell>
-														<Button size="sm" variant="secondary" onClick={() => handleOpenDetail(earning.uid)}>
-															{t("earning.details") || "Details"}
+													<Button 
+														variant="outline" 
+														size="sm"
+														onClick={() => handleOpenDetail(earning.uid)}
+													>
+														View Details
 														</Button>
 													</TableCell>
 												</TableRow>
-											))
-										)}
+										))}
 									</TableBody>
 								</Table>
+							</div>
 							)}
-						</div>
+					</CardContent>
+				</Card>
 
 						{/* Pagination */}
+				{totalPages > 1 && (
 						<div className="flex items-center justify-between mt-6">
-							<div className="text-sm text-muted-foreground">
-								{`${t("earning.showingResults") || "Showing"}: ${startIndex + 1}-${Math.min(startIndex + itemsPerPage, totalCount)} / ${totalCount}`}
+						<div className="text-sm text-gray-600 dark:text-gray-400">
+							Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, totalCount)} of {totalCount} results
 							</div>
 							<div className="flex items-center space-x-2">
 								<Button
 									variant="outline"
 									size="sm"
-									onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+								onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
 									disabled={currentPage === 1}
 								>
-									<ChevronLeft className="h-4 w-4 mr-1" />
-									{t("common.previous")}
+								<ChevronLeft className="h-4 w-4" />
+								Previous
+							</Button>
+							<div className="flex items-center space-x-1">
+								{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+									const page = i + 1;
+									return (
+										<Button
+											key={page}
+											variant={currentPage === page ? "default" : "outline"}
+											size="sm"
+											onClick={() => setCurrentPage(page)}
+											className={currentPage === page ? "bg-blue-600 text-white" : ""}
+										>
+											{page}
 								</Button>
-								<div className="text-sm">
-									{`${t("earning.pageOf") || "Page"}: ${currentPage}/${totalPages}`}
+									);
+								})}
 								</div>
 								<Button
 									variant="outline"
 									size="sm"
-									onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+								onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
 									disabled={currentPage === totalPages}
 								>
-									{t("common.next")}
-									<ChevronRight className="h-4 w-4 ml-1" />
+								Next
+								<ChevronRight className="h-4 w-4" />
 								</Button>
 							</div>
 						</div>
+				)}
+
+				{/* Empty State */}
+				{!loading && !error && earnings.length === 0 && (
+					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mt-6">
+						<CardContent className="p-12 text-center">
+							<DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+							<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+								No earnings found
+							</h3>
+							<p className="text-gray-500 dark:text-gray-400 mb-4">
+								{searchTerm ? `No earnings match "${searchTerm}"` : "No earnings have been recorded yet."}
+							</p>
 					</CardContent>
 				</Card>
+				)}
 
-				{/* Earning Details Modal */}
-				<Dialog open={detailModalOpen} onOpenChange={(open) => { if (!open) handleCloseDetail() }}>
-					<DialogContent>
+				{/* Detail Modal */}
+				<Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
+					<DialogContent className="max-w-2xl">
 						<DialogHeader>
-							<DialogTitle>{t("earning.details") || "Earning Details"}</DialogTitle>
+							<DialogTitle className="flex items-center space-x-2">
+								<DollarSign className="h-5 w-5 text-green-600" />
+								<span>Earning Details</span>
+							</DialogTitle>
 						</DialogHeader>
 						{detailLoading ? (
-							<div className="p-4 text-center">{t("common.loading")}</div>
+							<div className="flex items-center justify-center py-8">
+								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+							</div>
 						) : detailError ? (
-							<ErrorDisplay
-								error={detailError}
-								variant="inline"
-								showRetry={false}
-								className="mb-4"
-							/>
+							<ErrorDisplay error={detailError} />
 						) : detailEarning ? (
-							<div className="space-y-2">
-								<div className="flex items-center gap-2">
-									<b>{t("earning.uid") || "UID"}:</b> {detailEarning.uid}
-									<Button
-										variant="ghost"
-										size="icon"
-										className="h-5 w-5"
-										onClick={() => {
-											navigator.clipboard.writeText(detailEarning.uid)
-											toast({ title: t("earning.copiedUid") || "UID copied!" })
-										}}
-										aria-label={t("earning.copyUid") || "Copy UID"}
-									>
-										<Copy className="h-4 w-4" />
-									</Button>
+							<div className="space-y-4">
+								<div className="grid grid-cols-2 gap-4">
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">User</label>
+										<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+											{detailEarning.user_name || 'Unknown'}
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Amount</label>
+										<p className="text-lg font-semibold text-green-600">
+											{parseFloat(detailEarning.amount).toFixed(2)} FCFA
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</label>
+										<Badge 
+											className={
+												detailEarning.status === 'completed'
+													? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+													: detailEarning.status === 'pending'
+													? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+													: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+											}
+										>
+											{detailEarning.status}
+										</Badge>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Date</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailEarning.created_at 
+												? new Date(detailEarning.created_at).toLocaleString()
+												: 'Unknown'
+											}
+										</p>
+									</div>
 								</div>
-								<div><b>{t("earning.formattedAmount") || "Amount"}:</b> {detailEarning.formatted_amount}</div>
-								<div><b>{t("earning.periodStart") || "Period Start"}:</b> {detailEarning.period_start ? detailEarning.period_start.split("T")[0] : "-"}</div>
-								<div><b>{t("earning.periodEnd") || "Period End"}:</b> {detailEarning.period_end ? detailEarning.period_end.split("T")[0] : "-"}</div>
-								<div><b>{t("earning.adminNotes") || "Admin Notes"}:</b> {detailEarning.admin_notes}</div>
-								<div><b>{t("earning.reference") || "Reference"}:</b> {detailEarning.reference}</div>
-								<div><b>{t("earning.createdAt") || "Created At"}:</b> {detailEarning.created_at ? detailEarning.created_at.split("T")[0] : "-"}</div>
-								<div><b>{t("earning.userName") || "User Name"}:</b> {detailEarning.user_name}</div>
-								<div><b>{t("earning.paidByName") || "Paid By"}:</b> {detailEarning.paid_by_name}</div>
-								<div><b>{t("earning.transactionsCount") || "Transactions"}:</b> {detailEarning.transactions_count}</div>
+								{detailEarning.description && (
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailEarning.description}
+										</p>
+								</div>
+								)}
 							</div>
 						) : null}
-						<DialogClose asChild>
-							<Button className="mt-4 w-full">{t("common.close")}</Button>
-						</DialogClose>
 					</DialogContent>
 				</Dialog>
-			</>
+
+			</div>
+		</div>
 		)
 }

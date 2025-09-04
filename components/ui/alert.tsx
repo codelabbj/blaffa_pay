@@ -4,13 +4,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground",
+  "relative w-full rounded-lg border-2 p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground shadow-sm",
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground",
+        default: "border-gray-200 bg-white/80 backdrop-blur-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-100",
         destructive:
-          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+          "border-red-200 bg-red-50/80 backdrop-blur-sm text-red-900 dark:border-red-800 dark:bg-red-900/20 dark:text-red-100 [&>svg]:text-red-600 dark:[&>svg]:text-red-400",
+        success:
+          "border-green-200 bg-green-50/80 backdrop-blur-sm text-green-900 dark:border-green-800 dark:bg-green-900/20 dark:text-green-100 [&>svg]:text-green-600 dark:[&>svg]:text-green-400",
+        warning:
+          "border-orange-200 bg-orange-50/80 backdrop-blur-sm text-orange-900 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-100 [&>svg]:text-orange-600 dark:[&>svg]:text-orange-400",
+        info:
+          "border-blue-200 bg-blue-50/80 backdrop-blur-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-100 [&>svg]:text-blue-600 dark:[&>svg]:text-blue-400",
       },
     },
     defaultVariants: {
@@ -38,7 +44,7 @@ const AlertTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h5
     ref={ref}
-    className={cn("mb-1 font-medium leading-none tracking-tight", className)}
+    className={cn("mb-2 font-semibold leading-none tracking-tight", className)}
     {...props}
   />
 ))

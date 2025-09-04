@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, MoreHorizontal, ArrowUpDown } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, MoreHorizontal, ArrowUpDown, Users, Filter, Eye, CheckCircle, XCircle, Clock, Shield, Mail, Phone, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -18,6 +18,20 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Copy } from "lucide-react"
+
+// Colors for consistent theming
+const COLORS = {
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
+  danger: '#EF4444',
+  warning: '#F97316',
+  success: '#22C55E',
+  info: '#06B6D4',
+  purple: '#8B5CF6',
+  pink: '#EC4899',
+  indigo: '#6366F1'
+};
 
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -33,8 +47,7 @@ export default function UsersPage() {
   const { t } = useLanguage()
   const itemsPerPage = 10
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
-  // Set default viewType to 'all' (was 'pending')
-  const [viewType, setViewType] = useState("all") // 'pending' or 'all'
+  const [viewType, setViewType] = useState("all")
   const { toast } = useToast()
   const [activatingUid, setActivatingUid] = useState<string | null>(null)
   const [deactivatingUid, setDeactivatingUid] = useState<string | null>(null)
@@ -47,20 +60,16 @@ export default function UsersPage() {
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState("")
   
-  // Add state for loading email/phone/partner verification
   const [verifyingEmail, setVerifyingEmail] = useState(false);
   const [verifyingPhone, setVerifyingPhone] = useState(false);
   const [verifyingPartner, setVerifyingPartner] = useState(false);
 
-  // Add state for confirmation modals
   const [confirmEmailToggle, setConfirmEmailToggle] = useState<null | boolean>(null);
   const [confirmPhoneToggle, setConfirmPhoneToggle] = useState<null | boolean>(null);
   const [confirmPartnerToggle, setConfirmPartnerToggle] = useState<null | boolean>(null);
 
   const [confirmActionUser, setConfirmActionUser] = useState<any | null>(null);
   const [confirmActionType, setConfirmActionType] = useState<"activate" | "deactivate" | null>(null);
-
-
 
   // Fetch users from API
   useEffect(() => {
@@ -99,30 +108,36 @@ export default function UsersPage() {
         }
         console.log("User API endpoint:", endpoint);
         const data = await apiFetch(endpoint);
-        setUsers(data.users || []);
-        setTotalCount(data.pagination?.total_count || 0);
-        setTotalPages(data.pagination?.total_pages || 1);
+        console.log("API response data:", data);
+        
+        // Handle the actual API response structure
+        const users = data.users || data.results || [];
+        const totalCount = data.pagination?.total_count || data.count || 0;
+        const totalPages = data.pagination?.total_pages || Math.ceil(totalCount / itemsPerPage);
+        
+        setUsers(users);
+        setTotalCount(totalCount);
+        setTotalPages(totalPages);
         toast({
-          title: t("users.success"),
-          description: t("users.loadedSuccessfully"),
+          title: "Succès",
+          description: "Utilisateurs chargés avec succès",
         });
       } catch (err: any) {
-        const errorMessage = extractErrorMessages(err);
+        const errorMessage = extractErrorMessages(err) || "Échec du chargement des utilisateurs";
         setError(errorMessage);
         setUsers([]);
-        setTotalCount(0);
-        setTotalPages(1);
         toast({
-          title: t("users.failedToLoad"),
+          title: "Échec du chargement des utilisateurs",
           description: errorMessage,
           variant: "destructive",
         });
+        console.error('Users fetch error:', err);
       } finally {
         setLoading(false);
       }
     };
     fetchUsers();
-  }, [searchTerm, currentPage, itemsPerPage, baseUrl, viewType, statusFilter, sortField, sortDirection]);
+  }, [searchTerm, statusFilter, currentPage, sortField, sortDirection, viewType]);
 
   const filteredUsers = users // Filtering is now handled by the API
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -155,10 +170,10 @@ export default function UsersPage() {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${user.uid}/activate/`, {
         method: "PATCH",
       })
-      toast({ title: t("users.activated"), description: data.message || t("users.userActivatedSuccessfully") })
+      toast({ title: "Utilisateur activé", description: data.message || "Utilisateur activé avec succès" })
       setUsers((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, ...data.user } : u)))
     } catch (err: any) {
-      toast({ title: t("users.activationFailed"), description: extractErrorMessages(err) || t("users.couldNotActivateUser"), variant: "destructive" })
+      toast({ title: "Échec de l'activation", description: extractErrorMessages(err) || "Impossible d'activer l'utilisateur", variant: "destructive" })
     } finally {
       setActivatingUid(null)
     }
@@ -172,10 +187,10 @@ export default function UsersPage() {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${user.uid}/deactivate/`, {
         method: "PATCH",
       })
-      toast({ title: t("users.deactivated"), description: data.message || t("users.userDeactivatedSuccessfully") })
+      toast({ title: "Utilisateur désactivé", description: data.message || "Utilisateur désactivé avec succès" })
       setUsers((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, ...data.user } : u)))
     } catch (err: any) {
-      toast({ title: t("users.deactivationFailed"), description: extractErrorMessages(err) || t("users.couldNotDeactivateUser"), variant: "destructive" })
+      toast({ title: "Échec de la désactivation", description: extractErrorMessages(err) || "Impossible de désactiver l'utilisateur", variant: "destructive" })
     } finally {
       setDeactivatingUid(null)
     }
@@ -183,9 +198,9 @@ export default function UsersPage() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedUids(Array.from(new Set([...selectedUids, ...paginatedUsers.map((u) => u.uid)])))
+      setSelectedUids(Array.from(new Set([...selectedUids, ...users.map((u) => u.uid)])))
     } else {
-      setSelectedUids(selectedUids.filter((uid) => !paginatedUsers.map((u) => u.uid).includes(uid)))
+      setSelectedUids(selectedUids.filter((uid) => !users.map((u) => u.uid).includes(uid)))
     }
   }
 
@@ -202,12 +217,12 @@ export default function UsersPage() {
         method: "POST",
         body: JSON.stringify({ action, user_ids: selectedUids }),
       })
-      toast({ title: t("users.bulkActionSuccess"), description: data.message || t("users.bulkActionCompleted") })
+      toast({ title: "Action en lot réussie", description: data.message || "Action en lot terminée" })
       setUsers((prev) => prev.map((u) => selectedUids.includes(u.uid) ? { ...u, ...data.user } : u))
       setSelectedUids([])
       setCurrentPage(1)
     } catch (err: any) {
-      toast({ title: t("users.bulkActionFailed"), description: extractErrorMessages(err) || t("users.couldNotPerformBulkAction"), variant: "destructive" })
+      toast({ title: "Échec de l'action en lot", description: extractErrorMessages(err) || "Impossible d'effectuer l'action en lot", variant: "destructive" })
     } finally {
       setLoading(false)
     }
@@ -222,10 +237,10 @@ export default function UsersPage() {
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${uid}/`)
       setDetailUser(data)
-      toast({ title: t("users.detailLoaded"), description: t("users.userDetailLoadedSuccessfully") })
+      toast({ title: "Détails chargés", description: "Détails de l'utilisateur chargés avec succès" })
     } catch (err: any) {
       setDetailError(extractErrorMessages(err))
-      toast({ title: t("users.detailFailed"), description: extractErrorMessages(err), variant: "destructive" })
+      toast({ title: "Échec du chargement des détails", description: extractErrorMessages(err), variant: "destructive" })
     } finally {
       setDetailLoading(false)
     }
@@ -248,9 +263,9 @@ export default function UsersPage() {
         body: JSON.stringify({ email_verified: true }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, email_verified: true } : prev);
-      toast({ title: t("users.emailVerified"), description: t("users.emailVerifiedSuccessfully") });
+      toast({ title: "Email vérifié", description: "Email vérifié avec succès" });
     } catch (err: any) {
-      toast({ title: t("users.verificationFailed"), description: extractErrorMessages(err), variant: "destructive" });
+      toast({ title: "Échec de la vérification", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
       setVerifyingEmail(false);
     }
@@ -267,9 +282,9 @@ export default function UsersPage() {
         body: JSON.stringify({ phone_verified: true }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, phone_verified: true } : prev);
-      toast({ title: t("users.phoneVerified"), description: t("users.phoneVerifiedSuccessfully") });
+      toast({ title: "Téléphone vérifié", description: "Téléphone vérifié avec succès" });
     } catch (err: any) {
-      toast({ title: t("users.verificationFailed"), description: extractErrorMessages(err), variant: "destructive" });
+      toast({ title: "Échec de la vérification", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
       setVerifyingPhone(false);
     }
@@ -286,9 +301,9 @@ export default function UsersPage() {
         body: JSON.stringify({ email_verified: verify }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, email_verified: verify } : prev);
-      toast({ title: t("users.emailVerified"), description: verify ? t("users.emailVerifiedSuccessfully") : t("users.emailUnverifiedSuccessfully") });
+      toast({ title: "Email vérifié", description: verify ? "Email vérifié avec succès" : "Email non vérifié avec succès" });
     } catch (err: any) {
-      toast({ title: t("users.verificationFailed"), description: extractErrorMessages(err), variant: "destructive" });
+      toast({ title: "Échec de la vérification", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
       setVerifyingEmail(false);
     }
@@ -305,9 +320,9 @@ export default function UsersPage() {
         body: JSON.stringify({ phone_verified: verify }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, phone_verified: verify } : prev);
-      toast({ title: t("users.phoneVerified"), description: verify ? t("users.phoneVerifiedSuccessfully") : t("users.phoneUnverifiedSuccessfully") });
+      toast({ title: "Téléphone vérifié", description: verify ? "Téléphone vérifié avec succès" : "Téléphone non vérifié avec succès" });
     } catch (err: any) {
-      toast({ title: t("users.verificationFailed"), description: extractErrorMessages(err), variant: "destructive" });
+      toast({ title: "Échec de la vérification", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
       setVerifyingPhone(false);
     }
@@ -324,315 +339,376 @@ export default function UsersPage() {
         body: JSON.stringify({ is_partner: isPartner }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, is_partner: isPartner } : prev);
-      toast({ title: t("users.partnerToggled"), description: isPartner ? t("users.partnerEnabledSuccessfully") : t("users.partnerDisabledSuccessfully") });
+      toast({ title: "Statut partenaire modifié", description: isPartner ? "Statut partenaire activé avec succès" : "Statut partenaire désactivé avec succès" });
     } catch (err: any) {
-      toast({ title: t("users.partnerToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
+      toast({ title: "Échec de la modification du statut partenaire", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
       setVerifyingPartner(false);
     }
   };
 
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("users.title")}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* View Switcher */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
+                {t("users.title") || "Utilisateurs"}
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                Gérer et surveiller les comptes utilisateurs
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {totalCount} utilisateurs
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters and Search */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder={t("users.search")}
+                  placeholder="Rechercher des utilisateurs..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                  className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
               />
             </div>
-            <Select value={viewType} onValueChange={setViewType}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder={t("users.viewType")}/>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">{t("users.pendingUsers")}</SelectItem>
-                <SelectItem value="all">{t("users.allUsers")}</SelectItem>
-              </SelectContent>
-            </Select>
+
+              {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder={t("users.allStatuses")} />
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Filtrer par statut" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{t("users.allStatuses")}</SelectItem>
-                <SelectItem value="active">{t("users.active")}</SelectItem>
-                <SelectItem value="inactive">{t("users.inactive")}</SelectItem>
-                <SelectItem value="pending">{t("users.pending")}</SelectItem>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="active">Actif</SelectItem>
+                <SelectItem value="inactive">Inactif</SelectItem>
+                <SelectItem value="pending">En attente</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+
+              {/* View Type */}
+              <Select value={viewType} onValueChange={setViewType}>
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Type de vue" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les utilisateurs</SelectItem>
+                  <SelectItem value="pending">Utilisateurs en attente</SelectItem>
+                </SelectContent>
+              </Select>
 
           {/* Bulk Actions */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-4 items-center justify-between">
-            <div className="flex-1" />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" disabled={selectedUids.length === 0}>
-                  Bulk Actions <MoreHorizontal className="ml-2 h-4 w-4" />
+              {someSelected && (
+                <div className="flex items-center space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {/* handle bulk activate */}}
+                    className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Activer la sélection
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {/* handle bulk deactivate */}}
+                    className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700"
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Désactiver la sélection
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleBulkAction("activate")}>Activate</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleBulkAction("deactivate")}>Deactivate</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleBulkAction("delete")}>Delete</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </div>
+              )}
           </div>
+          </CardContent>
+        </Card>
 
-          {/* Table */}
-          <div className="rounded-md border">
+        {/* Users Table */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <Users className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+              </div>
+              <span>Liste des utilisateurs</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
             {loading ? (
-              <div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
+              <div className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des utilisateurs...</span>
+                </div>
+              </div>
             ) : error ? (
-              <ErrorDisplay
-                error={error}
-                onRetry={() => {
-                  setCurrentPage(1)
-                  setError("")
-                }}
-                variant="full"
-                showDismiss={false}
-              />
+              <div className="p-6 text-center">
+                <ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+              </div>
             ) : (
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>
+                    <TableRow className="bg-gray-50 dark:bg-gray-900/50">
+                      <TableHead className="w-12">
                       <Checkbox
                         checked={allSelected}
-                        onCheckedChange={handleSelectAll}
-                        aria-label="Select all"
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedUids(users.map(u => u.uid));
+                            } else {
+                              setSelectedUids([]);
+                            }
+                          }}
                       />
                     </TableHead>
-                    <TableHead>{t("users.uid")}</TableHead> {/* Add UID header */}
-                    <TableHead>
-                      <Button variant="ghost" onClick={() => handleSort("display_name")} className="h-auto p-0 font-semibold">
-                        {t("users.name")}
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </TableHead>
-                    <TableHead>
-                      <Button variant="ghost" onClick={() => handleSort("email")} className="h-auto p-0 font-semibold">
-                        {t("users.email")}
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </TableHead>
-                    <TableHead>{t("users.phone")}</TableHead>
-                    <TableHead>{t("users.status")}</TableHead>
-                    <TableHead>{t("users.lastLogin")}</TableHead>
-                    <TableHead>
-                      <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-auto p-0 font-semibold">
-                        {t("users.createdAt")}
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </TableHead>
-                        <TableHead>{t("common.actions")}</TableHead>
-                    <TableHead>{t("users.details")}</TableHead>
+                      <TableHead className="font-semibold">Utilisateur</TableHead>
+                      <TableHead className="font-semibold">Email</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
+                      <TableHead className="font-semibold">Vérification</TableHead>
+                      <TableHead className="font-semibold">Créé le</TableHead>
+                      <TableHead className="font-semibold text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {paginatedUsers.map((user) => (
-                    <TableRow key={user.uid || user.id}>
+                    {users.map((user) => (
+                      <TableRow key={user.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                       <TableCell>
                         <Checkbox
                           checked={selectedUids.includes(user.uid)}
-                          onCheckedChange={(checked) => handleSelectRow(user.uid, !!checked)}
-                          aria-label={`Select user ${user.display_name || user.email}`}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedUids([...selectedUids, user.uid]);
+                              } else {
+                                setSelectedUids(selectedUids.filter(id => id !== user.uid));
+                              }
+                            }}
                         />
                       </TableCell>
-                      <TableCell>{user.uid}</TableCell> {/* Add UID cell */}
-                      <TableCell className="font-medium">{user.display_name || `${user.first_name || ""} ${user.last_name || ""}`}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.phone}</TableCell>
-                      {/* <TableCell>
-                        {user.is_active ? (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={deactivatingUid === user.uid}
-                            onClick={() => handleDeactivate(user)}
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                              {user.display_name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || 'U'}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900 dark:text-gray-100">
+                                {user.display_name || 'Sans nom'}
+                              </div>
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                ID: {user.uid}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                            {user.email}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            className={
+                              user.is_active 
+                                ? "bg-green-100 text-white dark:bg-green-800/30 dark:text-green-300" 
+                                : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                            }
                           >
-                            {deactivatingUid === user.uid ? (
-                              <span className="flex items-center"><svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>{t("users.deactivating")}</span>
-                            ) : t("users.deactivate")}
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={activatingUid === user.uid}
-                            onClick={() => handleActivate(user)}
-                          >
-                            {activatingUid === user.uid ? (
-                              <span className="flex items-center"><svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>{t("users.activating")}</span>
-                            ) : t("users.activate")}
-                          </Button>
-                        )}
-                      </TableCell> */}
-                      <TableCell>
-                        {user.is_active ? (
-                          // <span className="inline-flex items-center justify-center rounded-full bg-green-100 text-green-700 p-1">
-                            <img src="/icon-yes.svg" alt="Active" className="h-4 w-4" />
-                          // </span>
-                        ) : (
-                          // <span className="inline-flex items-center justify-center rounded-full bg-red-100 text-red-700 p-1">
-                            <img src="/icon-no.svg" alt="Active" className="h-4 w-4" />
-                          // </span>
-                        )}
+                            {user.is_active ? 'Actif' : 'Inactif'}
+                          </Badge>
                       </TableCell>
-                      <TableCell>{user.last_login_at ? user.last_login_at.split("T")[0] : "-"}</TableCell>
-                      <TableCell>{user.created_at ? user.created_at.split("T")[0] : "-"}</TableCell>
                       <TableCell>
-                        {user.is_active ? (
-                          <Button
-                            size="sm"
+                          <div className="flex items-center space-x-2">
+                            <Badge 
                             variant="outline"
-                            disabled={deactivatingUid === user.uid}
-                            onClick={() => {
-                              setConfirmActionUser(user);
-                              setConfirmActionType("deactivate");
-                            }}
-                          >
-                            {deactivatingUid === user.uid ? (
-                              <span className="flex items-center">
-                                <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                                </svg>
-                                {t("users.deactivating")}
-                              </span>
-                            ) : t("users.deactivate")}
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
+                              className={
+                                user.email_verified 
+                                  ? "border-green-200 text-green-700 dark:border-green-700 dark:text-green-300" 
+                                  : "border-red-200 text-red-700 dark:border-red-700 dark:text-red-300"
+                              }
+                            >
+                              <Mail className="h-3 w-3 mr-1" />
+                              {user.email_verified ? 'Vérifié' : 'Non vérifié'}
+                            </Badge>
+                            <Badge 
                             variant="outline"
-                            disabled={activatingUid === user.uid}
-                            onClick={() => { 
+                              className={
+                                user.phone_verified 
+                                  ? "border-green-200 text-green-700 dark:border-green-700 dark:text-green-300" 
+                                  : "border-red-200 text-red-700 dark:border-red-700 dark:text-red-300"
+                              }
+                            >
+                              <Phone className="h-3 w-3 mr-1" />
+                              {user.phone_verified ? 'Vérifié' : 'Non vérifié'}
+                            </Badge>
+                          </div>
+                      </TableCell>
+                      <TableCell>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
+                            {user.created_at}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleOpenDetail(user.uid)}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                Voir les détails
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => {
+                                if (user.is_active) {
+                                  setConfirmActionUser(user);
+                                  setConfirmActionType("deactivate");
+                                } else {
                                   setConfirmActionUser(user);
                                   setConfirmActionType("activate");
-                                }}
-                              >
-                            {activatingUid === user.uid ? (
-                              <span className="flex items-center">
-                                <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                                </svg>
-                                {t("users.activating")}
-                              </span>
-                            ) : t("users.activate")}
-                          </Button>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Button size="sm" variant="secondary" onClick={() => handleOpenDetail(user.uid)}>
-                          {t("users.details")}
-                        </Button>
+                                }
+                              }}>
+                                {user.is_active ? (
+                                  <>
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Désactiver
+                                  </>
+                                ) : (
+                                  <>
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Activer
+                                  </>
+                                )}
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
+              </div>
             )}
-          </div>
+          </CardContent>
+        </Card>
 
           {/* Pagination */}
+        {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
-            <div className="text-sm text-muted-foreground">
-              {`${t("users.showingResults")}: ${startIndex + 1}-${Math.min(startIndex + itemsPerPage, totalCount)} / ${totalCount}`}
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              Affichage de {((currentPage - 1) * itemsPerPage) + 1} à {Math.min(currentPage * itemsPerPage, totalCount)} sur {totalCount} résultats
             </div>
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                {t("common.previous")}
+                <ChevronLeft className="h-4 w-4" />
+                Précédent
               </Button>
-              <div className="text-sm">
-                {`${t("users.pageOf")}: ${currentPage}/${totalPages}`}
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const page = i + 1;
+                  return (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(page)}
+                      className={currentPage === page ? "bg-blue-600 text-white" : ""}
+                    >
+                      {page}
+              </Button>
+                  );
+                })}
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
-                {t("common.next")}
-                <ChevronRight className="h-4 w-4 ml-1" />
+                Suivant
+                <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        )}
 
-      {/* User Details Modal */}
-      <Dialog open={detailModalOpen} onOpenChange={(open) => { if (!open) handleCloseDetail() }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("users.details")}</DialogTitle>
-          </DialogHeader>
-          {detailLoading ? (
-            <div className="p-4 text-center">{t("common.loading")}</div>
-          ) : detailError ? (
-            <ErrorDisplay
-              error={detailError}
-              variant="inline"
-              showRetry={false}
-              className="mb-4"
-            />
-          ) : detailUser ? (
-            <div className="space-y-2">
+        {/* User Details Modal */}
+        <Dialog open={detailModalOpen} onOpenChange={(open) => { if (!open) handleCloseDetail() }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Détails de l'utilisateur</DialogTitle>
+            </DialogHeader>
+            {detailLoading ? (
+              <div className="p-4 text-center">Chargement...</div>
+            ) : detailError ? (
+              <ErrorDisplay
+                error={detailError}
+                variant="inline"
+                showRetry={false}
+                className="mb-4"
+              />
+            ) : detailUser ? (
+              <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <b>{t("users.uid")}:</b> {detailUser.uid}
+                  <b>UID:</b> {detailUser.uid}
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-5 w-5"
                     onClick={() => {
                       navigator.clipboard.writeText(detailUser.uid);
-                      toast({ title: t("users.copiedUid") || "UID copied!" });
+                      toast({ title: "UID copié!" });
                     }}
-                    aria-label={t("users.copyUid") || "Copy UID"}
+                    aria-label="Copier l'UID"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <div><b>{t("users.name")}:</b> {detailUser.display_name || `${detailUser.first_name || ""} ${detailUser.last_name || ""}`}</div>
-                <div><b>{t("users.email")}:</b> {detailUser.email}</div>
-                <div><b>{t("users.phone")}:</b> {detailUser.phone}</div>
-                <div><b>{t("users.status")}:</b> {detailUser.is_active ? t("users.active") : t("users.inactive")}</div>
-                <div><b>{t("users.emailVerified")}:</b> {detailUser.email_verified ? t("common.yes") : t("common.no")}
-  <Switch
-    checked={detailUser.email_verified}
-    disabled={detailLoading || verifyingEmail}
-    onCheckedChange={() => setConfirmEmailToggle(!detailUser.email_verified)}
-    className="ml-2"
-  />
-</div>
-<div><b>{t("users.phoneVerified")}:</b> {detailUser.phone_verified ? t("common.yes") : t("common.no")}
-  <Switch
-    checked={detailUser.phone_verified}
-    disabled={detailLoading || verifyingPhone}
-    onCheckedChange={() => setConfirmPhoneToggle(!detailUser.phone_verified)}
-    className="ml-2"
-  />
-</div>
-                <div><b>{t("users.contactMethod")}:</b> {detailUser.contact_method}</div>
-                <div><b>{t("users.isPartner") || "Partner"}:</b> {detailUser.is_partner ? t("common.yes") : t("common.no")}
+                <div><b>Nom:</b> {detailUser.display_name || `${detailUser.first_name || ""} ${detailUser.last_name || ""}`}</div>
+                <div><b>Email:</b> {detailUser.email}</div>
+                <div><b>Téléphone:</b> {detailUser.phone}</div>
+                <div><b>Statut:</b> {detailUser.is_active ? 'Actif' : 'Inactif'}</div>
+                <div><b>Email vérifié:</b> {detailUser.email_verified ? 'Oui' : 'Non'}
+                  <Switch
+                    checked={detailUser.email_verified}
+                    disabled={detailLoading || verifyingEmail}
+                    onCheckedChange={() => setConfirmEmailToggle(!detailUser.email_verified)}
+                    className="ml-2"
+                  />
+                </div>
+                <div><b>Téléphone vérifié:</b> {detailUser.phone_verified ? 'Oui' : 'Non'}
+                  <Switch
+                    checked={detailUser.phone_verified}
+                    disabled={detailLoading || verifyingPhone}
+                    onCheckedChange={() => setConfirmPhoneToggle(!detailUser.phone_verified)}
+                    className="ml-2"
+                  />
+                </div>
+                <div><b>Méthode de contact:</b> {detailUser.contact_method}</div>
+                <div><b>Partenaire:</b> {detailUser.is_partner ? 'Oui' : 'Non'}
                   <Switch
                     checked={detailUser.is_partner}
                     disabled={detailLoading || verifyingPartner}
@@ -640,164 +716,168 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
-                <div><b>{t("users.createdAt")}:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
-                <div><b>{t("users.lastLogin")}:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
+                <div><b>Créé le:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
+                <div><b>Dernière connexion:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
+              </div>
+            ) : null}
+            <DialogClose asChild>
+              <Button className="mt-4 w-full">Fermer</Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
+
+        {/* Email Verification Confirmation Modal */}
+        <Dialog open={confirmEmailToggle !== null} onOpenChange={(open) => { if (!open) setConfirmEmailToggle(null) }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirmEmailToggle ? "Vérifier l'email" : "Ne pas vérifier l'email"}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-center">
+              {confirmEmailToggle
+                ? "Êtes-vous sûr de vouloir vérifier l'email de cet utilisateur ?"
+                : "Êtes-vous sûr de vouloir ne pas vérifier l'email de cet utilisateur ?"}
             </div>
-          ) : null}
-          <DialogClose asChild>
-            <Button className="mt-4 w-full">{t("common.close")}</Button>
-          </DialogClose>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  await handleToggleEmailVerified(!!confirmEmailToggle);
+                  setConfirmEmailToggle(null);
+                }}
+                disabled={verifyingEmail}
+              >
+                {verifyingEmail ? "Vérification..." : "OK"}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => setConfirmEmailToggle(null)}
+                disabled={verifyingEmail}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-  {/* Email Verification Confirmation Modal */}
-      <Dialog open={confirmEmailToggle !== null} onOpenChange={(open) => { if (!open) setConfirmEmailToggle(null) }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{confirmEmailToggle ? t("users.verifyEmail") : t("users.unverifyEmail")}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4 text-center">
-            {confirmEmailToggle
-              ? t("users.confirmVerifyEmail")
-              : t("users.confirmUnverifyEmail")}
-          </div>
-          <DialogFooter>
-            <Button
-              className="w-full"
-              onClick={async () => {
-                await handleToggleEmailVerified(!!confirmEmailToggle);
-                setConfirmEmailToggle(null);
-              }}
-              disabled={verifyingEmail}
-            >
-              {verifyingEmail ? t("users.verifying") : t("common.ok")}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full mt-2"
-              onClick={() => setConfirmEmailToggle(null)}
-              disabled={verifyingEmail}
-            >
-              {t("common.cancel")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Phone Verification Confirmation Modal */}
+        <Dialog open={confirmPhoneToggle !== null} onOpenChange={(open) => { if (!open) setConfirmPhoneToggle(null) }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirmPhoneToggle ? "Vérifier le téléphone" : "Ne pas vérifier le téléphone"}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-center">
+              {confirmPhoneToggle
+                ? "Êtes-vous sûr de vouloir vérifier le téléphone de cet utilisateur ?"
+                : "Êtes-vous sûr de vouloir ne pas vérifier le téléphone de cet utilisateur ?"}
+            </div>
+            <DialogFooter>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  await handleTogglePhoneVerified(!!confirmPhoneToggle);
+                  setConfirmPhoneToggle(null);
+                }}
+                disabled={verifyingPhone}
+              >
+                {verifyingPhone ? "Vérification..." : "OK"}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => setConfirmPhoneToggle(null)}
+                disabled={verifyingPhone}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-  {/* Phone Verification Confirmation Modal */}
-      {/* Partner Toggle Confirmation Modal */}
-      <Dialog open={confirmPartnerToggle !== null} onOpenChange={(open) => { if (!open) setConfirmPartnerToggle(null) }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{confirmPartnerToggle ? t("users.enablePartner") || "Enable Partner" : t("users.disablePartner") || "Disable Partner"}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4 text-center">
-            {confirmPartnerToggle
-              ? t("users.confirmEnablePartner") || "Are you sure you want to enable partner status?"
-              : t("users.confirmDisablePartner") || "Are you sure you want to disable partner status?"}
-          </div>
-          <DialogFooter>
-            <Button
-              className="w-full"
-              onClick={async () => {
-                await handleTogglePartner(!!confirmPartnerToggle);
-                setConfirmPartnerToggle(null);
-              }}
-              disabled={verifyingPartner}
-            >
-              {verifyingPartner ? t("users.verifying") : t("common.ok")}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full mt-2"
-              onClick={() => setConfirmPartnerToggle(null)}
-              disabled={verifyingPartner}
-            >
-              {t("common.cancel")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={confirmPhoneToggle !== null} onOpenChange={(open) => { if (!open) setConfirmPhoneToggle(null) }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{confirmPhoneToggle ? t("users.verifyPhone") : t("users.unverifyPhone")}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4 text-center">
-            {confirmPhoneToggle
-              ? t("users.confirmVerifyPhone")
-              : t("users.confirmUnverifyPhone")}
-          </div>
-          <DialogFooter>
-            <Button
-              className="w-full"
-              onClick={async () => {
-                await handleTogglePhoneVerified(!!confirmPhoneToggle);
-                setConfirmPhoneToggle(null);
-              }}
-              disabled={verifyingPhone}
-            >
-              {verifyingPhone ? t("users.verifying") : t("common.ok")}
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full mt-2"
-              onClick={() => setConfirmPhoneToggle(null)}
-              disabled={verifyingPhone}
-            >
-              {t("common.cancel")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={!!confirmActionType} onOpenChange={(open) => { if (!open) { setConfirmActionType(null); setConfirmActionUser(null); } }}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
-            {confirmActionType === "activate"
-              ? t("users.confirmActivateTitle") || "Activate User"
-              : t("users.confirmDeactivateTitle") || "Deactivate User"}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="py-4 text-center">
-          {confirmActionType === "activate"
-            ? t("users.confirmActivateText") || "Are you sure that you want to activate user?"
-            : t("users.confirmDeactivateText") || "Are you sure that you want to deactivate user?"}
-        </div>
-        <DialogFooter>
-          <Button
-            className="w-full"
-            onClick={async () => {
-              if (confirmActionUser) {
-                if (confirmActionType === "activate") {
-                  await handleActivate(confirmActionUser);
-                } else {
-                  await handleDeactivate(confirmActionUser);
-                }
-              }
-              setConfirmActionType(null);
-              setConfirmActionUser(null);
-            }}
-            disabled={activatingUid === confirmActionUser?.uid || deactivatingUid === confirmActionUser?.uid}
-          >
-            {confirmActionType === "activate"
-              ? t("users.activate")
-              : t("users.deactivate")}
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full mt-2"
-            onClick={() => {
-              setConfirmActionType(null);
-              setConfirmActionUser(null);
-            }}
-            disabled={activatingUid === confirmActionUser?.uid || deactivatingUid === confirmActionUser?.uid}
-          >
-            {t("common.cancel")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-    </>
+        {/* Partner Toggle Confirmation Modal */}
+        <Dialog open={confirmPartnerToggle !== null} onOpenChange={(open) => { if (!open) setConfirmPartnerToggle(null) }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirmPartnerToggle ? "Activer le statut partenaire" : "Désactiver le statut partenaire"}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-center">
+              {confirmPartnerToggle
+                ? "Êtes-vous sûr de vouloir activer le statut partenaire ?"
+                : "Êtes-vous sûr de vouloir désactiver le statut partenaire ?"}
+            </div>
+            <DialogFooter>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  await handleTogglePartner(!!confirmPartnerToggle);
+                  setConfirmPartnerToggle(null);
+                }}
+                disabled={verifyingPartner}
+              >
+                {verifyingPartner ? "Vérification..." : "OK"}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => setConfirmPartnerToggle(null)}
+                disabled={verifyingPartner}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Activate/Deactivate Confirmation Modal */}
+        <Dialog open={!!confirmActionType} onOpenChange={(open) => { if (!open) { setConfirmActionType(null); setConfirmActionUser(null); } }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {confirmActionType === "activate"
+                  ? "Activer l'utilisateur"
+                  : "Désactiver l'utilisateur"}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-center">
+              {confirmActionType === "activate"
+                ? "Êtes-vous sûr de vouloir activer cet utilisateur ?"
+                : "Êtes-vous sûr de vouloir désactiver cet utilisateur ?"}
+            </div>
+            <DialogFooter>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  if (confirmActionUser) {
+                    if (confirmActionType === "activate") {
+                      await handleActivate(confirmActionUser);
+                    } else {
+                      await handleDeactivate(confirmActionUser);
+                    }
+                  }
+                  setConfirmActionType(null);
+                  setConfirmActionUser(null);
+                }}
+                disabled={activatingUid === confirmActionUser?.uid || deactivatingUid === confirmActionUser?.uid}
+              >
+                {confirmActionType === "activate"
+                  ? "Activer"
+                  : "Désactiver"}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => {
+                  setConfirmActionType(null);
+                  setConfirmActionUser(null);
+                }}
+                disabled={activatingUid === confirmActionUser?.uid || deactivatingUid === confirmActionUser?.uid}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
   )
 }

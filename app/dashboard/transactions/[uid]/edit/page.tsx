@@ -155,7 +155,7 @@ export default function EditTransactionPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <span className="text-gray-600 dark:text-gray-300 text-lg">Loading transaction...</span>
+          <span className="text-gray-600 dark:text-gray-300 text-lg">Chargement de la transaction...</span>
         </div>
       </div>
     )
@@ -186,14 +186,14 @@ export default function EditTransactionPage() {
                 className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                Retour
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Edit Transaction
+                  Modifier la transaction
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                  Update transaction details and view logs
+                  Mettre à jour les détails de la transaction et consulter les journaux
                 </p>
               </div>
             </div>
@@ -217,7 +217,7 @@ export default function EditTransactionPage() {
               <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                 <FileText className="h-5 w-5 text-blue-600 dark:text-blue-300" />
               </div>
-              <span>Transaction Details</span>
+              <span>Détails de la transaction</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -227,7 +227,7 @@ export default function EditTransactionPage() {
                   <FileText className="h-4 w-4 text-blue-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Reference</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Référence</div>
                   <div className="flex items-center space-x-2">
                     <span className="font-medium text-gray-900 dark:text-gray-100">{transaction.reference}</span>
                     <Button
@@ -239,7 +239,7 @@ export default function EditTransactionPage() {
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
-                    {copied && <span className="text-xs text-green-600">Copied!</span>}
+                    {copied && <span className="text-xs text-green-600">Copié!</span>}
                   </div>
                 </div>
               </div>
@@ -249,7 +249,7 @@ export default function EditTransactionPage() {
                   <DollarSign className="h-4 w-4 text-green-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Amount</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Montant</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.amount}</div>
                 </div>
               </div>
@@ -259,7 +259,7 @@ export default function EditTransactionPage() {
                   <Network className="h-4 w-4 text-purple-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Network</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Réseau</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.network_name}</div>
                 </div>
               </div>
@@ -269,7 +269,7 @@ export default function EditTransactionPage() {
                   <User className="h-4 w-4 text-orange-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Recipient</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Destinataire</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">
                     {transaction.display_recipient_name || transaction.recipient_name}
                   </div>
@@ -281,7 +281,7 @@ export default function EditTransactionPage() {
                   <Phone className="h-4 w-4 text-indigo-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Recipient Phone</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Téléphone du destinataire</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.recipient_phone}</div>
                 </div>
               </div>
@@ -291,7 +291,7 @@ export default function EditTransactionPage() {
                   <Calendar className="h-4 w-4 text-yellow-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Created</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Créé</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">
                     {transaction.created_at ? new Date(transaction.created_at).toLocaleString() : "-"}
                   </div>
@@ -303,7 +303,7 @@ export default function EditTransactionPage() {
                   <CheckCircle className="h-4 w-4 text-gray-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Status</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Statut</div>
                   <div>{getStatusBadge(transaction.status)}</div>
                 </div>
               </div>
@@ -313,7 +313,7 @@ export default function EditTransactionPage() {
                   <User className="h-4 w-4 text-blue-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Processed By</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Traité par</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.processed_by_name}</div>
                 </div>
               </div>
@@ -323,7 +323,7 @@ export default function EditTransactionPage() {
                   <DollarSign className="h-4 w-4 text-green-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Fees</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Frais</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.fees ?? "-"}</div>
                 </div>
               </div>
@@ -331,14 +331,14 @@ export default function EditTransactionPage() {
 
             {/* Balance Information */}
             <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Balance Information</h3>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Informations sur le solde</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Balance Before</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Solde avant</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.balance_before ?? "-"}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Balance After</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Solde après</div>
                   <div className="font-medium text-gray-900 dark:text-gray-100">{transaction.balance_after ?? "-"}</div>
                 </div>
                 <div>
@@ -355,7 +355,7 @@ export default function EditTransactionPage() {
                   <div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
                     <div className="flex items-center space-x-2 mb-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span className="font-medium text-green-800 dark:text-green-200">Confirmation Message</span>
+                      <span className="font-medium text-green-800 dark:text-green-200">Message de confirmation</span>
                     </div>
                     <div className="text-sm text-green-700 dark:text-green-300">{transaction.confirmation_message}</div>
                   </div>
@@ -364,7 +364,7 @@ export default function EditTransactionPage() {
                   <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
                     <div className="flex items-center space-x-2 mb-2">
                       <XCircle className="h-4 w-4 text-red-600" />
-                      <span className="font-medium text-red-800 dark:text-red-200">Error Message</span>
+                      <span className="font-medium text-red-800 dark:text-red-200">Message d'erreur</span>
                     </div>
                     <div className="text-sm text-red-700 dark:text-red-300">{transaction.error_message}</div>
                   </div>
@@ -375,7 +375,7 @@ export default function EditTransactionPage() {
             {/* USSD Path */}
             {transaction.ussd_path && Array.isArray(transaction.ussd_path) && (
               <div className="mt-6">
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">USSD Path</h3>
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Chemin USSD</h3>
                 <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg">
                   <pre className="text-xs whitespace-pre-wrap font-mono text-gray-700 dark:text-gray-300">
                     {transaction.ussd_path.map((step: string, idx: number) => {
@@ -402,7 +402,7 @@ export default function EditTransactionPage() {
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <Save className="h-5 w-5 text-green-600 dark:text-green-300" />
               </div>
-              <span>Edit Transaction</span>
+              <span>Modifier la transaction</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -448,13 +448,13 @@ export default function EditTransactionPage() {
                     value={form.raw_sms} 
                     onChange={handleChange} 
                     rows={4} 
-                    placeholder="Enter raw SMS content..."
+                    placeholder="Entrer le contenu du SMS brut..."
                     className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                   />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Processed By Phone
+                    Traité par téléphone
                   </label>
                   <Input 
                     name="processed_by_phone" 
@@ -515,7 +515,7 @@ export default function EditTransactionPage() {
                 {logsLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
-                    Loading...
+                    Chargement...
                   </>
                 ) : (
                   <>
@@ -536,13 +536,13 @@ export default function EditTransactionPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading logs...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des journaux...</span>
                 </div>
               </div>
             ) : logs.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400">{t("transactionLogs.empty") || "No logs for this transaction."}</p>
+                <p className="text-gray-500 dark:text-gray-400">{t("transactionLogs.empty") || "Aucun journal pour cette transaction."}</p>
               </div>
             ) : (
               <div className="space-y-4">

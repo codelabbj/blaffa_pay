@@ -55,7 +55,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center space-y-4">
               <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="text-gray-600 dark:text-gray-300">Loading partner details...</span>
+              <span className="text-gray-600 dark:text-gray-300">Chargement des détails du partenaire...</span>
             </div>
           </div>
         </div>
@@ -77,14 +77,14 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Retour
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Partner Details
+                  Détails du partenaire
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                  View detailed partner information
+                  Voir les informations détaillées du partenaire
                 </p>
               </div>
             </div>
@@ -108,7 +108,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                   <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                     <Users className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                   </div>
-                  <span>Partner Overview</span>
+                  <span>Aperçu du partenaire</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -135,7 +135,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                       ) : (
                         <XCircle className="h-3 w-3" />
                       )}
-                      <span>{partner.is_active ? 'Active' : 'Inactive'}</span>
+                      <span>{partner.is_active ? 'Actif' : 'Inactif'}</span>
                     </div>
                   </Badge>
                 </div>
@@ -149,7 +149,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                   <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                     <Mail className="h-5 w-5 text-blue-600 dark:text-blue-300" />
                   </div>
-                  <span>Contact Information</span>
+                  <span>Informations de contact</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -157,32 +157,32 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                   <div className="flex items-center space-x-3">
                     <Mail className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">E-mail</p>
                       <p className="text-gray-900 dark:text-gray-100">{partner.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Phone className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Phone</p>
-                      <p className="text-gray-900 dark:text-gray-100">{partner.phone || 'Not provided'}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Téléphone</p>
+                      <p className="text-gray-900 dark:text-gray-100">{partner.phone || 'Non fourni'}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Calendar className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Created</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Créé</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {partner.created_at ? new Date(partner.created_at).toLocaleDateString() : 'Unknown'}
+                        {partner.created_at ? new Date(partner.created_at).toLocaleDateString() : 'Inconnu'}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Calendar className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Last Login</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Dernière connexion</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {partner.last_login_at ? new Date(partner.last_login_at).toLocaleDateString() : 'Never'}
+                        {partner.last_login_at ? new Date(partner.last_login_at).toLocaleDateString() : 'Jamais'}
                       </p>
                     </div>
                   </div>
@@ -197,7 +197,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                   <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                     <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-300" />
                   </div>
-                  <span>Account Status</span>
+                  <span>Statut du compte</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -207,9 +207,9 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                       <CheckCircle className="h-4 w-4 text-blue-600 dark:text-blue-300" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Email Verified</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">E-mail vérifié</p>
                       <Badge variant={partner.email_verified ? "default" : "secondary"}>
-                        {partner.email_verified ? 'Yes' : 'No'}
+                        {partner.email_verified ? 'Oui' : 'Non'}
                       </Badge>
                     </div>
                   </div>
@@ -218,9 +218,9 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                       <Phone className="h-4 w-4 text-blue-600 dark:text-blue-300" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Phone Verified</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Téléphone vérifié</p>
                       <Badge variant={partner.phone_verified ? "default" : "secondary"}>
-                        {partner.phone_verified ? 'Yes' : 'No'}
+                        {partner.phone_verified ? 'Oui' : 'Non'}
                       </Badge>
                     </div>
                   </div>
@@ -229,9 +229,9 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                       <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-300" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Account Active</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Compte actif</p>
                       <Badge variant={partner.account_is_active ? "default" : "secondary"}>
-                        {partner.account_is_active ? 'Yes' : 'No'}
+                        {partner.account_is_active ? 'Oui' : 'Non'}
                       </Badge>
                     </div>
                   </div>
@@ -311,7 +311,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                     <Mail className="h-5 w-5 text-gray-400" />
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Contact Method</p>
-                      <p className="text-gray-900 dark:text-gray-100">{partner.contact_method || 'Not specified'}</p>
+                      <p className="text-gray-900 dark:text-gray-100">{partner.contact_method || 'Non spécifié'}</p>
                     </div>
                   </div>
             </div>

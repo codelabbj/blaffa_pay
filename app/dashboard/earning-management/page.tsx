@@ -136,7 +136,7 @@ export default function EarningManagementPage() {
 								{t("earning.management") || "Earning Management"}
 							</h1>
 							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-								Monitor and manage commission payments
+								Surveiller et gérer les paiements de commission
 							</p>
 						</div>
 						<div className="flex items-center space-x-4">
@@ -144,7 +144,7 @@ export default function EarningManagementPage() {
 								<div className="flex items-center space-x-2">
 									<DollarSign className="h-5 w-5 text-green-600" />
 									<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-										{totalCount} payments
+										{totalCount} paiements
 									</span>
 								</div>
 							</div>
@@ -161,7 +161,7 @@ export default function EarningManagementPage() {
 									<TrendingUp className="h-6 w-6 text-green-600 dark:text-green-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Earnings</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Gains totaux</p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
 										{totalEarnings.toFixed(2)} FCFA
 									</p>
@@ -177,7 +177,7 @@ export default function EarningManagementPage() {
 									<Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">En attente</p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
 										{pendingEarnings.toFixed(2)} FCFA
 									</p>
@@ -193,7 +193,7 @@ export default function EarningManagementPage() {
 									<CheckCircle className="h-6 w-6 text-blue-600 dark:text-blue-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completed</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Terminé</p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
 										{completedEarnings.toFixed(2)} FCFA
 									</p>
@@ -211,7 +211,7 @@ export default function EarningManagementPage() {
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
 								<Input
-									placeholder="Search earnings..."
+									placeholder="Rechercher des gains..."
 									value={searchTerm}
 									onChange={(e) => setSearchTerm(e.target.value)}
 									className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -221,13 +221,13 @@ export default function EarningManagementPage() {
 							{/* Status Filter */}
 							<Select value={statusFilter} onValueChange={setStatusFilter}>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-									<SelectValue placeholder="Filter by status" />
+									<SelectValue placeholder="Filtrer par statut" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="all">All Status</SelectItem>
-									<SelectItem value="pending">Pending</SelectItem>
-									<SelectItem value="completed">Completed</SelectItem>
-									<SelectItem value="failed">Failed</SelectItem>
+									<SelectItem value="all">Tous les statuts</SelectItem>
+									<SelectItem value="pending">En attente</SelectItem>
+									<SelectItem value="completed">Terminé</SelectItem>
+									<SelectItem value="failed">Échec</SelectItem>
 								</SelectContent>
 							</Select>
 
@@ -237,12 +237,12 @@ export default function EarningManagementPage() {
 								onValueChange={(value) => setSortField(value as "amount" | "created_at" | "status" | null)}
 							>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-									<SelectValue placeholder="Sort by" />
+									<SelectValue placeholder="Trier par" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="amount">Amount</SelectItem>
+									<SelectItem value="amount">Montant</SelectItem>
 									<SelectItem value="created_at">Date</SelectItem>
-									<SelectItem value="status">Status</SelectItem>
+									<SelectItem value="status">Statut</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
@@ -256,7 +256,7 @@ export default function EarningManagementPage() {
 							<div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
 								<DollarSign className="h-5 w-5 text-green-600 dark:text-green-300" />
 							</div>
-							<span>Earnings List</span>
+							<span>Liste des gains</span>
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="p-0">
@@ -264,7 +264,7 @@ export default function EarningManagementPage() {
 							<div className="flex items-center justify-center py-12">
 								<div className="flex flex-col items-center space-y-4">
 									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-									<span className="text-gray-600 dark:text-gray-300">Loading earnings...</span>
+									<span className="text-gray-600 dark:text-gray-300">Chargement des gains...</span>
 								</div>
 							</div>
 							) : error ? (
@@ -276,9 +276,9 @@ export default function EarningManagementPage() {
 								<Table>
 									<TableHeader>
 										<TableRow className="bg-gray-50 dark:bg-gray-900/50">
-											<TableHead className="font-semibold">User</TableHead>
-											<TableHead className="font-semibold">Amount</TableHead>
-											<TableHead className="font-semibold">Status</TableHead>
+											<TableHead className="font-semibold">Utilisateur</TableHead>
+											<TableHead className="font-semibold">Montant</TableHead>
+											<TableHead className="font-semibold">Statut</TableHead>
 											<TableHead className="font-semibold">Date</TableHead>
 											<TableHead className="font-semibold">Actions</TableHead>
 										</TableRow>
@@ -293,7 +293,7 @@ export default function EarningManagementPage() {
 														</div>
 														<div>
 															<div className="font-medium text-gray-900 dark:text-gray-100">
-																{earning.user_name || 'Unknown User'}
+																{earning.user_name || 'Utilisateur inconnu'}
 															</div>
 															<div className="text-sm text-gray-500 dark:text-gray-400">
 																{earning.user_id || earning.uid}
@@ -335,7 +335,7 @@ export default function EarningManagementPage() {
 													<div className="text-sm text-gray-600 dark:text-gray-400">
 														{earning.created_at 
 															? new Date(earning.created_at).toLocaleString()
-															: 'Unknown'
+															: 'Inconnu'
 														}
 													</div>
 												</TableCell>
@@ -345,7 +345,7 @@ export default function EarningManagementPage() {
 														size="sm"
 														onClick={() => handleOpenDetail(earning.uid)}
 													>
-														View Details
+														Voir les détails
 														</Button>
 													</TableCell>
 												</TableRow>
@@ -361,7 +361,7 @@ export default function EarningManagementPage() {
 				{totalPages > 1 && (
 						<div className="flex items-center justify-between mt-6">
 						<div className="text-sm text-gray-600 dark:text-gray-400">
-							Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, totalCount)} of {totalCount} results
+							Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, totalCount)} sur {totalCount} résultats
 							</div>
 							<div className="flex items-center space-x-2">
 								<Button
@@ -371,7 +371,7 @@ export default function EarningManagementPage() {
 									disabled={currentPage === 1}
 								>
 								<ChevronLeft className="h-4 w-4" />
-								Previous
+								Précédent
 							</Button>
 							<div className="flex items-center space-x-1">
 								{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -395,7 +395,7 @@ export default function EarningManagementPage() {
 								onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
 									disabled={currentPage === totalPages}
 								>
-								Next
+								Suivant
 								<ChevronRight className="h-4 w-4" />
 								</Button>
 							</div>
@@ -408,10 +408,10 @@ export default function EarningManagementPage() {
 						<CardContent className="p-12 text-center">
 							<DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
 							<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-								No earnings found
+								Aucun gain trouvé
 							</h3>
 							<p className="text-gray-500 dark:text-gray-400 mb-4">
-								{searchTerm ? `No earnings match "${searchTerm}"` : "No earnings have been recorded yet."}
+								{searchTerm ? `Aucun gain ne correspond à "${searchTerm}"` : "Aucun gain n'a encore été enregistré."}
 							</p>
 					</CardContent>
 				</Card>
@@ -423,7 +423,7 @@ export default function EarningManagementPage() {
 						<DialogHeader>
 							<DialogTitle className="flex items-center space-x-2">
 								<DollarSign className="h-5 w-5 text-green-600" />
-								<span>Earning Details</span>
+								<span>Détails du gain</span>
 							</DialogTitle>
 						</DialogHeader>
 						{detailLoading ? (
@@ -436,19 +436,19 @@ export default function EarningManagementPage() {
 							<div className="space-y-4">
 								<div className="grid grid-cols-2 gap-4">
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">User</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Utilisateur</label>
 										<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-											{detailEarning.user_name || 'Unknown'}
+											{detailEarning.user_name || 'Inconnu'}
 										</p>
 									</div>
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Amount</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Montant</label>
 										<p className="text-lg font-semibold text-green-600">
 											{parseFloat(detailEarning.amount).toFixed(2)} FCFA
 										</p>
 									</div>
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Statut</label>
 										<Badge 
 											className={
 												detailEarning.status === 'completed'
@@ -466,7 +466,7 @@ export default function EarningManagementPage() {
 										<p className="text-sm text-gray-900 dark:text-gray-100">
 											{detailEarning.created_at 
 												? new Date(detailEarning.created_at).toLocaleString()
-												: 'Unknown'
+												: 'Inconnu'
 											}
 										</p>
 									</div>

@@ -52,7 +52,7 @@ export default function DepositPage() {
         const data = await apiFetch(`${baseUrl}api/payments/networks/`)
         setNetworks(data.results || [])
       } catch (err) {
-        setError(t("transactions.failedToLoadNetworks") || "Failed to load networks")
+        setError(t("transactions.failedToLoadNetworks") || "Échec du chargement des réseaux")
       }
     }
     fetchNetworks()
@@ -61,11 +61,11 @@ export default function DepositPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (recipientPhone.trim() !== confirmRecipientPhone.trim()) {
-      setError(t("transactions.phoneMismatch") || "Phone number and Confirm Phone number do not match")
+      setError(t("transactions.phoneMismatch") || "Le numéro de téléphone et la confirmation ne correspondent pas")
       return
     }
     if (!confirmDetails) {
-      setError(t("transactions.confirmDetailsRequired") || "Please confirm the phone number and amount")
+      setError(t("transactions.confirmDetailsRequired") || "Veuillez confirmer le numéro de téléphone et le montant")
       return
     }
     // Prepare payload and open confirmation modal instead of immediate submit
@@ -92,14 +92,14 @@ export default function DepositPage() {
         body: JSON.stringify(pendingPayload),
       })
       toast({
-        title: t("transactions.depositCreatedTitle") || "Deposit created",
-        description: t("transactions.transactionCreatedDesc") || "Transaction created successfully",
+        title: t("transactions.depositCreatedTitle") || "Dépôt créé",
+        description: t("transactions.transactionCreatedDesc") || "Transaction créée avec succès",
       })
       setShowConfirmModal(false)
       setPendingPayload(null)
       router.push("/dashboard/transactions")
     } catch (err: any) {
-      setError(extractErrorMessages(err) || t("transactions.failedToCreateDeposit") || "Failed to create deposit")
+      setError(extractErrorMessages(err) || t("transactions.failedToCreateDeposit") || "Échec de la création du dépôt")
     } finally {
       setLoading(false)
     }
@@ -122,14 +122,14 @@ export default function DepositPage() {
                 className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back
+                Retour
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   {t("transactions.depositTitle") || "Deposit"}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                  Create a new deposit transaction
+                  Créer une nouvelle transaction de dépôt
                 </p>
               </div>
             </div>
@@ -138,7 +138,7 @@ export default function DepositPage() {
                 <div className="flex items-center space-x-2">
                   <DollarSign className="h-5 w-5 text-green-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    New Deposit
+                    Nouveau dépôt
                   </span>
                 </div>
               </div>
@@ -153,7 +153,7 @@ export default function DepositPage() {
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <DollarSign className="h-5 w-5 text-green-600 dark:text-green-300" />
               </div>
-              <span>Deposit Details</span>
+              <span>Détails du dépôt</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -240,13 +240,13 @@ export default function DepositPage() {
                 {recipientPhone && confirmRecipientPhone && recipientPhone.trim() !== confirmRecipientPhone.trim() && (
                   <div className="mt-2 flex items-center space-x-2 text-sm text-red-600">
                     <AlertTriangle className="h-4 w-4" />
-                    <span>Phone numbers do not match</span>
+                    <span>Les numéros de téléphone ne correspondent pas</span>
                   </div>
                 )}
                 {recipientPhone && confirmRecipientPhone && recipientPhone.trim() === confirmRecipientPhone.trim() && (
                   <div className="mt-2 flex items-center space-x-2 text-sm text-green-600">
                     <CheckCircle className="h-4 w-4" />
-                    <span>Phone numbers match</span>
+                    <span>Les numéros de téléphone correspondent</span>
                   </div>
                 )}
               </div>
@@ -303,12 +303,12 @@ export default function DepositPage() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {t("common.submitting") || "Submitting..."}
+                    {t("common.submitting") || "Soumission..."}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    {t("transactions.reviewAndConfirm") || "Review & Submit"}
+                    {t("transactions.reviewAndConfirm") || "Examiner et soumettre"}
                   </>
                 )}
               </Button>
@@ -324,7 +324,7 @@ export default function DepositPage() {
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                   <CheckCircle className="h-5 w-5 text-green-600" />
                 </div>
-                <span>{t("transactions.confirmDepositTitle") || t("transactions.reviewAndConfirm") || "Confirm Deposit"}</span>
+                <span>{t("transactions.confirmDepositTitle") || t("transactions.reviewAndConfirm") || "Confirmer le dépôt"}</span>
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
@@ -332,21 +332,21 @@ export default function DepositPage() {
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <Network className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.selectNetwork") || "Network"}:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.selectNetwork") || "Réseau"}:</span>
                   </div>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{selectedNetwork?.nom || network}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <DollarSign className="h-4 w-4 text-green-600" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.amount") || "Amount"}:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.amount") || "Montant"}:</span>
                   </div>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{amount}</span>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                   <div className="flex items-center space-x-2">
                     <Phone className="h-4 w-4 text-indigo-600" />
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.recipientPhone") || "Recipient Phone"}:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.recipientPhone") || "Téléphone du destinataire"}:</span>
                   </div>
                   <span className="font-medium text-gray-900 dark:text-gray-100">{recipientPhone}</span>
                 </div>
@@ -354,7 +354,7 @@ export default function DepositPage() {
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                     <div className="flex items-center space-x-2">
                       <FileText className="h-4 w-4 text-purple-600" />
-                      <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.purpose") || "Purpose"}:</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{t("transactions.purpose") || "Objet"}:</span>
                     </div>
                     <span className="font-medium text-gray-900 dark:text-gray-100">{objet}</span>
                   </div>
@@ -368,7 +368,7 @@ export default function DepositPage() {
                 disabled={loading}
                 className="border-gray-200 dark:border-gray-600"
               >
-                {t("common.cancel") || "Cancel"}
+                {t("common.cancel") || "Annuler"}
               </Button>
               <Button 
                 onClick={handleConfirmSubmit} 
@@ -378,12 +378,12 @@ export default function DepositPage() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    {t("common.submitting") || "Submitting..."}
+                    {t("common.submitting") || "Soumission..."}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    {t("transactions.submit") || "Submit"}
+                    {t("transactions.submit") || "Soumettre"}
                   </>
                 )}
               </Button>

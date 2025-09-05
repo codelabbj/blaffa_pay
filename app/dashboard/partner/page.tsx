@@ -136,15 +136,15 @@ export default function PartnerPage() {
 								{t("partners.title") || "Partner Management"}
 							</h1>
 							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-								Manage partner accounts and commission tracking
-							</p>
+												Gérer les comptes partenaires et le suivi des commissions
+											</p>
 						</div>
 						<div className="flex items-center space-x-4">
 							<div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
 								<div className="flex items-center space-x-2">
 									<Users className="h-5 w-5 text-blue-600" />
 									<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-										{totalCount} partners
+																						{totalCount} partenaires
 									</span>
 								</div>
 							</div>
@@ -161,7 +161,7 @@ export default function PartnerPage() {
 									<UserCheck className="h-6 w-6 text-green-600 dark:text-green-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Partners</p>
+																					<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Partenaires actifs</p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
 										{activePartners}
 									</p>
@@ -177,7 +177,7 @@ export default function PartnerPage() {
 									<Copy className="h-6 w-6 text-blue-600 dark:text-blue-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Commission</p>
+																					<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Commission totale</p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
 										${totalCommission.toFixed(2)}
 									</p>
@@ -194,23 +194,23 @@ export default function PartnerPage() {
 							{/* Search */}
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-							<Input
-									placeholder="Search partners..."
-								value={searchTerm}
-								onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-							/>
+																				<Input
+														placeholder="Rechercher des partenaires..."
+													value={searchTerm}
+													onChange={(e) => setSearchTerm(e.target.value)}
+														className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+												/>
 						</div>
 
 							{/* Status Filter */}
 						<Select value={statusFilter} onValueChange={setStatusFilter}>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-									<SelectValue placeholder="Filter by status" />
+																							<SelectValue placeholder="Filtrer par statut" />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="all">All Partners</SelectItem>
-									<SelectItem value="active">Active</SelectItem>
-									<SelectItem value="inactive">Inactive</SelectItem>
+																							<SelectItem value="all">Tous les partenaires</SelectItem>
+														<SelectItem value="active">Actif</SelectItem>
+														<SelectItem value="inactive">Inactif</SelectItem>
 								</SelectContent>
 							</Select>
 
@@ -220,12 +220,12 @@ export default function PartnerPage() {
 								onValueChange={(value) => setSortField(value as "display_name" | "email" | "created_at" | null)}
 							>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-									<SelectValue placeholder="Sort by" />
+																							<SelectValue placeholder="Trier par" />
 							</SelectTrigger>
 							<SelectContent>
-									<SelectItem value="display_name">Name</SelectItem>
-									<SelectItem value="email">Email</SelectItem>
-									<SelectItem value="created_at">Date</SelectItem>
+																							<SelectItem value="display_name">Nom</SelectItem>
+														<SelectItem value="email">E-mail</SelectItem>
+														<SelectItem value="created_at">Date</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>
@@ -239,7 +239,7 @@ export default function PartnerPage() {
 							<div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
 								<Users className="h-5 w-5 text-purple-600 dark:text-purple-300" />
 							</div>
-							<span>Partners List</span>
+																				<span>Liste des partenaires</span>
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="p-0">
@@ -247,7 +247,7 @@ export default function PartnerPage() {
 							<div className="flex items-center justify-center py-12">
 								<div className="flex flex-col items-center space-y-4">
 									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-									<span className="text-gray-600 dark:text-gray-300">Loading partners...</span>
+									<span className="text-gray-600 dark:text-gray-300">Chargement des partenaires...</span>
 								</div>
 							</div>
 						) : error ? (
@@ -259,11 +259,11 @@ export default function PartnerPage() {
 							<Table>
 								<TableHeader>
 										<TableRow className="bg-gray-50 dark:bg-gray-900/50">
-											<TableHead className="font-semibold">Partner</TableHead>
-											<TableHead className="font-semibold">Email</TableHead>
-											<TableHead className="font-semibold">Status</TableHead>
+											<TableHead className="font-semibold">Partenaire</TableHead>
+											<TableHead className="font-semibold">E-mail</TableHead>
+											<TableHead className="font-semibold">Statut</TableHead>
 											<TableHead className="font-semibold">Commission</TableHead>
-											<TableHead className="font-semibold">Joined</TableHead>
+											<TableHead className="font-semibold">Rejoint</TableHead>
 											<TableHead className="font-semibold">Actions</TableHead>
 									</TableRow>
 								</TableHeader>
@@ -277,10 +277,10 @@ export default function PartnerPage() {
 														</div>
 														<div>
 															<div className="font-medium text-gray-900 dark:text-gray-100">
-																{partner.display_name || 'Unknown Partner'}
+																{partner.display_name || 'Partenaire inconnu'}
 															</div>
 															<div className="text-sm text-gray-500 dark:text-gray-400">
-																{partner.phone_number || 'No phone'}
+																{partner.phone_number || 'Aucun téléphone'}
 															</div>
 														</div>
 													</div>
@@ -289,7 +289,7 @@ export default function PartnerPage() {
 													<div className="flex items-center space-x-2">
 														<Mail className="h-4 w-4 text-gray-400" />
 														<span className="text-sm text-gray-700 dark:text-gray-300">
-															{partner.email || 'No email'}
+															{partner.email || 'Aucun e-mail'}
 														</span>
 													</div>
 												</TableCell>
@@ -307,7 +307,7 @@ export default function PartnerPage() {
 															) : (
 																<XCircle className="h-3 w-3" />
 															)}
-															<span>{partner.is_active ? 'Active' : 'Inactive'}</span>
+															<span>{partner.is_active ? 'Actif' : 'Inactif'}</span>
 														</div>
 													</Badge>
 												</TableCell>
@@ -325,7 +325,7 @@ export default function PartnerPage() {
 														<span className="text-sm text-gray-600 dark:text-gray-400">
 															{partner.created_at 
 																? new Date(partner.created_at).toLocaleDateString()
-																: 'Unknown'
+																: 'Inconnu'
 															}
 														</span>
 													</div>
@@ -337,7 +337,7 @@ export default function PartnerPage() {
 															size="sm"
 															onClick={() => handleOpenDetail(partner.uid)}
 														>
-															View Details
+															Voir les détails
 												</Button>
 														<Button 
 															variant="outline" 
@@ -348,7 +348,7 @@ export default function PartnerPage() {
 																	: "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
 															}
 														>
-															{partner.is_active ? 'Deactivate' : 'Activate'}
+															{partner.is_active ? 'Désactiver' : 'Activer'}
 										</Button>
 													</div>
 									</TableCell>
@@ -365,7 +365,7 @@ export default function PartnerPage() {
 				{totalPages > 1 && (
 					<div className="flex items-center justify-between mt-6">
 						<div className="text-sm text-gray-600 dark:text-gray-400">
-							Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, totalCount)} of {totalCount} results
+							Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, totalCount)} sur {totalCount} résultats
 						</div>
 						<div className="flex items-center space-x-2">
 							<Button
@@ -375,7 +375,7 @@ export default function PartnerPage() {
 								disabled={currentPage === 1}
 							>
 								<ChevronLeft className="h-4 w-4" />
-								Previous
+								Précédent
 							</Button>
 							<div className="flex items-center space-x-1">
 								{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -399,7 +399,7 @@ export default function PartnerPage() {
 								onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
 								disabled={currentPage === totalPages}
 							>
-								Next
+								Suivant
 								<ChevronRight className="h-4 w-4" />
 							</Button>
 						</div>
@@ -412,10 +412,10 @@ export default function PartnerPage() {
 						<CardContent className="p-12 text-center">
 							<Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
 							<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-								No partners found
+								Aucun partenaire trouvé
 							</h3>
 							<p className="text-gray-500 dark:text-gray-400 mb-4">
-								{searchTerm ? `No partners match "${searchTerm}"` : "No partners have been registered yet."}
+								{searchTerm ? `Aucun partenaire ne correspond à "${searchTerm}"` : "Aucun partenaire n'a encore été enregistré."}
 							</p>
 				</CardContent>
 			</Card>
@@ -427,7 +427,7 @@ export default function PartnerPage() {
 					<DialogHeader>
 							<DialogTitle className="flex items-center space-x-2">
 								<Users className="h-5 w-5 text-purple-600" />
-								<span>Partner Details</span>
+								<span>Détails du partenaire</span>
 							</DialogTitle>
 					</DialogHeader>
 					{detailLoading ? (
@@ -440,25 +440,25 @@ export default function PartnerPage() {
 							<div className="space-y-4">
 								<div className="grid grid-cols-2 gap-4">
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Name</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Nom</label>
 										<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-											{detailPartner.display_name || 'Unknown'}
+											{detailPartner.display_name || 'Inconnu'}
 										</p>
 									</div>
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">E-mail</label>
 										<p className="text-sm text-gray-900 dark:text-gray-100">
-											{detailPartner.email || 'No email'}
+											{detailPartner.email || 'Aucun e-mail'}
 										</p>
 									</div>
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Phone</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Téléphone</label>
 										<p className="text-sm text-gray-900 dark:text-gray-100">
-											{detailPartner.phone_number || 'No phone'}
+											{detailPartner.phone_number || 'Aucun téléphone'}
 										</p>
 									</div>
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Status</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Statut</label>
 										<Badge 
 											className={
 												detailPartner.is_active
@@ -466,21 +466,21 @@ export default function PartnerPage() {
 													: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
 											}
 										>
-											{detailPartner.is_active ? 'Active' : 'Inactive'}
+											{detailPartner.is_active ? 'Actif' : 'Inactif'}
 										</Badge>
 									</div>
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Commission</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Commission totale</label>
 										<p className="text-lg font-semibold text-green-600">
 											${parseFloat(detailPartner.total_commission || 0).toFixed(2)}
 										</p>
 									</div>
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Joined</label>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Rejoint</label>
 										<p className="text-sm text-gray-900 dark:text-gray-100">
 											{detailPartner.created_at 
 												? new Date(detailPartner.created_at).toLocaleString()
-												: 'Unknown'
+												: 'Inconnu'
 											}
 										</p>
 									</div>

@@ -620,7 +620,7 @@ export default function TransactionsPage() {
                 {t("transactions.title")}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Monitor and manage payment transactions
+                Surveiller et gérer les transactions de paiement
               </p>
       </div>
             <div className="flex items-center space-x-4">
@@ -690,10 +690,10 @@ export default function TransactionsPage() {
                 onValueChange={(value) => setSortField(value as "amount" | "date" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="amount">Amount</SelectItem>
+                  <SelectItem value="amount">Montant</SelectItem>
                   <SelectItem value="date">Date</SelectItem>
               </SelectContent>
             </Select>
@@ -716,7 +716,7 @@ export default function TransactionsPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading transactions...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des transactions...</span>
                 </div>
               </div>
             ) : error ? (
@@ -728,12 +728,12 @@ export default function TransactionsPage() {
               <Table>
                 <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">Transaction ID</TableHead>
-                      <TableHead className="font-semibold">Recipient</TableHead>
+                      <TableHead className="font-semibold">ID Transaction</TableHead>
+                      <TableHead className="font-semibold">Destinataire</TableHead>
                       <TableHead className="font-semibold">Type</TableHead>
-                      <TableHead className="font-semibold">Amount</TableHead>
-                      <TableHead className="font-semibold">Created By</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Montant</TableHead>
+                      <TableHead className="font-semibold">Créé par</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Date</TableHead>
                       <TableHead className="font-semibold text-right">Actions</TableHead>
                   </TableRow>
@@ -753,7 +753,7 @@ export default function TransactionsPage() {
                             </div> */}
                             <div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                {transaction.recipient_phone || 'Unknown User'}
+                                {transaction.recipient_phone || 'Utilisateur inconnu'}
                               </div>
                               <div className="text-xs text-gray-500 dark:text-gray-400">
                                 {transaction.recipient_name}
@@ -769,7 +769,7 @@ export default function TransactionsPage() {
                                 : "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
                             }
                           >
-                            {transaction.trans_type === 'deposit' ? 'Deposit' : 'Withdrawal'}
+                            {transaction.trans_type === 'deposit' ? 'Dépôt' : 'Retrait'}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -778,7 +778,7 @@ export default function TransactionsPage() {
                           </div>
                           {transaction.fees && (
                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                              Fees: ${parseFloat(transaction.fees).toFixed(2)}
+                              Frais: ${parseFloat(transaction.fees).toFixed(2)}
                             </div>
                           )}
                         </TableCell>
@@ -836,7 +836,7 @@ export default function TransactionsPage() {
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => router.push(`/dashboard/transactions/${transaction.uid}/edit`)}>
                                 <Pencil className="h-4 w-4 mr-2" />
-                               Edit
+                               Modifier
                               </DropdownMenuItem>
                               {/* <DropdownMenuItem onClick={() => handleOpenEdit(transaction)}>
                                 <Pencil className="h-4 w-4 mr-2" />
@@ -851,19 +851,19 @@ export default function TransactionsPage() {
                               </DropdownMenuItem> */}
                               <DropdownMenuItem onClick={() => openRetryModal(transaction)} className="text-orange-600 dark:text-orange-400">
                                 <AlertCircle className="h-4 w-4 mr-2" />
-                                Retry
+                                Relancer
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openCancelModal(transaction)} className="text-red-600 dark:text-red-400">
                                 <XCircle className="h-4 w-4 mr-2" />
-                                Cancel
+                                Annuler
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openSuccessModal(transaction)} className="text-green-600 dark:text-green-400">
                                 <CheckCircle className="h-4 w-4 mr-2" />
-                                Mark as Success
+                                Marquer comme Succès
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => openFailedModal(transaction)} className="text-red-600 dark:text-red-400">
                                 <XCircle className="h-4 w-4 mr-2" />
-                                Mark as Failed
+                                Marquer comme Échec
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -881,7 +881,7 @@ export default function TransactionsPage() {
         {Math.ceil(totalCount / itemsPerPage) > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, totalCount)} of {totalCount} results
+              Affichage de {((currentPage - 1) * itemsPerPage) + 1} à {Math.min(currentPage * itemsPerPage, totalCount)} sur {totalCount} résultats
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -891,7 +891,7 @@ export default function TransactionsPage() {
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                Précédent
               </Button>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: Math.min(5, Math.ceil(totalCount / itemsPerPage)) }, (_, i) => {
@@ -915,7 +915,7 @@ export default function TransactionsPage() {
                 onClick={() => setCurrentPage(Math.min(Math.ceil(totalCount / itemsPerPage), currentPage + 1))}
                 disabled={currentPage === Math.ceil(totalCount / itemsPerPage)}
               >
-                Next
+                Suivant
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -926,9 +926,9 @@ export default function TransactionsPage() {
         <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Edit Transaction</DialogTitle>
+              <DialogTitle>Modifier la transaction</DialogTitle>
               <DialogDescription>
-                Update transaction details
+                Mettre à jour les détails de la transaction
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleEditSubmit} className="space-y-4">
@@ -939,95 +939,95 @@ export default function TransactionsPage() {
               )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium">Status</label>
+                  <label className="text-sm font-medium">Statut</label>
                   <Select value={editForm.status} onValueChange={(value) => setEditForm(prev => ({ ...prev, status: value }))}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Sélectionner le statut" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="failed">Failed</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                      <SelectItem value="pending">En attente</SelectItem>
+                      <SelectItem value="processing">En cours</SelectItem>
+                      <SelectItem value="completed">Terminé</SelectItem>
+                      <SelectItem value="failed">Échec</SelectItem>
+                      <SelectItem value="cancelled">Annulé</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium">External Transaction ID</label>
+                  <label className="text-sm font-medium">ID Transaction externe</label>
                   <Input
                     name="external_transaction_id"
                     value={editForm.external_transaction_id}
                     onChange={handleEditChange}
-                    placeholder="External transaction ID"
+                    placeholder="ID de transaction externe"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Balance Before</label>
+                  <label className="text-sm font-medium">Solde avant</label>
                   <Input
                     name="balance_before"
                     value={editForm.balance_before}
                     onChange={handleEditChange}
-                    placeholder="Balance before transaction"
+                    placeholder="Solde avant la transaction"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Balance After</label>
+                  <label className="text-sm font-medium">Solde après</label>
                   <Input
                     name="balance_after"
                     value={editForm.balance_after}
                     onChange={handleEditChange}
-                    placeholder="Balance after transaction"
+                    placeholder="Solde après la transaction"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Fees</label>
+                  <label className="text-sm font-medium">Frais</label>
                   <Input
                     name="fees"
                     value={editForm.fees}
                     onChange={handleEditChange}
-                    placeholder="Transaction fees"
+                    placeholder="Frais de transaction"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium">Completed At</label>
+                  <label className="text-sm font-medium">Terminé le</label>
                   <Input
                     name="completed_at"
                     value={editForm.completed_at}
                     onChange={handleEditChange}
-                    placeholder="Completion date"
+                    placeholder="Date de fin"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium">Confirmation Message</label>
+                <label className="text-sm font-medium">Message de confirmation</label>
                 <textarea
                   name="confirmation_message"
                   value={editForm.confirmation_message}
                   onChange={handleEditChange}
-                  placeholder="Confirmation message"
+                  placeholder="Message de confirmation"
                   rows={3}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Raw SMS</label>
+                <label className="text-sm font-medium">SMS brut</label>
                 <textarea
                   name="raw_sms"
                   value={editForm.raw_sms}
                   onChange={handleEditChange}
-                  placeholder="Raw SMS content"
+                  placeholder="Contenu du SMS brut"
                   rows={3}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Error Message</label>
+                <label className="text-sm font-medium">Message d'erreur</label>
                 <textarea
                   name="error_message"
                   value={editForm.error_message}
                   onChange={handleEditChange}
-                  placeholder="Error message"
+                  placeholder="Message d'erreur"
                   rows={3}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -1039,7 +1039,7 @@ export default function TransactionsPage() {
                   onClick={() => setEditModalOpen(false)}
                   disabled={editLoading}
                 >
-                  Cancel
+                  Annuler
                 </Button>
                 <Button
                   type="submit"
@@ -1049,10 +1049,10 @@ export default function TransactionsPage() {
                   {editLoading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Updating...
+                      Mise à jour...
                     </>
                   ) : (
-                    "Update Transaction"
+                    "Mettre à jour la transaction"
                   )}
                 </Button>
               </DialogFooter>
@@ -1064,19 +1064,19 @@ export default function TransactionsPage() {
         <Dialog open={showEditConfirm} onOpenChange={setShowEditConfirm}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Confirm Transaction Update</DialogTitle>
+              <DialogTitle>Confirmer la mise à jour de la transaction</DialogTitle>
               <DialogDescription>
-                Are you sure you want to update this transaction? This action cannot be undone.
+                Êtes-vous sûr de vouloir mettre à jour cette transaction ? Cette action ne peut pas être annulée.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowEditConfirm(false)}
-                disabled={editLoading}
-              >
-                Cancel
-              </Button>
+                              <Button
+                  variant="outline"
+                  onClick={() => setShowEditConfirm(false)}
+                  disabled={editLoading}
+                >
+                  Annuler
+                </Button>
               <Button
                 onClick={confirmEditAndSend}
                 disabled={editLoading}
@@ -1085,10 +1085,10 @@ export default function TransactionsPage() {
                 {editLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Updating...
+                    Mise à jour...
                   </>
                 ) : (
-                  "Update Transaction"
+                  "Mettre à jour la transaction"
                 )}
               </Button>
             </DialogFooter>
@@ -1099,9 +1099,9 @@ export default function TransactionsPage() {
         <Dialog open={retryModalOpen} onOpenChange={setRetryModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Retry Transaction</DialogTitle>
+              <DialogTitle>Relancer la transaction</DialogTitle>
               <DialogDescription>
-                Provide a reason for retrying this transaction
+                Fournir une raison pour relancer cette transaction
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -1112,26 +1112,26 @@ export default function TransactionsPage() {
               )}
               <div className="space-y-2">
                 <label htmlFor="retry-reason" className="text-sm font-medium">
-                  Reason *
+                  Raison *
                 </label>
                 <textarea
                   id="retry-reason"
                   value={retryReason}
                   onChange={(e) => setRetryReason(e.target.value)}
-                  placeholder="Enter reason for retry"
+                  placeholder="Entrer la raison du relancement"
                   rows={3}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setRetryModalOpen(false)}
-                disabled={retryLoading}
-              >
-                Cancel
-              </Button>
+                              <Button
+                  variant="outline"
+                  onClick={() => setRetryModalOpen(false)}
+                  disabled={retryLoading}
+                >
+                  Annuler
+                </Button>
               <Button
                 onClick={handleRetrySubmit}
                 disabled={retryLoading}
@@ -1140,10 +1140,10 @@ export default function TransactionsPage() {
                 {retryLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Retrying...
+                    Relancement...
                   </>
                 ) : (
-                  "Retry Transaction"
+                  "Relancer la transaction"
                 )}
               </Button>
             </DialogFooter>
@@ -1154,9 +1154,9 @@ export default function TransactionsPage() {
         <Dialog open={cancelModalOpen} onOpenChange={setCancelModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Cancel Transaction</DialogTitle>
+              <DialogTitle>Annuler la transaction</DialogTitle>
               <DialogDescription>
-                Provide a reason for cancelling this transaction
+                Fournir une raison pour annuler cette transaction
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -1167,26 +1167,26 @@ export default function TransactionsPage() {
               )}
               <div className="space-y-2">
                 <label htmlFor="cancel-reason" className="text-sm font-medium">
-                  Reason *
+                  Raison *
                 </label>
                 <textarea
                   id="cancel-reason"
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  placeholder="Enter reason for cancellation"
+                  placeholder="Entrer la raison de l'annulation"
                   rows={3}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setCancelModalOpen(false)}
-                disabled={cancelLoading}
-              >
-                Cancel
-              </Button>
+                              <Button
+                  variant="outline"
+                  onClick={() => setCancelModalOpen(false)}
+                  disabled={cancelLoading}
+                >
+                  Annuler
+                </Button>
               <Button
                 onClick={handleCancelSubmit}
                 disabled={cancelLoading}
@@ -1195,10 +1195,10 @@ export default function TransactionsPage() {
                 {cancelLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Cancelling...
+                    Annulation...
                   </>
                 ) : (
-                  "Cancel Transaction"
+                  "Annuler la transaction"
                 )}
               </Button>
             </DialogFooter>
@@ -1209,9 +1209,9 @@ export default function TransactionsPage() {
         <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Mark as Success</DialogTitle>
+              <DialogTitle>Marquer comme Succès</DialogTitle>
               <DialogDescription>
-                Provide a reason for marking this transaction as successful
+                Fournir une raison pour marquer cette transaction comme réussie
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -1222,26 +1222,26 @@ export default function TransactionsPage() {
               )}
               <div className="space-y-2">
                 <label htmlFor="success-reason" className="text-sm font-medium">
-                  Reason *
+                  Raison *
                 </label>
                 <textarea
                   id="success-reason"
                   value={successReason}
                   onChange={(e) => setSuccessReason(e.target.value)}
-                  placeholder="Enter reason for marking as success"
+                  placeholder="Entrer la raison du marquage comme succès"
                   rows={3}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setSuccessModalOpen(false)}
-                disabled={successLoading}
-              >
-                Cancel
-              </Button>
+                              <Button
+                  variant="outline"
+                  onClick={() => setSuccessModalOpen(false)}
+                  disabled={successLoading}
+                >
+                  Annuler
+                </Button>
               <Button
                 onClick={handleSuccessSubmit}
                 disabled={successLoading}
@@ -1250,10 +1250,10 @@ export default function TransactionsPage() {
                 {successLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Marking...
+                    Marquage...
                   </>
                 ) : (
-                  "Mark as Success"
+                  "Marquer comme Succès"
                 )}
               </Button>
             </DialogFooter>
@@ -1264,9 +1264,9 @@ export default function TransactionsPage() {
         <Dialog open={failedModalOpen} onOpenChange={setFailedModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Mark as Failed</DialogTitle>
+              <DialogTitle>Marquer comme Échec</DialogTitle>
               <DialogDescription>
-                Provide a reason for marking this transaction as failed
+                Fournir une raison pour marquer cette transaction comme échouée
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -1277,26 +1277,26 @@ export default function TransactionsPage() {
               )}
               <div className="space-y-2">
                 <label htmlFor="failed-reason" className="text-sm font-medium">
-                  Reason *
+                  Raison *
                 </label>
                 <textarea
                   id="failed-reason"
                   value={failedReason}
                   onChange={(e) => setFailedReason(e.target.value)}
-                  placeholder="Enter reason for marking as failed"
+                  placeholder="Entrer la raison du marquage comme échec"
                   rows={3}
                   className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setFailedModalOpen(false)}
-                disabled={failedLoading}
-              >
-                Cancel
-              </Button>
+                              <Button
+                  variant="outline"
+                  onClick={() => setFailedModalOpen(false)}
+                  disabled={failedLoading}
+                >
+                  Annuler
+                </Button>
               <Button
                 onClick={handleFailedSubmit}
                 disabled={failedLoading}
@@ -1305,10 +1305,10 @@ export default function TransactionsPage() {
                 {failedLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Marking...
+                    Marquage...
                   </>
                 ) : (
-                  "Mark as Failed"
+                  "Marquer comme Échec"
                 )}
               </Button>
             </DialogFooter>
@@ -1319,19 +1319,19 @@ export default function TransactionsPage() {
         <AlertDialog open={!!deleteUid} onOpenChange={(open) => { if (!open) setDeleteUid(null) }}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+              <AlertDialogTitle>Supprimer la transaction</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete this transaction? This action cannot be undone.
+                Êtes-vous sûr de vouloir supprimer cette transaction ? Cette action ne peut pas être annulée.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+              <AlertDialogCancel disabled={loading}>Annuler</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
                 disabled={loading}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
-                {loading ? "Deleting..." : "Delete"}
+                {loading ? "Suppression..." : "Supprimer"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

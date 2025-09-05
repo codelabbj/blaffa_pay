@@ -145,7 +145,7 @@ export default function DevicesListPage() {
                 {t("devices.list")}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Monitor and manage connected devices
+                Surveiller et gérer les appareils connectés
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -153,7 +153,7 @@ export default function DevicesListPage() {
                 <div className="flex items-center space-x-2">
                   <Monitor className="h-5 w-5 text-blue-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {devices.length} devices
+                    {devices.length} appareils
                   </span>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function DevicesListPage() {
                 <div className="flex items-center space-x-2">
                   <Activity className="h-5 w-5 text-green-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {devices.filter(d => d.is_online).length} online
+                    {devices.filter(d => d.is_online).length} en ligne
                   </span>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function DevicesListPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-                  placeholder="Search devices..."
+                  placeholder="Rechercher des appareils..."
               value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -187,12 +187,12 @@ export default function DevicesListPage() {
               {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue placeholder="Filtrer par statut" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Devices</SelectItem>
-                  <SelectItem value="active">Online</SelectItem>
-                  <SelectItem value="inactive">Offline</SelectItem>
+                  <SelectItem value="all">Tous les appareils</SelectItem>
+                  <SelectItem value="active">En ligne</SelectItem>
+                  <SelectItem value="inactive">Hors ligne</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -202,11 +202,11 @@ export default function DevicesListPage() {
                 onValueChange={(value) => setSortField(value as "name" | "is_online" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Trier par" />
             </SelectTrigger>
             <SelectContent>
-                  <SelectItem value="name">Name</SelectItem>
-                  <SelectItem value="is_online">Status</SelectItem>
+                  <SelectItem value="name">Nom</SelectItem>
+                  <SelectItem value="is_online">Statut</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -220,7 +220,7 @@ export default function DevicesListPage() {
               <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
                 <Monitor className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />
               </div>
-              <span>Device List</span>
+              <span>Liste des appareils</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -228,7 +228,7 @@ export default function DevicesListPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading devices...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des appareils...</span>
                 </div>
               </div>
         ) : error ? (
@@ -240,10 +240,10 @@ export default function DevicesListPage() {
           <Table>
             <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">Device Name</TableHead>
-                      <TableHead className="font-semibold">Device ID</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
-                      <TableHead className="font-semibold">Last Activity</TableHead>
+                      <TableHead className="font-semibold">Nom de l'appareil</TableHead>
+                      <TableHead className="font-semibold">ID de l'appareil</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
+                      <TableHead className="font-semibold">Dernière activité</TableHead>
                       <TableHead className="font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -257,10 +257,10 @@ export default function DevicesListPage() {
                             </div>
                             <div>
                               <div className="font-medium text-gray-900 dark:text-gray-100">
-                                {device.name || 'Unknown Device'}
+                                {device.name || 'Appareil inconnu'}
                               </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {device.device_type || 'Unknown Type'}
+                                {device.device_type || 'Type inconnu'}
                               </div>
                             </div>
                           </div>
@@ -284,7 +284,7 @@ export default function DevicesListPage() {
                               ) : (
                                 <WifiOff className="h-3 w-3" />
                               )}
-                              <span>{device.is_online ? 'Online' : 'Offline'}</span>
+                              <span>{device.is_online ? 'En ligne' : 'Hors ligne'}</span>
                             </div>
                           </Badge>
                         </TableCell>
@@ -292,7 +292,7 @@ export default function DevicesListPage() {
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {device.last_activity 
                               ? new Date(device.last_activity).toLocaleString()
-                              : 'Never'
+                              : 'Jamais'
                             }
                           </div>
                         </TableCell>
@@ -300,7 +300,7 @@ export default function DevicesListPage() {
                           <div className="flex items-center space-x-2">
                             <Button variant="outline" size="sm">
                               <Pencil className="h-4 w-4 mr-1" />
-                              Edit
+                              Modifier
                             </Button>
                             <Button 
                               variant="outline" 
@@ -311,7 +311,7 @@ export default function DevicesListPage() {
                                   : "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
                               }
                             >
-                              {device.is_online ? 'Disconnect' : 'Connect'}
+                              {device.is_online ? 'Déconnecter' : 'Connecter'}
                             </Button>
                           </div>
                   </TableCell>
@@ -330,10 +330,10 @@ export default function DevicesListPage() {
             <CardContent className="p-12 text-center">
               <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No devices found
+                Aucun appareil trouvé
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchTerm ? `No devices match "${searchTerm}"` : "No devices have been registered yet."}
+                {searchTerm ? `Aucun appareil ne correspond à "${searchTerm}"` : "Aucun appareil n'a encore été enregistré."}
               </p>
             </CardContent>
           </Card>

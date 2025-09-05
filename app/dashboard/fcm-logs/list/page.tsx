@@ -161,7 +161,7 @@ export default function FcmLogsListPage() {
                 {t("fcmLogs.list")}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Monitor Firebase Cloud Messaging logs
+                Surveiller les journaux Firebase Cloud Messaging
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -185,7 +185,7 @@ export default function FcmLogsListPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search FCM logs..."
+                  placeholder="Rechercher dans les journaux FCM..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -195,10 +195,10 @@ export default function FcmLogsListPage() {
               {/* Device Filter */}
               <Select value={deviceFilter} onValueChange={setDeviceFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Filter by device" />
+                  <SelectValue placeholder="Filtrer par appareil" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Devices</SelectItem>
+                  <SelectItem value="all">Tous les appareils</SelectItem>
                   {/* Add device options here if available */}
                 </SelectContent>
               </Select>
@@ -209,23 +209,23 @@ export default function FcmLogsListPage() {
                 onValueChange={(value) => setSortField(value as "created_at" | "device_id" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="created_at">Date</SelectItem>
-                  <SelectItem value="device_id">Device</SelectItem>
+                  <SelectItem value="device_id">Appareil</SelectItem>
                 </SelectContent>
               </Select>
 
               {/* Page Size */}
               <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(parseInt(value))}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Page size" />
+                  <SelectValue placeholder="Taille de page" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="50">50 per page</SelectItem>
-                  <SelectItem value="100">100 per page</SelectItem>
-                  <SelectItem value="200">200 per page</SelectItem>
+                  <SelectItem value="50">50 par page</SelectItem>
+                  <SelectItem value="100">100 par page</SelectItem>
+                  <SelectItem value="200">200 par page</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -239,7 +239,7 @@ export default function FcmLogsListPage() {
               <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                 <Bell className="h-5 w-5 text-orange-600 dark:text-orange-300" />
               </div>
-              <span>FCM Logs</span>
+              <span>Journaux FCM</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -247,7 +247,7 @@ export default function FcmLogsListPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading FCM logs...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des journaux FCM...</span>
                 </div>
               </div>
             ) : error ? (
@@ -259,9 +259,9 @@ export default function FcmLogsListPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">Device</TableHead>
+                      <TableHead className="font-semibold">Appareil</TableHead>
                       <TableHead className="font-semibold">Message</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Date</TableHead>
                       <TableHead className="font-semibold">Actions</TableHead>
                     </TableRow>
@@ -273,18 +273,18 @@ export default function FcmLogsListPage() {
                           <div className="flex items-center space-x-2">
                             <Smartphone className="h-4 w-4 text-gray-400" />
                             <Badge variant="outline" className="font-mono text-xs">
-                              {log.device_id || 'Unknown'}
+                              {log.device_id || 'Inconnu'}
                             </Badge>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="max-w-xs">
                             <div className="text-sm text-gray-900 dark:text-gray-100 truncate">
-                              {log.message || log.title || log.body || 'No message'}
+                              {log.message || log.title || log.body || 'Aucun message'}
                             </div>
                             {log.data && (
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Data: {JSON.stringify(log.data).substring(0, 50)}...
+                                Données: {JSON.stringify(log.data).substring(0, 50)}...
                               </div>
                             )}
                           </div>
@@ -307,7 +307,7 @@ export default function FcmLogsListPage() {
                               ) : (
                                 <Clock className="h-3 w-3" />
                               )}
-                              <span>{log.status || 'Unknown'}</span>
+                              <span>{log.status || 'Inconnu'}</span>
                             </div>
                           </Badge>
                         </TableCell>
@@ -315,7 +315,7 @@ export default function FcmLogsListPage() {
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {log.created_at 
                               ? new Date(log.created_at).toLocaleString()
-                              : 'Unknown'
+                              : 'Inconnu'
                             }
                           </div>
                         </TableCell>
@@ -327,7 +327,7 @@ export default function FcmLogsListPage() {
                             className={copied === JSON.stringify(log, null, 2) ? "bg-green-50 text-green-700 border-green-200" : ""}
                           >
                             <Copy className="h-4 w-4 mr-1" />
-                            {copied === JSON.stringify(log, null, 2) ? 'Copied!' : 'Copy'}
+                            {copied === JSON.stringify(log, null, 2) ? 'Copié!' : 'Copier'}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -343,7 +343,7 @@ export default function FcmLogsListPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {startItem} to {endItem} of {paginationData.count} results
+              Affichage de {startItem} à {endItem} sur {paginationData.count} résultats
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -353,7 +353,7 @@ export default function FcmLogsListPage() {
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                Précédent
               </Button>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -377,7 +377,7 @@ export default function FcmLogsListPage() {
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                Suivant
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -390,10 +390,10 @@ export default function FcmLogsListPage() {
             <CardContent className="p-12 text-center">
               <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No FCM logs found
+                Aucun journal FCM trouvé
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchTerm ? `No FCM logs match "${searchTerm}"` : "No FCM logs have been recorded yet."}
+                {searchTerm ? `Aucun journal FCM ne correspond à "${searchTerm}"` : "Aucun journal FCM n'a encore été enregistré."}
               </p>
             </CardContent>
           </Card>

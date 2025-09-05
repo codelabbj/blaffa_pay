@@ -106,7 +106,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center space-y-4">
               <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="text-gray-600 dark:text-gray-300">Loading commission statistics...</span>
+              <span className="text-gray-600 dark:text-gray-300">Chargement des statistiques de commission...</span>
             </div>
           </div>
         </div>
@@ -128,14 +128,14 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Retour
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Commission Statistics
+                  Statistiques de commission
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                  View and manage partner commission data
+                  Voir et gérer les données de commission des partenaires
                 </p>
               </div>
             </div>
@@ -146,14 +146,14 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                   onClick={handlePayClick}
                 >
                   <DollarSign className="h-4 w-4 mr-2" />
-                  Pay Commission
+                  Payer la commission
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle className="flex items-center space-x-2">
                     <DollarSign className="h-5 w-5 text-green-600" />
-                    <span>Pay Commission</span>
+                    <span>Payer la commission</span>
                   </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -164,21 +164,21 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     </div>
                   )}
                   <div>
-                    <Label htmlFor="amount">Amount</Label>
+                    <Label htmlFor="amount">Montant</Label>
                     <Input
                       id="amount"
                       type="number"
-                      placeholder="Amount (e.g., 25000.00)"
+                      placeholder="Montant (ex: 25000.00)"
                       value={amount}
                       onChange={e => setAmount(e.target.value)}
                       className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="adminNote">Admin Notes</Label>
+                    <Label htmlFor="adminNote">Notes d'administrateur</Label>
                     <Textarea
                       id="adminNote"
-                      placeholder="Optional notes about this payment"
+                      placeholder="Notes optionnelles sur ce paiement"
                       value={adminNote}
                       onChange={e => setAdminNote(e.target.value)}
                       className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -188,7 +188,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setModalOpen(false)}>
-                    Cancel
+                    Annuler
                   </Button>
                   <Button 
                     onClick={handleConfirmPay}
@@ -198,12 +198,12 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     {payLoading ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Processing...
+                        Traitement...
                       </>
                     ) : (
                       <>
                         <Save className="h-4 w-4 mr-2" />
-                        Pay Commission
+                        Payer la commission
                       </>
                     )}
                   </Button>
@@ -232,7 +232,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                       <DollarSign className="h-6 w-6 text-blue-600 dark:text-blue-300" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Commissions</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Commissions totales</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                         ${parseFloat(stats.total_commissions || 0).toFixed(2)}
                       </p>
@@ -247,7 +247,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                       <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-300" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Commissions</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Commissions en attente</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                         ${parseFloat(stats.pending_commissions || 0).toFixed(2)}
                       </p>
@@ -262,7 +262,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                       <Users className="h-6 w-6 text-purple-600 dark:text-purple-300" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Transactions</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Transactions totales</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                         {stats.total_transactions || 0}
                       </p>
@@ -279,7 +279,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                   <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                     <Calendar className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                   </div>
-                  <span>Period Information</span>
+                  <span>Informations sur la période</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -287,18 +287,18 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                   <div className="flex items-center space-x-3">
                     <Calendar className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Period Start</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Début de période</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {stats.period_info?.start ? new Date(stats.period_info.start).toLocaleDateString() : 'Not set'}
+                        {stats.period_info?.start ? new Date(stats.period_info.start).toLocaleDateString() : 'Non défini'}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Calendar className="h-5 w-5 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Period End</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Fin de période</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {stats.period_info?.end ? new Date(stats.period_info.end).toLocaleDateString() : 'Not set'}
+                        {stats.period_info?.end ? new Date(stats.period_info.end).toLocaleDateString() : 'Non défini'}
                       </p>
                     </div>
                   </div>
@@ -313,7 +313,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                   <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-300" />
                   </div>
-                  <span>Commission History</span>
+                  <span>Historique des commissions</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -332,7 +332,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               {commission.period_start && commission.period_end ? 
                                 `${new Date(commission.period_start).toLocaleDateString()} - ${new Date(commission.period_end).toLocaleDateString()}` : 
-                                'Period not specified'
+                                'Période non spécifiée'
                               }
                             </p>
                           </div>
@@ -355,7 +355,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                               ) : (
                                 <XCircle className="h-3 w-3" />
                               )}
-                              <span className="capitalize">{commission.status || 'Unknown'}</span>
+                              <span className="capitalize">{commission.status || 'Inconnu'}</span>
                             </div>
                           </Badge>
                         </div>
@@ -367,8 +367,8 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
                       <TrendingUp className="h-8 w-8 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No Commission History</h3>
-                    <p className="text-gray-600 dark:text-gray-400">No commission payments have been made yet.</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Aucun historique de commission</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Aucun paiement de commission n'a encore été effectué.</p>
                   </div>
                 )}
               </CardContent>
@@ -382,20 +382,20 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
             <DialogHeader>
               <DialogTitle className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-orange-600" />
-                <span>Confirm Payment</span>
+                <span>Confirmer le paiement</span>
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-400">
-                Are you sure you want to pay a commission of <span className="font-semibold">${amount || '0.00'}</span>?
+                Êtes-vous sûr de vouloir payer une commission de <span className="font-semibold">${amount || '0.00'}</span> ?
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                This action cannot be undone and will be recorded in the commission history.
+                Cette action ne peut pas être annulée et sera enregistrée dans l'historique des commissions.
               </p>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setConfirmModalOpen(false)}>
-                Cancel
+                Annuler
               </Button>
               <Button 
                 onClick={() => {
@@ -404,7 +404,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                 }}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
               >
-                Continue
+                Continuer
               </Button>
             </DialogFooter>
           </DialogContent>

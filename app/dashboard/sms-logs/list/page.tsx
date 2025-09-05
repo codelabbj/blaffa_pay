@@ -162,7 +162,7 @@ export default function SmsLogsListPage() {
                 {t("smsLogs.list")}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Monitor SMS communication logs
+                Surveiller les journaux de communication SMS
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -186,7 +186,7 @@ export default function SmsLogsListPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-                  placeholder="Search SMS logs..."
+                  placeholder="Rechercher dans les journaux SMS..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -196,12 +196,12 @@ export default function SmsLogsListPage() {
               {/* Type Filter */}
           <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Filter by type" />
+                  <SelectValue placeholder="Filtrer par type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="received">Received</SelectItem>
-                  <SelectItem value="sent">Sent</SelectItem>
+                  <SelectItem value="all">Tous les types</SelectItem>
+                  <SelectItem value="received">Reçu</SelectItem>
+                  <SelectItem value="sent">Envoyé</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -211,23 +211,23 @@ export default function SmsLogsListPage() {
                 onValueChange={(value) => setSortField(value as "received_at" | "sender" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Trier par" />
             </SelectTrigger>
             <SelectContent>
                   <SelectItem value="received_at">Date</SelectItem>
-                  <SelectItem value="sender">Sender</SelectItem>
+                  <SelectItem value="sender">Expéditeur</SelectItem>
             </SelectContent>
           </Select>
 
               {/* Page Size */}
               <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(parseInt(value))}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Page size" />
+                  <SelectValue placeholder="Taille de page" />
             </SelectTrigger>
             <SelectContent>
-                  <SelectItem value="50">50 per page</SelectItem>
-                  <SelectItem value="100">100 per page</SelectItem>
-                  <SelectItem value="200">200 per page</SelectItem>
+                  <SelectItem value="50">50 par page</SelectItem>
+                  <SelectItem value="100">100 par page</SelectItem>
+                  <SelectItem value="200">200 par page</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -241,7 +241,7 @@ export default function SmsLogsListPage() {
               <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                 <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-300" />
               </div>
-              <span>SMS Logs</span>
+              <span>Journaux SMS</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -249,7 +249,7 @@ export default function SmsLogsListPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading SMS logs...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des journaux SMS...</span>
             </div>
           </div>
         ) : error ? (
@@ -262,9 +262,9 @@ export default function SmsLogsListPage() {
               <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
                       <TableHead className="font-semibold">Type</TableHead>
-                      <TableHead className="font-semibold">Sender</TableHead>
+                      <TableHead className="font-semibold">Expéditeur</TableHead>
                       <TableHead className="font-semibold">Message</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Date</TableHead>
                       <TableHead className="font-semibold">Actions</TableHead>
                 </TableRow>
@@ -280,25 +280,25 @@ export default function SmsLogsListPage() {
                                 : "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
                             }
                           >
-                            {log.sms_type === 'received' ? 'Received' : 'Sent'}
+                            {log.sms_type === 'received' ? 'Reçu' : 'Envoyé'}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Phone className="h-4 w-4 text-gray-400" />
                             <span className="font-mono text-sm text-gray-700 dark:text-gray-300">
-                              {log.sender || log.phone_number || 'Unknown'}
+                              {log.sender || log.phone_number || 'Inconnu'}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="max-w-xs">
                             <div className="text-sm text-gray-900 dark:text-gray-100 truncate">
-                              {log.message || log.content || 'No message'}
+                              {log.message || log.content || 'Aucun message'}
                             </div>
                             {log.message && log.message.length > 50 && (
                               <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                {log.message.length} characters
+                                {log.message.length} caractères
                               </div>
                             )}
                           </div>
@@ -321,7 +321,7 @@ export default function SmsLogsListPage() {
                               ) : (
                                 <Clock className="h-3 w-3" />
                               )}
-                              <span>{log.status || 'Unknown'}</span>
+                              <span>{log.status || 'Inconnu'}</span>
                             </div>
                           </Badge>
                         </TableCell>
@@ -331,7 +331,7 @@ export default function SmsLogsListPage() {
                               ? new Date(log.received_at).toLocaleString()
                               : log.created_at 
                               ? new Date(log.created_at).toLocaleString()
-                              : 'Unknown'
+                              : 'Inconnu'
                             }
                           </div>
                         </TableCell>
@@ -343,7 +343,7 @@ export default function SmsLogsListPage() {
                             className={copied === (log.message || log.content) ? "bg-green-50 text-green-700 border-green-200" : ""}
                           >
                             <Copy className="h-4 w-4 mr-1" />
-                            {copied === (log.message || log.content) ? 'Copied!' : 'Copy'}
+                            {copied === (log.message || log.content) ? 'Copié!' : 'Copier'}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -359,7 +359,7 @@ export default function SmsLogsListPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {startItem} to {endItem} of {paginationData.count} results
+              Affichage de {startItem} à {endItem} sur {paginationData.count} résultats
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -369,7 +369,7 @@ export default function SmsLogsListPage() {
                     disabled={currentPage === 1}
                   >
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                Précédent
               </Button>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -393,7 +393,7 @@ export default function SmsLogsListPage() {
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                   >
-                Next
+                Suivant
                 <ChevronRight className="h-4 w-4" />
                   </Button>
                 </div>
@@ -406,10 +406,10 @@ export default function SmsLogsListPage() {
             <CardContent className="p-12 text-center">
               <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No SMS logs found
+                Aucun journal SMS trouvé
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchTerm ? `No SMS logs match "${searchTerm}"` : "No SMS logs have been recorded yet."}
+                {searchTerm ? `Aucun journal SMS ne correspond à "${searchTerm}"` : "Aucun journal SMS n'a encore été enregistré."}
               </p>
             </CardContent>
           </Card>

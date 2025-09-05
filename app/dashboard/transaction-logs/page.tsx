@@ -81,16 +81,16 @@ export default function TransactionLogsListPage() {
         setCount(typeof data?.count === "number" ? data.count : (Array.isArray(data?.results) ? data.results.length : 0))
 
         toast({
-          title: t("transactionLogs.success") || "Success",
-          description: t("transactionLogs.loadedSuccessfully") || "Transaction logs loaded successfully",
+          title: t("transactionLogs.success") || "Succès",
+          description: t("transactionLogs.loadedSuccessfully") || "Journaux de transaction chargés avec succès",
         })
       } catch (err: any) {
-        const errorMessage = extractErrorMessages(err) || t("transactionLogs.failedToLoad") || "Failed to load transaction logs"
+        const errorMessage = extractErrorMessages(err) || t("transactionLogs.failedToLoad") || "Échec du chargement des journaux de transaction"
         setError(errorMessage)
         setLogs([])
         setCount(0)
         toast({
-          title: t("transactionLogs.failedToLoad") || "Failed to load",
+          title: t("transactionLogs.failedToLoad") || "Échec du chargement",
           description: errorMessage,
           variant: "destructive",
         })
@@ -115,7 +115,7 @@ export default function TransactionLogsListPage() {
                 {t("transactionLogs.list") || "Transaction Logs"}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Monitor transaction activity and system logs
+                Surveiller l'activité des transactions et les journaux système
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -123,7 +123,7 @@ export default function TransactionLogsListPage() {
                 <div className="flex items-center space-x-2">
                   <FileText className="h-5 w-5 text-blue-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {count} logs
+                    {count} journaux
                   </span>
                 </div>
               </div>
@@ -138,7 +138,7 @@ export default function TransactionLogsListPage() {
           <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-                  placeholder="Search transaction logs..."
+                  placeholder="Rechercher dans les journaux de transaction..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
                   onKeyPress={(e) => e.key === "Enter" && handleSearchSubmit()}
@@ -149,7 +149,7 @@ export default function TransactionLogsListPage() {
               onClick={handleSearchSubmit}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
             >
-                Search
+                Rechercher
             </Button>
           </div>
           </CardContent>
@@ -162,7 +162,7 @@ export default function TransactionLogsListPage() {
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <FileText className="h-5 w-5 text-green-600 dark:text-green-300" />
               </div>
-              <span>Transaction Logs</span>
+              <span>Journaux de transaction</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -170,7 +170,7 @@ export default function TransactionLogsListPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading transaction logs...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des journaux de transaction...</span>
                 </div>
               </div>
             ) : error ? (
@@ -192,12 +192,12 @@ export default function TransactionLogsListPage() {
                       <ArrowUpDown className="ml-2 h-4 w-4" />
                     </Button>
                   </TableHead>
-                      <TableHead className="font-semibold">Transaction ID</TableHead>
+                      <TableHead className="font-semibold">ID de transaction</TableHead>
                       <TableHead className="font-semibold">Type</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
-                      <TableHead className="font-semibold">Amount</TableHead>
-                      <TableHead className="font-semibold">User</TableHead>
-                      <TableHead className="font-semibold">Details</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
+                      <TableHead className="font-semibold">Montant</TableHead>
+                      <TableHead className="font-semibold">Utilisateur</TableHead>
+                      <TableHead className="font-semibold">Détails</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -207,7 +207,7 @@ export default function TransactionLogsListPage() {
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {log.created_at 
                               ? new Date(log.created_at).toLocaleString()
-                              : 'Unknown'
+                              : 'Inconnu'
                             }
                           </div>
                         </TableCell>
@@ -226,7 +226,7 @@ export default function TransactionLogsListPage() {
                                 : "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
                             }
                           >
-                            {log.transaction_type || 'Unknown'}
+                            {log.transaction_type || 'Inconnu'}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -247,7 +247,7 @@ export default function TransactionLogsListPage() {
                               ) : (
                                 <Clock className="h-3 w-3" />
                               )}
-                              <span>{log.status || 'Unknown'}</span>
+                              <span>{log.status || 'Inconnu'}</span>
                             </div>
                           </Badge>
                         </TableCell>
@@ -261,17 +261,17 @@ export default function TransactionLogsListPage() {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm text-gray-700 dark:text-gray-300">
-                            {log.user_name || log.user_id || 'Unknown'}
+                            {log.user_name || log.user_id || 'Inconnu'}
                           </div>
                         </TableCell>
                       <TableCell>
                           <div className="max-w-xs">
                             <div className="text-sm text-gray-900 dark:text-gray-100 truncate">
-                              {log.message || log.description || 'No details'}
+                              {log.message || log.description || 'Aucun détail'}
                             </div>
                             {log.error_message && (
                               <div className="text-xs text-red-500 dark:text-red-400 mt-1">
-                                Error: {log.error_message}
+                                Erreur : {log.error_message}
                               </div>
                             )}
                           </div>
@@ -289,7 +289,7 @@ export default function TransactionLogsListPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, count)} of {count} results
+              Affichage de {((currentPage - 1) * pageSize) + 1} à {Math.min(currentPage * pageSize, count)} sur {count} résultats
               </div>
             <div className="flex items-center space-x-2">
                 <Button
@@ -299,7 +299,7 @@ export default function TransactionLogsListPage() {
                 disabled={currentPage === 1}
                 >
                   <ChevronLeft className="h-4 w-4" />
-                Previous
+                Précédent
               </Button>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -323,7 +323,7 @@ export default function TransactionLogsListPage() {
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 >
-                Next
+                Suivant
                   <ChevronRight className="h-4 w-4" />
                 </Button>
             </div>
@@ -336,10 +336,10 @@ export default function TransactionLogsListPage() {
             <CardContent className="p-12 text-center">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No transaction logs found
+                Aucun journal de transaction trouvé
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchTerm ? `No transaction logs match "${searchTerm}"` : "No transaction logs have been recorded yet."}
+                {searchTerm ? `Aucun journal de transaction ne correspond à "${searchTerm}"` : "Aucun journal de transaction n'a encore été enregistré."}
               </p>
       </CardContent>
     </Card>

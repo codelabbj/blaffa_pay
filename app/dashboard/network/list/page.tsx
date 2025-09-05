@@ -143,7 +143,7 @@ export default function NetworkListPage() {
                 {t("network.list")}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Manage payment networks and providers
+                Gérer les réseaux de paiement et les fournisseurs
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -151,7 +151,7 @@ export default function NetworkListPage() {
                 <div className="flex items-center space-x-2">
                   <Share2 className="h-5 w-5 text-blue-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {networks.length} networks
+                    {networks.length} réseaux
                   </span>
                 </div>
               </div>
@@ -173,7 +173,7 @@ export default function NetworkListPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search networks..."
+                  placeholder="Rechercher des réseaux..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -183,22 +183,22 @@ export default function NetworkListPage() {
               {/* Status Filter */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue placeholder="Filtrer par statut" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Networks</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="all">Tous les réseaux</SelectItem>
+                  <SelectItem value="active">Actif</SelectItem>
+                  <SelectItem value="inactive">Inactif</SelectItem>
                 </SelectContent>
               </Select>
 
               {/* Country Filter */}
               <Select value={countryFilter} onValueChange={setCountryFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Filter by country" />
+                  <SelectValue placeholder="Filtrer par pays" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Countries</SelectItem>
+                  <SelectItem value="all">Tous les pays</SelectItem>
                   {countries.map((country) => (
                     <SelectItem 
                       key={country.id || country.uid || Math.random()} 
@@ -216,10 +216,10 @@ export default function NetworkListPage() {
                 onValueChange={(value) => setSortField(value as "nom" | "code" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="nom">Name</SelectItem>
+                  <SelectItem value="nom">Nom</SelectItem>
                   <SelectItem value="code">Code</SelectItem>
                 </SelectContent>
               </Select>
@@ -234,7 +234,7 @@ export default function NetworkListPage() {
               <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                 <Share2 className="h-5 w-5 text-purple-600 dark:text-purple-300" />
               </div>
-              <span>Network List</span>
+              <span>Liste des réseaux</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -242,7 +242,7 @@ export default function NetworkListPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading networks...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des réseaux...</span>
                 </div>
               </div>
             ) : error ? (
@@ -254,10 +254,10 @@ export default function NetworkListPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">Network Name</TableHead>
+                      <TableHead className="font-semibold">Nom du réseau</TableHead>
                       <TableHead className="font-semibold">Code</TableHead>
-                      <TableHead className="font-semibold">Country</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Pays</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -290,7 +290,7 @@ export default function NetworkListPage() {
                           <div className="flex items-center space-x-2">
                             <Globe className="h-4 w-4 text-gray-400" />
                             <span className="text-sm text-gray-700 dark:text-gray-300">
-                              {network.country?.nom || network.country_name || 'Unknown'}
+                              {network.country?.nom || network.country_name || 'Inconnu'}
                             </span>
                           </div>
                         </TableCell>
@@ -308,7 +308,7 @@ export default function NetworkListPage() {
                               ) : (
                                 <XCircle className="h-3 w-3" />
                               )}
-                              <span>{network.is_active ? 'Active' : 'Inactive'}</span>
+                              <span>{network.is_active ? 'Actif' : 'Inactif'}</span>
                             </div>
                           </Badge>
                         </TableCell>
@@ -317,7 +317,7 @@ export default function NetworkListPage() {
                             <Link href={`/dashboard/network/edit/${network.id || network.uid}`}>
                               <Button variant="outline" size="sm">
                                 <Pencil className="h-4 w-4 mr-1" />
-                                Edit
+                                Modifier
                               </Button>
                             </Link>
                             <Button 
@@ -329,7 +329,7 @@ export default function NetworkListPage() {
                                   : "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
                               }
                             >
-                              {network.is_active ? 'Deactivate' : 'Activate'}
+                              {network.is_active ? 'Désactiver' : 'Activer'}
                             </Button>
                           </div>
                         </TableCell>
@@ -348,15 +348,15 @@ export default function NetworkListPage() {
             <CardContent className="p-12 text-center">
               <Share2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No networks found
+                Aucun réseau trouvé
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchTerm ? `No networks match "${searchTerm}"` : "No networks have been added yet."}
+                {searchTerm ? `Aucun réseau ne correspond à "${searchTerm}"` : "Aucun réseau n'a encore été ajouté."}
               </p>
               <Link href="/dashboard/network/create">
                 <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add First Network
+                  Ajouter le premier réseau
                 </Button>
               </Link>
             </CardContent>

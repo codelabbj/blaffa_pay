@@ -69,15 +69,15 @@ export default function NetworkConfigEditPage() {
         const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`)
         setNetworks(Array.isArray(data) ? data : data.results || [])
         toast({
-          title: "Networks Loaded",
-          description: "Networks loaded successfully.",
+          title: "Réseaux chargés",
+          description: "Les réseaux ont été chargés avec succès.",
         })
       } catch (err: any) {
-        const errorMessage = extractErrorMessages(err) || "Failed to load networks"
+        const errorMessage = extractErrorMessages(err) || "Échec du chargement des réseaux"
         setError(errorMessage)
         setNetworks([])
         toast({
-          title: "Failed to Load Networks",
+          title: "Échec du chargement des réseaux",
           description: errorMessage,
           variant: "destructive",
         })
@@ -126,14 +126,14 @@ export default function NetworkConfigEditPage() {
         }
         
         toast({
-          title: "Configuration Loaded",
-          description: "Network configuration loaded successfully.",
+          title: "Configuration chargée",
+          description: "La configuration du réseau a été chargée avec succès.",
         })
       } catch (err: any) {
-        const errorMessage = extractErrorMessages(err) || "Failed to load configuration"
+        const errorMessage = extractErrorMessages(err) || "Échec du chargement de la configuration"
         setError(errorMessage)
         toast({
-          title: "Failed to Load Configuration",
+          title: "Échec du chargement de la configuration",
           description: errorMessage,
           variant: "destructive",
         })
@@ -177,16 +177,16 @@ export default function NetworkConfigEditPage() {
       })
       
       toast({
-        title: "Configuration Updated",
-        description: "Network configuration updated successfully.",
+        title: "Configuration mise à jour",
+        description: "La configuration du réseau a été mise à jour avec succès.",
       })
       
       router.push('/dashboard/network-config/list')
     } catch (err: any) {
-      const errorMessage = extractErrorMessages(err) || "Failed to update configuration"
+      const errorMessage = extractErrorMessages(err) || "Échec de la mise à jour de la configuration"
       setError(errorMessage)
       toast({
-        title: "Failed to Update Configuration",
+        title: "Échec de la mise à jour de la configuration",
         description: errorMessage,
         variant: "destructive",
       })
@@ -202,7 +202,7 @@ export default function NetworkConfigEditPage() {
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center space-y-4">
               <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="text-gray-600 dark:text-gray-300">Loading configuration...</span>
+              <span className="text-gray-600 dark:text-gray-300">Chargement de la configuration...</span>
             </div>
           </div>
         </div>
@@ -224,14 +224,14 @@ export default function NetworkConfigEditPage() {
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Retour
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Edit Network Configuration
+                  Modifier la configuration du réseau
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                  Update network configuration settings
+                  Mettre à jour les paramètres de configuration du réseau
                 </p>
               </div>
             </div>
@@ -254,16 +254,16 @@ export default function NetworkConfigEditPage() {
                 <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                   <Settings className="h-5 w-5 text-blue-600 dark:text-blue-300" />
                 </div>
-                <span>Basic Settings</span>
+                <span>Paramètres de base</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="network">Network</Label>
+                  <Label htmlFor="network">Réseau</Label>
                   <Select value={network} onValueChange={setNetwork}>
                     <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                      <SelectValue placeholder="Select network" />
+                      <SelectValue placeholder="Sélectionner le réseau" />
                     </SelectTrigger>
                     <SelectContent>
                       {networks.map((net) => (
@@ -280,7 +280,7 @@ export default function NetworkConfigEditPage() {
                     checked={isActive}
                     onCheckedChange={setIsActive}
                   />
-                  <Label htmlFor="isActive">Active</Label>
+                  <Label htmlFor="isActive">Actif</Label>
                 </div>
               </div>
             </CardContent>
@@ -293,13 +293,13 @@ export default function NetworkConfigEditPage() {
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                   <Globe className="h-5 w-5 text-green-600 dark:text-green-300" />
                 </div>
-                <span>USSD Commands</span>
+                <span>Commandes USSD</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="ussdBalance">Balance Command</Label>
+                  <Label htmlFor="ussdBalance">Commande de solde</Label>
                   <Input
                     id="ussdBalance"
                     value={ussdBalance}
@@ -309,7 +309,7 @@ export default function NetworkConfigEditPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="ussdDeposit">Deposit Command</Label>
+                  <Label htmlFor="ussdDeposit">Commande de dépôt</Label>
                   <Input
                     id="ussdDeposit"
                     value={ussdDeposit}
@@ -319,7 +319,7 @@ export default function NetworkConfigEditPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="ussdWithdrawal">Withdrawal Command</Label>
+                  <Label htmlFor="ussdWithdrawal">Commande de retrait</Label>
                   <Input
                     id="ussdWithdrawal"
                     value={ussdWithdrawal}
@@ -339,13 +339,13 @@ export default function NetworkConfigEditPage() {
                 <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                   <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                 </div>
-                <span>SMS Keywords</span>
+                <span>Mots-clés SMS</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="smsBalance">Balance Keywords</Label>
+                  <Label htmlFor="smsBalance">Mots-clés de solde</Label>
                   <Input
                     id="smsBalance"
                     value={smsBalanceKeywords}
@@ -355,7 +355,7 @@ export default function NetworkConfigEditPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="smsDeposit">Deposit Keywords</Label>
+                  <Label htmlFor="smsDeposit">Mots-clés de dépôt</Label>
                   <Input
                     id="smsDeposit"
                     value={smsDepositKeywords}
@@ -365,7 +365,7 @@ export default function NetworkConfigEditPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="smsWithdrawal">Withdrawal Keywords</Label>
+                  <Label htmlFor="smsWithdrawal">Mots-clés de retrait</Label>
                   <Input
                     id="smsWithdrawal"
                     value={smsWithdrawalKeywords}
@@ -385,12 +385,12 @@ export default function NetworkConfigEditPage() {
                 <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                   <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-300" />
                 </div>
-                <span>Error Keywords</span>
+                <span>Mots-clés d'erreur</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div>
-                <Label htmlFor="errorKeywords">Error Keywords (comma-separated)</Label>
+                <Label htmlFor="errorKeywords">Mots-clés d'erreur (séparés par des virgules)</Label>
                 <Input
                   id="errorKeywords"
                   value={errorKeywords}
@@ -409,13 +409,13 @@ export default function NetworkConfigEditPage() {
                 <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                   <Clock className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                 </div>
-                <span>Custom Settings</span>
+                <span>Paramètres personnalisés</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="timeoutSeconds">Timeout (seconds)</Label>
+                  <Label htmlFor="timeoutSeconds">Délai d'attente (secondes)</Label>
                   <Input
                     id="timeoutSeconds"
                     type="number"
@@ -427,7 +427,7 @@ export default function NetworkConfigEditPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="maxRetries">Max Retries</Label>
+                  <Label htmlFor="maxRetries">Tentatives maximales</Label>
                   <Input
                     id="maxRetries"
                     type="number"
@@ -444,7 +444,7 @@ export default function NetworkConfigEditPage() {
                     checked={autoConfirm}
                     onCheckedChange={setAutoConfirm}
                   />
-                  <Label htmlFor="autoConfirm">Auto Confirm</Label>
+                  <Label htmlFor="autoConfirm">Confirmation automatique</Label>
                 </div>
               </div>
             </CardContent>
@@ -457,7 +457,7 @@ export default function NetworkConfigEditPage() {
               variant="outline" 
               onClick={() => router.back()}
             >
-              Cancel
+              Annuler
             </Button>
             <Button 
               type="submit" 
@@ -467,12 +467,12 @@ export default function NetworkConfigEditPage() {
               {saving ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
+                  Sauvegarde...
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Changes
+                  Sauvegarder les modifications
                 </>
               )}
             </Button>

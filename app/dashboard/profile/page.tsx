@@ -83,8 +83,8 @@ export default function ProfilePage() {
       } catch (error) {
         console.error('Error fetching profile:', error);
         toast({
-          title: 'Error',
-          description: 'Failed to load profile data',
+          title: 'Erreur',
+          description: 'Échec du chargement des données du profil',
           variant: 'destructive',
         });
       } finally {
@@ -124,14 +124,14 @@ export default function ProfilePage() {
 
       setEditing(false);
       toast({
-        title: 'Success',
-        description: 'Profile updated successfully',
+        title: 'Succès',
+        description: 'Profil mis à jour avec succès',
       });
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update profile',
+        title: 'Erreur',
+        description: 'Échec de la mise à jour du profil',
         variant: 'destructive',
       });
     } finally {
@@ -160,7 +160,7 @@ export default function ProfilePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
           <div className="flex flex-col items-center space-y-4">
             <XCircle className="h-12 w-12 text-red-500" />
-            <p className="text-lg text-gray-600 dark:text-gray-300">Failed to load profile. Please try again later.</p>
+            <p className="text-lg text-gray-600 dark:text-gray-300">Échec du chargement du profil. Veuillez réessayer plus tard.</p>
           </div>
         </div>
       </div>
@@ -184,10 +184,10 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                My Profile
+                Mon profil
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Manage your account information and settings
+                Gérez vos informations de compte et paramètres
               </p>
             </div>
             {!editing ? (
@@ -197,7 +197,7 @@ export default function ProfilePage() {
                 className="flex items-center space-x-2"
               >
                 <Edit className="h-4 w-4" />
-                Edit Profile
+                Modifier le profil
               </Button>
             ) : (
               <div className="space-x-2">
@@ -208,7 +208,7 @@ export default function ProfilePage() {
                   className="flex items-center space-x-2"
                 >
                   <X className="h-4 w-4" />
-                  Cancel
+                  Annuler
                 </Button>
                 <Button 
                   onClick={handleSubmit} 
@@ -218,12 +218,12 @@ export default function ProfilePage() {
                   {loading ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Saving...
+                      Sauvegarde...
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4" />
-                      Save Changes
+                      Sauvegarder les modifications
                     </>
                   )}
                 </Button>
@@ -245,7 +245,7 @@ export default function ProfilePage() {
               <div>
                 <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{profile.display_name}</div>
                 <div className="text-gray-600 dark:text-gray-400 mt-1">
-                  Member since {new Date(profile.created_at).toLocaleDateString()}
+                  Membre depuis {new Date(profile.created_at).toLocaleDateString()}
                 </div>
                 <div className="flex items-center space-x-2 mt-2">
                   <Badge 
@@ -277,11 +277,11 @@ export default function ProfilePage() {
                   <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                     <User className="h-4 w-4 text-blue-600 dark:text-blue-300" />
                   </div>
-                  <span>Personal Information</span>
+                  <span>Informations personnelles</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">First Name</Label>
+                    <Label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</Label>
                     {editing ? (
                       <Input
                         id="first_name"
@@ -296,7 +296,7 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</Label>
+                    <Label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Nom de famille</Label>
                     {editing ? (
                       <Input
                         id="last_name"
@@ -319,13 +319,13 @@ export default function ProfilePage() {
                   <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                     <Mail className="h-4 w-4 text-green-600 dark:text-green-300" />
                   </div>
-                  <span>Contact Information</span>
+                  <span>Informations de contact</span>
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
                       <Mail className="h-4 w-4" />
-                      <span>Email Address</span>
+                      <span>Adresse e-mail</span>
                     </Label>
                     {editing ? (
                       <Input
@@ -344,14 +344,14 @@ export default function ProfilePage() {
                           <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
                             <div className="flex items-center space-x-1">
                               <CheckCircle className="h-3 w-3" />
-                              <span>Verified</span>
+                              <span>Vérifié</span>
                             </div>
                           </Badge>
                         ) : (
                           <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
                             <div className="flex items-center space-x-1">
                               <XCircle className="h-3 w-3" />
-                              <span>Unverified</span>
+                              <span>Non vérifié</span>
                             </div>
                           </Badge>
                         )}
@@ -362,7 +362,7 @@ export default function ProfilePage() {
                   <div className="space-y-2">
                     <Label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
                       <Phone className="h-4 w-4" />
-                      <span>Phone Number</span>
+                      <span>Numéro de téléphone</span>
                     </Label>
                     {editing ? (
                       <Input
@@ -381,14 +381,14 @@ export default function ProfilePage() {
                           <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
                             <div className="flex items-center space-x-1">
                               <CheckCircle className="h-3 w-3" />
-                              <span>Verified</span>
+                              <span>Vérifié</span>
                             </div>
                           </Badge>
                         ) : (
                           <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
                             <div className="flex items-center space-x-1">
                               <XCircle className="h-3 w-3" />
-                              <span>Unverified</span>
+                              <span>Non vérifié</span>
                             </div>
                           </Badge>
                         )}
@@ -404,11 +404,11 @@ export default function ProfilePage() {
                   <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                     <Shield className="h-4 w-4 text-purple-600 dark:text-purple-300" />
                   </div>
-                  <span>Account Settings</span>
+                  <span>Paramètres du compte</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Account Status</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Statut du compte</div>
                     <Badge 
                       variant={profile.is_active ? "default" : "secondary"}
                       className={
@@ -423,12 +423,12 @@ export default function ProfilePage() {
                         ) : (
                           <XCircle className="h-3 w-3" />
                         )}
-                        <span>{profile.is_active ? 'Active' : 'Inactive'}</span>
+                        <span>{profile.is_active ? 'Actif' : 'Inactif'}</span>
                       </div>
                     </Badge>
                   </div>
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Preferred Contact Method</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Méthode de contact préférée</div>
                     <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
                       <div className="flex items-center space-x-1">
                         {profile.contact_method === 'email' ? (
@@ -436,7 +436,7 @@ export default function ProfilePage() {
                         ) : (
                           <Phone className="h-3 w-3" />
                         )}
-                        <span>{profile.contact_method === 'email' ? 'Email' : 'Phone'}</span>
+                        <span>{profile.contact_method === 'email' ? 'E-mail' : 'Téléphone'}</span>
                       </div>
                     </Badge>
                   </div>
@@ -449,15 +449,15 @@ export default function ProfilePage() {
                   <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                     <Calendar className="h-4 w-4 text-orange-600 dark:text-orange-300" />
                   </div>
-                  <span>Account Information</span>
+                  <span>Informations du compte</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">User ID</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">ID utilisateur</div>
                     <div className="text-gray-900 dark:text-gray-100 font-mono text-sm">{profile.uid}</div>
                   </div>
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Last Updated</div>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Dernière mise à jour</div>
                     <div className="text-gray-900 dark:text-gray-100">
                       {new Date(profile.updated_at).toLocaleDateString()}
                     </div>

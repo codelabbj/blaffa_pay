@@ -143,7 +143,7 @@ export default function PhoneNumberListPage() {
                 {t("phoneNumbers.list") || "Phone Numbers"}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Manage phone numbers and their network associations
+                Gérer les numéros de téléphone et leurs associations de réseau
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -151,14 +151,14 @@ export default function PhoneNumberListPage() {
                 <div className="flex items-center space-x-2">
                   <Phone className="h-5 w-5 text-blue-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {numbers.length} numbers
+                    {numbers.length} numéros
                   </span>
                 </div>
               </div>
               <Link href="/dashboard/phone-number/create">
                 <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Number
+                  Ajouter un numéro
                 </Button>
               </Link>
             </div>
@@ -173,7 +173,7 @@ export default function PhoneNumberListPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-                  placeholder="Search phone numbers..."
+                  placeholder="Rechercher des numéros de téléphone..."
               value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -183,10 +183,10 @@ export default function PhoneNumberListPage() {
               {/* Network Filter */}
           <Select value={networkFilter} onValueChange={setNetworkFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Filter by network" />
+                  <SelectValue placeholder="Filtrer par réseau" />
             </SelectTrigger>
             <SelectContent>
-                  <SelectItem value="all">All Networks</SelectItem>
+                  <SelectItem value="all">Tous les réseaux</SelectItem>
                   {networks.map((network) => (
                     <SelectItem key={network.id || network.uid} value={network.id || network.uid}>
                   {network.nom}
@@ -201,11 +201,11 @@ export default function PhoneNumberListPage() {
                 onValueChange={(value) => setSortField(value as "phone_number" | "network" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="phone_number">Phone Number</SelectItem>
-                  <SelectItem value="network">Network</SelectItem>
+                  <SelectItem value="phone_number">Numéro de téléphone</SelectItem>
+                  <SelectItem value="network">Réseau</SelectItem>
                 </SelectContent>
               </Select>
         </div>
@@ -219,7 +219,7 @@ export default function PhoneNumberListPage() {
               <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                 <Phone className="h-5 w-5 text-blue-600 dark:text-blue-300" />
               </div>
-              <span>Phone Numbers List</span>
+              <span>Liste des numéros de téléphone</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -227,7 +227,7 @@ export default function PhoneNumberListPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading phone numbers...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des numéros de téléphone...</span>
                 </div>
               </div>
         ) : error ? (
@@ -239,10 +239,10 @@ export default function PhoneNumberListPage() {
           <Table>
             <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">Phone Number</TableHead>
-                      <TableHead className="font-semibold">Network</TableHead>
-                      <TableHead className="font-semibold">Country</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Numéro de téléphone</TableHead>
+                      <TableHead className="font-semibold">Réseau</TableHead>
+                      <TableHead className="font-semibold">Pays</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -256,10 +256,10 @@ export default function PhoneNumberListPage() {
                             </div>
                             <div>
                               <div className="font-medium text-gray-900 dark:text-gray-100 font-mono">
-                                {number.phone_number || number.number || 'Unknown'}
+                                {number.phone_number || number.number || 'Inconnu'}
                               </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {number.description || 'No description'}
+                                {number.description || 'Aucune description'}
                               </div>
                             </div>
                           </div>
@@ -268,13 +268,13 @@ export default function PhoneNumberListPage() {
                           <div className="flex items-center space-x-2">
                             <Globe className="h-4 w-4 text-gray-400" />
                             <span className="text-sm text-gray-700 dark:text-gray-300">
-                              {number.network?.nom || number.network_name || 'Unknown'}
+                              {number.network?.nom || number.network_name || 'Inconnu'}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="text-xs">
-                            {number.country?.nom || number.country_name || 'Unknown'}
+                            {number.country?.nom || number.country_name || 'Inconnu'}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -291,14 +291,14 @@ export default function PhoneNumberListPage() {
                               ) : (
                                 <XCircle className="h-3 w-3" />
                               )}
-                              <span>{number.is_active ? 'Active' : 'Inactive'}</span>
+                              <span>{number.is_active ? 'Actif' : 'Inactif'}</span>
                             </div>
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Button variant="outline" size="sm">
-                              Edit
+                              Modifier
                             </Button>
                             <Button 
                               variant="outline" 
@@ -309,7 +309,7 @@ export default function PhoneNumberListPage() {
                                   : "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
                               }
                             >
-                              {number.is_active ? 'Deactivate' : 'Activate'}
+                              {number.is_active ? 'Désactiver' : 'Activer'}
                             </Button>
                           </div>
                         </TableCell>
@@ -328,15 +328,15 @@ export default function PhoneNumberListPage() {
             <CardContent className="p-12 text-center">
               <Phone className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No phone numbers found
+                Aucun numéro de téléphone trouvé
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchTerm ? `No phone numbers match "${searchTerm}"` : "No phone numbers have been added yet."}
+                {searchTerm ? `Aucun numéro de téléphone ne correspond à "${searchTerm}"` : "Aucun numéro de téléphone n'a encore été ajouté."}
               </p>
               <Link href="/dashboard/phone-number/create">
                 <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add First Number
+                  Ajouter le premier numéro
                 </Button>
               </Link>
             </CardContent>

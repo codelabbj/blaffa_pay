@@ -152,14 +152,14 @@ export default function NetworkConfigCreatePage() {
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Retour
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   {t("networkConfig.create") || "Create Network Configuration"}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                  Add a new network configuration
+                  Ajouter une nouvelle configuration de réseau
                 </p>
               </div>
             </div>
@@ -182,16 +182,16 @@ export default function NetworkConfigCreatePage() {
                 <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                   <Settings className="h-5 w-5 text-blue-600 dark:text-blue-300" />
                 </div>
-                <span>Basic Settings</span>
+                <span>Paramètres de base</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="network">Network</Label>
+                  <Label htmlFor="network">Réseau</Label>
                   <Select value={network} onValueChange={setNetwork}>
                     <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                      <SelectValue placeholder="Select network" />
+                      <SelectValue placeholder="Sélectionner le réseau" />
                     </SelectTrigger>
                     <SelectContent>
                       {networks.map((net) => (
@@ -208,7 +208,7 @@ export default function NetworkConfigCreatePage() {
                     checked={isActive}
                     onCheckedChange={setIsActive}
                   />
-                  <Label htmlFor="isActive">Active</Label>
+                  <Label htmlFor="isActive">Actif</Label>
                 </div>
               </div>
             </CardContent>
@@ -221,13 +221,13 @@ export default function NetworkConfigCreatePage() {
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                   <Globe className="h-5 w-5 text-green-600 dark:text-green-300" />
                 </div>
-                <span>USSD Commands</span>
+                <span>Commandes USSD</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="ussdBalance">Balance Command</Label>
+                  <Label htmlFor="ussdBalance">Commande de solde</Label>
                   <Textarea
                     id="ussdBalance"
                     value={ussdBalance}
@@ -238,7 +238,7 @@ export default function NetworkConfigCreatePage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="ussdDeposit">Deposit Command</Label>
+                  <Label htmlFor="ussdDeposit">Commande de dépôt</Label>
                   <Textarea
                     id="ussdDeposit"
                     value={ussdDeposit}
@@ -249,7 +249,7 @@ export default function NetworkConfigCreatePage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="ussdWithdrawal">Withdrawal Command</Label>
+                  <Label htmlFor="ussdWithdrawal">Commande de retrait</Label>
                   <Textarea
                     id="ussdWithdrawal"
                     value={ussdWithdrawal}
@@ -270,13 +270,13 @@ export default function NetworkConfigCreatePage() {
                 <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                   <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                 </div>
-                <span>SMS Keywords</span>
+                <span>Mots-clés SMS</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="smsBalance">Balance Keywords (comma-separated)</Label>
+                  <Label htmlFor="smsBalance">Mots-clés de solde (séparés par des virgules)</Label>
                   <Input
                     id="smsBalance"
                     value={smsBalanceKeywords}
@@ -286,7 +286,7 @@ export default function NetworkConfigCreatePage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="smsDeposit">Deposit Keywords (comma-separated)</Label>
+                  <Label htmlFor="smsDeposit">Mots-clés de dépôt (séparés par des virgules)</Label>
                   <Input
                     id="smsDeposit"
                     value={smsDepositKeywords}
@@ -296,7 +296,7 @@ export default function NetworkConfigCreatePage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="smsWithdrawal">Withdrawal Keywords (comma-separated)</Label>
+                  <Label htmlFor="smsWithdrawal">Mots-clés de retrait (séparés par des virgules)</Label>
                   <Input
                     id="smsWithdrawal"
                     value={smsWithdrawalKeywords}
@@ -316,12 +316,12 @@ export default function NetworkConfigCreatePage() {
                 <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                   <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-300" />
                 </div>
-                <span>Error Keywords</span>
+                <span>Mots-clés d'erreur</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
               <div>
-                <Label htmlFor="errorKeywords">Error Keywords (comma-separated)</Label>
+                <Label htmlFor="errorKeywords">Mots-clés d'erreur (séparés par des virgules)</Label>
                 <Input
                   id="errorKeywords"
                   value={errorKeywords}
@@ -340,13 +340,13 @@ export default function NetworkConfigCreatePage() {
                 <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                   <Clock className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                 </div>
-                <span>Custom Settings</span>
+                <span>Paramètres personnalisés</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="timeoutSeconds">Timeout (seconds)</Label>
+                  <Label htmlFor="timeoutSeconds">Délai d'attente (secondes)</Label>
                   <Input
                     id="timeoutSeconds"
                     type="number"
@@ -358,7 +358,7 @@ export default function NetworkConfigCreatePage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="maxRetries">Max Retries</Label>
+                  <Label htmlFor="maxRetries">Tentatives maximales</Label>
                   <Input
                     id="maxRetries"
                     type="number"
@@ -375,7 +375,7 @@ export default function NetworkConfigCreatePage() {
                     checked={autoConfirm}
                     onCheckedChange={setAutoConfirm}
                   />
-                  <Label htmlFor="autoConfirm">Auto Confirm</Label>
+                  <Label htmlFor="autoConfirm">Confirmation automatique</Label>
                 </div>
               </div>
             </CardContent>
@@ -388,7 +388,7 @@ export default function NetworkConfigCreatePage() {
               variant="outline" 
               onClick={() => router.back()}
             >
-              Cancel
+              Annuler
             </Button>
             <Button 
               type="submit" 
@@ -398,12 +398,12 @@ export default function NetworkConfigCreatePage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
+                  Création...
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Create Configuration
+                  Créer la configuration
                 </>
               )}
             </Button>

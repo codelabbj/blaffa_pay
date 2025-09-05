@@ -522,12 +522,12 @@ export default function TopupPage() {
 								<div><b>{t("topup.reviewedBy") || "Reviewed By"}:</b> {detailTopup.reviewed_by_name}</div>
 								<div><b>{t("topup.reviewedAt") || "Reviewed At"}:</b> {detailTopup.reviewed_at ? detailTopup.reviewed_at.split("T")[0] : "-"}</div>
 								<div><b>{t("topup.processedAt") || "Processed At"}:</b> {detailTopup.processed_at ? detailTopup.processed_at.split("T")[0] : "-"}</div>
-								<div><b>{t("topup.adminNotes") || "Admin Notes"}:</b> {detailTopup.admin_notes}</div>
-								<div><b>{t("topup.rejectionReason") || "Rejection Reason"}:</b> {detailTopup.rejection_reason}</div>
+								<div><b>{t("topup.adminNotes") || "Notes d'administrateur"}:</b> {detailTopup.admin_notes}</div>
+								<div><b>{t("topup.rejectionReason") || "Raison du rejet"}:</b> {detailTopup.rejection_reason}</div>
 							</div>
 						) : null}
 						<DialogClose asChild>
-							<Button className="mt-4 w-full">Close</Button>
+							<Button className="mt-4 w-full">Fermer</Button>
 						</DialogClose>
 					</DialogContent>
 				</Dialog>
@@ -538,7 +538,7 @@ export default function TopupPage() {
 						<DialogHeader>
 							<DialogTitle className="flex items-center space-x-2">
 								<Eye className="h-5 w-5" />
-								<span>{t("topup.proofImage") || "Proof Image"}</span>
+								<span>{t("topup.proofImage") || "Image de preuve"}</span>
 							</DialogTitle>
 						</DialogHeader>
 						{proofImageUrl && (
@@ -550,7 +550,7 @@ export default function TopupPage() {
 							/>
 						)}
 						<DialogClose asChild>
-							<Button className="mt-4 w-full">Close</Button>
+							<Button className="mt-4 w-full">Fermer</Button>
 						</DialogClose>
 					</DialogContent>
 				</Dialog>
@@ -567,8 +567,8 @@ export default function TopupPage() {
 								)}
 								<span>
 									{actionType === "approve"
-										? t("topup.approveTitle") || "Approve Request"
-										: t("topup.rejectTitle") || "Reject Request"}
+										? t("topup.approveTitle") || "Approuver la demande"
+										: t("topup.rejectTitle") || "Rejeter la demande"}
 								</span>
 							</DialogTitle>
 						</DialogHeader>
@@ -576,11 +576,11 @@ export default function TopupPage() {
 							<div className="space-y-4">
 								<div>
 									<Label htmlFor="adminNotes" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-										{t("topup.adminNotes") || "Admin Notes"}
+										{t("topup.adminNotes") || "Notes d'administrateur"}
 									</Label>
 									<Input
 										id="adminNotes"
-										placeholder={t("topup.adminNotes") || "Admin notes"}
+										placeholder={t("topup.adminNotes") || "Notes d'administrateur"}
 										value={adminNotes}
 										onChange={e => setAdminNotes(e.target.value)}
 										className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -591,11 +591,11 @@ export default function TopupPage() {
 							<div className="space-y-4">
 								<div>
 									<Label htmlFor="rejectionReason" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-										{t("topup.rejectionReason") || "Rejection Reason"}
+										{t("topup.rejectionReason") || "Raison du rejet"}
 									</Label>
 									<Input
 										id="rejectionReason"
-										placeholder={t("topup.rejectionReason") || "Rejection reason"}
+										placeholder={t("topup.rejectionReason") || "Raison du rejet"}
 										value={rejectionReason}
 										onChange={e => setRejectionReason(e.target.value)}
 										className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -608,7 +608,7 @@ export default function TopupPage() {
 								variant="outline"
 								onClick={() => setActionModalOpen(false)}
 							>
-								{t("common.cancel") || "Cancel"}
+								{t("common.cancel") || "Annuler"}
 							</Button>
 							<Button
 								onClick={async () => {
@@ -664,12 +664,12 @@ export default function TopupPage() {
 								{pendingAction ? (
 									<>
 										<Loader2 className="h-4 w-4 mr-2 animate-spin" />
-										Processing...
+										Traitement...
 									</>
 								) : (
 									actionType === "approve"
-										? t("topup.confirmApprove") || "Confirm Approval"
-										: t("topup.confirmReject") || "Confirm Rejection"
+										? t("topup.confirmApprove") || "Confirmer l'approbation"
+										: t("topup.confirmReject") || "Confirmer le rejet"
 								)}
 							</Button>
 						</DialogFooter>

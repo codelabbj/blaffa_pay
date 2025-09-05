@@ -121,7 +121,7 @@ export default function CountryListPage() {
                 {t("country.list")}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Manage supported countries and regions
+                Gérer les pays et régions pris en charge
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -129,7 +129,7 @@ export default function CountryListPage() {
                 <div className="flex items-center space-x-2">
                   <Globe className="h-5 w-5 text-blue-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {countries.length} countries
+                    {countries.length} pays
                   </span>
                 </div>
               </div>
@@ -151,7 +151,7 @@ export default function CountryListPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-                  placeholder="Search countries..."
+                  placeholder="Rechercher des pays..."
               value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
@@ -161,12 +161,12 @@ export default function CountryListPage() {
               {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue placeholder="Filtrer par statut" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Countries</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="all">Tous les pays</SelectItem>
+                  <SelectItem value="active">Actif</SelectItem>
+                  <SelectItem value="inactive">Inactif</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -176,10 +176,10 @@ export default function CountryListPage() {
                 onValueChange={(value) => setSortField(value as "nom" | "code" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder="Trier par" />
             </SelectTrigger>
             <SelectContent>
-                  <SelectItem value="nom">Name</SelectItem>
+                  <SelectItem value="nom">Nom</SelectItem>
                   <SelectItem value="code">Code</SelectItem>
             </SelectContent>
           </Select>
@@ -194,7 +194,7 @@ export default function CountryListPage() {
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <Globe className="h-5 w-5 text-green-600 dark:text-green-300" />
               </div>
-              <span>Country List</span>
+              <span>Liste des pays</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -202,7 +202,7 @@ export default function CountryListPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Loading countries...</span>
+                  <span className="text-gray-600 dark:text-gray-300">Chargement des pays...</span>
                 </div>
               </div>
         ) : error ? (
@@ -214,9 +214,9 @@ export default function CountryListPage() {
           <Table>
             <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">Country Name</TableHead>
+                      <TableHead className="font-semibold">Nom du pays</TableHead>
                       <TableHead className="font-semibold">Code</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
+                      <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -259,7 +259,7 @@ export default function CountryListPage() {
                               ) : (
                                 <XCircle className="h-3 w-3" />
                               )}
-                              <span>{country.is_active ? 'Active' : 'Inactive'}</span>
+                              <span>{country.is_active ? 'Actif' : 'Inactif'}</span>
                             </div>
                           </Badge>
                         </TableCell>
@@ -268,7 +268,7 @@ export default function CountryListPage() {
                             <Link href={`/dashboard/country/edit/${country.id}`}>
                               <Button variant="outline" size="sm">
                                 <Pencil className="h-4 w-4 mr-1" />
-                                Edit
+                                Modifier
                               </Button>
                             </Link>
                             <Button 
@@ -280,7 +280,7 @@ export default function CountryListPage() {
                                   : "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
                               }
                             >
-                              {country.is_active ? 'Deactivate' : 'Activate'}
+                              {country.is_active ? 'Désactiver' : 'Activer'}
                             </Button>
                           </div>
                   </TableCell>
@@ -299,15 +299,15 @@ export default function CountryListPage() {
             <CardContent className="p-12 text-center">
               <Globe className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                No countries found
+                Aucun pays trouvé
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {searchTerm ? `No countries match "${searchTerm}"` : "No countries have been added yet."}
+                {searchTerm ? `Aucun pays ne correspond à "${searchTerm}"` : "Aucun pays n'a encore été ajouté."}
               </p>
               <Link href="/dashboard/country/create">
                 <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add First Country
+                  Ajouter le premier pays
                 </Button>
               </Link>
             </CardContent>

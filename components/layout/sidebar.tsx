@@ -73,11 +73,11 @@ export function Sidebar() {
           <div className="flex h-20 items-center justify-between px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <img src="/logo.png" alt="Blaffa Pay Logo" className="h-12 w-12" />
+                <img src="/logo-betpay.svg" alt="Blaffa Pay Logo" className="h-12 w-12" />
                 <div className="absolute -top-1 -right-1">
-                  <div className="w-5 h-5 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                  {/* <div className="w-5 h-5 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
                     <Sparkles className="h-2.5 w-2.5 text-white" />
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div>
@@ -384,12 +384,12 @@ export function Sidebar() {
           <div className="flex h-20 items-center px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <img src="/logo.png" alt="Blaffa Pay Logo" className="h-10 w-10" />
-                <div className="absolute -top-1 -right-1">
+                <img src="/logo-betpay.svg" alt="Blaffa Pay Logo" className="h-12 w-12" />
+                {/* <div className="absolute -top-1 -right-1">
                   <div className="w-5 h-5 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
                     <Sparkles className="h-2.5 w-2.5 text-white" />
                   </div>
-                </div>
+                </div> */}
               </div>
               <div>
                 <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
@@ -685,7 +685,7 @@ export function Sidebar() {
       {/* Mobile menu button */}
       <div className="lg:hidden">
         <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg border border-gray-200/50 dark:border-gray-700/50" onClick={() => setSidebarOpen(true)}>
-          <Menu className="h-5 w-5" />
+          <Menu className="h-10 w-10" />
         </Button>
       </div>
     </>

@@ -117,14 +117,14 @@ export default function NetworkCreatePage() {
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Retour
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   {t("network.create") || "Create Network"}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                  Add a new network configuration
+                  Ajouter une nouvelle configuration de réseau
                 </p>
               </div>
             </div>
@@ -147,38 +147,38 @@ export default function NetworkCreatePage() {
                 <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                   <Globe className="h-5 w-5 text-blue-600 dark:text-blue-300" />
                 </div>
-                <span>Basic Information</span>
+                <span>Informations de base</span>
               </CardTitle>
       </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-                  <Label htmlFor="nom">Network Name</Label>
+                  <Label htmlFor="nom">Nom du réseau</Label>
                   <Input
                     id="nom"
                     value={nom}
                     onChange={(e) => setNom(e.target.value)}
-                    placeholder="e.g., MTN, Orange, Airtel"
+                    placeholder="ex: MTN, Orange, Airtel"
                     className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                     required
                   />
           </div>
           <div>
-                  <Label htmlFor="code">Network Code</Label>
+                  <Label htmlFor="code">Code du réseau</Label>
                   <Input
                     id="code"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
-                    placeholder="e.g., MTN, ORG, AIR"
+                    placeholder="ex: MTN, ORG, AIR"
                     className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                     required
                   />
           </div>
           <div>
-                  <Label htmlFor="country">Country</Label>
+                  <Label htmlFor="country">Pays</Label>
                   <Select value={country} onValueChange={setCountry}>
                     <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                      <SelectValue placeholder="Select country" />
+                      <SelectValue placeholder="Sélectionner le pays" />
               </SelectTrigger>
               <SelectContent>
                       {countries.map((country) => (
@@ -190,12 +190,12 @@ export default function NetworkCreatePage() {
             </Select>
           </div>
           <div>
-                  <Label htmlFor="ussdBaseCode">USSD Base Code</Label>
+                  <Label htmlFor="ussdBaseCode">Code de base USSD</Label>
                   <Input
                     id="ussdBaseCode"
                     value={ussdBaseCode}
                     onChange={(e) => setUssdBaseCode(e.target.value)}
-                    placeholder="e.g., *123#"
+                    placeholder="ex: *123#"
                     className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                   />
             </div>
@@ -210,7 +210,7 @@ export default function NetworkCreatePage() {
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                   <Settings className="h-5 w-5 text-green-600 dark:text-green-300" />
                 </div>
-                <span>Settings</span>
+                <span>Paramètres</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
@@ -221,7 +221,7 @@ export default function NetworkCreatePage() {
                     checked={isActive}
                     onCheckedChange={setIsActive}
                   />
-                  <Label htmlFor="isActive">Active</Label>
+                  <Label htmlFor="isActive">Actif</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Switch
@@ -229,7 +229,7 @@ export default function NetworkCreatePage() {
               checked={sentDepositToModule}
               onCheckedChange={setSentDepositToModule}
             />
-                  <Label htmlFor="sentDepositToModule">Send Deposit to Module</Label>
+                  <Label htmlFor="sentDepositToModule">Envoyer le dépôt au module</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Switch
@@ -237,7 +237,7 @@ export default function NetworkCreatePage() {
               checked={sentWithdrawalToModule}
               onCheckedChange={setSentWithdrawalToModule}
             />
-                  <Label htmlFor="sentWithdrawalToModule">Send Withdrawal to Module</Label>
+                  <Label htmlFor="sentWithdrawalToModule">Envoyer le retrait au module</Label>
                 </div>
           </div>
       </CardContent>
@@ -250,7 +250,7 @@ export default function NetworkCreatePage() {
               variant="outline" 
               onClick={() => router.back()}
             >
-              Cancel
+              Annuler
             </Button>
             <Button 
               type="submit" 
@@ -260,12 +260,12 @@ export default function NetworkCreatePage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
+                  Création...
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Create Network
+                  Créer le réseau
                 </>
               )}
             </Button>

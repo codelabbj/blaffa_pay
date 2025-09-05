@@ -114,7 +114,7 @@ function RemoteCommandCreatePage() {
           <div className="flex items-center justify-center py-12">
             <div className="flex flex-col items-center space-y-4">
               <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="text-gray-600 dark:text-gray-300">{t("remoteCommand.sending")}</span>
+              <span className="text-gray-600 dark:text-gray-300">{t("remoteCommand.sending") || "Envoi..."}</span>
             </div>
           </div>
         </div>
@@ -136,14 +136,14 @@ function RemoteCommandCreatePage() {
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                Retour
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   {t("remoteCommand.create") || "Create Remote Command"}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                  Send commands to devices remotely
+                  Envoyer des commandes aux appareils à distance
                 </p>
               </div>
             </div>
@@ -177,7 +177,7 @@ function RemoteCommandCreatePage() {
                 <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                   <Zap className="h-5 w-5 text-blue-600 dark:text-blue-300" />
                 </div>
-                <span>Command Details</span>
+                <span>Détails de la commande</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
@@ -189,7 +189,7 @@ function RemoteCommandCreatePage() {
                   id="command"
                   value={command} 
                   onChange={e => setCommand(e.target.value)} 
-                  placeholder="Enter command to execute"
+                  placeholder="Entrer la commande à exécuter"
                   className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                   required 
                 />
@@ -200,7 +200,7 @@ function RemoteCommandCreatePage() {
                 </Label>
                 <Select value={deviceId} onValueChange={setDeviceId}>
                   <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-                    <SelectValue placeholder={t("remoteCommand.selectDeviceId") || "Select a device"} />
+                    <SelectValue placeholder={t("remoteCommand.selectDeviceId") || "Sélectionner un appareil"} />
                   </SelectTrigger>
                   <SelectContent>
                     {devices.map((device: any) => (
@@ -221,7 +221,7 @@ function RemoteCommandCreatePage() {
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                   <Settings className="h-5 w-5 text-green-600 dark:text-green-300" />
                 </div>
-                <span>Parameters</span>
+                <span>Paramètres</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
@@ -239,7 +239,7 @@ function RemoteCommandCreatePage() {
                   required 
                 />
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Enter valid JSON parameters for the command
+                  Entrer des paramètres JSON valides pour la commande
                 </p>
               </div>
             </CardContent>
@@ -252,7 +252,7 @@ function RemoteCommandCreatePage() {
                 <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                   <Smartphone className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                 </div>
-                <span>Priority Settings</span>
+                <span>Paramètres de priorité</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
@@ -271,7 +271,7 @@ function RemoteCommandCreatePage() {
                   required 
                 />
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  Priority level from 1 (lowest) to 10 (highest)
+                  Niveau de priorité de 1 (le plus bas) à 10 (le plus élevé)
                 </p>
               </div>
             </CardContent>
@@ -284,7 +284,7 @@ function RemoteCommandCreatePage() {
               variant="outline" 
               onClick={() => router.back()}
             >
-              Cancel
+              Annuler
             </Button>
             <Button 
               type="submit" 
@@ -294,12 +294,12 @@ function RemoteCommandCreatePage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  {t("remoteCommand.sending") || "Sending..."}
+                  {t("remoteCommand.sending") || "Envoi..."}
                 </>
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  {t("remoteCommand.sendCommand") || "Send Command"}
+                  {t("remoteCommand.sendCommand") || "Envoyer la commande"}
                 </>
               )}
             </Button>

@@ -39,7 +39,10 @@ import {
   Calendar,
   BarChart3,
   CreditCard,
-  Settings
+  Settings,
+  Waves,
+  Phone,
+  Wallet
 } from "lucide-react";
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
@@ -83,6 +86,12 @@ export default function DashboardPage() {
   const [rechargeStats, setRechargeStats] = useState<any>(null);
   const [rechargeLoading, setRechargeLoading] = useState(false);
   const [rechargeError, setRechargeError] = useState("");
+  const [momoPayStats, setMomoPayStats] = useState<any>(null);
+  const [momoPayLoading, setMomoPayLoading] = useState(false);
+  const [momoPayError, setMomoPayError] = useState("");
+  const [waveStats, setWaveStats] = useState<any>(null);
+  const [waveLoading, setWaveLoading] = useState(false);
+  const [waveError, setWaveError] = useState("");
 
   const apiFetch = useApi();
   const { t } = useLanguage();
@@ -180,6 +189,28 @@ export default function DashboardPage() {
         setRechargeError("Échec du chargement des statistiques de recharge");
       } finally {
         setRechargeLoading(false);
+      }
+
+  // Fetch MoMo Pay stats
+      setMomoPayLoading(true);
+      try {
+        const res = await apiFetch(`${baseUrl}api/payments/momo-pay-transactions/stats/`);
+        setMomoPayStats(res);
+      } catch (err: any) {
+        setMomoPayError("Échec du chargement des statistiques MoMo Pay");
+      } finally {
+        setMomoPayLoading(false);
+      }
+
+  // Fetch Wave Business stats
+      setWaveLoading(true);
+      try {
+        const res = await apiFetch(`${baseUrl}api/payments/wave-business-transactions/stats/`);
+        setWaveStats(res);
+      } catch (err: any) {
+        setWaveError("Échec du chargement des statistiques Wave Business");
+      } finally {
+        setWaveLoading(false);
       }
     };
 
@@ -734,6 +765,121 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* Payment Methods Statistics */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* MoMo Pay Statistics */}
+            <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+              <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+                <CardTitle className="flex items-center space-x-2">
+                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <Smartphone className="h-5 w-5 text-green-600 dark:text-green-300" />
+                  </div>
+                  <span>Statistiques MoMo Pay</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {momoPayLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader className="animate-spin mr-2" /> Chargement...
+                  </div>
+                ) : momoPayError ? (
+                  <div className="text-red-600 text-center py-4">{momoPayError}</div>
+                ) : momoPayStats ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-green-600 dark:text-green-300 font-medium">Total Transactions</div>
+                        <div className="text-2xl font-bold text-green-900 dark:text-green-100">{momoPayStats.total_transactions || 0}</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-blue-600 dark:text-blue-300 font-medium">Montant Total</div>
+                        <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{parseFloat((momoPayStats.total_amount || 0).toString()).toFixed(2)} FCFA</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-emerald-600 dark:text-emerald-300 font-medium">Confirmées</div>
+                        <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{momoPayStats.confirmed_count || 0}</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-yellow-600 dark:text-yellow-300 font-medium">En Attente</div>
+                        <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{momoPayStats.pending_count || 0}</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-red-600 dark:text-red-300 font-medium">Annulées</div>
+                        <div className="text-2xl font-bold text-red-900 dark:text-red-100">{momoPayStats.cancelled_count || 0}</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Échouées</div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{momoPayStats.failed_count || 0}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-center py-8">Aucune donnée disponible</div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Wave Business Statistics */}
+            <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+              <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+                <CardTitle className="flex items-center space-x-2">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                    <Waves className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                  </div>
+                  <span>Statistiques Wave Business</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                {waveLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader className="animate-spin mr-2" /> Chargement...
+                  </div>
+                ) : waveError ? (
+                  <div className="text-red-600 text-center py-4">{waveError}</div>
+                ) : waveStats ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-blue-600 dark:text-blue-300 font-medium">Total Transactions</div>
+                        <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{waveStats.total_transactions || 0}</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">Montant Total</div>
+                        <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">{parseFloat((waveStats.total_amount || 0).toString()).toFixed(2)} FCFA</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-emerald-600 dark:text-emerald-300 font-medium">Confirmées</div>
+                        <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{waveStats.confirmed_count || 0}</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-yellow-600 dark:text-yellow-300 font-medium">En Attente</div>
+                        <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{waveStats.pending_count || 0}</div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-red-600 dark:text-red-300 font-medium">Annulées</div>
+                        <div className="text-2xl font-bold text-red-900 dark:text-red-100">{waveStats.cancelled_count || 0}</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 rounded-lg">
+                        <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Expirées</div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{waveStats.expired_count || 0}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-center py-8">Aucune donnée disponible</div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
       </div>
     </div>

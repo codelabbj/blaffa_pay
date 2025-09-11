@@ -21,6 +21,7 @@ const pageNames: Record<string, string> = {
   "/dashboard/topup": "topup.title",
   "/dashboard/earning-management": "earning.title",
   "/dashboard/wave-business-transaction": "Wave Business Transaction",
+  "/dashboard/momo-pay": "MoMo Pay",
 }
 
 export function Header() {

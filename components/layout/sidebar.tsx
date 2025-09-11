@@ -6,7 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/providers/language-provider"
-import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles } from "lucide-react"
+import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 
 // Colors for consistent theming
@@ -362,6 +362,20 @@ export function Sidebar() {
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("Wave Business Transaction")}
             </Link>
+            
+            <Link
+              href="/dashboard/momo-pay"
+              className={cn(
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                pathname === "/dashboard/momo-pay"
+                  ? "bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+              )}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <Smartphone className="mr-3 h-5 w-5 flex-shrink-0" />
+              MoMo Pay
+            </Link>
           </nav>
           
           <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
@@ -666,6 +680,20 @@ export function Sidebar() {
             >
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("Wave Business Transaction")}
+            </Link>
+            
+            <Link
+              href="/dashboard/momo-pay"
+              className={cn(
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                pathname === "/dashboard/momo-pay"
+                  ? "bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+              )}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <Smartphone className="mr-3 h-5 w-5 flex-shrink-0" />
+              MoMo Pay
             </Link>
           </nav>
           

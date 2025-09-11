@@ -63,9 +63,9 @@ export default function TopupPage() {
 	const [proofImageUrl, setProofImageUrl] = useState<string | null>(null);
 
 	// Calculate summary stats
-	const pendingCount = topups.filter(t => t.status === 'pending').length;
-	const approvedCount = topups.filter(t => t.status === 'approved').length;
-	const rejectedCount = topups.filter(t => t.status === 'rejected').length;
+	const pendingCount = topups.filter(t => (t.status_display || t.status) === 'pending' || (t.status_display || t.status) === 'en attente').length;
+	const approvedCount = topups.filter(t => (t.status_display || t.status) === 'approved' || (t.status_display || t.status) === 'approuvé' || (t.status_display || t.status) === 'approuvée').length;
+	const rejectedCount = topups.filter(t => (t.status_display || t.status) === 'rejected' || (t.status_display || t.status) === 'rejeté' || (t.status_display || t.status) === 'rejetée').length;
 	const totalAmount = topups.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
 
 	// Fetch topups from API
@@ -143,23 +143,34 @@ export default function TopupPage() {
 		setDetailError("")
 	}
 
-	const getStatusBadge = (status: string) => {
+	const getStatusBadge = (statusDisplay: string) => {
 		const statusMap: { [key: string]: { color: string; icon: any } } = {
 			'pending': { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300', icon: Clock },
+			'en attente': { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300', icon: Clock },
 			'approved': { color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300', icon: CheckCircle },
+			'approuvé': { color: 'bg-green-100 text-green-500 dark:bg-green-900/20 dark:text-green-300', icon: CheckCircle },
+			'approuvée': { color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300', icon: CheckCircle },
 			'rejected': { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300', icon: XCircle },
+			'rejeté': { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300', icon: XCircle },
+			'rejetée': { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300', icon: XCircle },
 			'completed': { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
-			'expired': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle }
+			'terminé': { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
+			'terminée': { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
+			'expired': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle },
+			'expiré': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle },
+			'expirée': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle },
+			'proof_submitted': { color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300', icon: AlertTriangle },
+			'preuve soumise': { color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300', icon: AlertTriangle }
 		};
 		
-		const statusInfo = statusMap[status.toLowerCase()] || statusMap['pending'];
+		const statusInfo = statusMap[statusDisplay.toLowerCase()] || statusMap['pending'];
 		const IconComponent = statusInfo.icon;
 		
 		return (
 			<Badge className={statusInfo.color}>
 				<div className="flex items-center space-x-1">
 					<IconComponent className="h-3 w-3" />
-					<span className="capitalize">{status}</span>
+					<span className="capitalize">{statusDisplay}</span>
 				</div>
 			</Badge>
 		);
@@ -378,7 +389,7 @@ export default function TopupPage() {
 														className="bg-green-600 hover:bg-green-700 text-white"
 														disabled={
 															!!disabledTopups[topup.uid]
-															|| (topup.status !== "pending" && topup.status !== "proof_submitted")
+															|| ((topup.status_display || topup.status) !== "pending" && (topup.status_display || topup.status) !== "en attente" && (topup.status_display || topup.status) !== "proof_submitted" && (topup.status_display || topup.status) !== "preuve soumise")
 															|| !!topup.is_expired
 															|| (topup.expires_at && new Date(topup.expires_at) < new Date())
 														}
@@ -397,7 +408,7 @@ export default function TopupPage() {
 														variant="destructive"
 														disabled={
 															!!disabledTopups[topup.uid]
-															|| (topup.status !== "pending" && topup.status !== "proof_submitted")
+															|| ((topup.status_display || topup.status) !== "pending" && (topup.status_display || topup.status) !== "en attente" && (topup.status_display || topup.status) !== "proof_submitted" && (topup.status_display || topup.status) !== "preuve soumise")
 															|| !!topup.is_expired
 															|| (topup.expires_at && new Date(topup.expires_at) < new Date())
 														}

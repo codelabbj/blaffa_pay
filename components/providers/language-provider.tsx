@@ -441,6 +441,7 @@ const translations = {
     "topup.showingResults": "Showing start to end of total results",
     // Earning Management Page
     "earning.title": "Earning Management",
+    
     "earning.list": "Earning List",
     "earning.details": "Earning Details",
     "earning.failedToLoad": "Failed to load earnings",

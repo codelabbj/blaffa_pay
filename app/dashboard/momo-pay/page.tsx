@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye, DollarSign, Phone, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye, DollarSign, Phone, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, Loader2, Smartphone, CreditCard } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
@@ -28,13 +28,14 @@ const COLORS = {
   indigo: '#6366F1'
 };
 
-interface WaveBusinessTransaction {
+interface MomoPayTransaction {
   uid: string
   amount: string
   amount_as_integer: number
-  recipient_phone: string
-  status: "pending" | "confirmed" | "cancelled" | "expired"
+  phone: string
+  status: "pending" | "confirmed" | "cancelled" | "expired" | "failed"
   reference: string
+  payment_type: "momo" | "card" | "bank"
   created_by: number
   fcm_notifications: any[]
   callback_url: string
@@ -49,32 +50,36 @@ interface ApiResponse {
   count: number
   next: string | null
   previous: string | null
-  results: WaveBusinessTransaction[]
+  results: MomoPayTransaction[]
 }
 
-export default function WaveBusinessPage() {
+
+export default function MomoPayPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [phoneFilter, setPhoneFilter] = useState("")
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState("all")
   const [includeExpired, setIncludeExpired] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
-  const [transactions, setTransactions] = useState<WaveBusinessTransaction[]>([])
+  const [transactions, setTransactions] = useState<MomoPayTransaction[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [sortField, setSortField] = useState<"amount" | "recipient_phone" | "created_at" | null>(null)
+  const [sortField, setSortField] = useState<"amount" | "phone" | "created_at" | null>(null)
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
   const apiFetch = useApi()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [detailTransaction, setDetailTransaction] = useState<WaveBusinessTransaction | null>(null)
+  const [detailTransaction, setDetailTransaction] = useState<MomoPayTransaction | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState("")
+  const [cancelLoading, setCancelLoading] = useState(false)
   const itemsPerPage = 20
 
-  // Récupérer les transactions depuis l'API
+
+  // Fetch transactions from API
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true)
@@ -94,6 +99,9 @@ export default function WaveBusinessPage() {
         if (phoneFilter.trim() !== "") {
           params.append("phone", phoneFilter)
         }
+        if (paymentTypeFilter !== "all") {
+          params.append("payment_type", paymentTypeFilter)
+        }
         if (includeExpired) {
           params.append("include_expired", "true")
         }
@@ -102,7 +110,7 @@ export default function WaveBusinessPage() {
           ? `&ordering=${(sortDirection === "asc" ? "" : "-")}${sortField}`
           : ""
         
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/wave-business-transactions/?${params.toString()}${orderingParam}`
+        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/?${params.toString()}${orderingParam}`
         const data: ApiResponse = await apiFetch(endpoint)
         
         setTransactions(data.results || [])
@@ -111,7 +119,7 @@ export default function WaveBusinessPage() {
         
         toast({ 
           title: "Succès", 
-          description: "Transactions Wave Business chargées avec succès" 
+          description: "Transactions MoMo Pay chargées avec succès" 
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -129,11 +137,11 @@ export default function WaveBusinessPage() {
       }
     }
     fetchTransactions()
-  }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, includeExpired, sortField, sortDirection, toast, apiFetch])
+  }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, paymentTypeFilter, includeExpired, sortField, sortDirection, toast, apiFetch])
 
   const startIndex = (currentPage - 1) * itemsPerPage
 
-  const handleSort = (field: "amount" | "recipient_phone" | "created_at") => {
+  const handleSort = (field: "amount" | "phone" | "created_at") => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc")
     } else {
@@ -174,12 +182,45 @@ export default function WaveBusinessPage() {
             Annulé
           </Badge>
         )
+      case "failed":
+        return (
+          <Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">
+            <XCircle className="h-3 w-3 mr-1" />
+            Échoué
+          </Badge>
+        )
       default:
         return (
           <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300">
             {status}
           </Badge>
         )
+    }
+  }
+
+  const getPaymentTypeIcon = (paymentType: string) => {
+    switch (paymentType) {
+      case "momo":
+        return <Smartphone className="h-4 w-4 text-green-600" />
+      case "card":
+        return <CreditCard className="h-4 w-4 text-blue-600" />
+      case "bank":
+        return <DollarSign className="h-4 w-4 text-purple-600" />
+      default:
+        return <Smartphone className="h-4 w-4 text-gray-600" />
+    }
+  }
+
+  const getPaymentTypeLabel = (paymentType: string) => {
+    switch (paymentType) {
+      case "momo":
+        return "MoMo"
+      case "card":
+        return "Carte"
+      case "bank":
+        return "Banque"
+      default:
+        return paymentType
     }
   }
 
@@ -198,21 +239,67 @@ export default function WaveBusinessPage() {
     return `${parseFloat(amount).toLocaleString("fr-FR")} FCFA`
   }
 
-  // Ouvrir les détails d'une transaction
-  const handleOpenDetail = (transaction: WaveBusinessTransaction) => {
+  // Open transaction details
+  const handleOpenDetail = async (transaction: MomoPayTransaction) => {
     setDetailModalOpen(true)
     setDetailTransaction(transaction)
     setDetailError("")
-    toast({ 
-      title: "Détail chargé", 
-      description: "Détails de la transaction affichés avec succès" 
-    })
+    setDetailLoading(true)
+    
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${transaction.uid}/`
+      const data: MomoPayTransaction = await apiFetch(endpoint)
+      setDetailTransaction(data)
+      toast({ 
+        title: "Détail chargé", 
+        description: "Détails de la transaction affichés avec succès" 
+      })
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      setDetailError(errorMessage)
+      toast({ 
+        title: "Erreur de chargement", 
+        description: errorMessage, 
+        variant: "destructive" 
+      })
+    } finally {
+      setDetailLoading(false)
+    }
   }
 
   const handleCloseDetail = () => {
     setDetailModalOpen(false)
     setDetailTransaction(null)
     setDetailError("")
+  }
+
+  // Cancel transaction
+  const handleCancelTransaction = async (transactionUid: string) => {
+    setCancelLoading(true)
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${transactionUid}/cancel/`
+      await apiFetch(endpoint, {
+        method: 'POST'
+      })
+      
+      toast({ 
+        title: "Succès", 
+        description: "Transaction annulée avec succès" 
+      })
+      
+      // Refresh the list
+      setCurrentPage(1)
+      setDetailModalOpen(false)
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      toast({ 
+        title: "Erreur d'annulation", 
+        description: errorMessage, 
+        variant: "destructive" 
+      })
+    } finally {
+      setCancelLoading(false)
+    }
   }
 
   const copyToClipboard = (text: string, label: string) => {
@@ -228,17 +315,17 @@ export default function WaveBusinessPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Transactions Wave Business
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                Transactions MoMo Pay
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Gérer et surveiller les transactions Wave Business
+                Gérer et surveiller les transactions MoMo Pay
               </p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="h-5 w-5 text-green-600" />
+                  <Smartphone className="h-5 w-5 text-green-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {totalCount} transactions
                   </span>
@@ -248,10 +335,11 @@ export default function WaveBusinessPage() {
           </div>
         </div>
 
+
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -283,8 +371,22 @@ export default function WaveBusinessPage() {
                   <SelectItem value="all">Tous les statuts</SelectItem>
                   <SelectItem value="pending">En attente</SelectItem>
                   <SelectItem value="confirmed">Confirmé</SelectItem>
-                  <SelectItem value="expired">Expiré</SelectItem>
                   <SelectItem value="cancelled">Annulé</SelectItem>
+                  <SelectItem value="expired">Expiré</SelectItem>
+                  <SelectItem value="failed">Échoué</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Payment Type Filter */}
+              <Select value={paymentTypeFilter} onValueChange={setPaymentTypeFilter}>
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Type de paiement" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les types</SelectItem>
+                  <SelectItem value="momo">MoMo</SelectItem>
+                  <SelectItem value="card">Carte</SelectItem>
+                  <SelectItem value="bank">Banque</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -307,8 +409,8 @@ export default function WaveBusinessPage() {
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
           <CardHeader className="border-b border-gray-100 dark:border-gray-700">
             <CardTitle className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <DollarSign className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <Smartphone className="h-5 w-5 text-green-600 dark:text-green-300" />
               </div>
               <span>Liste des Transactions</span>
             </CardTitle>
@@ -317,7 +419,7 @@ export default function WaveBusinessPage() {
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                   <span className="text-gray-600 dark:text-gray-300">Chargement des transactions...</span>
                 </div>
               </div>
@@ -346,11 +448,12 @@ export default function WaveBusinessPage() {
                         </Button>
                       </TableHead>
                       <TableHead className="font-semibold">
-                        <Button variant="ghost" onClick={() => handleSort("recipient_phone")} className="h-auto p-0 font-semibold">
-                          Téléphone destinataire
+                        <Button variant="ghost" onClick={() => handleSort("phone")} className="h-auto p-0 font-semibold">
+                          Téléphone
                           <ArrowUpDown className="ml-2 h-4 w-4" />
                         </Button>
                       </TableHead>
+                      <TableHead className="font-semibold">Type</TableHead>
                       <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">
                         <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-auto p-0 font-semibold">
@@ -367,7 +470,7 @@ export default function WaveBusinessPage() {
                       <TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                         <TableCell className="font-mono text-sm">
                           <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
                               {transaction.reference.charAt(0).toUpperCase()}
                             </div>
                             <span>{transaction.reference}</span>
@@ -375,14 +478,19 @@ export default function WaveBusinessPage() {
                         </TableCell>
                         <TableCell className="font-medium">
                           <div className="flex items-center space-x-2">
-                            {/* <DollarSign className="h-4 w-4 text-green-600" /> */}
                             <span>{formatAmount(transaction.amount)}</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Phone className="h-4 w-4 text-blue-600" />
-                            <span>{transaction.recipient_phone}</span>
+                            <span>{transaction.phone}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            {getPaymentTypeIcon(transaction.payment_type)}
+                            <span>{getPaymentTypeLabel(transaction.payment_type)}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -446,7 +554,7 @@ export default function WaveBusinessPage() {
                       variant={currentPage === page ? "default" : "outline"}
                       size="sm"
                       onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-blue-600 text-white" : "border-gray-200 dark:border-gray-600"}
+                      className={currentPage === page ? "bg-green-600 text-white" : "border-gray-200 dark:border-gray-600"}
                     >
                       {page}
                     </Button>
@@ -467,13 +575,13 @@ export default function WaveBusinessPage() {
           </div>
         )}
 
-        {/* Modal des détails de la transaction */}
+        {/* Transaction Details Modal */}
         <Dialog open={detailModalOpen} onOpenChange={(open) => { if (!open) handleCloseDetail() }}>
           <DialogContent className="bg-white dark:bg-gray-800 border-0 shadow-xl max-w-2xl">
             <DialogHeader>
               <DialogTitle className="flex items-center space-x-2">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                  <Eye className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <Eye className="h-5 w-5 text-green-600" />
                 </div>
                 <span>Détails de la transaction</span>
               </DialogTitle>
@@ -481,7 +589,7 @@ export default function WaveBusinessPage() {
             {detailLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
                   <span className="text-gray-600 dark:text-gray-300">Chargement des détails...</span>
                 </div>
               </div>
@@ -551,7 +659,7 @@ export default function WaveBusinessPage() {
                     </div>
                     <div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">Téléphone</div>
-                      <div className="font-medium">{detailTransaction.recipient_phone}</div>
+                      <div className="font-medium">{detailTransaction.phone}</div>
                     </div>
                   </div>
 
@@ -583,6 +691,14 @@ export default function WaveBusinessPage() {
                   </div>
 
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                    <span className="text-sm font-medium">Type de paiement</span>
+                    <div className="flex items-center space-x-2">
+                      {getPaymentTypeIcon(detailTransaction.payment_type)}
+                      <span className="text-sm">{getPaymentTypeLabel(detailTransaction.payment_type)}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                     <span className="text-sm font-medium">Créé par</span>
                     <span className="text-sm">{detailTransaction.created_by}</span>
                   </div>
@@ -597,10 +713,34 @@ export default function WaveBusinessPage() {
                     <div className="text-sm break-all text-gray-600 dark:text-gray-400">{detailTransaction.callback_url}</div>
                   </div>
                 </div>
+
+                {/* Action Buttons */}
+                {detailTransaction.status === "pending" && (
+                  <div className="flex space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <Button
+                      onClick={() => handleCancelTransaction(detailTransaction.uid)}
+                      disabled={cancelLoading}
+                      variant="destructive"
+                      className="flex-1"
+                    >
+                      {cancelLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Annulation...
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="h-4 w-4 mr-2" />
+                          Annuler la transaction
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : null}
             <DialogClose asChild>
-              <Button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white">
+              <Button className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white">
                 Fermer
               </Button>
             </DialogClose>

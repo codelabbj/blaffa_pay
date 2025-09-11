@@ -133,7 +133,7 @@ export default function EarningManagementPage() {
 					<div className="flex items-center justify-between">
 						<div>
 							<h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-								{t("earning.management") || "Earning Management"}
+								{t("earning.title") || "Earning Management"}
 							</h1>
 							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
 								Surveiller et gérer les paiements de commission

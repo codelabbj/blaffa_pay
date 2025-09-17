@@ -12,13 +12,13 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, Edit, Save, X, User, Mail, Phone, Shield, Calendar, CheckCircle, XCircle } from 'lucide-react';
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -429,7 +429,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Méthode de contact préférée</div>
-                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+                    <Badge className="bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300">
                       <div className="flex items-center space-x-1">
                         {profile.contact_method === 'email' ? (
                           <Mail className="h-3 w-3" />

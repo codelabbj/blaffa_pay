@@ -10,19 +10,20 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign } from "lucide-react"
+import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -264,7 +265,7 @@ export default function PartnerPage() {
 											<TableHead className="font-semibold">Statut</TableHead>
 											<TableHead className="font-semibold">Commission</TableHead>
 											<TableHead className="font-semibold">Rejoint</TableHead>
-											<TableHead className="font-semibold">Actions</TableHead>
+											<TableHead className="font-semibold">Commission</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -332,24 +333,16 @@ export default function PartnerPage() {
 											</TableCell>
 												<TableCell>
 													<div className="flex items-center space-x-2">
-														<Button 
-															variant="outline" 
-															size="sm"
-															onClick={() => handleOpenDetail(partner.uid)}
-														>
-															Voir les détails
-												</Button>
-														<Button 
-															variant="outline" 
-															size="sm"
-															className={
-																partner.is_active 
-																	? "text-red-600 border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-700 dark:hover:bg-red-900/20" 
-																	: "text-green-600 border-green-200 hover:bg-green-50 dark:text-green-400 dark:border-green-700 dark:hover:bg-green-900/20"
-															}
-														>
-															{partner.is_active ? 'Désactiver' : 'Activer'}
-										</Button>
+														<Link href={`/dashboard/partner/commission/${partner.uid}`}>
+															<Button 
+																variant="outline" 
+																size="sm"
+																className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700 dark:hover:bg-green-900/30"
+															>
+																<DollarSign className="h-4 w-4 mr-1" />
+																Commission
+															</Button>
+														</Link>
 													</div>
 									</TableCell>
 										</TableRow>

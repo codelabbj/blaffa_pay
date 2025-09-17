@@ -9,13 +9,13 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -73,7 +73,7 @@ export function Sidebar() {
           <div className="flex h-20 items-center justify-between px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <img src="/logo-betpay.svg" alt="Blaffa Pay Logo" className="h-12 w-12" />
+                <img src="/logo.png" alt="Blaffa Pay Logo" className="h-12 w-12" />
                 <div className="absolute -top-1 -right-1">
                   {/* <div className="w-5 h-5 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
                     <Sparkles className="h-2.5 w-2.5 text-white" />
@@ -398,7 +398,7 @@ export function Sidebar() {
           <div className="flex h-20 items-center px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <img src="/logo-betpay.svg" alt="Blaffa Pay Logo" className="h-12 w-12" />
+                <img src="/logo.png" alt="Blaffa Pay Logo" className="h-12 w-12" />
                 {/* <div className="absolute -top-1 -right-1">
                   <div className="w-5 h-5 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
                     <Sparkles className="h-2.5 w-2.5 text-white" />

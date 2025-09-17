@@ -17,13 +17,13 @@ import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -152,7 +152,7 @@ export function SignInForm() {
           </div> */}
           
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
               {/* Blaffa Pay */}
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg">
@@ -186,7 +186,7 @@ export function SignInForm() {
               {/* Email Input */}
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-blue-600" />
+                  <Mail className="h-4 w-4 text-orange-600" />
                   <span>{t("auth.email")}</span>
                 </Label>
                 <div className="relative">
@@ -197,7 +197,7 @@ export function SignInForm() {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     required
-                    className="pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
+                    className="pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
                   />
                   <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
@@ -206,7 +206,7 @@ export function SignInForm() {
               {/* Password Input */}
               <div className="space-y-3">
                 <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                  <Lock className="h-4 w-4 text-blue-600" />
+                  <Lock className="h-4 w-4 text-orange-600" />
                   <span>{t("auth.password")}</span>
                 </Label>
                 <div className="relative">
@@ -216,7 +216,7 @@ export function SignInForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="pl-12 pr-12 py-3 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
+                    className="pl-12 pr-12 py-3 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
                   />
                   <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                   <button
@@ -255,7 +255,7 @@ export function SignInForm() {
               {/* Submit Button */}
               <Button 
                 type="submit" 
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
+                className="w-full py-3 bg-gradient-to-r from-orange-600 to-orange-600 hover:from-orange-700 hover:to-orange-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
                 disabled={loading}
               >
                 {loading ? (

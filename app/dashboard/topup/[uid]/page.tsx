@@ -12,13 +12,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@
 import { ArrowLeft, DollarSign, User, Mail, Calendar, Clock, FileText, CheckCircle, XCircle, Loader2, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -59,7 +59,7 @@ export default function TopupDetailPage() {
       'pending': { color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300', icon: Clock },
       'approved': { color: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300', icon: CheckCircle },
       'rejected': { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300', icon: XCircle },
-      'completed': { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
+      'completed': { color: 'bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
       'expired': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle }
     };
     

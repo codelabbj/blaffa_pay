@@ -15,13 +15,13 @@ import { useApi } from "@/lib/useApi"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -61,6 +61,7 @@ export default function TopupPage() {
 	const [disabledTopups, setDisabledTopups] = useState<{[uid:string]:"approved"|"rejected"|undefined}>({});
 	const [proofImageModalOpen, setProofImageModalOpen] = useState(false);
 	const [proofImageUrl, setProofImageUrl] = useState<string | null>(null);
+	const [actionError, setActionError] = useState<string>("");
 
 	// Calculate summary stats
 	const pendingCount = topups.filter(t => (t.status_display || t.status) === 'pending' || (t.status_display || t.status) === 'en attente').length;
@@ -153,9 +154,9 @@ export default function TopupPage() {
 			'rejected': { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300', icon: XCircle },
 			'rejeté': { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300', icon: XCircle },
 			'rejetée': { color: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300', icon: XCircle },
-			'completed': { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
-			'terminé': { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
-			'terminée': { color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
+			'completed': { color: 'bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
+			'terminé': { color: 'bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
+			'terminée': { color: 'bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
 			'expired': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle },
 			'expiré': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle },
 			'expirée': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle },
@@ -389,9 +390,9 @@ export default function TopupPage() {
 														className="bg-green-600 hover:bg-green-700 text-white"
 														disabled={
 															!!disabledTopups[topup.uid]
-															|| ((topup.status_display || topup.status) !== "pending" && (topup.status_display || topup.status) !== "en attente" && (topup.status_display || topup.status) !== "proof_submitted" && (topup.status_display || topup.status) !== "preuve soumise")
+															|| ((topup.status_display || topup.status)?.toLowerCase() !== "pending" && (topup.status_display || topup.status)?.toLowerCase() !== "en attente" && (topup.status_display || topup.status)?.toLowerCase() !== "proof_submitted" && (topup.status_display || topup.status)?.toLowerCase() !== "preuve soumise")
 															|| !!topup.is_expired
-															|| (topup.expires_at && new Date(topup.expires_at) < new Date())
+															// || (topup.expires_at && new Date(topup.expires_at) < new Date())
 														}
 														onClick={() => {
 															setActionType("approve");
@@ -408,9 +409,9 @@ export default function TopupPage() {
 														variant="destructive"
 														disabled={
 															!!disabledTopups[topup.uid]
-															|| ((topup.status_display || topup.status) !== "pending" && (topup.status_display || topup.status) !== "en attente" && (topup.status_display || topup.status) !== "proof_submitted" && (topup.status_display || topup.status) !== "preuve soumise")
+															|| ((topup.status_display || topup.status)?.toLowerCase() !== "pending" && (topup.status_display || topup.status)?.toLowerCase() !== "en attente" && (topup.status_display || topup.status)?.toLowerCase() !== "proof_submitted" && (topup.status_display || topup.status)?.toLowerCase() !== "preuve soumise")
 															|| !!topup.is_expired
-															|| (topup.expires_at && new Date(topup.expires_at) < new Date())
+															// || (topup.expires_at && new Date(topup.expires_at) < new Date())
 														}
 														onClick={() => {
 															setActionType("reject");
@@ -567,7 +568,12 @@ export default function TopupPage() {
 				</Dialog>
 
 				{/* Approve/Reject Modal */}
-				<Dialog open={actionModalOpen} onOpenChange={setActionModalOpen}>
+				<Dialog open={actionModalOpen} onOpenChange={(open) => {
+					setActionModalOpen(open);
+					if (!open) {
+						setActionError("");
+					}
+				}}>
 					<DialogContent>
 						<DialogHeader>
 							<DialogTitle className="flex items-center space-x-2">
@@ -583,6 +589,11 @@ export default function TopupPage() {
 								</span>
 							</DialogTitle>
 						</DialogHeader>
+						{actionError && (
+							<div className="mb-4">
+								<ErrorDisplay error={actionError} variant="inline" showRetry={false} showDismiss={true} onDismiss={() => setActionError("")} />
+							</div>
+						)}
 						{actionType === "approve" ? (
 							<div className="space-y-4">
 								<div>
@@ -624,6 +635,7 @@ export default function TopupPage() {
 							<Button
 								onClick={async () => {
 									setPendingAction(true);
+									setActionError("");
 									try {
 										const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/recharge-requests/${actionTopup.uid}/${actionType}/`;
 										const payload =
@@ -650,9 +662,12 @@ export default function TopupPage() {
 													: t("topup.rejectedSuccessfully") || "Request rejected",
 										});
 									} catch (err: any) {
+										const errorMessage = extractErrorMessages(err);
+										setActionError(errorMessage);
+										console.error('Topup action error:', err);
 										toast({
 											title: t("topup.failed"),
-											description: extractErrorMessages(err),
+											description: errorMessage,
 											variant: "destructive",
 										});
 									} finally {
@@ -664,7 +679,7 @@ export default function TopupPage() {
 									|| (actionType === "approve" && !adminNotes)
 									|| (actionType === "reject" && !rejectionReason)
 									|| !!actionTopup?.is_expired
-									|| (actionTopup?.expires_at && new Date(actionTopup.expires_at) < new Date())
+									// || (actionTopup?.expires_at && new Date(actionTopup.expires_at) < new Date())
 								}
 								className={
 									actionType === "approve" 

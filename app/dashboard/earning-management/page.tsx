@@ -15,13 +15,13 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { useApi } from "@/lib/useApi"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -433,18 +433,140 @@ export default function EarningManagementPage() {
 						) : detailError ? (
 							<ErrorDisplay error={detailError} />
 						) : detailEarning ? (
-							<div className="space-y-4">
-								<div className="grid grid-cols-2 gap-4">
+							<div className="space-y-6">
+								{/* Basic Information */}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Utilisateur</label>
-										<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-											{detailEarning.user_name || 'Inconnu'}
-										</p>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">UID</label>
+										<div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 p-2 rounded">
+											<p className="text-sm font-mono text-gray-900 dark:text-gray-100 flex-1">
+												{detailEarning.uid || 'Non disponible'}
+											</p>
+											{detailEarning.uid && (
+												<Button
+													variant="ghost"
+													size="sm"
+													className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-600"
+													onClick={() => {
+														navigator.clipboard.writeText(detailEarning.uid);
+														toast({
+															title: "Copié",
+															description: "UID copié dans le presse-papiers",
+														});
+													}}
+												>
+													<Copy className="h-3 w-3" />
+												</Button>
+											)}
+										</div>
 									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Référence</label>
+										<div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-700 p-2 rounded">
+											<p className="text-sm font-mono text-gray-900 dark:text-gray-100 flex-1">
+												{detailEarning.reference || 'Non disponible'}
+											</p>
+											{detailEarning.reference && (
+												<Button
+													variant="ghost"
+													size="sm"
+													className="h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-600"
+													onClick={() => {
+														navigator.clipboard.writeText(detailEarning.reference);
+														toast({
+															title: "Copié",
+															description: "Référence copiée dans le presse-papiers",
+														});
+													}}
+												>
+													<Copy className="h-3 w-3" />
+												</Button>
+											)}
+										</div>
+									</div>
+								</div>
+
+								{/* Amount Information */}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 									<div>
 										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Montant</label>
 										<p className="text-lg font-semibold text-green-600">
-											{parseFloat(detailEarning.amount).toFixed(2)} FCFA
+											{detailEarning.formatted_amount || `${parseFloat(detailEarning.amount || 0).toFixed(2)} FCFA`}
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Montant brut</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailEarning.amount || 'Non disponible'}
+										</p>
+									</div>
+								</div>
+
+								{/* Period Information */}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Début de période</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailEarning.period_start 
+												? new Date(detailEarning.period_start).toLocaleString()
+												: 'Non disponible'
+											}
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Fin de période</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailEarning.period_end 
+												? new Date(detailEarning.period_end).toLocaleString()
+												: 'Non disponible'
+											}
+										</p>
+									</div>
+								</div>
+
+								{/* User Information */}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Nom d'utilisateur</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailEarning.user_name || 'Non disponible'}
+										</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Payé par</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailEarning.paid_by_name || 'Non disponible'}
+										</p>
+									</div>
+								</div>
+
+								{/* Transaction Count */}
+								<div>
+									<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Nombre de transactions</label>
+									<p className="text-sm text-gray-900 dark:text-gray-100">
+										{detailEarning.transactions_count || 0}
+									</p>
+								</div>
+
+								{/* Admin Notes */}
+								{detailEarning.admin_notes && (
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Notes d'administrateur</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100 bg-blue-50 dark:bg-blue-900/20 p-3 rounded border">
+											{detailEarning.admin_notes}
+										</p>
+									</div>
+								)}
+
+								{/* Timestamps */}
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<div>
+										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Créé le</label>
+										<p className="text-sm text-gray-900 dark:text-gray-100">
+											{detailEarning.created_at 
+												? new Date(detailEarning.created_at).toLocaleString()
+												: 'Non disponible'
+											}
 										</p>
 									</div>
 									<div>
@@ -458,27 +580,10 @@ export default function EarningManagementPage() {
 													: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
 											}
 										>
-											{detailEarning.status}
+											{detailEarning.status || 'Inconnu'}
 										</Badge>
 									</div>
-									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Date</label>
-										<p className="text-sm text-gray-900 dark:text-gray-100">
-											{detailEarning.created_at 
-												? new Date(detailEarning.created_at).toLocaleString()
-												: 'Inconnu'
-											}
-										</p>
-									</div>
 								</div>
-								{detailEarning.description && (
-									<div>
-										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Description</label>
-										<p className="text-sm text-gray-900 dark:text-gray-100">
-											{detailEarning.description}
-										</p>
-								</div>
-								)}
 							</div>
 						) : null}
 					</DialogContent>

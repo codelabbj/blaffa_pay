@@ -12,13 +12,13 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -64,11 +64,19 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
     fetchStats();
   }, [userId, baseUrl, apiFetch]);
 
-  // Replace handlePayCommission with a two-step confirmation
+  // Handle opening the payload input modal
   const handlePayClick = () => {
+    setPayError("");
+    setModalOpen(true);
+  };
+
+  // Handle the "Payer la commission" button in the payload modal
+  const handlePayCommissionClick = () => {
+    setModalOpen(false);
     setConfirmModalOpen(true);
   };
 
+  // Handle the final confirmation and API call
   const handleConfirmPay = async () => {
     setConfirmModalOpen(false);
     setPayLoading(true);
@@ -87,13 +95,15 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
         body: JSON.stringify(payload),
         headers: { "Content-Type": "application/json" },
       });
-      setModalOpen(false);
       setAmount("");
       setAdminNote("");
       // Optionally, refetch stats
       window.location.reload();
     } catch (err: any) {
-      setPayError(extractErrorMessages(err));
+      const errorMessage = extractErrorMessages(err);
+      setPayError(errorMessage);
+      // Reopen the payload modal to show the error
+      setModalOpen(true);
     } finally {
       setPayLoading(false);
     }
@@ -191,21 +201,12 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     Annuler
                   </Button>
                   <Button 
-                    onClick={handleConfirmPay}
-                    disabled={payLoading || !amount}
+                    onClick={handlePayCommissionClick}
+                    disabled={!amount}
                     className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
                   >
-                    {payLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Traitement...
-                      </>
-                    ) : (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Payer la commission
-                      </>
-                    )}
+                    <Save className="h-4 w-4 mr-2" />
+                    Payer la commission
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -386,6 +387,12 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
+              {payError && (
+                <div className="flex items-center space-x-2 text-red-600 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                  <AlertTriangle className="h-4 w-4" />
+                  <span className="text-sm">{payError}</span>
+                </div>
+              )}
               <p className="text-gray-600 dark:text-gray-400">
                 Êtes-vous sûr de vouloir payer une commission de <span className="font-semibold">${amount || '0.00'}</span> ?
               </p>
@@ -398,13 +405,21 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                 Annuler
               </Button>
               <Button 
-                onClick={() => {
-                  setConfirmModalOpen(false);
-                  setModalOpen(true);
-                }}
+                onClick={handleConfirmPay}
+                disabled={payLoading}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
               >
-                Continuer
+                {payLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Traitement...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Continuer
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>

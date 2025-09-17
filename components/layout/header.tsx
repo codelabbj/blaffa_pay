@@ -17,7 +17,7 @@ const pageNames: Record<string, string> = {
   "/dashboard/devices": "devices.title",
   "/dashboard/sms-logs": "smsLogs.title",
   "/dashboard/fcm-logs": "fcmLogs.title",
-  "/dashboard/partner": "partner.title",
+  "/dashboard/partner": "partners.title",
   "/dashboard/topup": "topup.title",
   "/dashboard/earning-management": "earning.title",
   "/dashboard/wave-business-transaction": "Wave Business Transaction",

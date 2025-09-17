@@ -16,13 +16,13 @@ import { Pencil } from "lucide-react"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -320,7 +320,7 @@ export default function NetworkListPage() {
                                 Modifier
                               </Button>
                             </Link>
-                            <Button 
+                            {/* <Button 
                               variant="outline" 
                               size="sm"
                               className={
@@ -330,7 +330,7 @@ export default function NetworkListPage() {
                               }
                             >
                               {network.is_active ? 'Désactiver' : 'Activer'}
-                            </Button>
+                            </Button> */}
                           </div>
                         </TableCell>
                       </TableRow>

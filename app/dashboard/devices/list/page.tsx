@@ -16,13 +16,13 @@ import { Pencil } from "lucide-react"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -242,9 +242,13 @@ export default function DevicesListPage() {
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
                       <TableHead className="font-semibold">Nom de l'appareil</TableHead>
                       <TableHead className="font-semibold">ID de l'appareil</TableHead>
+                      <TableHead className="font-semibold">Utilisateur</TableHead>
+                      <TableHead className="font-semibold">Réseau</TableHead>
+                      <TableHead className="font-semibold">Transactions</TableHead>
+                      <TableHead className="font-semibold">Taux de succès</TableHead>
                       <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Dernière activité</TableHead>
-                      <TableHead className="font-semibold">Actions</TableHead>
+                      {/* <TableHead className="font-semibold">Actions</TableHead> */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -253,14 +257,11 @@ export default function DevicesListPage() {
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                              {device.name?.charAt(0)?.toUpperCase() || 'D'}
+                              {device.device_name?.charAt(0)?.toUpperCase() || 'D'}
                             </div>
                             <div>
                               <div className="font-medium text-gray-900 dark:text-gray-100">
-                                {device.name || 'Appareil inconnu'}
-                              </div>
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {device.device_type || 'Type inconnu'}
+                                {device.device_name || 'Appareil inconnu'}
                               </div>
                             </div>
                           </div>
@@ -268,6 +269,34 @@ export default function DevicesListPage() {
                         <TableCell>
                           <Badge variant="outline" className="font-mono text-xs">
                             {device.device_id || device.id}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                            {device.user_name || 'Utilisateur inconnu'}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="secondary" className="text-xs">
+                            {device.network_name || 'Réseau inconnu'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm text-gray-900 dark:text-gray-100 font-medium">
+                            {device.total_transactions || 0}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge 
+                            className={
+                              parseFloat(device.success_rate || "0") >= 80
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                : parseFloat(device.success_rate || "0") >= 50
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+                                : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                            }
+                          >
+                            {device.success_rate || "0.00"}%
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -290,14 +319,14 @@ export default function DevicesListPage() {
                         </TableCell>
                         <TableCell>
                           <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {device.last_activity 
-                              ? new Date(device.last_activity).toLocaleString()
+                            {device.last_seen 
+                              ? new Date(device.last_seen).toLocaleString()
                               : 'Jamais'
                             }
                           </div>
                         </TableCell>
                   <TableCell>
-                          <div className="flex items-center space-x-2">
+                          {/* <div className="flex items-center space-x-2">
                             <Button variant="outline" size="sm">
                               <Pencil className="h-4 w-4 mr-1" />
                               Modifier
@@ -313,7 +342,7 @@ export default function DevicesListPage() {
                             >
                               {device.is_online ? 'Déconnecter' : 'Connecter'}
                             </Button>
-                          </div>
+                          </div> */}
                   </TableCell>
                 </TableRow>
               ))}

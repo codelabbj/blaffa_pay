@@ -14,13 +14,13 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -334,7 +334,6 @@ export default function MomoPayPage() {
             </div>
           </div>
         </div>
-
 
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
@@ -705,7 +704,7 @@ export default function MomoPayPage() {
 
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                     <span className="text-sm font-medium">Notifications FCM</span>
-                    <span className="text-sm">{detailTransaction.fcm_notifications.length} notification(s)</span>
+                    <span className="text-sm">{detailTransaction.fcm_notifications?.length || 0} notification(s)</span>
                   </div>
 
                   <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">

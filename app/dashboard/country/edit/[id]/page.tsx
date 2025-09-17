@@ -14,13 +14,13 @@ import { Label } from "@/components/ui/label"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors with orange as primary
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#F97316', // Orange from logo
+  secondary: '#171717', // Dark gray/black from logo
+  accent: '#FFFFFF', // White from logo
   danger: '#EF4444',
-  warning: '#F97316',
+  warning: '#F59E0B',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',
@@ -31,7 +31,7 @@ const COLORS = {
 export default function CountryEditPage() {
   const router = useRouter()
   const params = useParams()
-  const { id } = params
+  const { id: uid } = params
   const [nom, setNom] = useState("")
   const [code, setCode] = useState("")
   const [isActive, setIsActive] = useState(true)
@@ -43,13 +43,13 @@ export default function CountryEditPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!id) return
+    if (!uid) return
     
     const fetchCountry = async () => {
       setLoading(true)
       setError("")
       try {
-        const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/countries/${id}/`)
+        const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/countries/${uid}/`)
         setNom(data.nom || "")
         setCode(data.code || "")
         setIsActive(data.is_active)
@@ -71,14 +71,14 @@ export default function CountryEditPage() {
     }
     
     fetchCountry()
-  }, [id])
+  }, [uid])
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     setSaving(true)
     setError("")
     try {
-      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/countries/${id}/`, {
+      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/countries/${uid}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nom, code, is_active: isActive })

@@ -12,13 +12,13 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, Edit, Save, X, User, Mail, Phone, Shield, Calendar, CheckCircle, XCircle } from 'lucide-react';
 
-// Colors for consistent theming - using logo colors with orange as primary
+// Colors for consistent theming
 const COLORS = {
-  primary: '#F97316', // Orange from logo
-  secondary: '#171717', // Dark gray/black from logo
-  accent: '#FFFFFF', // White from logo
+  primary: '#3B82F6',
+  secondary: '#10B981', 
+  accent: '#F59E0B',
   danger: '#EF4444',
-  warning: '#F59E0B',
+  warning: '#F97316',
   success: '#22C55E',
   info: '#06B6D4',
   purple: '#8B5CF6',

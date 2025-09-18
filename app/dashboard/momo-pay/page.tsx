@@ -14,15 +14,15 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
-// Colors for consistent theming - using logo colors with orange as primary
+// Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#F97316', // Orange from logo
-  secondary: '#171717', // Dark gray/black from logo
-  accent: '#FFFFFF', // White from logo
+  primary: '#FF6B35', // Orange (primary from logo)
+  secondary: '#00FF88', // Bright green from logo
+  accent: '#1E3A8A', // Dark blue from logo
   danger: '#EF4444',
-  warning: '#F59E0B',
-  success: '#22C55E',
-  info: '#06B6D4',
+  warning: '#F97316',
+  success: '#00FF88', // Using bright green for success
+  info: '#1E3A8A', // Using dark blue for info
   purple: '#8B5CF6',
   pink: '#EC4899',
   indigo: '#6366F1'
@@ -308,14 +308,14 @@ export default function MomoPayPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
                 Transactions MoMo Pay
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
@@ -418,7 +418,7 @@ export default function MomoPayPage() {
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
                   <span className="text-gray-600 dark:text-gray-300">Chargement des transactions...</span>
                 </div>
               </div>
@@ -469,7 +469,7 @@ export default function MomoPayPage() {
                       <TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                         <TableCell className="font-mono text-sm">
                           <div className="flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
                               {transaction.reference.charAt(0).toUpperCase()}
                             </div>
                             <span>{transaction.reference}</span>
@@ -553,7 +553,7 @@ export default function MomoPayPage() {
                       variant={currentPage === page ? "default" : "outline"}
                       size="sm"
                       onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-green-600 text-white" : "border-gray-200 dark:border-gray-600"}
+                      className={currentPage === page ? "bg-orange-500 text-white" : "border-gray-200 dark:border-gray-600"}
                     >
                       {page}
                     </Button>
@@ -588,7 +588,7 @@ export default function MomoPayPage() {
             {detailLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
                   <span className="text-gray-600 dark:text-gray-300">Chargement des détails...</span>
                 </div>
               </div>

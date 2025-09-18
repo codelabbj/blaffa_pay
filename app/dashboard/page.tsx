@@ -48,21 +48,21 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
-// Colors for charts and UI elements - using logo colors with orange as primary
+// Colors for charts and UI elements - using logo colors
 const COLORS = {
-  primary: '#F97316', // Orange from logo
-  secondary: '#171717', // Dark gray/black from logo
-  accent: '#FFFFFF', // White from logo
+  primary: '#FF6B35', // Orange (primary from logo)
+  secondary: '#00FF88', // Bright green from logo
+  accent: '#1E3A8A', // Dark blue from logo
   danger: '#EF4444',
-  warning: '#F59E0B',
-  success: '#22C55E',
-  info: '#06B6D4',
+  warning: '#F97316',
+  success: '#00FF88', // Using bright green for success
+  info: '#1E3A8A', // Using dark blue for info
   purple: '#8B5CF6',
   pink: '#EC4899',
   indigo: '#6366F1'
 };
 
-const CHART_COLORS = ['#F97316', '#171717', '#FFFFFF', '#EF4444', '#8B5CF6', '#EC4899'];
+const CHART_COLORS = ['#FF6B35', '#00FF88', '#1E3A8A', '#EF4444', '#8B5CF6', '#EC4899'];
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null)

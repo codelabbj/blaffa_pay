@@ -15,15 +15,15 @@ import { Badge } from "@/components/ui/badge"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
-// Colors for consistent theming - using logo colors with orange as primary
+// Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#F97316', // Orange from logo
-  secondary: '#171717', // Dark gray/black from logo
-  accent: '#FFFFFF', // White from logo
+  primary: '#FF6B35', // Orange (primary from logo)
+  secondary: '#00FF88', // Bright green from logo
+  accent: '#1E3A8A', // Dark blue from logo
   danger: '#EF4444',
-  warning: '#F59E0B',
-  success: '#22C55E',
-  info: '#06B6D4',
+  warning: '#F97316',
+  success: '#00FF88', // Using bright green for success
+  info: '#1E3A8A', // Using dark blue for info
   purple: '#8B5CF6',
   pink: '#EC4899',
   indigo: '#6366F1'
@@ -151,14 +151,14 @@ export default function SmsLogsListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
                 {t("smsLogs.list")}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
@@ -168,7 +168,7 @@ export default function SmsLogsListPage() {
             <div className="flex items-center space-x-4">
               <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
                 <div className="flex items-center space-x-2">
-                  <MessageSquare className="h-5 w-5 text-blue-600" />
+                  <MessageSquare className="h-5 w-5 text-orange-500" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {paginationData.count} messages
                   </span>
@@ -238,8 +238,8 @@ export default function SmsLogsListPage() {
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
           <CardHeader className="border-b border-gray-100 dark:border-gray-700">
             <CardTitle className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                <MessageSquare className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                <MessageSquare className="h-5 w-5 text-orange-600 dark:text-orange-300" />
               </div>
               <span>Journaux SMS</span>
             </CardTitle>
@@ -248,7 +248,7 @@ export default function SmsLogsListPage() {
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
                   <span className="text-gray-600 dark:text-gray-300">Chargement des journaux SMS...</span>
             </div>
           </div>
@@ -380,7 +380,7 @@ export default function SmsLogsListPage() {
                       variant={currentPage === page ? "default" : "outline"}
                       size="sm"
                       onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-blue-600 text-white" : ""}
+                      className={currentPage === page ? "bg-orange-500 text-white" : ""}
                     >
                       {page}
                   </Button>

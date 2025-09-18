@@ -18,7 +18,7 @@ export default function DashboardLayout({
   }
   return (
     <WebSocketProvider token={token}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <Sidebar />
         <div className="lg:pl-64">
           <Header />

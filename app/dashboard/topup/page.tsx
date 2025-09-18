@@ -15,15 +15,15 @@ import { useApi } from "@/lib/useApi"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 
-// Colors for consistent theming - using logo colors with orange as primary
+// Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#F97316', // Orange from logo
-  secondary: '#171717', // Dark gray/black from logo
-  accent: '#FFFFFF', // White from logo
+  primary: '#FF6B35', // Orange (primary from logo)
+  secondary: '#00FF88', // Bright green from logo
+  accent: '#1E3A8A', // Dark blue from logo
   danger: '#EF4444',
-  warning: '#F59E0B',
-  success: '#22C55E',
-  info: '#06B6D4',
+  warning: '#F97316',
+  success: '#00FF88', // Using bright green for success
+  info: '#1E3A8A', // Using dark blue for info
   purple: '#8B5CF6',
   pink: '#EC4899',
   indigo: '#6366F1'
@@ -179,11 +179,11 @@ export default function TopupPage() {
 
 	if (loading) {
 		return (
-			<div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+			<div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 					<div className="flex items-center justify-center py-12">
 						<div className="flex flex-col items-center space-y-4">
-							<Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+							<Loader2 className="h-8 w-8 animate-spin text-orange-500" />
 							<span className="text-gray-600 dark:text-gray-300">Loading topup requests...</span>
 						</div>
 					</div>
@@ -193,14 +193,14 @@ export default function TopupPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+		<div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 				
 				{/* Page Header */}
 				<div className="mb-8">
 					<div className="flex items-center justify-between">
 						<div>
-							<h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+							<h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
 								{t("topup.title") || "Top Up Requests"}
 							</h1>
 							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
@@ -294,8 +294,8 @@ export default function TopupPage() {
 				<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
 					<CardHeader className="border-b border-gray-100 dark:border-gray-700">
 						<CardTitle className="flex items-center space-x-2">
-							<div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-								<Users className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+							<div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+								<Users className="h-5 w-5 text-orange-600 dark:text-orange-300" />
 							</div>
 							<span>Topup Requests</span>
 						</CardTitle>
@@ -476,7 +476,7 @@ export default function TopupPage() {
 						</DialogHeader>
 						{detailLoading ? (
 							<div className="flex items-center justify-center py-8">
-								<Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+								<Loader2 className="h-6 w-6 animate-spin text-orange-500" />
 							</div>
 						) : detailError ? (
 							<ErrorDisplay

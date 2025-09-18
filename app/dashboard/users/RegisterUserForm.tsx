@@ -13,15 +13,15 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useRouter } from "next/navigation"
 
-// Colors for consistent theming - using logo colors with orange as primary
+// Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#F97316', // Orange from logo
-  secondary: '#171717', // Dark gray/black from logo
-  accent: '#FFFFFF', // White from logo
+  primary: '#FF6B35', // Orange (primary from logo)
+  secondary: '#00FF88', // Bright green from logo
+  accent: '#1E3A8A', // Dark blue from logo
   danger: '#EF4444',
-  warning: '#F59E0B',
-  success: '#22C55E',
-  info: '#06B6D4',
+  warning: '#F97316',
+  success: '#00FF88', // Using bright green for success
+  info: '#1E3A8A', // Using dark blue for info
   purple: '#8B5CF6',
   pink: '#EC4899',
   indigo: '#6366F1'
@@ -131,7 +131,7 @@ export default function RegisterUserForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Page Header */}
@@ -147,7 +147,7 @@ export default function RegisterUserForm() {
                 Retour
               </Button> */}
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
                   {t("register.title") || "Enregistrer un utilisateur"}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
@@ -363,7 +363,7 @@ export default function RegisterUserForm() {
             <Button 
               type="submit" 
               disabled={loading}
-              className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white"
+              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
             >
               {loading ? (
                 <>

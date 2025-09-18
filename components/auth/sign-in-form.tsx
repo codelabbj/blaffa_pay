@@ -17,15 +17,15 @@ import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
-// Colors for consistent theming - using logo colors with orange as primary
+// Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#F97316', // Orange from logo
-  secondary: '#171717', // Dark gray/black from logo
-  accent: '#FFFFFF', // White from logo
+  primary: '#FF6B35', // Orange (primary from logo)
+  secondary: '#00FF88', // Bright green from logo
+  accent: '#1E3A8A', // Dark blue from logo
   danger: '#EF4444',
-  warning: '#F59E0B',
-  success: '#22C55E',
-  info: '#06B6D4',
+  warning: '#F97316',
+  success: '#00FF88', // Using bright green for success
+  info: '#1E3A8A', // Using dark blue for info
   purple: '#8B5CF6',
   pink: '#EC4899',
   indigo: '#6366F1'
@@ -121,7 +121,7 @@ export function SignInForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-orange-50/30 via-transparent to-green-50/30 dark:from-gray-900/50 dark:via-transparent dark:to-gray-800/50">
       <div className="w-full max-w-md space-y-8">
         
         {/* Header Section */}
@@ -152,7 +152,7 @@ export function SignInForm() {
           </div> */}
           
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
               {/* Blaffa Pay */}
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg">
@@ -162,7 +162,7 @@ export function SignInForm() {
         </div>
 
         {/* Login Form Card */}
-        <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-2xl">
+        <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-orange-200/20 dark:border-orange-800/20 shadow-2xl shadow-orange-500/10">
           <CardHeader className="space-y-4 pb-6">
             {/* <div className="flex items-center justify-center">
               <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full">
@@ -186,7 +186,7 @@ export function SignInForm() {
               {/* Email Input */}
               <div className="space-y-3">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-orange-600" />
+                  <Mail className="h-4 w-4 text-orange-500" />
                   <span>{t("auth.email")}</span>
                 </Label>
                 <div className="relative">
@@ -206,7 +206,7 @@ export function SignInForm() {
               {/* Password Input */}
               <div className="space-y-3">
                 <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                  <Lock className="h-4 w-4 text-orange-600" />
+                  <Lock className="h-4 w-4 text-orange-500" />
                   <span>{t("auth.password")}</span>
                 </Label>
                 <div className="relative">
@@ -255,7 +255,7 @@ export function SignInForm() {
               {/* Submit Button */}
               <Button 
                 type="submit" 
-                className="w-full py-3 bg-gradient-to-r from-orange-600 to-orange-600 hover:from-orange-700 hover:to-orange-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
+                className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
                 disabled={loading}
               >
                 {loading ? (

@@ -35,7 +35,7 @@ export function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent ml-12 lg:ml-0">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent ml-12 lg:ml-0">
               {t(pageTitle)}
             </h1>
           </div>
@@ -55,9 +55,9 @@ export function Header() {
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-blue-500 dark:hover:ring-blue-400 transition-all">
+                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-orange-500 dark:hover:ring-orange-400 transition-all">
                   <AvatarImage src="/placeholder-user.jpg" alt="User" />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white font-semibold">
+                  <AvatarFallback className="bg-gradient-to-br from-orange-500 to-orange-600 text-white font-semibold">
                     JD
                   </AvatarFallback>
                 </Avatar>
@@ -66,7 +66,7 @@ export function Header() {
                 <div className="flex items-center justify-start gap-2 p-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder-user.jpg" alt="User" />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm">
+                    <AvatarFallback className="bg-gradient-to-br from-orange-500 to-orange-600 text-white text-sm">
                       JD
                     </AvatarFallback>
                   </Avatar>

@@ -46,15 +46,15 @@ import {
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
-// Colors for consistent theming
+// Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
+  primary: '#FF6B35', // Orange (primary from logo)
+  secondary: '#00FF88', // Bright green from logo
+  accent: '#1E3A8A', // Dark blue from logo
   danger: '#EF4444',
   warning: '#F97316',
-  success: '#22C55E',
-  info: '#06B6D4',
+  success: '#00FF88', // Using bright green for success
+  info: '#1E3A8A', // Using dark blue for info
   purple: '#8B5CF6',
   pink: '#EC4899',
   indigo: '#6366F1'
@@ -205,7 +205,7 @@ export default function TransactionsPage() {
     const colors: Record<string, string> = {
       deposit: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100",
       withdrawal: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100",
-      transfer: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
+      transfer: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100",
     }
     return <Badge className={colors[type] || ""}>{t(`transactions.${type}`) || type}</Badge>
   }
@@ -609,14 +609,14 @@ export default function TransactionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
                 {t("transactions.title")}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
@@ -626,7 +626,7 @@ export default function TransactionsPage() {
             <div className="flex items-center space-x-4">
               <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
                 <div className="flex items-center space-x-2">
-                  <CreditCard className="h-5 w-5 text-blue-600" />
+                  <CreditCard className="h-5 w-5 text-orange-500" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     {totalCount} transactions
                   </span>
@@ -634,7 +634,7 @@ export default function TransactionsPage() {
               </div>
             {/* <Button
                 onClick={() => setCreateModalOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Transaction
@@ -715,7 +715,7 @@ export default function TransactionsPage() {
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
                   <span className="text-gray-600 dark:text-gray-300">Chargement des transactions...</span>
                 </div>
               </div>
@@ -806,7 +806,7 @@ export default function TransactionsPage() {
                                 ? "bg-yellow-100 text-yellow-400 dark:bg-yellow-900/20 dark:text-yellow-300"
                                 : transaction.status === 'failed'
                                 ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+                                : "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
                             }
                           >
                             <div className="flex items-center space-x-1">
@@ -1044,7 +1044,7 @@ export default function TransactionsPage() {
                 <Button
                   type="submit"
                   disabled={editLoading}
-                  className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white"
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
                 >
                   {editLoading ? (
                     <>
@@ -1080,7 +1080,7 @@ export default function TransactionsPage() {
               <Button
                 onClick={confirmEditAndSend}
                 disabled={editLoading}
-                className="bg-gradient-to-r from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 text-white"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
               >
                 {editLoading ? (
                   <>

@@ -274,7 +274,7 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="flex flex-col items-center space-y-4">
-          <Loader className="animate-spin h-8 w-8 text-blue-600" />
+          <Loader className="animate-spin h-8 w-8 text-orange-500" />
         <span className="text-lg font-semibold">Chargement...</span>
         </div>
       </div>
@@ -321,14 +321,14 @@ export default function DashboardPage() {
       </Dialog>
 
       {/* Main Dashboard Content */}
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           
           {/* Dashboard Header */}
         <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
                   Tableau de bord administrateur
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
@@ -361,7 +361,7 @@ export default function DashboardPage() {
           {/* Key Metrics Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {/* Total Users */}
-            <Card className="relative overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
+            <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -401,7 +401,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* Today's Revenue */}
-            <Card className="relative overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0 shadow-lg">
+            <Card className="relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-lg">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -460,8 +460,8 @@ export default function DashboardPage() {
               <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
                 <CardHeader className="border-b border-gray-100 dark:border-gray-700">
                   <CardTitle className="flex items-center space-x-2">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                      <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                    <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                      <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-300" />
               </div>
                     <span>Aperçu financier</span>
               </CardTitle>
@@ -526,8 +526,8 @@ export default function DashboardPage() {
             <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg hover:shadow-xl transition-shadow">
               <CardHeader className="border-b border-gray-100 dark:border-gray-700">
                 <CardTitle className="flex items-center space-x-2">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <Users className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                    <Users className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                   </div>
                   <span>Statistiques des utilisateurs</span>
                 </CardTitle>
@@ -641,8 +641,8 @@ export default function DashboardPage() {
                 ) : summary ? (
               <div className="grid grid-cols-2 gap-4">
                     <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
-                      <div className="text-sm text-blue-600 dark:text-blue-300 font-medium">Transactions d'aujourd'hui</div>
-                      <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{summary.today_transactions}</div>
+                      <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Transactions d'aujourd'hui</div>
+                      <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_transactions}</div>
                     </div>
                     <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
                       <div className="text-sm text-green-600 dark:text-green-300 font-medium">Terminées</div>
@@ -750,7 +750,7 @@ export default function DashboardPage() {
                     <div className="text-sm text-gray-600 dark:text-gray-300">Ajustements totaux</div>
                   </div>
                   <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-300">{balanceOps.adjustments.total_credits.count}</div>
+                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-300">{balanceOps.adjustments.total_credits.count}</div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">Crédits</div>
                   </div>
                   <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
@@ -793,8 +793,8 @@ export default function DashboardPage() {
                         <div className="text-2xl font-bold text-green-900 dark:text-green-100">{momoPayStats.total_transactions || 0}</div>
                       </div>
                       <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
-                        <div className="text-sm text-blue-600 dark:text-blue-300 font-medium">Montant Total</div>
-                        <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{parseFloat((momoPayStats.total_amount || 0).toString()).toFixed(2)} FCFA</div>
+                        <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Montant Total</div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{parseFloat((momoPayStats.total_amount || 0).toString()).toFixed(2)} FCFA</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -828,8 +828,8 @@ export default function DashboardPage() {
             <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
               <CardHeader className="border-b border-gray-100 dark:border-gray-700">
                 <CardTitle className="flex items-center space-x-2">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <Waves className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                  <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                    <Waves className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                   </div>
                   <span>Statistiques Wave Business</span>
                 </CardTitle>
@@ -845,8 +845,8 @@ export default function DashboardPage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
-                        <div className="text-sm text-blue-600 dark:text-blue-300 font-medium">Total Transactions</div>
-                        <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">{waveStats.total_transactions || 0}</div>
+                        <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Total Transactions</div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{waveStats.total_transactions || 0}</div>
                       </div>
                       <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg">
                         <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">Montant Total</div>

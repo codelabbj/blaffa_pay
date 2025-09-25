@@ -11,6 +11,7 @@ import { ArrowLeft, DollarSign, Calendar, TrendingUp, Users, Loader2, Save, Aler
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { DateRangeFilter } from "@/components/ui/date-range-filter";
 
 // Colors for consistent theming - using logo colors
 const COLORS = {

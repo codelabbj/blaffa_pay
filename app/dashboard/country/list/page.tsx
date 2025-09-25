@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Badge } from "@/components/ui/badge"
 import { Pencil } from "lucide-react"
+import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -39,6 +40,8 @@ export default function CountryListPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortField, setSortField] = useState<"nom" | "code" | null>(null)
   const [sortDirection, setSortDirection] = useState<"+" | "-">("-")
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   const apiFetch = useApi()
   const { t } = useLanguage()
   const { toast } = useToast();
@@ -49,7 +52,7 @@ export default function CountryListPage() {
       setError("")
       try {
         let endpoint = "";
-        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField) {
+        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField || startDate || endDate) {
           const params = new URLSearchParams({
             page: "1",
             page_size: "100",
@@ -62,6 +65,12 @@ export default function CountryListPage() {
           }
           if (sortField) {
             params.append("ordering", `${sortDirection === "+" ? "+" : "-"}${sortField}`);
+          }
+          if (startDate) {
+            params.append("created_at__gte", startDate);
+          }
+          if (endDate) {
+            params.append("created_at__lte", endDate);
           }
           // Keep '+' literal for ordering (avoid %2B)
           let query = params.toString().replace(/ordering=%2B/g, "ordering=+");
@@ -94,7 +103,7 @@ export default function CountryListPage() {
       }
     }
     fetchCountries()
-  }, [searchTerm, statusFilter, sortField, sortDirection])
+  }, [searchTerm, statusFilter, sortField, sortDirection, startDate, endDate])
 
   // Remove client-side filtering since it's now handled by the API
   const filteredCountries = countries
@@ -146,7 +155,7 @@ export default function CountryListPage() {
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -169,6 +178,19 @@ export default function CountryListPage() {
                   <SelectItem value="inactive">Inactif</SelectItem>
                 </SelectContent>
               </Select>
+
+              {/* Date Range Filter */}
+              <DateRangeFilter
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
+                onClear={() => {
+                  setStartDate(null)
+                  setEndDate(null)
+                }}
+                placeholder="Filtrer par date"
+              />
 
               {/* Sort */}
               <Select 

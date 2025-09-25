@@ -13,6 +13,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { useWebSocket } from "@/components/providers/websocket-provider"
 import { Badge } from "@/components/ui/badge"
 import { Pencil } from "lucide-react"
+import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -38,6 +39,8 @@ export default function DevicesListPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [sortField, setSortField] = useState<"name" | "is_online" | null>(null)
   const [sortDirection, setSortDirection] = useState<"+" | "-">("-")
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   const apiFetch = useApi()
   const { t } = useLanguage()
   const { toast } = useToast();
@@ -50,7 +53,7 @@ export default function DevicesListPage() {
       setError("")
       try {
         let endpoint = "";
-        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField) {
+        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField || startDate || endDate) {
           const params = new URLSearchParams({
             page: "1",
             page_size: "100",
@@ -63,6 +66,12 @@ export default function DevicesListPage() {
           }
           if (sortField) {
             params.append("ordering", `${sortDirection}${sortField}`);
+          }
+          if (startDate) {
+            params.append("created_at__gte", startDate);
+          }
+          if (endDate) {
+            params.append("created_at__lte", endDate);
           }
           const query = params.toString().replace(/ordering=%2B/g, "ordering=+");
           endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/stats/devices/?${query}`;
@@ -100,7 +109,7 @@ export default function DevicesListPage() {
       }
     }
     fetchDevices()
-  }, [searchTerm, statusFilter, sortField, sortDirection])
+  }, [searchTerm, statusFilter, sortField, sortDirection, startDate, endDate])
 
   // Listen for device_status_update WebSocket messages
   useEffect(() => {
@@ -172,7 +181,7 @@ export default function DevicesListPage() {
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -195,6 +204,19 @@ export default function DevicesListPage() {
                   <SelectItem value="inactive">Hors ligne</SelectItem>
                 </SelectContent>
               </Select>
+
+              {/* Date Range Filter */}
+              <DateRangeFilter
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
+                onClear={() => {
+                  setStartDate(null)
+                  setEndDate(null)
+                }}
+                placeholder="Filtrer par date"
+              />
 
               {/* Sort */}
               <Select 

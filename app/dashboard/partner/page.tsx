@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -34,6 +35,8 @@ const COLORS = {
 export default function PartnerPage() {
 	const [searchTerm, setSearchTerm] = useState("")
 	const [statusFilter, setStatusFilter] = useState("all")
+	const [startDate, setStartDate] = useState<string | null>(null)
+	const [endDate, setEndDate] = useState<string | null>(null)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [partners, setPartners] = useState<any[]>([])
 	const [totalCount, setTotalCount] = useState(0)
@@ -68,6 +71,12 @@ export default function PartnerPage() {
 				if (statusFilter !== "all") {
 					params.append("is_active", statusFilter === "active" ? "true" : "false")
 				}
+				if (startDate) {
+					params.append("created_at__gte", startDate)
+				}
+				if (endDate) {
+					params.append("created_at__lte", endDate)
+				}
 				const orderingParam = sortField
 					? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
 					: ""
@@ -89,7 +98,7 @@ export default function PartnerPage() {
 			}
 		}
 		fetchPartners()
-	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, sortField, sortDirection, t, toast, apiFetch])
+	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, sortField, sortDirection, startDate, endDate, t, toast, apiFetch])
 
 	const startIndex = (currentPage - 1) * itemsPerPage
 
@@ -191,7 +200,7 @@ export default function PartnerPage() {
 				{/* Filters and Search */}
 				<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
 					<CardContent className="p-6">
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 							{/* Search */}
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -229,6 +238,20 @@ export default function PartnerPage() {
 														<SelectItem value="created_at">Date</SelectItem>
 							</SelectContent>
 						</Select>
+
+						{/* Date Range Filter */}
+						<DateRangeFilter
+							startDate={startDate}
+							endDate={endDate}
+							onStartDateChange={setStartDate}
+							onEndDateChange={setEndDate}
+							onClear={() => {
+								setStartDate(null)
+								setEndDate(null)
+							}}
+							placeholder="Filtrer par date"
+							className="col-span-1"
+						/>
 					</div>
 					</CardContent>
 				</Card>

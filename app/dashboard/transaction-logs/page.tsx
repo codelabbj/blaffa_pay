@@ -11,6 +11,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Badge } from "@/components/ui/badge"
+import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -41,6 +42,8 @@ export default function TransactionLogsListPage() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
 
   const [logs, setLogs] = useState<any[]>([])
   const [count, setCount] = useState(0)
@@ -72,6 +75,8 @@ export default function TransactionLogsListPage() {
         })
         if (searchTerm) params.append("search", searchTerm)
         if (sortField) params.append("ordering", `${sortDirection === "asc" ? "+" : "-"}${sortField}`)
+        if (startDate) params.append("created_at__gte", startDate)
+        if (endDate) params.append("created_at__lte", endDate)
 
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transaction-logs/?${params.toString()}`
         const data = await apiFetch(endpoint)
@@ -101,7 +106,7 @@ export default function TransactionLogsListPage() {
     }
 
     fetchLogs()
-  }, [apiFetch, currentPage, pageSize, searchTerm, sortField, sortDirection, t])
+  }, [apiFetch, currentPage, pageSize, searchTerm, sortField, sortDirection, startDate, endDate, t])
 
     return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -151,6 +156,18 @@ export default function TransactionLogsListPage() {
             >
                 Rechercher
             </Button>
+            <DateRangeFilter
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+              onClear={() => {
+                setStartDate(null)
+                setEndDate(null)
+              }}
+              placeholder="Filtrer par date"
+              className="w-full sm:w-auto"
+            />
           </div>
           </CardContent>
         </Card>

@@ -12,6 +12,7 @@ import Link from "next/link"
 import { Search, ArrowUpDown, Settings, Filter, CheckCircle, XCircle, Globe, Plus, Pencil } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -39,6 +40,8 @@ export default function NetworkConfigListPage() {
   const [networks, setNetworks] = useState<any[]>([])
   const [sortField, setSortField] = useState<"network_name" | "created_at" | null>(null)
   const [sortDirection, setSortDirection] = useState<"+" | "-">("-")
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   const apiFetch = useApi()
   const { t } = useLanguage()
   const { toast } = useToast();
@@ -50,7 +53,7 @@ export default function NetworkConfigListPage() {
       setError("")
       try {
         let endpoint = "";
-        if (searchTerm.trim() !== "" || statusFilter !== "all" || networkFilter !== "all" || sortField) {
+        if (searchTerm.trim() !== "" || statusFilter !== "all" || networkFilter !== "all" || sortField || startDate || endDate) {
           const params = new URLSearchParams({
             page: "1",
             page_size: "100",
@@ -66,6 +69,12 @@ export default function NetworkConfigListPage() {
           }
           if (sortField) {
             params.append("ordering", `${sortDirection === "+" ? "+" : "-"}${sortField}`);
+          }
+          if (startDate) {
+            params.append("created_at__gte", startDate);
+          }
+          if (endDate) {
+            params.append("created_at__lte", endDate);
           }
           // Keep '+' literal for ordering (avoid %2B)
           const query = params.toString().replace(/ordering=%2B/g, "ordering=+");
@@ -98,7 +107,7 @@ export default function NetworkConfigListPage() {
       }
     }
     fetchNetworkConfigs()
-  }, [searchTerm, statusFilter, networkFilter, sortField, sortDirection])
+  }, [searchTerm, statusFilter, networkFilter, sortField, sortDirection, startDate, endDate])
 
   // Fetch networks for filter
   useEffect(() => {
@@ -173,7 +182,7 @@ export default function NetworkConfigListPage() {
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -211,6 +220,19 @@ export default function NetworkConfigListPage() {
               ))}
             </SelectContent>
           </Select>
+
+              {/* Date Range Filter */}
+              <DateRangeFilter
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
+                onClear={() => {
+                  setStartDate(null)
+                  setEndDate(null)
+                }}
+                placeholder="Filtrer par date"
+              />
 
               {/* Sort */}
               <Select 

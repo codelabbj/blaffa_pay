@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { useApi } from "@/lib/useApi"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -32,6 +33,8 @@ const COLORS = {
 export default function EarningManagementPage() {
 	const [searchTerm, setSearchTerm] = useState("")
 	const [statusFilter, setStatusFilter] = useState("all")
+	const [startDate, setStartDate] = useState<string | null>(null)
+	const [endDate, setEndDate] = useState<string | null>(null)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [earnings, setEarnings] = useState<any[]>([])
 	const [totalCount, setTotalCount] = useState(0)
@@ -66,6 +69,12 @@ export default function EarningManagementPage() {
 				if (statusFilter !== "all") {
 					params.append("status", statusFilter)
 				}
+				if (startDate) {
+					params.append("created_at__gte", startDate)
+				}
+				if (endDate) {
+					params.append("created_at__lte", endDate)
+				}
 				const orderingParam = sortField
 					? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
 					: ""
@@ -87,7 +96,7 @@ export default function EarningManagementPage() {
 			}
 		}
 		fetchEarnings()
-	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, sortField, sortDirection, t, toast, apiFetch])
+	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, sortField, sortDirection, startDate, endDate, t, toast, apiFetch])
 
 	const startIndex = (currentPage - 1) * itemsPerPage
 
@@ -206,7 +215,7 @@ export default function EarningManagementPage() {
 				{/* Filters and Search */}
 				<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
 					<CardContent className="p-6">
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
 							{/* Search */}
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -245,6 +254,20 @@ export default function EarningManagementPage() {
 									<SelectItem value="status">Statut</SelectItem>
 								</SelectContent>
 							</Select>
+
+							{/* Date Range Filter */}
+							<DateRangeFilter
+								startDate={startDate}
+								endDate={endDate}
+								onStartDateChange={setStartDate}
+								onEndDateChange={setEndDate}
+								onClear={() => {
+									setStartDate(null)
+									setEndDate(null)
+								}}
+								placeholder="Filtrer par date"
+								className="col-span-1"
+							/>
 						</div>
 					</CardContent>
 				</Card>

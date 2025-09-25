@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ArrowUpDown } from "lucide-react"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Badge } from "@/components/ui/badge"
+import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -52,6 +53,8 @@ export default function SmsLogsListPage() {
   const [sortDirection, setSortDirection] = useState<"+" | "-">("-")
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(100)
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   
   const apiFetch = useApi()
   const { t } = useLanguage()
@@ -80,6 +83,12 @@ export default function SmsLogsListPage() {
         }
         if (sortField) {
           params.append("ordering", `${sortDirection}${sortField}`)
+        }
+        if (startDate) {
+          params.append("received_at__gte", startDate)
+        }
+        if (endDate) {
+          params.append("received_at__lte", endDate)
         }
         
         const query = params.toString().replace(/ordering=%2B/g, "ordering=+")
@@ -124,7 +133,7 @@ export default function SmsLogsListPage() {
       }
     }
     fetchSmsLogs()
-  }, [searchTerm, typeFilter, sortField, sortDirection, currentPage, pageSize])
+  }, [searchTerm, typeFilter, sortField, sortDirection, currentPage, pageSize, startDate, endDate])
 
   const handleCopy = async (text: string) => {
     try {
@@ -181,7 +190,7 @@ export default function SmsLogsListPage() {
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -218,6 +227,19 @@ export default function SmsLogsListPage() {
                   <SelectItem value="sender">Expéditeur</SelectItem>
             </SelectContent>
           </Select>
+
+              {/* Date Range Filter */}
+              <DateRangeFilter
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
+                onClear={() => {
+                  setStartDate(null)
+                  setEndDate(null)
+                }}
+                placeholder="Filtrer par date"
+              />
 
               {/* Page Size */}
               <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(parseInt(value))}>

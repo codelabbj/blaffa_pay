@@ -43,6 +43,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -64,6 +65,8 @@ export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
+  const [startDate, setStartDate] = useState<string | null>(null)
+  const [endDate, setEndDate] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [sortField, setSortField] = useState<"amount" | "date" | null>(null)
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
@@ -104,7 +107,7 @@ export default function TransactionsPage() {
     setError("")
     try {
       let endpoint = "";
-      if (searchTerm.trim() !== "" || statusFilter !== "all" || typeFilter !== "all" || sortField) {
+      if (searchTerm.trim() !== "" || statusFilter !== "all" || typeFilter !== "all" || sortField || startDate || endDate) {
         const params = new URLSearchParams({
           page: currentPage.toString(),
           page_size: itemsPerPage.toString(),
@@ -120,6 +123,12 @@ export default function TransactionsPage() {
         }
         if (sortField) {
           params.append("ordering", `${sortDirection === "asc" ? "+" : "-"}${sortField}`);
+        }
+        if (startDate) {
+          params.append("created_at__gte", startDate);
+        }
+        if (endDate) {
+          params.append("created_at__lte", endDate);
         }
         endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/?${params.toString()}`;
       } else {
@@ -154,7 +163,7 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [searchTerm, statusFilter, typeFilter, currentPage, sortField, sortDirection]);
+  }, [searchTerm, statusFilter, typeFilter, currentPage, sortField, sortDirection, startDate, endDate]);
 
   // Remove client-side filtering and sorting since it's now handled by the API
   const filteredAndSortedTransactions = transactions
@@ -646,7 +655,7 @@ export default function TransactionsPage() {
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -697,6 +706,20 @@ export default function TransactionsPage() {
                   <SelectItem value="date">Date</SelectItem>
               </SelectContent>
             </Select>
+
+            {/* Date Range Filter */}
+            <DateRangeFilter
+              startDate={startDate}
+              endDate={endDate}
+              onStartDateChange={setStartDate}
+              onEndDateChange={setEndDate}
+              onClear={() => {
+                setStartDate(null)
+                setEndDate(null)
+              }}
+              placeholder="Filtrer par date"
+              className="col-span-1"
+            />
           </div>
           </CardContent>
         </Card>

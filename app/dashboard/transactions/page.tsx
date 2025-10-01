@@ -755,6 +755,7 @@ export default function TransactionsPage() {
                       <TableHead className="font-semibold">Destinataire</TableHead>
                       <TableHead className="font-semibold">Type</TableHead>
                       <TableHead className="font-semibold">Montant</TableHead>
+                      <TableHead className="font-semibold">Réseau</TableHead>
                       <TableHead className="font-semibold">Créé par</TableHead>
                       <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Date</TableHead>
@@ -804,6 +805,11 @@ export default function TransactionsPage() {
                               Frais: ${parseFloat(transaction.fees).toFixed(2)}
                             </div>
                           )}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-gray-900 dark:text-gray-100">
+                            {transaction.network_name || transaction.network || 'N/A'}
+                          </span>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-3">

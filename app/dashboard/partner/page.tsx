@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, ArrowUpDown as ArrowUpDownIcon, Clock } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
@@ -54,6 +54,11 @@ export default function PartnerPage() {
 	const [detailPartner, setDetailPartner] = useState<any | null>(null)
 	const [detailLoading, setDetailLoading] = useState(false)
 	const [detailError, setDetailError] = useState("")
+	const [transferModalOpen, setTransferModalOpen] = useState(false)
+	const [transferPartner, setTransferPartner] = useState<any | null>(null)
+	const [transferLoading, setTransferLoading] = useState(false)
+	const [transferError, setTransferError] = useState("")
+	const [partnerTransfers, setPartnerTransfers] = useState<any[]>([])
 
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
@@ -127,6 +132,26 @@ export default function PartnerPage() {
 			toast({ title: t("partners.detailFailed"), description: extractErrorMessages(err), variant: "destructive" })
 		} finally {
 			setDetailLoading(false)
+		}
+	}
+
+	// Fetch partner transfers (authenticated)
+	const handleOpenTransfers = async (partner: any) => {
+		setTransferModalOpen(true)
+		setTransferLoading(true)
+		setTransferError("")
+		setTransferPartner(partner)
+		setPartnerTransfers([])
+		try {
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/partner-transfers/by-partner/?partner_uid=${partner.uid}`
+			const data = await apiFetch(endpoint)
+			setPartnerTransfers(data.results || [])
+			toast({ title: "Succès", description: "Transferts du partenaire chargés avec succès" })
+		} catch (err: any) {
+			setTransferError(extractErrorMessages(err))
+			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setTransferLoading(false)
 		}
 	}
 
@@ -288,7 +313,7 @@ export default function PartnerPage() {
 											<TableHead className="font-semibold">Statut</TableHead>
 											<TableHead className="font-semibold">Commission</TableHead>
 											<TableHead className="font-semibold">Rejoint</TableHead>
-											<TableHead className="font-semibold">Commission</TableHead>
+											<TableHead className="font-semibold">Actions</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -366,6 +391,15 @@ export default function PartnerPage() {
 																Commission
 															</Button>
 														</Link>
+														<Button 
+															variant="outline" 
+															size="sm"
+															onClick={() => handleOpenTransfers(partner)}
+															className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-blue-900/30"
+														>
+															<ArrowUpDownIcon className="h-4 w-4 mr-1" />
+															Transferts
+														</Button>
 													</div>
 									</TableCell>
 										</TableRow>
@@ -503,6 +537,131 @@ export default function PartnerPage() {
 							</div>
 						</div>
 					) : null}
+				</DialogContent>
+			</Dialog>
+
+			{/* Transfer Modal */}
+			<Dialog open={transferModalOpen} onOpenChange={setTransferModalOpen}>
+				<DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle className="flex items-center space-x-2">
+							<ArrowUpDownIcon className="h-5 w-5 text-blue-600" />
+							<span>Transferts de {transferPartner?.display_name || 'Partenaire'}</span>
+						</DialogTitle>
+					</DialogHeader>
+					{transferLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+						</div>
+					) : transferError ? (
+						<ErrorDisplay error={transferError} />
+					) : (
+						<div className="space-y-4">
+							{partnerTransfers.length === 0 ? (
+								<div className="text-center py-8">
+									<ArrowUpDownIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+									<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+										Aucun transfert trouvé
+									</h3>
+									<p className="text-gray-500 dark:text-gray-400">
+										Ce partenaire n'a effectué aucun transfert.
+									</p>
+								</div>
+							) : (
+								<div className="overflow-x-auto">
+									<Table>
+										<TableHeader>
+											<TableRow className="bg-gray-50 dark:bg-gray-900/50">
+												<TableHead className="font-semibold">Référence</TableHead>
+												<TableHead className="font-semibold">Type</TableHead>
+												<TableHead className="font-semibold">Contrepartie</TableHead>
+												<TableHead className="font-semibold">Montant</TableHead>
+												<TableHead className="font-semibold">Statut</TableHead>
+												<TableHead className="font-semibold">Date</TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{partnerTransfers.map((transfer) => (
+												<TableRow key={transfer.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+													<TableCell>
+														<div className="flex items-center space-x-2">
+															<Copy className="h-4 w-4 text-gray-400" />
+															<span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+																{transfer.reference}
+															</span>
+														</div>
+													</TableCell>
+													<TableCell>
+														<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+															{transfer.sender === transferPartner?.id ? 'Envoi' : 'Réception'}
+														</Badge>
+													</TableCell>
+													<TableCell>
+														<div className="flex items-center space-x-3">
+															<div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+																{(transfer.sender === transferPartner?.id ? transfer.receiver_name : transfer.sender_name)?.charAt(0)?.toUpperCase() || 'U'}
+															</div>
+															<div>
+																<div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+																	{transfer.sender === transferPartner?.id ? transfer.receiver_name : transfer.sender_name}
+																</div>
+																<div className="text-xs text-gray-500 dark:text-gray-400">
+																	{transfer.sender === transferPartner?.id ? transfer.receiver_email : transfer.sender_email}
+																</div>
+															</div>
+														</div>
+													</TableCell>
+													<TableCell>
+														<div className="flex items-center space-x-1">
+															<DollarSign className="h-4 w-4 text-gray-400" />
+															<span className={`font-medium ${transfer.sender === transferPartner?.id ? 'text-red-600' : 'text-green-600'}`}>
+																{transfer.sender === transferPartner?.id ? '-' : '+'}{parseFloat(transfer.amount).toFixed(2)} FCFA
+															</span>
+														</div>
+													</TableCell>
+													<TableCell>
+														{transfer.status === 'completed' ? (
+															<Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+																<div className="flex items-center space-x-1">
+																	<CheckCircle className="h-3 w-3" />
+																	<span>Terminé</span>
+																</div>
+															</Badge>
+														) : transfer.status === 'pending' ? (
+															<Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
+																<div className="flex items-center space-x-1">
+																	<Clock className="h-3 w-3" />
+																	<span>En attente</span>
+																</div>
+															</Badge>
+														) : (
+															<Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">
+																<div className="flex items-center space-x-1">
+																	<XCircle className="h-3 w-3" />
+																	<span>Échec</span>
+																</div>
+															</Badge>
+														)}
+													</TableCell>
+													<TableCell>
+														<div className="flex items-center space-x-2">
+															<Calendar className="h-4 w-4 text-gray-400" />
+															<span className="text-sm text-gray-600 dark:text-gray-400">
+																{transfer.created_at 
+																	? new Date(transfer.created_at).toLocaleDateString()
+																	: 'Inconnu'
+																}
+															</span>
+														</div>
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								</div>
+							)}
+						</div>
+					)}
 				</DialogContent>
 			</Dialog>
 

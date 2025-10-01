@@ -6,7 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/providers/language-provider"
-import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone } from "lucide-react"
+import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 
 // Colors for consistent theming - using logo colors
@@ -329,6 +329,16 @@ export function Sidebar() {
               {t("nav.partner")}
             </Link>
             
+            <Link href="/dashboard/partner-transfers" className={cn(
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              pathname === "/dashboard/partner-transfers"
+                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+            )}>
+              <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
+              Transferts Partenaires
+            </Link>
+            
             <Link href="/dashboard/topup" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/topup"
@@ -646,6 +656,16 @@ export function Sidebar() {
             )}>
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.partner")}
+            </Link>
+            
+            <Link href="/dashboard/partner-transfers" className={cn(
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              pathname === "/dashboard/partner-transfers"
+                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+            )}>
+              <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
+              Transferts Partenaires
             </Link>
             
             <Link href="/dashboard/topup" className={cn(

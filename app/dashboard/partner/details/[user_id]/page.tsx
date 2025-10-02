@@ -314,6 +314,15 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                       <p className="text-gray-900 dark:text-gray-100">{partner.contact_method || 'Non spécifié'}</p>
                     </div>
                   </div>
+                  <div className="flex items-center space-x-3">
+                    <Phone className="h-5 w-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-600 dark:text-gray-400">USSD Transactions</p>
+                      <Badge variant={partner.can_process_ussd_transaction ? "success" : "secondary"}>
+                        {partner.can_process_ussd_transaction ? 'Autorisé' : 'Non autorisé'}
+                      </Badge>
+                    </div>
+                  </div>
             </div>
         </CardContent>
       </Card>

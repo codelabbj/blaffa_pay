@@ -463,9 +463,9 @@ export default function PartnerTransfersPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+                            {/* <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
                               {transfer.receiver_name?.charAt(0)?.toUpperCase() || 'R'}
-                            </div>
+                            </div> */}
                             <div>
                               <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                                 {transfer.receiver_name}

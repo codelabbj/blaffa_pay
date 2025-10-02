@@ -6,7 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/providers/language-provider"
-import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown } from "lucide-react"
+import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 
 // Colors for consistent theming - using logo colors
@@ -30,6 +30,8 @@ export function Sidebar() {
   const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false)
   const [devicesDropdownOpen, setDevicesDropdownOpen] = useState(false)
   const [networkConfigDropdownOpen, setNetworkConfigDropdownOpen] = useState(false)
+  const [platformsDropdownOpen, setPlatformsDropdownOpen] = useState(false)
+  const [permissionsDropdownOpen, setPermissionsDropdownOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const { t } = useLanguage()
@@ -54,6 +56,18 @@ export function Sidebar() {
   const isNetworkConfigActive = pathname.startsWith("/dashboard/network-config")
   const isNetworkConfigListActive = pathname === "/dashboard/network-config/list"
   const isNetworkConfigCreateActive = pathname === "/dashboard/network-config/create"
+
+  const isPlatformsActive = pathname.startsWith("/dashboard/platforms")
+  const isPlatformsListActive = pathname === "/dashboard/platforms/list"
+  const isPlatformsCreateActive = pathname === "/dashboard/platforms/create"
+
+  const isPermissionsActive = pathname.startsWith("/dashboard/permissions")
+  const isPermissionsListActive = pathname === "/dashboard/permissions/list"
+  const isPermissionsCreateActive = pathname === "/dashboard/permissions/create"
+
+  const isBettingTransactionsActive = pathname.startsWith("/dashboard/betting-transactions")
+  const isApiConfigActive = pathname.startsWith("/dashboard/api-config")
+  const isPartnerPermissionsSummaryActive = pathname.startsWith("/dashboard/partner-permissions-summary")
 
   const handleLogout = () => {
     clearTokens();
@@ -338,6 +352,122 @@ export function Sidebar() {
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
               Transferts Partenaires
             </Link>
+            
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  isPlatformsActive
+                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                )}
+                onClick={() => setPlatformsDropdownOpen((open) => !open)}
+                aria-expanded={platformsDropdownOpen}
+              >
+                <Gamepad2 className="mr-3 h-5 w-5 flex-shrink-0" />
+                Plateformes de Paris
+                {platformsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  platformsDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link href="/dashboard/platforms/list" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isPlatformsListActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>Liste des Plateformes</Link>
+                <Link href="/dashboard/platforms/create" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isPlatformsCreateActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>Créer une Plateforme</Link>
+              </div>
+            </div>
+            
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  isPermissionsActive
+                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                )}
+                onClick={() => setPermissionsDropdownOpen((open) => !open)}
+                aria-expanded={permissionsDropdownOpen}
+              >
+                <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
+                Permissions
+                {permissionsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  permissionsDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link href="/dashboard/permissions/list" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isPermissionsListActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>Liste des Permissions</Link>
+                <Link href="/dashboard/permissions/create" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isPermissionsCreateActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>Créer une Permission</Link>
+              </div>
+            </div>
+            
+            <div>
+              <Link href="/dashboard/betting-transactions" className={cn(
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isBettingTransactionsActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+              )}>
+                <Receipt className="mr-3 h-5 w-5 flex-shrink-0" />
+                Transactions de Paris
+              </Link>
+            </div>
+            
+            <div>
+              <Link href="/dashboard/api-config" className={cn(
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isApiConfigActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+              )}>
+                <Settings className="mr-3 h-5 w-5 flex-shrink-0" />
+                Configuration API
+              </Link>
+            </div>
+            
+            <div>
+              <Link href="/dashboard/partner-permissions-summary" className={cn(
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isPartnerPermissionsSummaryActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+              )}>
+                <Users className="mr-3 h-5 w-5 flex-shrink-0" />
+                Résumé Permissions
+              </Link>
+            </div>
             
             <Link href="/dashboard/topup" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
@@ -667,6 +797,122 @@ export function Sidebar() {
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
               Transferts Partenaires
             </Link>
+            
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  isPlatformsActive
+                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                )}
+                onClick={() => setPlatformsDropdownOpen((open) => !open)}
+                aria-expanded={platformsDropdownOpen}
+              >
+                <Gamepad2 className="mr-3 h-5 w-5 flex-shrink-0" />
+                Plateformes de Paris
+                {platformsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  platformsDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link href="/dashboard/platforms/list" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isPlatformsListActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>Liste des Plateformes</Link>
+                <Link href="/dashboard/platforms/create" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isPlatformsCreateActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>Créer une Plateforme</Link>
+              </div>
+            </div>
+            
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  isPermissionsActive
+                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                )}
+                onClick={() => setPermissionsDropdownOpen((open) => !open)}
+                aria-expanded={permissionsDropdownOpen}
+              >
+                <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
+                Permissions
+                {permissionsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  permissionsDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link href="/dashboard/permissions/list" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isPermissionsListActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>Liste des Permissions</Link>
+                <Link href="/dashboard/permissions/create" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isPermissionsCreateActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>Créer une Permission</Link>
+              </div>
+            </div>
+            
+            <div>
+              <Link href="/dashboard/betting-transactions" className={cn(
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isBettingTransactionsActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+              )}>
+                <Receipt className="mr-3 h-5 w-5 flex-shrink-0" />
+                Transactions de Paris
+              </Link>
+            </div>
+            
+            <div>
+              <Link href="/dashboard/api-config" className={cn(
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isApiConfigActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+              )}>
+                <Settings className="mr-3 h-5 w-5 flex-shrink-0" />
+                Configuration API
+              </Link>
+            </div>
+            
+            <div>
+              <Link href="/dashboard/partner-permissions-summary" className={cn(
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isPartnerPermissionsSummaryActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+              )}>
+                <Users className="mr-3 h-5 w-5 flex-shrink-0" />
+                Résumé Permissions
+              </Link>
+            </div>
             
             <Link href="/dashboard/topup" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",

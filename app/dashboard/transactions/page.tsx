@@ -119,7 +119,7 @@ export default function TransactionsPage() {
           params.append("status", statusFilter);
         }
         if (typeFilter !== "all") {
-          params.append("trans_type", typeFilter);
+          params.append("type", typeFilter);
         }
         if (sortField) {
           params.append("ordering", `${sortDirection === "asc" ? "+" : "-"}${sortField}`);
@@ -788,12 +788,12 @@ export default function TransactionsPage() {
                         <TableCell>
                           <Badge 
                             className={
-                              transaction.trans_type === 'deposit'
+                              transaction.type === 'deposit'
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                                 : "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
                             }
                           >
-                            {transaction.trans_type === 'deposit' ? 'Dépôt' : 'Retrait'}
+                            {transaction.type === 'deposit' ? 'Dépôt' : 'Retrait'}
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -830,7 +830,7 @@ export default function TransactionsPage() {
                           <Badge 
                             className={
                               transaction.status === 'success'
-                                ? "bg-green-100 text-green-400 dark:bg-green-900/20 dark:text-green-300"
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                                 : transaction.status === 'sent_to_user'
                                 ? "bg-yellow-100 text-yellow-400 dark:bg-yellow-900/20 dark:text-yellow-300"
                                 : transaction.status === 'failed'

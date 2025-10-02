@@ -35,6 +35,7 @@ export default function RegisterUserForm() {
     password: "",
     password_confirm: "",
     is_partner: false,
+    can_process_ussd_transaction: false,
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -88,6 +89,7 @@ export default function RegisterUserForm() {
         password: form.password,
         password_confirm: form.password_confirm,
         is_partner: form.is_partner,
+        can_process_ussd_transaction: form.can_process_ussd_transaction,
       }
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/register/`, {
         method: "POST",
@@ -115,6 +117,7 @@ export default function RegisterUserForm() {
           password: "",
           password_confirm: "",
           is_partner: false,
+          can_process_ussd_transaction: false,
         })
       }
     } catch (err: any) {
@@ -335,7 +338,7 @@ export default function RegisterUserForm() {
                 <span>Type d'utilisateur</span>
               </CardTitle>
             </CardHeader> */}
-            <CardContent className="p-6">
+            <CardContent className="p-6 space-y-4">
               <div className="flex items-center space-x-2">
                 <Switch
                   id="is_partner"
@@ -345,8 +348,21 @@ export default function RegisterUserForm() {
                 />
                 <Label htmlFor="is_partner">S'enregistrer comme partenaire</Label>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Les partenaires ont accès au suivi des commissions et à des fonctionnalités supplémentaires
+              </p>
+              
+              <div className="flex items-center space-x-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <Switch
+                  id="can_process_ussd_transaction"
+                  name="can_process_ussd_transaction"
+                  checked={form.can_process_ussd_transaction}
+                  onCheckedChange={(checked) => setForm({ ...form, can_process_ussd_transaction: checked })}
+                />
+                <Label htmlFor="can_process_ussd_transaction">Peut traiter les transactions USSD</Label>
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Autorise l'utilisateur à effectuer des transactions via USSD
               </p>
             </CardContent>
           </Card>

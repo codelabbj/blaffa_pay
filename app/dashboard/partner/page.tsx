@@ -10,13 +10,15 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, ArrowUpDown as ArrowUpDownIcon, Clock } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, ArrowUpDown as ArrowUpDownIcon, Clock, Settings, TrendingUp, CreditCard } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -59,6 +61,24 @@ export default function PartnerPage() {
 	const [transferLoading, setTransferLoading] = useState(false)
 	const [transferError, setTransferError] = useState("")
 	const [partnerTransfers, setPartnerTransfers] = useState<any[]>([])
+	
+	// Betting Commission States
+	const [bettingCommissionModalOpen, setBettingCommissionModalOpen] = useState(false)
+	const [bettingCommissionPartner, setBettingCommissionPartner] = useState<any | null>(null)
+	const [bettingCommissionConfig, setBettingCommissionConfig] = useState<any | null>(null)
+	const [bettingCommissionLoading, setBettingCommissionLoading] = useState(false)
+	const [bettingCommissionError, setBettingCommissionError] = useState("")
+	const [bettingCommissionForm, setBettingCommissionForm] = useState({
+		deposit_commission_rate: "",
+		withdrawal_commission_rate: "",
+	})
+	const [bettingCommissionStats, setBettingCommissionStats] = useState<any | null>(null)
+	const [bettingCommissionPaymentModalOpen, setBettingCommissionPaymentModalOpen] = useState(false)
+	const [bettingCommissionPaymentForm, setBettingCommissionPaymentForm] = useState({
+		admin_notes: "",
+	})
+	const [bettingCommissionPaymentLoading, setBettingCommissionPaymentLoading] = useState(false)
+	const [bettingCommissionPaymentError, setBettingCommissionPaymentError] = useState("")
 
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
@@ -152,6 +172,134 @@ export default function PartnerPage() {
 			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
 		} finally {
 			setTransferLoading(false)
+		}
+	}
+
+	// Fetch betting commission config for partner
+	const handleOpenBettingCommission = async (partner: any) => {
+		setBettingCommissionModalOpen(true)
+		setBettingCommissionLoading(true)
+		setBettingCommissionError("")
+		setBettingCommissionPartner(partner)
+		setBettingCommissionConfig(null)
+		setBettingCommissionStats(null)
+		
+		try {
+			// Get partner commission config
+			const configEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/get_partner_config/?partner_uid=${partner.uid}`
+			const configData = await apiFetch(configEndpoint)
+			
+			if (configData.success && configData.has_config) {
+				setBettingCommissionConfig(configData.config)
+				setBettingCommissionForm({
+					deposit_commission_rate: configData.config.deposit_commission_rate,
+					withdrawal_commission_rate: configData.config.withdrawal_commission_rate,
+				})
+			} else {
+				setBettingCommissionForm({
+					deposit_commission_rate: "2.00",
+					withdrawal_commission_rate: "3.00",
+				})
+			}
+			
+			// Get global stats
+			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/global_stats/`
+			const statsData = await apiFetch(statsEndpoint)
+			setBettingCommissionStats(statsData)
+			
+			toast({ title: "Succès", description: "Configuration des commissions de paris chargée" })
+		} catch (err: any) {
+			setBettingCommissionError(extractErrorMessages(err))
+			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setBettingCommissionLoading(false)
+		}
+	}
+
+	// Save betting commission config
+	const handleSaveBettingCommission = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!bettingCommissionPartner) return
+
+		setBettingCommissionLoading(true)
+		setBettingCommissionError("")
+		
+		try {
+			const payload = {
+				partner: bettingCommissionPartner.uid,
+				deposit_commission_rate: bettingCommissionForm.deposit_commission_rate,
+				withdrawal_commission_rate: bettingCommissionForm.withdrawal_commission_rate,
+			}
+
+			let endpoint, method
+			if (bettingCommissionConfig) {
+				// Update existing config
+				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/${bettingCommissionConfig.uid}/`
+				method = "PATCH"
+			} else {
+				// Create new config
+				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/`
+				method = "POST"
+			}
+
+			const data = await apiFetch(endpoint, {
+				method,
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			})
+
+			setBettingCommissionConfig(data)
+			toast({ 
+				title: "Succès", 
+				description: "Configuration des commissions de paris sauvegardée" 
+			})
+		} catch (err: any) {
+			setBettingCommissionError(extractErrorMessages(err))
+			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setBettingCommissionLoading(false)
+		}
+	}
+
+	// Pay betting commission
+	const handlePayBettingCommission = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!bettingCommissionPartner) return
+
+		setBettingCommissionPaymentLoading(true)
+		setBettingCommissionPaymentError("")
+		
+		try {
+			const payload = {
+				partner_uid: bettingCommissionPartner.uid,
+				transaction_ids: null,
+				admin_notes: bettingCommissionPaymentForm.admin_notes,
+			}
+
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/pay_commissions/`
+			const data = await apiFetch(endpoint, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			})
+
+			toast({ 
+				title: "Succès", 
+				description: data.message || "Commission de paris payée avec succès" 
+			})
+			
+			setBettingCommissionPaymentModalOpen(false)
+			setBettingCommissionPaymentForm({ admin_notes: "" })
+			
+			// Refresh stats
+			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/global_stats/`
+			const statsData = await apiFetch(statsEndpoint)
+			setBettingCommissionStats(statsData)
+		} catch (err: any) {
+			setBettingCommissionPaymentError(extractErrorMessages(err))
+			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setBettingCommissionPaymentLoading(false)
 		}
 	}
 
@@ -307,14 +455,15 @@ export default function PartnerPage() {
 							<div className="overflow-x-auto">
 							<Table>
 								<TableHeader>
-										<TableRow className="bg-gray-50 dark:bg-gray-900/50">
-											<TableHead className="font-semibold">Partenaire</TableHead>
-											<TableHead className="font-semibold">E-mail</TableHead>
-											<TableHead className="font-semibold">Statut</TableHead>
-											<TableHead className="font-semibold">Commission</TableHead>
-											<TableHead className="font-semibold">Rejoint</TableHead>
-											<TableHead className="font-semibold">Actions</TableHead>
-									</TableRow>
+									<TableRow className="bg-gray-50 dark:bg-gray-900/50">
+										<TableHead className="font-semibold">Partenaire</TableHead>
+										<TableHead className="font-semibold">E-mail</TableHead>
+										<TableHead className="font-semibold">Statut</TableHead>
+										<TableHead className="font-semibold">USSD</TableHead>
+										<TableHead className="font-semibold">Commission</TableHead>
+										<TableHead className="font-semibold">Rejoint</TableHead>
+										<TableHead className="font-semibold">Actions</TableHead>
+								</TableRow>
 								</TableHeader>
 								<TableBody>
 									{partners.map((partner) => (
@@ -346,17 +495,35 @@ export default function PartnerPage() {
 													<Badge 
 														className={
 															partner.is_active 
-																? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+																? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
 																: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
 														}
 													>
 														<div className="flex items-center space-x-1">
-												{partner.is_active ? (
+															{partner.is_active ? (
 																<CheckCircle className="h-3 w-3" />
 															) : (
 																<XCircle className="h-3 w-3" />
 															)}
 															<span>{partner.is_active ? 'Actif' : 'Inactif'}</span>
+														</div>
+													</Badge>
+												</TableCell>
+												<TableCell>
+													<Badge 
+														className={
+															partner.can_process_ussd_transaction 
+																? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
+																: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300"
+														}
+													>
+														<div className="flex items-center space-x-1">
+															{partner.can_process_ussd_transaction ? (
+																<CheckCircle className="h-3 w-3" />
+															) : (
+																<XCircle className="h-3 w-3" />
+															)}
+															<span>{partner.can_process_ussd_transaction ? 'Oui' : 'Non'}</span>
 														</div>
 													</Badge>
 												</TableCell>
@@ -391,6 +558,15 @@ export default function PartnerPage() {
 																Commission
 															</Button>
 														</Link>
+														<Button 
+															variant="outline" 
+															size="sm"
+															onClick={() => handleOpenBettingCommission(partner)}
+															className="bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-700 dark:hover:bg-orange-900/30"
+														>
+															<TrendingUp className="h-4 w-4 mr-1" />
+															Commissions Paris
+														</Button>
 														<Button 
 															variant="outline" 
 															size="sm"
@@ -662,6 +838,268 @@ export default function PartnerPage() {
 							)}
 						</div>
 					)}
+				</DialogContent>
+			</Dialog>
+
+			{/* Betting Commission Modal */}
+			<Dialog open={bettingCommissionModalOpen} onOpenChange={setBettingCommissionModalOpen}>
+				<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle className="flex items-center space-x-2">
+							<TrendingUp className="h-5 w-5 text-orange-600" />
+							<span>Commissions de Paris - {bettingCommissionPartner?.display_name || 'Partenaire'}</span>
+						</DialogTitle>
+					</DialogHeader>
+					{bettingCommissionLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+						</div>
+					) : bettingCommissionError ? (
+						<ErrorDisplay error={bettingCommissionError} />
+					) : (
+						<div className="space-y-6">
+							{/* Global Stats */}
+							{bettingCommissionStats && (
+								<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+									<Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
+										<CardContent className="p-4">
+											<div className="flex items-center space-x-2">
+												<DollarSign className="h-5 w-5 text-blue-600" />
+												<div>
+													<p className="text-sm font-medium text-blue-800 dark:text-blue-300">Total Transactions</p>
+													<p className="text-lg font-bold text-blue-600">{bettingCommissionStats.total_transactions}</p>
+												</div>
+											</div>
+										</CardContent>
+									</Card>
+									<Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700">
+										<CardContent className="p-4">
+											<div className="flex items-center space-x-2">
+												<TrendingUp className="h-5 w-5 text-green-600" />
+												<div>
+													<p className="text-sm font-medium text-green-800 dark:text-green-300">Total Commission</p>
+													<p className="text-lg font-bold text-green-600">{parseFloat(bettingCommissionStats.total_commission || 0).toFixed(2)} FCFA</p>
+												</div>
+											</div>
+										</CardContent>
+									</Card>
+									<Card className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700">
+										<CardContent className="p-4">
+											<div className="flex items-center space-x-2">
+												<CheckCircle className="h-5 w-5 text-orange-600" />
+												<div>
+													<p className="text-sm font-medium text-orange-800 dark:text-orange-300">Commission Payée</p>
+													<p className="text-lg font-bold text-orange-600">{parseFloat(bettingCommissionStats.paid_commission || 0).toFixed(2)} FCFA</p>
+												</div>
+											</div>
+										</CardContent>
+									</Card>
+									<Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700">
+										<CardContent className="p-4">
+											<div className="flex items-center space-x-2">
+												<Clock className="h-5 w-5 text-red-600" />
+												<div>
+													<p className="text-sm font-medium text-red-800 dark:text-red-300">Commission Impayée</p>
+													<p className="text-lg font-bold text-red-600">{parseFloat(bettingCommissionStats.unpaid_commission || 0).toFixed(2)} FCFA</p>
+												</div>
+											</div>
+										</CardContent>
+									</Card>
+								</div>
+							)}
+
+							{/* Commission Configuration Form */}
+							<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+								<CardHeader>
+									<CardTitle className="flex items-center space-x-2">
+										<Settings className="h-5 w-5 text-orange-600" />
+										<span>Configuration des Commissions</span>
+									</CardTitle>
+								</CardHeader>
+								<CardContent>
+									<form onSubmit={handleSaveBettingCommission} className="space-y-4">
+										{bettingCommissionError && (
+											<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+												<ErrorDisplay error={bettingCommissionError} />
+											</div>
+										)}
+
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div>
+												<Label htmlFor="deposit_commission_rate">Taux de Commission Dépôt (%)</Label>
+												<Input
+													id="deposit_commission_rate"
+													type="number"
+													step="0.01"
+													min="0"
+													max="100"
+													value={bettingCommissionForm.deposit_commission_rate}
+													onChange={(e) => setBettingCommissionForm(prev => ({ ...prev, deposit_commission_rate: e.target.value }))}
+													className="mt-1"
+													required
+												/>
+											</div>
+											<div>
+												<Label htmlFor="withdrawal_commission_rate">Taux de Commission Retrait (%)</Label>
+												<Input
+													id="withdrawal_commission_rate"
+													type="number"
+													step="0.01"
+													min="0"
+													max="100"
+													value={bettingCommissionForm.withdrawal_commission_rate}
+													onChange={(e) => setBettingCommissionForm(prev => ({ ...prev, withdrawal_commission_rate: e.target.value }))}
+													className="mt-1"
+													required
+												/>
+											</div>
+										</div>
+
+										<div className="flex items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+											<Button
+												type="submit"
+												disabled={bettingCommissionLoading}
+												className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
+											>
+												{bettingCommissionLoading ? (
+													<>
+														<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+														Sauvegarde...
+													</>
+												) : (
+													<>
+														<Settings className="h-4 w-4 mr-2" />
+														{bettingCommissionConfig ? 'Mettre à jour' : 'Créer'} Configuration
+													</>
+												)}
+											</Button>
+											<Button
+												type="button"
+												variant="outline"
+												onClick={() => setBettingCommissionPaymentModalOpen(true)}
+												disabled={bettingCommissionLoading}
+												className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700 dark:hover:bg-green-900/30"
+											>
+												<CreditCard className="h-4 w-4 mr-2" />
+												Payer Commission
+											</Button>
+										</div>
+									</form>
+								</CardContent>
+							</Card>
+
+							{/* Current Configuration Display */}
+							{bettingCommissionConfig && (
+								<Card className="bg-gray-50 dark:bg-gray-700 border-0 shadow-lg">
+									<CardHeader>
+										<CardTitle className="flex items-center space-x-2">
+											<CheckCircle className="h-5 w-5 text-green-600" />
+											<span>Configuration Actuelle</span>
+										</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+											<div>
+												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Taux de Commission Dépôt:</span>
+												<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+													{bettingCommissionConfig.deposit_commission_rate}%
+												</p>
+											</div>
+											<div>
+												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Taux de Commission Retrait:</span>
+												<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+													{bettingCommissionConfig.withdrawal_commission_rate}%
+												</p>
+											</div>
+											<div>
+												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Mis à jour par:</span>
+												<p className="text-sm text-gray-900 dark:text-gray-100">
+													{bettingCommissionConfig.updated_by_name}
+												</p>
+											</div>
+											<div>
+												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Dernière mise à jour:</span>
+												<p className="text-sm text-gray-900 dark:text-gray-100">
+													{bettingCommissionConfig.updated_at 
+														? new Date(bettingCommissionConfig.updated_at).toLocaleString()
+														: 'Non disponible'
+													}
+												</p>
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							)}
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
+
+			{/* Betting Commission Payment Modal */}
+			<Dialog open={bettingCommissionPaymentModalOpen} onOpenChange={setBettingCommissionPaymentModalOpen}>
+				<DialogContent className="max-w-2xl">
+					<DialogHeader>
+						<DialogTitle className="flex items-center space-x-2">
+							<CreditCard className="h-5 w-5 text-green-600" />
+							<span>Payer Commission de Paris</span>
+						</DialogTitle>
+					</DialogHeader>
+					<form onSubmit={handlePayBettingCommission} className="space-y-6">
+						{bettingCommissionPaymentError && (
+							<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+								<ErrorDisplay error={bettingCommissionPaymentError} />
+							</div>
+						)}
+
+						<div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
+							<h3 className="font-medium text-orange-800 dark:text-orange-300 mb-2">
+								Partennaire: {bettingCommissionPartner?.display_name}
+							</h3>
+							<p className="text-sm text-orange-700 dark:text-orange-400">
+								Cette action va payer toutes les commissions impayées pour ce partenaire.
+							</p>
+						</div>
+
+						<div>
+							<Label htmlFor="admin_notes">Notes Administrateur</Label>
+							<Textarea
+								id="admin_notes"
+								placeholder="Ajouter des notes pour ce paiement de commission..."
+								value={bettingCommissionPaymentForm.admin_notes}
+								onChange={(e) => setBettingCommissionPaymentForm(prev => ({ ...prev, admin_notes: e.target.value }))}
+								className="mt-1"
+								rows={3}
+							/>
+						</div>
+
+						<div className="flex items-center space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+							<Button
+								type="submit"
+								disabled={bettingCommissionPaymentLoading}
+								className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+							>
+								{bettingCommissionPaymentLoading ? (
+									<>
+										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+										Paiement...
+									</>
+								) : (
+									<>
+										<CreditCard className="h-4 w-4 mr-2" />
+										Payer Commission
+									</>
+								)}
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setBettingCommissionPaymentModalOpen(false)}
+								disabled={bettingCommissionPaymentLoading}
+							>
+								Annuler
+							</Button>
+						</div>
+					</form>
 				</DialogContent>
 			</Dialog>
 

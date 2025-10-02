@@ -66,10 +66,12 @@ export default function UsersPage() {
   const [verifyingEmail, setVerifyingEmail] = useState(false);
   const [verifyingPhone, setVerifyingPhone] = useState(false);
   const [verifyingPartner, setVerifyingPartner] = useState(false);
+  const [verifyingUssd, setVerifyingUssd] = useState(false);
 
   const [confirmEmailToggle, setConfirmEmailToggle] = useState<null | boolean>(null);
   const [confirmPhoneToggle, setConfirmPhoneToggle] = useState<null | boolean>(null);
   const [confirmPartnerToggle, setConfirmPartnerToggle] = useState<null | boolean>(null);
+  const [confirmUssdToggle, setConfirmUssdToggle] = useState<null | boolean>(null);
 
   const [confirmActionUser, setConfirmActionUser] = useState<any | null>(null);
   const [confirmActionType, setConfirmActionType] = useState<"activate" | "deactivate" | null>(null);
@@ -356,6 +358,25 @@ export default function UsersPage() {
     }
   };
 
+  // Add handler for toggling can_process_ussd_transaction
+  const handleToggleUssd = async (canProcessUssd: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingUssd(true);
+    try {
+      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ can_process_ussd_transaction: canProcessUssd }),
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, can_process_ussd_transaction: canProcessUssd } : prev);
+      toast({ title: "Statut USSD modifié", description: canProcessUssd ? "Transactions USSD autorisées avec succès" : "Transactions USSD interdites avec succès" });
+    } catch (err: any) {
+      toast({ title: "Échec de la modification du statut USSD", description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingUssd(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -549,7 +570,7 @@ export default function UsersPage() {
                           <Badge 
                             className={
                               user.is_active 
-                                ? "bg-green-100 text-white dark:bg-green-800/30 dark:text-green-300" 
+                                ? "bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300" 
                                 : "bg-red-200 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                             }
                           >
@@ -738,6 +759,14 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
+                <div><b>Transactions USSD:</b> {detailUser.can_process_ussd_transaction ? 'Autorisé' : 'Non autorisé'}
+                  <Switch
+                    checked={detailUser.can_process_ussd_transaction}
+                    disabled={detailLoading || verifyingUssd}
+                    onCheckedChange={() => setConfirmUssdToggle(!detailUser.can_process_ussd_transaction)}
+                    className="ml-2"
+                  />
+                </div>
                 <div><b>Créé le:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
                 <div><b>Dernière connexion:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
               </div>
@@ -843,6 +872,39 @@ export default function UsersPage() {
                 className="w-full mt-2"
                 onClick={() => setConfirmPartnerToggle(null)}
                 disabled={verifyingPartner}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* USSD Toggle Confirmation Modal */}
+        <Dialog open={confirmUssdToggle !== null} onOpenChange={(open) => { if (!open) setConfirmUssdToggle(null) }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirmUssdToggle ? "Autoriser les transactions USSD" : "Interdire les transactions USSD"}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-center">
+              {confirmUssdToggle
+                ? "Êtes-vous sûr de vouloir autoriser les transactions USSD pour cet utilisateur ?"
+                : "Êtes-vous sûr de vouloir interdire les transactions USSD pour cet utilisateur ?"}
+            </div>
+            <DialogFooter>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  await handleToggleUssd(!!confirmUssdToggle);
+                  setConfirmUssdToggle(null);
+                }}
+                disabled={verifyingUssd}
+              >
+                {verifyingUssd ? "Modification..." : "OK"}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => setConfirmUssdToggle(null)}
               >
                 Annuler
               </Button>

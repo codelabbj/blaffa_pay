@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, ArrowUpDown as ArrowUpDownIcon, Clock, Settings, TrendingUp, CreditCard } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, ArrowUpDown as ArrowUpDownIcon, Clock, Settings, TrendingUp, CreditCard, Shield, Eye, Wallet, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
@@ -19,6 +19,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -79,6 +80,17 @@ export default function PartnerPage() {
 	})
 	const [bettingCommissionPaymentLoading, setBettingCommissionPaymentLoading] = useState(false)
 	const [bettingCommissionPaymentError, setBettingCommissionPaymentError] = useState("")
+
+	// Grant Permission States
+	const [grantPermissionModalOpen, setGrantPermissionModalOpen] = useState(false)
+	const [grantPermissionPartner, setGrantPermissionPartner] = useState<any | null>(null)
+	const [grantPermissionLoading, setGrantPermissionLoading] = useState(false)
+	const [grantPermissionError, setGrantPermissionError] = useState("")
+	const [grantPermissionForm, setGrantPermissionForm] = useState({
+		uid: "",
+		permission_type: "ussd_transaction",
+		notes: "",
+	})
 
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
@@ -300,6 +312,79 @@ export default function PartnerPage() {
 			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
 		} finally {
 			setBettingCommissionPaymentLoading(false)
+		}
+	}
+
+	// Grant partner permission
+	const handleOpenGrantPermission = async (partner: any) => {
+		setGrantPermissionModalOpen(true)
+		setGrantPermissionPartner(partner)
+		setGrantPermissionForm({
+			uid: partner.uid,
+			permission_type: "ussd_transaction",
+			notes: "",
+		})
+		setGrantPermissionError("")
+	}
+
+	// Save grant permission
+	const handleGrantPermission = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!grantPermissionPartner) return
+
+		setGrantPermissionLoading(true)
+		setGrantPermissionError("")
+		
+		try {
+			const payload = {
+				partner_uid: grantPermissionForm.uid,
+				permission_type: grantPermissionForm.permission_type,
+				notes: grantPermissionForm.notes,
+			}
+
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${grantPermissionForm.uid}/grant-permission/`
+			const data = await apiFetch(endpoint, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			})
+
+			toast({ 
+				title: "Succès", 
+				description: data.message || "Permission accordée avec succès" 
+			})
+			
+			setGrantPermissionModalOpen(false)
+			setGrantPermissionForm({ uid: "", permission_type: "ussd_transaction", notes: "" })
+			
+			// Refresh partners list
+			const params = new URLSearchParams({
+				page: currentPage.toString(),
+				page_size: itemsPerPage.toString(),
+			})
+			if (searchTerm.trim() !== "") {
+				params.append("search", searchTerm)
+			}
+			if (statusFilter !== "all") {
+				params.append("is_active", statusFilter === "active" ? "true" : "false")
+			}
+			if (startDate) {
+				params.append("created_at__gte", startDate)
+			}
+			if (endDate) {
+				params.append("created_at__lte", endDate)
+			}
+			const orderingParam = sortField
+				? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
+				: ""
+			const refreshEndpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}${orderingParam}`
+			const refreshData = await apiFetch(refreshEndpoint)
+			setPartners(refreshData.partners || [])
+		} catch (err: any) {
+			setGrantPermissionError(extractErrorMessages(err))
+			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setGrantPermissionLoading(false)
 		}
 	}
 
@@ -547,37 +632,46 @@ export default function PartnerPage() {
 													</div>
 											</TableCell>
 												<TableCell>
-													<div className="flex items-center space-x-2">
-														<Link href={`/dashboard/partner/commission/${partner.uid}`}>
-															<Button 
-																variant="outline" 
-																size="sm"
-																className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700 dark:hover:bg-green-900/30"
-															>
-																<DollarSign className="h-4 w-4 mr-1" />
-																Commission
+													<DropdownMenu>
+														<DropdownMenuTrigger asChild>
+															<Button variant="outline" size="sm" className="h-8 w-8 p-0">
+																<span className="sr-only">Ouvrir le menu</span>
+																<MoreHorizontal className="h-4 w-4" />
 															</Button>
-														</Link>
-														<Button 
-															variant="outline" 
-															size="sm"
-															onClick={() => handleOpenBettingCommission(partner)}
-															className="bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-700 dark:hover:bg-orange-900/30"
-														>
-															<TrendingUp className="h-4 w-4 mr-1" />
-															Commissions Paris
-														</Button>
-														<Button 
-															variant="outline" 
-															size="sm"
-															onClick={() => handleOpenTransfers(partner)}
-															className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-blue-900/30"
-														>
-															<ArrowUpDownIcon className="h-4 w-4 mr-1" />
-															Transferts
-														</Button>
-													</div>
-									</TableCell>
+														</DropdownMenuTrigger>
+														<DropdownMenuContent align="end" className="w-56">
+															<DropdownMenuItem asChild>
+																<Link href={`/dashboard/partner/commission/${partner.uid}`} className="flex items-center">
+																	<DollarSign className="h-4 w-4 mr-2 text-green-600" />
+																	<span>Commission</span>
+																</Link>
+															</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => handleOpenBettingCommission(partner)}>
+																<TrendingUp className="h-4 w-4 mr-2 text-orange-600" />
+																<span>Commissions Paris</span>
+															</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => handleOpenTransfers(partner)}>
+																<ArrowUpDownIcon className="h-4 w-4 mr-2 text-blue-600" />
+																<span>Transferts</span>
+															</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => handleOpenGrantPermission(partner)}>
+																<Shield className="h-4 w-4 mr-2 text-purple-600" />
+																<span>Accorder Permission</span>
+															</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => handleOpenBettingCommission(partner)}>
+																<Eye className="h-4 w-4 mr-2 text-indigo-600" />
+																<span>Voir Commissions</span>
+															</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => {
+																setBettingCommissionPartner(partner)
+																setBettingCommissionPaymentModalOpen(true)
+															}}>
+																<Wallet className="h-4 w-4 mr-2 text-emerald-600" />
+																<span>Payer Commission</span>
+															</DropdownMenuItem>
+														</DropdownMenuContent>
+													</DropdownMenu>
+												</TableCell>
 										</TableRow>
 									))}
 								</TableBody>
@@ -1095,6 +1189,105 @@ export default function PartnerPage() {
 								variant="outline"
 								onClick={() => setBettingCommissionPaymentModalOpen(false)}
 								disabled={bettingCommissionPaymentLoading}
+							>
+								Annuler
+							</Button>
+						</div>
+					</form>
+				</DialogContent>
+			</Dialog>
+
+			{/* Grant Permission Modal */}
+			<Dialog open={grantPermissionModalOpen} onOpenChange={setGrantPermissionModalOpen}>
+				<DialogContent className="max-w-2xl">
+					<DialogHeader>
+						<DialogTitle className="flex items-center space-x-2">
+							<Shield className="h-5 w-5 text-purple-600" />
+							<span>Accorder Permission au Partenaire</span>
+						</DialogTitle>
+					</DialogHeader>
+					<form onSubmit={handleGrantPermission} className="space-y-6">
+						{grantPermissionError && (
+							<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+								<ErrorDisplay error={grantPermissionError} />
+							</div>
+						)}
+
+						<div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+							<h3 className="font-medium text-purple-800 dark:text-purple-300 mb-2">
+								Partennaire: {grantPermissionPartner?.display_name}
+							</h3>
+							<p className="text-sm text-purple-700 dark:text-purple-400">
+								Accorder des permissions supplémentaires à ce partenaire.
+							</p>
+						</div>
+
+						<div>
+							<Label htmlFor="uid">UID du Partenaire</Label>
+							<Input
+								id="uid"
+								type="text"
+								value={grantPermissionForm.uid}
+								onChange={(e) => setGrantPermissionForm(prev => ({ ...prev, uid: e.target.value }))}
+								className="mt-1"
+								required
+								placeholder="UID du partenaire"
+							/>
+						</div>
+
+						<div>
+							<Label htmlFor="permission_type">Type de Permission</Label>
+							<Select 
+								value={grantPermissionForm.permission_type} 
+								onValueChange={(value) => setGrantPermissionForm(prev => ({ ...prev, permission_type: value }))}
+							>
+								<SelectTrigger className="mt-1">
+									<SelectValue placeholder="Sélectionner le type de permission" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="ussd_transaction">Transaction USSD</SelectItem>
+									<SelectItem value="betting_transaction">Transaction de Paris</SelectItem>
+									<SelectItem value="admin_access">Accès Administrateur</SelectItem>
+									<SelectItem value="commission_management">Gestion des Commissions</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div>
+							<Label htmlFor="notes">Notes</Label>
+							<Textarea
+								id="notes"
+								placeholder="Ajouter des notes pour cette permission..."
+								value={grantPermissionForm.notes}
+								onChange={(e) => setGrantPermissionForm(prev => ({ ...prev, notes: e.target.value }))}
+								className="mt-1"
+								rows={3}
+							/>
+						</div>
+
+						<div className="flex items-center space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+							<Button
+								type="submit"
+								disabled={grantPermissionLoading}
+								className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white"
+							>
+								{grantPermissionLoading ? (
+									<>
+										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+										Accord...
+									</>
+								) : (
+									<>
+										<Shield className="h-4 w-4 mr-2" />
+										Accorder Permission
+									</>
+								)}
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								onClick={() => setGrantPermissionModalOpen(false)}
+								disabled={grantPermissionLoading}
 							>
 								Annuler
 							</Button>

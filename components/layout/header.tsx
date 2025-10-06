@@ -6,7 +6,8 @@ import { LanguageSwitcher } from "@/components/ui/language-switcher"
 import { useLanguage } from "@/components/providers/language-provider"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Bell, Settings, User, LogOut } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Bell, Settings, User, LogOut, Menu } from "lucide-react"
 
 const pageNames: Record<string, string> = {
   "/dashboard": "dashboard.title",
@@ -24,7 +25,11 @@ const pageNames: Record<string, string> = {
   "/dashboard/momo-pay": "MoMo Pay",
 }
 
-export function Header() {
+interface HeaderProps {
+  onMobileMenuClick?: () => void
+}
+
+export function Header({ onMobileMenuClick }: HeaderProps) {
   const pathname = usePathname()
   const { t } = useLanguage()
 
@@ -35,13 +40,23 @@ export function Header() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent ml-12 lg:ml-0">
+            {/* Mobile hamburger menu button */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="lg:hidden mr-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+              onClick={onMobileMenuClick}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            
+            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
               {t(pageTitle)}
             </h1>
           </div>
-          <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <button className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {/* Notifications - hidden on mobile */}
+            <button className="hidden sm:block relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
             </button>
@@ -49,8 +64,10 @@ export function Header() {
             {/* Theme Toggle */}
             <ThemeToggle />
             
-            {/* Language Switcher */}
-            <LanguageSwitcher />
+            {/* Language Switcher - hidden on mobile */}
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
             
             {/* User Menu */}
             <DropdownMenu>

@@ -88,6 +88,8 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
         amount: parseFloat(amount),
         period_start: lastPeriodEnd || stats?.period_info?.start || now,
         period_end: now,
+        // period_start: null,
+        // period_end: null,
         admin_notes: adminNote,
       };
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/admin/users/${userId}/pay-commission/`;
@@ -236,7 +238,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Commissions totales</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        ${parseFloat(stats.total_commissions || 0).toFixed(2)}
+                        XOF {parseFloat(stats.total_commissions || 0).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -251,7 +253,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Commissions en attente</p>
                       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        ${parseFloat(stats.pending_commissions || 0).toFixed(2)}
+                        XOF {parseFloat(stats.pending_commissions || 0).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -329,7 +331,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                           </div>
                           <div>
                             <p className="font-medium text-gray-900 dark:text-gray-100">
-                              ${parseFloat(commission.amount || 0).toFixed(2)}
+                              XOF {parseFloat(commission.amount || 0).toFixed(2)}
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
                               {commission.period_start && commission.period_end ? 
@@ -395,7 +397,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                 </div>
               )}
               <p className="text-gray-600 dark:text-gray-400">
-                Êtes-vous sûr de vouloir payer une commission de <span className="font-semibold">${amount || '0.00'}</span> ?
+                Êtes-vous sûr de vouloir payer une commission de <span className="font-semibold">XOF {amount || '0.00'}</span> ?
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Cette action ne peut pas être annulée et sera enregistrée dans l'historique des commissions.

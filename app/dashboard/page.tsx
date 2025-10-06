@@ -326,24 +326,25 @@ export default function DashboardPage() {
           
           {/* Dashboard Header */}
         <div className="mb-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
                   Tableau de bord administrateur
                 </h1>
-                <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+                <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm sm:text-base lg:text-lg">
                   Aperçu en temps réel
                 </p>
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 rounded-lg px-3 sm:px-4 py-2 shadow-sm">
                   <Switch
                     id="active-users-toggle"
                     checked={showOnlyActiveUsers}
                     onCheckedChange={setShowOnlyActiveUsers}
                   />
-                  <label htmlFor="active-users-toggle" className="text-sm font-medium">
-                    Afficher uniquement les utilisateurs actifs
+                  <label htmlFor="active-users-toggle" className="text-xs sm:text-sm font-medium">
+                    <span className="hidden sm:inline">Afficher uniquement les utilisateurs actifs</span>
+                    <span className="sm:hidden">Utilisateurs actifs</span>
                   </label>
                 </div>
                   {/* <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
@@ -359,22 +360,22 @@ export default function DashboardPage() {
                   </div>
 
           {/* Key Metrics Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             {/* Total Users */}
             <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                       <div>
-                    <p className="text-blue-100 text-sm font-medium">Utilisateurs totaux</p>
-                    <p className="text-3xl font-bold">{stats.user_stats.total_users}</p>
-                    <div className="flex items-center mt-2">
-                      <ArrowUpRight className="h-4 w-4 text-green-300" />
-                      <span className="text-sm text-blue-100 ml-1">+{stats.user_stats.users_registered_today} aujourd'hui</span>
+                    <p className="text-blue-100 text-xs sm:text-sm font-medium">Utilisateurs totaux</p>
+                    <p className="text-2xl sm:text-3xl font-bold">{stats.user_stats.total_users}</p>
+                    <div className="flex items-center mt-1 sm:mt-2">
+                      <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
+                      <span className="text-xs sm:text-sm text-blue-100 ml-1">+{stats.user_stats.users_registered_today} aujourd'hui</span>
                       </div>
                       </div>
-                  <div className="bg-white bg-opacity-20 rounded-full p-3">
-                    <Users className="h-8 w-8" />
+                  <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
+                    <Users className="h-6 w-6 sm:h-8 sm:w-8" />
                       </div>
                       </div>
             </CardContent>
@@ -383,18 +384,18 @@ export default function DashboardPage() {
             {/* Active Tasks */}
             <Card className="relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-lg">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-100 text-sm font-medium">Tâches actives</p>
-                    <p className="text-3xl font-bold">{stats.task_stats.active}</p>
-                    <div className="flex items-center mt-2">
-                      <Activity className="h-4 w-4 text-green-300" />
-                      <span className="text-sm text-green-100 ml-1">En cours</span>
+                    <p className="text-green-100 text-xs sm:text-sm font-medium">Tâches actives</p>
+                    <p className="text-2xl sm:text-3xl font-bold">{stats.task_stats.active}</p>
+                    <div className="flex items-center mt-1 sm:mt-2">
+                      <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
+                      <span className="text-xs sm:text-sm text-green-100 ml-1">En cours</span>
               </div>
                 </div>
-                  <div className="bg-white bg-opacity-20 rounded-full p-3">
-                    <ClipboardList className="h-8 w-8" />
+                  <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
+                    <ClipboardList className="h-6 w-6 sm:h-8 sm:w-8" />
                     </div>
                   </div>
               </CardContent>
@@ -403,22 +404,22 @@ export default function DashboardPage() {
             {/* Today's Revenue */}
             <Card className="relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-lg">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-100 text-sm font-medium">Revenus d'aujourd'hui</p>
-                    <p className="text-3xl font-bold">
+                    <p className="text-purple-100 text-xs sm:text-sm font-medium">Revenus d'aujourd'hui</p>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold">
                       {summary ? `${parseFloat(summary.today_revenue || 0).toFixed(2)}` : '0.00'} FCFA
                     </p>
-                    <div className="flex items-center mt-2">
-                      <TrendingUp className="h-4 w-4 text-purple-300" />
-                      <span className="text-sm text-purple-100 ml-1">
+                    <div className="flex items-center mt-1 sm:mt-2">
+                      <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-purple-300" />
+                      <span className="text-xs sm:text-sm text-purple-100 ml-1">
                         {summary ? `${summary.today_success_rate?.toFixed(1)}%` : '0%'} taux de réussite
                     </span>
                     </div>
                   </div>
-                  <div className="bg-white bg-opacity-20 rounded-full p-3">
-                    <DollarSign className="h-8 w-8" />
+                  <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
+                    <DollarSign className="h-6 w-6 sm:h-8 sm:w-8" />
                     </div>
                     </div>
             </CardContent>
@@ -427,26 +428,26 @@ export default function DashboardPage() {
             {/* System Status */}
             <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg">
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-orange-100 text-sm font-medium">Statut du système</p>
-                    <p className="text-3xl font-bold">
+                    <p className="text-orange-100 text-xs sm:text-sm font-medium">Statut du système</p>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold">
                       {stats.notification_info.async_enabled ? 'En ligne' : 'Hors ligne'}
                     </p>
-                    <div className="flex items-center mt-2">
+                    <div className="flex items-center mt-1 sm:mt-2">
                       {stats.notification_info.async_enabled ? (
-                        <CheckCircle className="h-4 w-4 text-green-300" />
+                        <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-red-300" />
+                        <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-300" />
                       )}
-                      <span className="text-sm text-orange-100 ml-1">
+                      <span className="text-xs sm:text-sm text-orange-100 ml-1">
                         {stats.notification_info.async_enabled ? 'Tous les systèmes' : 'Problèmes détectés'}
                       </span>
               </div>
               </div>
-                  <div className="bg-white bg-opacity-20 rounded-full p-3">
-                    <Shield className="h-8 w-8" />
+                  <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
+                    <Shield className="h-6 w-6 sm:h-8 sm:w-8" />
               </div>
                 </div>
             </CardContent>
@@ -454,7 +455,7 @@ export default function DashboardPage() {
         </div>
 
           {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8">
             {/* Financial Overview Chart */}
       {financialChartData.length > 0 && (
               <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
@@ -466,8 +467,8 @@ export default function DashboardPage() {
                     <span>Aperçu financier</span>
               </CardTitle>
             </CardHeader>
-                <CardContent className="p-6">
-              <div className="h-80">
+                <CardContent className="p-4 sm:p-6">
+              <div className="h-64 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -504,8 +505,8 @@ export default function DashboardPage() {
                     <span>Tendances des transactions</span>
               </CardTitle>
             </CardHeader>
-                <CardContent className="p-6">
-              <div className="h-80">
+                <CardContent className="p-4 sm:p-6">
+              <div className="h-64 sm:h-80">
                 <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={transactionTrendData}>
                         <XAxis dataKey="name" />
@@ -620,7 +621,7 @@ export default function DashboardPage() {
         </div>
 
           {/* Payment & Transaction Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8">
             {/* Payment Summary */}
             <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
               <CardHeader className="border-b border-gray-100 dark:border-gray-700">
@@ -631,7 +632,7 @@ export default function DashboardPage() {
                   <span>Résumé des paiements</span>
             </CardTitle>
           </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 {summaryLoading ? (
                   <div className="flex items-center justify-center py-8">
                 <Loader className="animate-spin mr-2" /> Chargement...
@@ -639,22 +640,22 @@ export default function DashboardPage() {
                 ) : summaryError ? (
                   <div className="text-red-600 text-center py-4">{summaryError}</div>
                 ) : summary ? (
-              <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
-                      <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Transactions d'aujourd'hui</div>
-                      <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_transactions}</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-3 sm:p-4 rounded-lg">
+                      <div className="text-xs sm:text-sm text-orange-600 dark:text-orange-300 font-medium">Transactions d'aujourd'hui</div>
+                      <div className="text-xl sm:text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_transactions}</div>
                     </div>
-                    <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
-                      <div className="text-sm text-green-600 dark:text-green-300 font-medium">Terminées</div>
-                      <div className="text-2xl font-bold text-green-900 dark:text-green-100">{summary.today_completed}</div>
+                    <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-3 sm:p-4 rounded-lg">
+                      <div className="text-xs sm:text-sm text-green-600 dark:text-green-300 font-medium">Terminées</div>
+                      <div className="text-xl sm:text-2xl font-bold text-green-900 dark:text-green-100">{summary.today_completed}</div>
                     </div>
-                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg">
-                      <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">Revenus</div>
-                      <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">{parseFloat(summary.today_revenue || 0).toFixed(2)} FCFA</div>
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-3 sm:p-4 rounded-lg">
+                      <div className="text-xs sm:text-sm text-purple-600 dark:text-purple-300 font-medium">Revenus</div>
+                      <div className="text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-100">{parseFloat(summary.today_revenue || 0).toFixed(2)} FCFA</div>
                     </div>
-                    <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 rounded-lg">
-                      <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Taux de réussite</div>
-                      <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_success_rate?.toFixed(1)}%</div>
+                    <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-3 sm:p-4 rounded-lg">
+                      <div className="text-xs sm:text-sm text-orange-600 dark:text-orange-300 font-medium">Taux de réussite</div>
+                      <div className="text-xl sm:text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_success_rate?.toFixed(1)}%</div>
                     </div>
               </div>
             ) : (

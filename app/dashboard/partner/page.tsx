@@ -175,7 +175,7 @@ export default function PartnerPage() {
 		setTransferPartner(partner)
 		setPartnerTransfers([])
 		try {
-			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/partner-transfers/by-partner/?partner_uid=${partner.uid}`
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/partner-transfers/by_partner/?partner_uid=${partner.uid}`
 			const data = await apiFetch(endpoint)
 			setPartnerTransfers(data.results || [])
 			toast({ title: "Succès", description: "Transferts du partenaire chargés avec succès" })
@@ -342,7 +342,7 @@ export default function PartnerPage() {
 				notes: grantPermissionForm.notes,
 			}
 
-			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${grantPermissionForm.uid}/grant-permission/`
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${grantPermissionForm.uid}/grant_permission/`
 			const data = await apiFetch(endpoint, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -398,20 +398,20 @@ export default function PartnerPage() {
 				
 				{/* Page Header */}
 				<div className="mb-8">
-					<div className="flex items-center justify-between">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 						<div>
-							<h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
+							<h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
 								{t("partners.title") || "Partner Management"}
 							</h1>
-							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+							<p className="text-gray-600 dark:text-gray-300 mt-2 text-sm sm:text-base lg:text-lg">
 												Gérer les comptes partenaires et le suivi des commissions
 											</p>
 						</div>
-						<div className="flex items-center space-x-4">
-							<div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+						<div className="flex items-center space-x-2 sm:space-x-4">
+							<div className="bg-white dark:bg-gray-800 rounded-lg px-3 sm:px-4 py-2 shadow-sm">
 								<div className="flex items-center space-x-2">
-									<Users className="h-5 w-5 text-orange-500" />
-									<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+									<Users className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
+									<span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
 																						{totalCount} partenaires
 									</span>
 								</div>
@@ -421,16 +421,16 @@ export default function PartnerPage() {
 				</div>
 
 				{/* Summary Cards */}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
 					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
-						<CardContent className="p-6">
+						<CardContent className="p-4 sm:p-6">
 							<div className="flex items-center space-x-3">
-								<div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-									<UserCheck className="h-6 w-6 text-green-600 dark:text-green-300" />
+								<div className="p-2 sm:p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+									<UserCheck className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-300" />
 								</div>
 								<div>
-																					<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Partenaires actifs</p>
-									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+																					<p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Partenaires actifs</p>
+									<p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
 										{activePartners}
 									</p>
 								</div>
@@ -439,15 +439,15 @@ export default function PartnerPage() {
 					</Card>
 
 					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
-						<CardContent className="p-6">
+						<CardContent className="p-4 sm:p-6">
 							<div className="flex items-center space-x-3">
-								<div className="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
-									<Copy className="h-6 w-6 text-orange-600 dark:text-orange-300" />
+								<div className="p-2 sm:p-3 bg-orange-100 dark:bg-orange-900 rounded-lg">
+									<Copy className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600 dark:text-orange-300" />
 								</div>
 								<div>
-																					<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Commission totale</p>
-									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										${totalCommission.toFixed(2)}
+																					<p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Commission totale</p>
+									<p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+										XOF {totalCommission.toFixed(2)}
 									</p>
 								</div>
 							</div>
@@ -457,8 +457,8 @@ export default function PartnerPage() {
 
 				{/* Filters and Search */}
 				<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
-					<CardContent className="p-6">
-						<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+					<CardContent className="p-4 sm:p-6">
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 							{/* Search */}
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -541,28 +541,28 @@ export default function PartnerPage() {
 							<Table>
 								<TableHeader>
 									<TableRow className="bg-gray-50 dark:bg-gray-900/50">
-										<TableHead className="font-semibold">Partenaire</TableHead>
-										<TableHead className="font-semibold">E-mail</TableHead>
-										<TableHead className="font-semibold">Statut</TableHead>
-										<TableHead className="font-semibold">USSD</TableHead>
-										<TableHead className="font-semibold">Commission</TableHead>
-										<TableHead className="font-semibold">Rejoint</TableHead>
-										<TableHead className="font-semibold">Actions</TableHead>
+										<TableHead className="font-semibold text-xs sm:text-sm">Partenaire</TableHead>
+										<TableHead className="font-semibold text-xs sm:text-sm">E-mail</TableHead>
+										<TableHead className="font-semibold text-xs sm:text-sm">Statut</TableHead>
+										<TableHead className="font-semibold text-xs sm:text-sm">USSD</TableHead>
+										<TableHead className="font-semibold text-xs sm:text-sm">Commission</TableHead>
+										<TableHead className="font-semibold text-xs sm:text-sm">Rejoint</TableHead>
+										<TableHead className="font-semibold text-xs sm:text-sm">Actions</TableHead>
 								</TableRow>
 								</TableHeader>
 								<TableBody>
 									{partners.map((partner) => (
 											<TableRow key={partner.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
 												<TableCell>
-													<div className="flex items-center space-x-3">
-														<div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
+													<div className="flex items-center space-x-2 sm:space-x-3">
+														<div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">
 															{partner.display_name?.charAt(0)?.toUpperCase() || 'P'}
 														</div>
 														<div>
-															<div className="font-medium text-gray-900 dark:text-gray-100">
+															<div className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
 																{partner.display_name || 'Partenaire inconnu'}
 															</div>
-															<div className="text-sm text-gray-500 dark:text-gray-400">
+															<div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
 																{partner.phone_number || 'Aucun téléphone'}
 															</div>
 														</div>
@@ -570,8 +570,8 @@ export default function PartnerPage() {
 												</TableCell>
 												<TableCell>
 													<div className="flex items-center space-x-2">
-														<Mail className="h-4 w-4 text-gray-400" />
-														<span className="text-sm text-gray-700 dark:text-gray-300">
+														<Mail className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+														<span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">
 															{partner.email || 'Aucun e-mail'}
 														</span>
 													</div>
@@ -614,16 +614,16 @@ export default function PartnerPage() {
 												</TableCell>
 												<TableCell>
 													<div className="flex items-center space-x-1">
-														<Copy className="h-4 w-4 text-gray-400" />
-														<span className="font-medium text-gray-900 dark:text-gray-100">
-															${parseFloat(partner.total_commission || 0).toFixed(2)}
+														<Copy className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+														<span className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm">
+															XOF {parseFloat(partner.total_commission || 0).toFixed(2)}
 														</span>
 													</div>
 												</TableCell>
 												<TableCell>
 													<div className="flex items-center space-x-2">
-														<Calendar className="h-4 w-4 text-gray-400" />
-														<span className="text-sm text-gray-600 dark:text-gray-400">
+														<Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+														<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
 															{partner.created_at 
 																? new Date(partner.created_at).toLocaleDateString()
 																: 'Inconnu'
@@ -643,7 +643,7 @@ export default function PartnerPage() {
 															<DropdownMenuItem asChild>
 																<Link href={`/dashboard/partner/commission/${partner.uid}`} className="flex items-center">
 																	<DollarSign className="h-4 w-4 mr-2 text-green-600" />
-																	<span>Commission</span>
+																	<span>Commission momo</span>
 																</Link>
 															</DropdownMenuItem>
 															<DropdownMenuItem onClick={() => handleOpenBettingCommission(partner)}>
@@ -654,14 +654,14 @@ export default function PartnerPage() {
 																<ArrowUpDownIcon className="h-4 w-4 mr-2 text-blue-600" />
 																<span>Transferts</span>
 															</DropdownMenuItem>
-															<DropdownMenuItem onClick={() => handleOpenGrantPermission(partner)}>
+															{/* <DropdownMenuItem onClick={() => handleOpenGrantPermission(partner)}>
 																<Shield className="h-4 w-4 mr-2 text-purple-600" />
 																<span>Accorder Permission</span>
-															</DropdownMenuItem>
-															<DropdownMenuItem onClick={() => handleOpenBettingCommission(partner)}>
+															</DropdownMenuItem> */}
+															{/* <DropdownMenuItem onClick={() => handleOpenBettingCommission(partner)}>
 																<Eye className="h-4 w-4 mr-2 text-indigo-600" />
 																<span>Voir Commissions</span>
-															</DropdownMenuItem>
+															</DropdownMenuItem> */}
 															<DropdownMenuItem onClick={() => {
 																setBettingCommissionPartner(partner)
 																setBettingCommissionPaymentModalOpen(true)
@@ -792,7 +792,7 @@ export default function PartnerPage() {
 									<div>
 										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Commission totale</label>
 										<p className="text-lg font-semibold text-green-600">
-											${parseFloat(detailPartner.total_commission || 0).toFixed(2)}
+											XOF {parseFloat(detailPartner.total_commission || 0).toFixed(2)}
 										</p>
 									</div>
 									<div>
@@ -885,7 +885,7 @@ export default function PartnerPage() {
 														<div className="flex items-center space-x-1">
 															<DollarSign className="h-4 w-4 text-gray-400" />
 															<span className={`font-medium ${transfer.sender === transferPartner?.id ? 'text-red-600' : 'text-green-600'}`}>
-																{transfer.sender === transferPartner?.id ? '-' : '+'}{parseFloat(transfer.amount).toFixed(2)} FCFA
+																{transfer.sender === transferPartner?.id ? '-' : '+'}XOF {parseFloat(transfer.amount).toFixed(2)}
 															</span>
 														</div>
 													</TableCell>
@@ -972,7 +972,7 @@ export default function PartnerPage() {
 												<TrendingUp className="h-5 w-5 text-green-600" />
 												<div>
 													<p className="text-sm font-medium text-green-800 dark:text-green-300">Total Commission</p>
-													<p className="text-lg font-bold text-green-600">{parseFloat(bettingCommissionStats.total_commission || 0).toFixed(2)} FCFA</p>
+													<p className="text-lg font-bold text-green-600">XOF {parseFloat(bettingCommissionStats.total_commission || 0).toFixed(2)}</p>
 												</div>
 											</div>
 										</CardContent>
@@ -983,7 +983,7 @@ export default function PartnerPage() {
 												<CheckCircle className="h-5 w-5 text-orange-600" />
 												<div>
 													<p className="text-sm font-medium text-orange-800 dark:text-orange-300">Commission Payée</p>
-													<p className="text-lg font-bold text-orange-600">{parseFloat(bettingCommissionStats.paid_commission || 0).toFixed(2)} FCFA</p>
+													<p className="text-lg font-bold text-orange-600">XOF {parseFloat(bettingCommissionStats.paid_commission || 0).toFixed(2)}</p>
 												</div>
 											</div>
 										</CardContent>
@@ -994,7 +994,7 @@ export default function PartnerPage() {
 												<Clock className="h-5 w-5 text-red-600" />
 												<div>
 													<p className="text-sm font-medium text-red-800 dark:text-red-300">Commission Impayée</p>
-													<p className="text-lg font-bold text-red-600">{parseFloat(bettingCommissionStats.unpaid_commission || 0).toFixed(2)} FCFA</p>
+													<p className="text-lg font-bold text-red-600">XOF {parseFloat(bettingCommissionStats.unpaid_commission || 0).toFixed(2)}</p>
 												</div>
 											</div>
 										</CardContent>

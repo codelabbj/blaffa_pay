@@ -124,28 +124,29 @@ export default function CountryListPage() {
         
         {/* Page Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
                 {t("country.list")}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm sm:text-base lg:text-lg">
                 Gérer les pays et régions pris en charge
               </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-3 sm:px-4 py-2 shadow-sm">
                 <div className="flex items-center space-x-2">
-                  <Globe className="h-5 w-5 text-orange-500" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                     {countries.length} pays
                   </span>
                 </div>
               </div>
               <Link href="/dashboard/country/create">
-                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
-                  <Plus className="h-4 w-4 mr-2" />
-                  {t("country.add")}
+                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-xs sm:text-sm">
+                  <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">{t("country.add")}</span>
+                  <span className="sm:hidden">Ajouter</span>
                 </Button>
               </Link>
             </div>
@@ -154,8 +155,8 @@ export default function CountryListPage() {
 
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -236,26 +237,26 @@ export default function CountryListPage() {
           <Table>
             <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">Nom du pays</TableHead>
-                      <TableHead className="font-semibold">Code</TableHead>
-                      <TableHead className="font-semibold">Statut</TableHead>
-                      <TableHead className="font-semibold">Actions</TableHead>
+                      <TableHead className="font-semibold text-xs sm:text-sm">Nom du pays</TableHead>
+                      <TableHead className="font-semibold text-xs sm:text-sm">Code</TableHead>
+                      <TableHead className="font-semibold text-xs sm:text-sm">Statut</TableHead>
+                      <TableHead className="font-semibold text-xs sm:text-sm">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
                     {filteredCountries.map((country) => (
                       <TableRow key={country.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                         <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
+                          <div className="flex items-center space-x-2 sm:space-x-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-sm sm:text-base">
                               {country.nom?.charAt(0)?.toUpperCase() || 'C'}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900 dark:text-gray-100">
+                              <div className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
                                 {country.nom}
                               </div>
                               {country.description && (
-                                <div className="text-sm text-gray-500 dark:text-gray-400">
+                                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                   {country.description}
                                 </div>
                               )}
@@ -263,7 +264,7 @@ export default function CountryListPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="font-mono">
+                          <Badge variant="outline" className="font-mono text-xs sm:text-sm">
                             {country.code}
                           </Badge>
                         </TableCell>

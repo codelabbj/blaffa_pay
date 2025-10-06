@@ -23,8 +23,12 @@ const COLORS = {
   indigo: '#6366F1'
 };
 
-export function Sidebar() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+interface SidebarProps {
+  mobileSidebarOpen?: boolean
+  onToggleMobileSidebar?: () => void
+}
+
+export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: SidebarProps) {
   const [usersDropdownOpen, setUsersDropdownOpen] = useState(false)
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
   const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false)
@@ -78,11 +82,12 @@ export function Sidebar() {
     router.push("/");
   }
 
+
   return (
     <>
       {/* Mobile sidebar */}
-      <div className={cn("fixed inset-0 z-50 lg:hidden", sidebarOpen ? "block" : "hidden")}>
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+      <div className={cn("fixed inset-0 z-50 lg:hidden", mobileSidebarOpen ? "block" : "hidden")}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onToggleMobileSidebar} />
         <div className="fixed inset-y-0 left-0 flex w-72 flex-col bg-gradient-to-b from-white via-orange-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 h-full min-h-0 shadow-2xl">
           <div className="flex h-20 items-center justify-between px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
@@ -103,7 +108,7 @@ export function Sidebar() {
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+            <Button variant="ghost" size="icon" onClick={onToggleMobileSidebar} className="hover:bg-gray-100 dark:hover:bg-gray-700">
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -116,7 +121,7 @@ export function Sidebar() {
                   ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
               )}
-              onClick={() => setSidebarOpen(false)}
+              onClick={onToggleMobileSidebar}
             >
               <Home className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.dashboard")}
@@ -156,7 +161,7 @@ export function Sidebar() {
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={onToggleMobileSidebar}
                 >
                   {t("nav.register")}
                 </Link>
@@ -168,7 +173,7 @@ export function Sidebar() {
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={onToggleMobileSidebar}
                 >
                   {t("nav.userList")}
                 </Link>
@@ -183,7 +188,7 @@ export function Sidebar() {
                   ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
               )}
-              onClick={() => setSidebarOpen(false)}
+              onClick={onToggleMobileSidebar}
             >
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.transactions")}
@@ -497,7 +502,7 @@ export function Sidebar() {
                   ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
               )}
-              onClick={() => setSidebarOpen(false)}
+              onClick={onToggleMobileSidebar}
             >
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("Wave Business Transaction")}
@@ -511,7 +516,7 @@ export function Sidebar() {
                   ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
               )}
-              onClick={() => setSidebarOpen(false)}
+              onClick={onToggleMobileSidebar}
             >
               <Smartphone className="mr-3 h-5 w-5 flex-shrink-0" />
               MoMo Pay
@@ -532,7 +537,7 @@ export function Sidebar() {
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
+      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col lg:w-72">
         <div className="flex flex-col flex-grow bg-gradient-to-b from-white via-orange-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-r border-gray-200/50 dark:border-gray-700/50 h-full min-h-0 shadow-xl">
           {/* Make sidebar scrollable if content overflows */}
           <div className="flex h-20 items-center px-6 border-b border-gray-200/50 dark:border-gray-700/50">
@@ -942,7 +947,7 @@ export function Sidebar() {
                   ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
               )}
-              onClick={() => setSidebarOpen(false)}
+              onClick={onToggleMobileSidebar}
             >
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("Wave Business Transaction")}
@@ -956,7 +961,7 @@ export function Sidebar() {
                   ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
               )}
-              onClick={() => setSidebarOpen(false)}
+              onClick={onToggleMobileSidebar}
             >
               <Smartphone className="mr-3 h-5 w-5 flex-shrink-0" />
               MoMo Pay
@@ -976,12 +981,6 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Mobile menu button */}
-      <div className="lg:hidden">
-        <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg border border-gray-200/50 dark:border-gray-700/50" onClick={() => setSidebarOpen(true)}>
-          <Menu className="h-10 w-10" />
-        </Button>
-      </div>
     </>
   )
 }

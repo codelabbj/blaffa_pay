@@ -6,9 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useLanguage } from "@/components/providers/language-provider"
-import { ArrowLeft, BarChart3, User, DollarSign, Calendar, CheckCircle, XCircle, Clock, AlertTriangle, Copy, Shield } from "lucide-react"
+import { ArrowLeft, BarChart3, User, DollarSign, Calendar, CheckCircle, XCircle, Clock, AlertTriangle, Copy, Shield, CheckCircle2, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -31,6 +34,9 @@ export default function BettingTransactionDetailsPage({ params }: { params: { ui
   const [transaction, setTransaction] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cancellationDialogOpen, setCancellationDialogOpen] = useState(false);
+  const [processingCancellation, setProcessingCancellation] = useState(false);
+  const [adminNotes, setAdminNotes] = useState("");
   const apiFetch = useApi();
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const router = useRouter();
@@ -52,6 +58,45 @@ export default function BettingTransactionDetailsPage({ params }: { params: { ui
     };
     fetchTransaction();
   }, [transactionUid, baseUrl, apiFetch]);
+
+  const processCancellation = async (approve: boolean) => {
+    if (!transaction) return;
+    
+    setProcessingCancellation(true);
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transactionUid}/process_cancellation/`;
+      const payload = {
+        success: approve,
+        admin_notes: adminNotes || (approve ? "Cancellation approved" : "Cancellation rejected")
+      };
+      
+      const response = await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      
+      // Update the transaction with the response data
+      setTransaction(response.transaction);
+      setCancellationDialogOpen(false);
+      setAdminNotes("");
+      
+      toast({
+        title: "Succès",
+        description: response.message || (approve ? "Annulation approuvée" : "Annulation rejetée"),
+      });
+      
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err);
+      toast({
+        title: "Erreur",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingCancellation(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -127,6 +172,72 @@ export default function BettingTransactionDetailsPage({ params }: { params: { ui
           <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
             <CardContent className="p-6">
               <ErrorDisplay error={error} />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Cancellation Processing Button */}
+        {transaction && transaction.cancellation_requested_at && !transaction.cancelled_at && (
+          <Card className="bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700 shadow-lg mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <AlertTriangle className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                  <div>
+                    <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-300">
+                      Demande d'annulation en attente
+                    </h3>
+                    <p className="text-sm text-yellow-700 dark:text-yellow-400">
+                      Demande faite par {transaction.cancellation_requested_by_name} le{" "}
+                      {new Date(transaction.cancellation_requested_at).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+                <Dialog open={cancellationDialogOpen} onOpenChange={setCancellationDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Traiter l'annulation
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Traiter la demande d'annulation</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="admin-notes">Notes d'administration</Label>
+                        <Textarea
+                          id="admin-notes"
+                          placeholder="Ajoutez des notes sur la décision..."
+                          value={adminNotes}
+                          onChange={(e) => setAdminNotes(e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => processCancellation(false)}
+                        disabled={processingCancellation}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Rejeter
+                      </Button>
+                      <Button
+                        onClick={() => processCancellation(true)}
+                        disabled={processingCancellation}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Approuver
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -358,6 +469,29 @@ export default function BettingTransactionDetailsPage({ params }: { params: { ui
                         </Badge>
                       </div>
                     </div>
+                    {transaction.cancellation_requested_at && (
+                      <div>
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Demande d'annulation:</span>
+                        <div className="mt-1 space-y-1">
+                          <p className="text-sm text-gray-900 dark:text-gray-100">
+                            Demandée le: {new Date(transaction.cancellation_requested_at).toLocaleString()}
+                          </p>
+                          <p className="text-sm text-gray-900 dark:text-gray-100">
+                            Par: {transaction.cancellation_requested_by_name}
+                          </p>
+                          {transaction.cancelled_at && (
+                            <>
+                              <p className="text-sm text-gray-900 dark:text-gray-100">
+                                Annulée le: {new Date(transaction.cancelled_at).toLocaleString()}
+                              </p>
+                              <p className="text-sm text-gray-900 dark:text-gray-100">
+                                Par: {transaction.cancelled_by_name}
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>

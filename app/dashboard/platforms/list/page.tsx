@@ -231,28 +231,29 @@ export default function PlatformsListPage() {
         
         {/* Page Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
                 Gestion des Plateformes de Paris
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
+              <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm sm:text-base lg:text-lg">
                 Gérer les plateformes de paris et leurs configurations
               </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg px-3 sm:px-4 py-2 shadow-sm">
                 <div className="flex items-center space-x-2">
-                  <Users className="h-5 w-5 text-orange-500" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Users className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                     {totalCount} plateformes
                   </span>
                 </div>
               </div>
               <Link href="/dashboard/platforms/create">
-                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nouvelle Plateforme
+                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-xs sm:text-sm">
+                  <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Nouvelle Plateforme</span>
+                  <span className="sm:hidden">Nouvelle</span>
                 </Button>
               </Link>
             </div>
@@ -260,9 +261,9 @@ export default function PlatformsListPage() {
         </div>
 
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
           <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
                   <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-300" />
@@ -278,7 +279,7 @@ export default function PlatformsListPage() {
           </Card>
 
           <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
                   <Users className="h-6 w-6 text-blue-600 dark:text-blue-300" />
@@ -294,7 +295,7 @@ export default function PlatformsListPage() {
           </Card>
 
           <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center space-x-3">
                 <div className="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
                   <TrendingUp className="h-6 w-6 text-purple-600 dark:text-purple-300" />

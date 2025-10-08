@@ -94,7 +94,7 @@ export default function CreatePlatformPage() {
       setExternalPlatformsLoading(true)
       setExternalPlatformsError("")
       try {
-        const response = await fetch("https://api.blaffa.net/blaffa/app_name")
+        const response = await fetch("https://api.blaffa.net/blaffa/app_name?type=blaffapay")
         if (!response.ok) {
           throw new Error("Failed to fetch external platforms")
         }

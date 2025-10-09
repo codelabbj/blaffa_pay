@@ -1,3 +1,5 @@
+// WEBSOCKET CODE COMMENTED OUT
+/*
 "use client";
 
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
@@ -108,4 +110,21 @@ export const useWebSocket = () => {
   const ctx = useContext(WebSocketContext);
   if (!ctx) throw new Error("useWebSocket must be used within a WebSocketProvider");
   return ctx;
+};
+*/
+
+// Mock implementations to prevent build errors
+export const WebSocketProvider = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
+};
+
+export const useWebSocket = () => {
+  return {
+    socket: null,
+    connected: false,
+    lastMessage: null,
+    connectionStatus: "disconnected",
+    send: () => {},
+    sendRemoteCommand: () => {},
+  };
 };

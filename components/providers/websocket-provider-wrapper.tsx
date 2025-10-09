@@ -1,3 +1,5 @@
+// WEBSOCKET WRAPPER CODE COMMENTED OUT
+/*
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -22,4 +24,10 @@ export const WebSocketProviderWrapper = ({ children }: Props) => {
   }
 
   return <WebSocketProvider token={token}>{children}</WebSocketProvider>;
+};
+*/
+
+// Mock implementation to prevent build errors
+export const WebSocketProviderWrapper = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>;
 };

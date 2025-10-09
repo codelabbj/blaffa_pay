@@ -10,7 +10,7 @@ import { Search, ArrowUpDown, Monitor, Plus, Filter, CheckCircle, XCircle, Wifi,
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { useWebSocket } from "@/components/providers/websocket-provider"
+// import { useWebSocket } from "@/components/providers/websocket-provider"
 import { Badge } from "@/components/ui/badge"
 import { Pencil } from "lucide-react"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
@@ -45,7 +45,7 @@ export default function DevicesListPage() {
   const { t } = useLanguage()
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1)
-  const { lastMessage } = useWebSocket(); // Add this line
+  // const { lastMessage } = useWebSocket(); // Add this line
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -111,24 +111,25 @@ export default function DevicesListPage() {
     fetchDevices()
   }, [searchTerm, statusFilter, sortField, sortDirection, startDate, endDate])
 
+  // WEBSOCKET CODE COMMENTED OUT
   // Listen for device_status_update WebSocket messages
-  useEffect(() => {
-    if (!lastMessage) return;
-    try {
-      const data = typeof lastMessage.data === "string" ? JSON.parse(lastMessage.data) : lastMessage.data;
-      if (data.type === "device_status_update" && data.device_id) {
-        setDevices((prev) =>
-          prev.map((device) =>
-            device.device_id === data.device_id
-              ? { ...device, ...data.data }
-              : device
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Error parsing WebSocket message:', error);
-    }
-  }, [lastMessage]);
+  // useEffect(() => {
+  //   if (!lastMessage) return;
+  //   try {
+  //     const data = typeof lastMessage.data === "string" ? JSON.parse(lastMessage.data) : lastMessage.data;
+  //     if (data.type === "device_status_update" && data.device_id) {
+  //       setDevices((prev) =>
+  //         prev.map((device) =>
+  //           device.device_id === data.device_id
+  //             ? { ...device, ...data.data }
+  //             : device
+  //         )
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error('Error parsing WebSocket message:', error);
+  //   }
+  // }, [lastMessage]);
 
   const filteredDevices = devices
 

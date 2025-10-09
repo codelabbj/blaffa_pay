@@ -5,7 +5,7 @@ import { useState } from "react"
 
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
-import { WebSocketProvider } from "@/components/providers/websocket-provider"
+// import { WebSocketProvider } from "@/components/providers/websocket-provider"
 
 export default function DashboardLayout({
   children,
@@ -25,7 +25,7 @@ export default function DashboardLayout({
   }
   
   return (
-    <WebSocketProvider token={token}>
+    // <WebSocketProvider token={token}>
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <Sidebar 
           mobileSidebarOpen={mobileSidebarOpen}
@@ -40,6 +40,6 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
-    </WebSocketProvider>
+    // </WebSocketProvider>
   )
 }

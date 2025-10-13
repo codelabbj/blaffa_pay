@@ -314,8 +314,8 @@ export default function SmsLogsListPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="max-w-xs">
-                            <div className="text-sm text-gray-900 dark:text-gray-100 truncate">
+                          <div className="max-w-md">
+                            <div className="text-sm text-gray-900 dark:text-gray-100 break-words whitespace-pre-wrap">
                               {log.message || log.content || 'Aucun message'}
                             </div>
                             {log.message && log.message.length > 50 && (

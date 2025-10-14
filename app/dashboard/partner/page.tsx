@@ -954,51 +954,102 @@ export default function PartnerPage() {
 						<div className="space-y-6">
 							{/* Global Stats */}
 							{bettingCommissionStats && (
-								<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-									<Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
-										<CardContent className="p-4">
-											<div className="flex items-center space-x-2">
-												<DollarSign className="h-5 w-5 text-blue-600" />
-												<div>
-													<p className="text-sm font-medium text-blue-800 dark:text-blue-300">Total Transactions</p>
-													<p className="text-lg font-bold text-blue-600">{bettingCommissionStats.total_transactions}</p>
+								<div className="space-y-4">
+									{/* First Row - Main Stats */}
+									<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+										<Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
+											<CardContent className="p-4">
+												<div className="flex items-center space-x-2">
+													<DollarSign className="h-5 w-5 text-blue-600" />
+													<div>
+														<p className="text-sm font-medium text-blue-800 dark:text-blue-300">Total Transactions</p>
+														<p className="text-lg font-bold text-blue-600">{bettingCommissionStats.total_transactions}</p>
+													</div>
 												</div>
-											</div>
-										</CardContent>
-									</Card>
-									<Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700">
-										<CardContent className="p-4">
-											<div className="flex items-center space-x-2">
-												<TrendingUp className="h-5 w-5 text-green-600" />
-												<div>
-													<p className="text-sm font-medium text-green-800 dark:text-green-300">Total Commission</p>
-													<p className="text-lg font-bold text-green-600">XOF {parseFloat(bettingCommissionStats.total_commission || 0).toFixed(2)}</p>
+											</CardContent>
+										</Card>
+										<Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700">
+											<CardContent className="p-4">
+												<div className="flex items-center space-x-2">
+													<TrendingUp className="h-5 w-5 text-green-600" />
+													<div>
+														<p className="text-sm font-medium text-green-800 dark:text-green-300">Total Commission</p>
+														<p className="text-lg font-bold text-green-600">XOF {parseFloat(bettingCommissionStats.total_commission || 0).toFixed(2)}</p>
+													</div>
 												</div>
-											</div>
-										</CardContent>
-									</Card>
-									<Card className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700">
-										<CardContent className="p-4">
-											<div className="flex items-center space-x-2">
-												<CheckCircle className="h-5 w-5 text-orange-600" />
-												<div>
-													<p className="text-sm font-medium text-orange-800 dark:text-orange-300">Commission Payée</p>
-													<p className="text-lg font-bold text-orange-600">XOF {parseFloat(bettingCommissionStats.paid_commission || 0).toFixed(2)}</p>
+											</CardContent>
+										</Card>
+										<Card className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700">
+											<CardContent className="p-4">
+												<div className="flex items-center space-x-2">
+													<CheckCircle className="h-5 w-5 text-orange-600" />
+													<div>
+														<p className="text-sm font-medium text-orange-800 dark:text-orange-300">Commission Payée</p>
+														<p className="text-lg font-bold text-orange-600">XOF {parseFloat(bettingCommissionStats.paid_commission || 0).toFixed(2)}</p>
+													</div>
 												</div>
-											</div>
-										</CardContent>
-									</Card>
-									<Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700">
-										<CardContent className="p-4">
-											<div className="flex items-center space-x-2">
-												<Clock className="h-5 w-5 text-red-600" />
-												<div>
-													<p className="text-sm font-medium text-red-800 dark:text-red-300">Commission Impayée</p>
-													<p className="text-lg font-bold text-red-600">XOF {parseFloat(bettingCommissionStats.unpaid_commission || 0).toFixed(2)}</p>
+											</CardContent>
+										</Card>
+										<Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700">
+											<CardContent className="p-4">
+												<div className="flex items-center space-x-2">
+													<Clock className="h-5 w-5 text-red-600" />
+													<div>
+														<p className="text-sm font-medium text-red-800 dark:text-red-300">Commission Impayée</p>
+														<p className="text-lg font-bold text-red-600">XOF {parseFloat(bettingCommissionStats.unpaid_commission || 0).toFixed(2)}</p>
+													</div>
 												</div>
-											</div>
-										</CardContent>
-									</Card>
+											</CardContent>
+										</Card>
+									</div>
+
+									{/* Second Row - Additional Stats */}
+									<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+										<Card className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
+											<CardContent className="p-4">
+												<div className="flex items-center space-x-2">
+													<CreditCard className="h-5 w-5 text-purple-600" />
+													<div>
+														<p className="text-sm font-medium text-purple-800 dark:text-purple-300">Commission Payable</p>
+														<p className="text-lg font-bold text-purple-600">XOF {parseFloat(bettingCommissionStats.payable_commission || 0).toFixed(2)}</p>
+													</div>
+												</div>
+											</CardContent>
+										</Card>
+										<Card className="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-700">
+											<CardContent className="p-4">
+												<div className="flex items-center space-x-2">
+													<Users className="h-5 w-5 text-indigo-600" />
+													<div>
+														<p className="text-sm font-medium text-indigo-800 dark:text-indigo-300">Transactions Payables</p>
+														<p className="text-lg font-bold text-indigo-600">{bettingCommissionStats.payable_transaction_count}</p>
+													</div>
+												</div>
+											</CardContent>
+										</Card>
+										<Card className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700">
+											<CardContent className="p-4">
+												<div className="flex items-center space-x-2">
+													<Calendar className="h-5 w-5 text-emerald-600" />
+													<div>
+														<p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Commission Mois Actuel</p>
+														<p className="text-lg font-bold text-emerald-600">XOF {parseFloat(bettingCommissionStats.current_month_commission || 0).toFixed(2)}</p>
+													</div>
+												</div>
+											</CardContent>
+										</Card>
+										<Card className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-700">
+											<CardContent className="p-4">
+												<div className="flex items-center space-x-2">
+													<TrendingUp className="h-5 w-5 text-teal-600" />
+													<div>
+														<p className="text-sm font-medium text-teal-800 dark:text-teal-300">Transactions Mois Actuel</p>
+														<p className="text-lg font-bold text-teal-600">{bettingCommissionStats.current_month_transaction_count}</p>
+													</div>
+												</div>
+											</CardContent>
+										</Card>
+									</div>
 								</div>
 							)}
 

@@ -214,8 +214,8 @@ export default function PartnerPage() {
 				})
 			}
 			
-			// Get global stats
-			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/global_stats/`
+			// Get global stats for this partner
+			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/global_stats/?partner_uid=${partner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
 			setBettingCommissionStats(statsData)
 			
@@ -303,8 +303,8 @@ export default function PartnerPage() {
 			setBettingCommissionPaymentModalOpen(false)
 			setBettingCommissionPaymentForm({ admin_notes: "" })
 			
-			// Refresh stats
-			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/global_stats/`
+			// Refresh stats for this partner
+			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/global_stats/?partner_uid=${bettingCommissionPartner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
 			setBettingCommissionStats(statsData)
 		} catch (err: any) {

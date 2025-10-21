@@ -74,6 +74,7 @@ export default function PartnerPage() {
 		withdrawal_commission_rate: "",
 	})
 	const [bettingCommissionStats, setBettingCommissionStats] = useState<any | null>(null)
+	const [partnerAccountInfo, setPartnerAccountInfo] = useState<any | null>(null)
 	const [bettingCommissionPaymentModalOpen, setBettingCommissionPaymentModalOpen] = useState(false)
 	const [bettingCommissionPaymentForm, setBettingCommissionPaymentForm] = useState({
 		admin_notes: "",
@@ -195,6 +196,7 @@ export default function PartnerPage() {
 		setBettingCommissionPartner(partner)
 		setBettingCommissionConfig(null)
 		setBettingCommissionStats(null)
+		setPartnerAccountInfo(null)
 		
 		try {
 			// Get partner commission config
@@ -203,6 +205,7 @@ export default function PartnerPage() {
 			
 			if (configData.success && configData.has_config) {
 				setBettingCommissionConfig(configData.config)
+				setPartnerAccountInfo(configData.account)
 				setBettingCommissionForm({
 					deposit_commission_rate: configData.config.deposit_commission_rate,
 					withdrawal_commission_rate: configData.config.withdrawal_commission_rate,
@@ -214,8 +217,13 @@ export default function PartnerPage() {
 				})
 			}
 			
-			// Get global stats for this partner
-			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/global_stats/?partner_uid=${partner.uid}`
+			// Store account info even if no config exists
+			if (configData.success && configData.account) {
+				setPartnerAccountInfo(configData.account)
+			}
+			
+			// Get partner-specific stats
+			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${partner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
 			setBettingCommissionStats(statsData)
 			
@@ -303,8 +311,8 @@ export default function PartnerPage() {
 			setBettingCommissionPaymentModalOpen(false)
 			setBettingCommissionPaymentForm({ admin_notes: "" })
 			
-			// Refresh stats for this partner
-			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/global_stats/?partner_uid=${bettingCommissionPartner.uid}`
+			// Refresh partner-specific stats
+			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${bettingCommissionPartner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
 			setBettingCommissionStats(statsData)
 		} catch (err: any) {
@@ -952,8 +960,27 @@ export default function PartnerPage() {
 						<ErrorDisplay error={bettingCommissionError} />
 					) : (
 						<div className="space-y-6">
+							{/* Partner Balance */}
+							{partnerAccountInfo && (
+								<Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700">
+									<CardContent className="p-6">
+										<div className="flex items-center justify-between">
+											<div className="flex items-center space-x-3">
+												<div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+													<Wallet className="h-6 w-6 text-green-600" />
+												</div>
+												<div>
+													<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Solde du Compte</p>
+													<p className="text-2xl font-bold text-green-600">{partnerAccountInfo.formatted_balance}</p>
+												</div>
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							)}
+
 							{/* Global Stats */}
-							{bettingCommissionStats && (
+							{bettingCommissionStats && bettingCommissionStats.commissions && (
 								<div className="space-y-4">
 									{/* First Row - Main Stats */}
 									<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -963,7 +990,7 @@ export default function PartnerPage() {
 													<DollarSign className="h-5 w-5 text-blue-600" />
 													<div>
 														<p className="text-sm font-medium text-blue-800 dark:text-blue-300">Total Transactions</p>
-														<p className="text-lg font-bold text-blue-600">{bettingCommissionStats.total_transactions}</p>
+														<p className="text-lg font-bold text-blue-600">{bettingCommissionStats.commissions.total_transaction_count}</p>
 													</div>
 												</div>
 											</CardContent>
@@ -973,8 +1000,8 @@ export default function PartnerPage() {
 												<div className="flex items-center space-x-2">
 													<TrendingUp className="h-5 w-5 text-green-600" />
 													<div>
-														<p className="text-sm font-medium text-green-800 dark:text-green-300">Total Commission</p>
-														<p className="text-lg font-bold text-green-600">XOF {parseFloat(bettingCommissionStats.total_commission || 0).toFixed(2)}</p>
+														<p className="text-sm font-medium text-green-800 dark:text-green-300">Total Gagné</p>
+														<p className="text-lg font-bold text-green-600">XOF {parseFloat(bettingCommissionStats.commissions.total_earned || 0).toFixed(2)}</p>
 													</div>
 												</div>
 											</CardContent>
@@ -985,7 +1012,7 @@ export default function PartnerPage() {
 													<CheckCircle className="h-5 w-5 text-orange-600" />
 													<div>
 														<p className="text-sm font-medium text-orange-800 dark:text-orange-300">Commission Payée</p>
-														<p className="text-lg font-bold text-orange-600">XOF {parseFloat(bettingCommissionStats.paid_commission || 0).toFixed(2)}</p>
+														<p className="text-lg font-bold text-orange-600">XOF {parseFloat(bettingCommissionStats.commissions.total_paid || 0).toFixed(2)}</p>
 													</div>
 												</div>
 											</CardContent>
@@ -996,7 +1023,7 @@ export default function PartnerPage() {
 													<Clock className="h-5 w-5 text-red-600" />
 													<div>
 														<p className="text-sm font-medium text-red-800 dark:text-red-300">Commission Impayée</p>
-														<p className="text-lg font-bold text-red-600">XOF {parseFloat(bettingCommissionStats.unpaid_commission || 0).toFixed(2)}</p>
+														<p className="text-lg font-bold text-red-600">XOF {parseFloat(bettingCommissionStats.commissions.total_unpaid || 0).toFixed(2)}</p>
 													</div>
 												</div>
 											</CardContent>
@@ -1011,7 +1038,7 @@ export default function PartnerPage() {
 													<CreditCard className="h-5 w-5 text-purple-600" />
 													<div>
 														<p className="text-sm font-medium text-purple-800 dark:text-purple-300">Commission Payable</p>
-														<p className="text-lg font-bold text-purple-600">XOF {parseFloat(bettingCommissionStats.payable_commission || 0).toFixed(2)}</p>
+														<p className="text-lg font-bold text-purple-600">XOF {parseFloat(bettingCommissionStats.commissions.payable || 0).toFixed(2)}</p>
 													</div>
 												</div>
 											</CardContent>
@@ -1022,7 +1049,7 @@ export default function PartnerPage() {
 													<Users className="h-5 w-5 text-indigo-600" />
 													<div>
 														<p className="text-sm font-medium text-indigo-800 dark:text-indigo-300">Transactions Payables</p>
-														<p className="text-lg font-bold text-indigo-600">{bettingCommissionStats.payable_transaction_count}</p>
+														<p className="text-lg font-bold text-indigo-600">{bettingCommissionStats.commissions.payable_count}</p>
 													</div>
 												</div>
 											</CardContent>
@@ -1033,7 +1060,7 @@ export default function PartnerPage() {
 													<Calendar className="h-5 w-5 text-emerald-600" />
 													<div>
 														<p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Commission Mois Actuel</p>
-														<p className="text-lg font-bold text-emerald-600">XOF {parseFloat(bettingCommissionStats.current_month_commission || 0).toFixed(2)}</p>
+														<p className="text-lg font-bold text-emerald-600">XOF {parseFloat(bettingCommissionStats.commissions.current_month || 0).toFixed(2)}</p>
 													</div>
 												</div>
 											</CardContent>
@@ -1044,7 +1071,7 @@ export default function PartnerPage() {
 													<TrendingUp className="h-5 w-5 text-teal-600" />
 													<div>
 														<p className="text-sm font-medium text-teal-800 dark:text-teal-300">Transactions Mois Actuel</p>
-														<p className="text-lg font-bold text-teal-600">{bettingCommissionStats.current_month_transaction_count}</p>
+														<p className="text-lg font-bold text-teal-600">{bettingCommissionStats.commissions.current_month_count}</p>
 													</div>
 												</div>
 											</CardContent>

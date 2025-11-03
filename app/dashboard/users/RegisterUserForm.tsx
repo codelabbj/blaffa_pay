@@ -95,6 +95,7 @@ export default function RegisterUserForm() {
         method: "POST",
         headers,
         body: JSON.stringify(submitBody),
+        successMessage: "Utilisateur enregistré avec succès"
       })
       if (data && data.detail) {
         const backendError = extractErrorMessages(data)
@@ -106,10 +107,6 @@ export default function RegisterUserForm() {
         })
       } else {
         setSuccess("Utilisateur enregistré avec succès")
-        toast({
-          title: "Succès",
-          description: "Utilisateur enregistré avec succès",
-        })
         setForm({
           first_name: "",
           last_name: "",

@@ -27,6 +27,7 @@ interface BettingTransaction {
   transaction_type: "deposit" | "withdrawal";
   amount: string;
   status: string;
+  betting_user_id?: string;
   commission_amount: string;
   commission_paid: boolean;
   created_at: string;
@@ -103,7 +104,6 @@ export default function BettingTransactionsPage() {
         setTransactions(data.results || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-        toast({ title: "Succès", description: "Transactions de paris chargées avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -156,7 +156,6 @@ export default function BettingTransactionsPage() {
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transaction.uid}/`
       const data = await apiFetch(endpoint)
       setDetailTransaction(data)
-      toast({ title: "Succès", description: "Détails de la transaction chargés" })
     } catch (err: any) {
       setDetailError(extractErrorMessages(err))
       toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
@@ -183,11 +182,7 @@ export default function BettingTransactionsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      })
-
-      toast({ 
-        title: "Succès", 
-        description: data.message || "Demande d'annulation traitée avec succès" 
+        successMessage: "Demande d'annulation traitée avec succès"
       })
       
       setCancellationModalOpen(false)
@@ -453,7 +448,8 @@ export default function BettingTransactionsPage() {
                       <TableHead className="font-semibold">Type</TableHead>
                       <TableHead className="font-semibold">Montant</TableHead>
                       <TableHead className="font-semibold">Statut</TableHead>
-                      <TableHead className="font-semibold">Commission</TableHead>
+                      <TableHead className="font-semibold">Betting User ID</TableHead>
+                      {/* <TableHead className="font-semibold">Commission</TableHead> */}
                       <TableHead className="font-semibold">Date</TableHead>
                       <TableHead className="font-semibold">Actions</TableHead>
                     </TableRow>
@@ -508,6 +504,14 @@ export default function BettingTransactionsPage() {
                           {getStatusBadge(transaction.status)}
                         </TableCell>
                         <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <User className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+                              {transaction.betting_user_id || 'N/A'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        {/* <TableCell>
                           <div className="flex items-center space-x-1">
                             <TrendingUp className="h-4 w-4 text-gray-400" />
                             <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -517,7 +521,7 @@ export default function BettingTransactionsPage() {
                               {transaction.commission_paid ? "Payée" : "Impayée"}
                             </Badge>
                           </div>
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-gray-400" />

@@ -83,7 +83,6 @@ export default function EarningManagementPage() {
 				setEarnings(data.results || [])
 				setTotalCount(data.count || 0)
 				setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-				toast({ title: t("earning.success"), description: t("earning.loadedSuccessfully") })
 			} catch (err: any) {
 				const errorMessage = extractErrorMessages(err)
 				setError(errorMessage)
@@ -119,7 +118,6 @@ export default function EarningManagementPage() {
 			// For demo, just find in earnings
 			const found = earnings.find((e) => e.uid === uid)
 			setDetailEarning(found)
-			toast({ title: t("earning.detailLoaded"), description: t("earning.detailLoadedSuccessfully") })
 		} catch (err: any) {
 			setDetailError(extractErrorMessages(err))
 			toast({ title: t("earning.detailFailed"), description: extractErrorMessages(err), variant: "destructive" })

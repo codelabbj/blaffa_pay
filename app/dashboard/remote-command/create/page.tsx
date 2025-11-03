@@ -89,13 +89,10 @@ function RemoteCommandCreatePage() {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/remote-command/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ command, device_id: deviceId, parameters: paramsObj, priority })
+        body: JSON.stringify({ command, device_id: deviceId, parameters: paramsObj, priority }),
+        successMessage: t("remoteCommand.commandSentSuccessfully") || "Commande envoyée avec succès"
       })
       setSuccess(data.status || t("remoteCommand.commandSentSuccessfully"))
-      toast({
-        title: t("remoteCommand.success"),
-        description: data.status || t("remoteCommand.commandSentSuccessfully"),
-      })
     } catch (err: any) {
       const backendError = extractErrorMessages(err) || t("remoteCommand.failedToCreate")
       setError(backendError)

@@ -83,7 +83,6 @@ export default function PlatformDetailsPage() {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformId}/`
         const data = await apiFetch(endpoint)
         setPlatform(data)
-        toast({ title: "Succès", description: "Plateforme chargée avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -106,7 +105,6 @@ export default function PlatformDetailsPage() {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformId}/stats/`
         const data = await apiFetch(endpoint)
         setPlatformStats(data)
-        toast({ title: "Succès", description: "Statistiques chargées avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setStatsError(errorMessage)

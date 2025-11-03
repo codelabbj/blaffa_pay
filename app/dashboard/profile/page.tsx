@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
+import { useApi } from '@/lib/useApi';
 import { Loader2, Edit, Save, X, User, Mail, Phone, Shield, Calendar, CheckCircle, XCircle } from 'lucide-react';
 
 // Colors for consistent theming
@@ -51,6 +52,7 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
   const { toast } = useToast();
+  const apiFetch = useApi();
 
   // Get token from localStorage (same as sign-in-form and dashboard layout)
   let token = "";
@@ -66,13 +68,7 @@ export default function ProfilePage() {
     }
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${baseUrl}api/auth/profile/`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error('Failed to fetch profile');
-        const data = await response.json();
+        const data = await apiFetch(`${baseUrl}api/auth/profile/`);
         setProfile(data);
         setFormData({
           first_name: data.first_name,
@@ -93,7 +89,7 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, [toast, router, token]);
+  }, [toast, router, token, apiFetch]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -108,25 +104,16 @@ export default function ProfilePage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/profile/', {
+      const updatedProfile = await apiFetch(`${baseUrl}api/auth/profile/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
+        successMessage: 'Profil mis à jour avec succès'
       });
-
-      if (!response.ok) throw new Error('Failed to update profile');
-
-      const updatedProfile = await response.json();
       setProfile(updatedProfile);
-
       setEditing(false);
-      toast({
-        title: 'Succès',
-        description: 'Profil mis à jour avec succès',
-      });
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({

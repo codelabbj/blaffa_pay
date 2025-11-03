@@ -100,7 +100,6 @@ export default function CreatePlatformPage() {
         }
         const data = await response.json()
         setExternalPlatforms(data)
-        toast({ title: "Succès", description: "Plateformes externes chargées avec succès" })
       } catch (err: any) {
         const errorMessage = err.message || "Erreur lors du chargement des plateformes externes"
         setExternalPlatformsError(errorMessage)

@@ -106,10 +106,6 @@ export default function DashboardPage() {
     try {
       const data = await apiFetch(`${baseUrl}api/auth/admin/notifications/stats/`);
       setStats(data);
-      toast({
-        title: "Succès",
-        description: "Statistiques chargées avec succès",
-      });
     } catch (err: any) {
       let backendError = extractErrorMessages(err) || "Échec du chargement des statistiques";
       if (

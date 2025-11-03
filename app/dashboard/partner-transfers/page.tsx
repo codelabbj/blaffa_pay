@@ -137,7 +137,6 @@ export default function PartnerTransfersPage() {
         setTransfers(data.results || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-        toast({ title: "Succès", description: "Transfers chargés avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -195,7 +194,6 @@ export default function PartnerTransfersPage() {
     setDetailTransfer(null)
     try {
       setDetailTransfer(transfer)
-      toast({ title: "Succès", description: "Détails du transfert chargés" })
     } catch (err: any) {
       setDetailError(extractErrorMessages(err))
       toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })

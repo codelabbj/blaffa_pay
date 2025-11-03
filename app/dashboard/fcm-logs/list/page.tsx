@@ -108,10 +108,6 @@ export default function FcmLogsListPage() {
           })
         }
         
-        toast({
-          title: t("fcmLogs.success"),
-          description: t("fcmLogs.loadedSuccessfully"),
-        })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || t("fcmLogs.failedToLoad")
         setError(errorMessage)

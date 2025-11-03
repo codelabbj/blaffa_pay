@@ -90,10 +90,7 @@ export default function WithdrawPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(pendingPayload),
-      })
-      toast({
-        title: t("transactions.withdrawalCreatedTitle") || "Retrait créé",
-        description: t("transactions.transactionCreatedDesc") || "Transaction créée avec succès",
+        successMessage: t("transactions.transactionCreatedDesc") || "Transaction créée avec succès"
       })
       setShowConfirmModal(false)
       setPendingPayload(null)

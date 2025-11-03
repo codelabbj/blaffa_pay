@@ -132,7 +132,6 @@ export default function PartnerPermissionsSummaryPage() {
         const endIndex = startIndex + itemsPerPage
         setPartners(filteredPartners.slice(startIndex, endIndex))
         
-        toast({ title: "Succès", description: "Résumé des permissions partenaires chargé avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)

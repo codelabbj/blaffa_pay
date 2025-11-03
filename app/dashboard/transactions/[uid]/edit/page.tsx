@@ -122,6 +122,7 @@ export default function EditTransactionPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        successMessage: t("transactions.transactionUpdatedSuccessfully") || "Transaction mise à jour avec succès"
       })
       router.push("/dashboard/transactions")
     } catch (err: any) {

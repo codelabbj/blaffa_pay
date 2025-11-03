@@ -105,7 +105,6 @@ export default function PlatformsListPage() {
         setPlatforms(data.results || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-        toast({ title: "Succès", description: "Plateformes chargées avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -171,16 +170,12 @@ export default function PlatformsListPage() {
       await apiFetch(endpoint, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
+        successMessage: `Plateforme "${platformToDelete.name}" supprimée avec succès`
       })
       
       // Remove the platform from the list
       setPlatforms(prev => prev.filter(p => p.uid !== platformToDelete.uid))
       setTotalCount(prev => prev - 1)
-      
-      toast({ 
-        title: "Succès", 
-        description: `Plateforme "${platformToDelete.name}" supprimée avec succès` 
-      })
       
       setDeleteModalOpen(false)
       setPlatformToDelete(null)

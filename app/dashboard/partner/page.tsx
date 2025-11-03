@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, ArrowUpDown as ArrowUpDownIcon, Clock, Settings, TrendingUp, CreditCard, Shield, Eye, Wallet, MoreHorizontal } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, ArrowUpDown as ArrowUpDownIcon, Clock, Settings, TrendingUp, CreditCard, Shield, Eye, Wallet, MoreHorizontal, History } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
@@ -93,6 +93,18 @@ export default function PartnerPage() {
 		notes: "",
 	})
 
+	// Account Transactions States
+	const [accountTransactionsModalOpen, setAccountTransactionsModalOpen] = useState(false)
+	const [accountTransactionsPartner, setAccountTransactionsPartner] = useState<any | null>(null)
+	const [accountTransactionsLoading, setAccountTransactionsLoading] = useState(false)
+	const [accountTransactionsError, setAccountTransactionsError] = useState("")
+	const [accountTransactions, setAccountTransactions] = useState<any[]>([])
+	const [accountTransactionsUserInfo, setAccountTransactionsUserInfo] = useState<any | null>(null)
+	const [accountTransactionsCount, setAccountTransactionsCount] = useState(0)
+	const [accountTransactionsCurrentPage, setAccountTransactionsCurrentPage] = useState(1)
+	const [accountTransactionsNext, setAccountTransactionsNext] = useState<string | null>(null)
+	const [accountTransactionsPrevious, setAccountTransactionsPrevious] = useState<string | null>(null)
+
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
 		const fetchPartners = async () => {
@@ -119,11 +131,10 @@ export default function PartnerPage() {
 					? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
 					: ""
 				const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}${orderingParam}`
-				const data = await apiFetch(endpoint)
-				setPartners(data.partners || [])
-				setTotalCount(data.pagination?.total_count || 0)
-				setTotalPages(data.pagination?.total_pages || 1)
-				toast({ title: t("partners.success"), description: t("partners.loadedSuccessfully") })
+			const data = await apiFetch(endpoint)
+			setPartners(data.partners || [])
+			setTotalCount(data.pagination?.total_count || 0)
+			setTotalPages(data.pagination?.total_pages || 1)
 			} catch (err: any) {
 				const errorMessage = extractErrorMessages(err)
 				setError(errorMessage)
@@ -159,7 +170,6 @@ export default function PartnerPage() {
 			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${uid}/`
 			const data = await apiFetch(endpoint)
 			setDetailPartner(data)
-			toast({ title: t("partners.detailLoaded"), description: t("partners.detailLoadedSuccessfully") })
 		} catch (err: any) {
 			setDetailError(extractErrorMessages(err))
 			toast({ title: t("partners.detailFailed"), description: extractErrorMessages(err), variant: "destructive" })
@@ -179,12 +189,52 @@ export default function PartnerPage() {
 			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/partner-transfers/by_partner/?partner_uid=${partner.uid}`
 			const data = await apiFetch(endpoint)
 			setPartnerTransfers(data.results || [])
-			toast({ title: "Succès", description: "Transferts du partenaire chargés avec succès" })
 		} catch (err: any) {
 			setTransferError(extractErrorMessages(err))
 			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
 		} finally {
 			setTransferLoading(false)
+		}
+	}
+
+	// Fetch account transactions
+	const handleOpenAccountTransactions = async (partner: any, page: number = 1, useNextUrl: string | null = null, usePrevUrl: string | null = null) => {
+		if (page === 1) {
+			setAccountTransactionsModalOpen(true)
+			setAccountTransactionsPartner(partner)
+			setAccountTransactionsCurrentPage(1)
+		}
+		
+		setAccountTransactionsLoading(true)
+		setAccountTransactionsError("")
+		setAccountTransactions([])
+		
+		try {
+			let endpoint: string
+			if (useNextUrl) {
+				endpoint = useNextUrl
+			} else if (usePrevUrl) {
+				endpoint = usePrevUrl
+			} else {
+				// Build endpoint with page parameter
+				const params = new URLSearchParams({ page: page.toString() })
+				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/account-transactions/${partner.uid}/?${params.toString()}`
+			}
+			
+			const data = await apiFetch(endpoint, {
+				showSuccessToast: false // Disable automatic toast for GET request
+			})
+			setAccountTransactions(data.results || [])
+			setAccountTransactionsUserInfo(data.user_info || null)
+			setAccountTransactionsCount(data.count || 0)
+			setAccountTransactionsNext(data.next || null)
+			setAccountTransactionsPrevious(data.previous || null)
+			setAccountTransactionsCurrentPage(page)
+		} catch (err: any) {
+			setAccountTransactionsError(extractErrorMessages(err))
+			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setAccountTransactionsLoading(false)
 		}
 	}
 
@@ -226,8 +276,6 @@ export default function PartnerPage() {
 			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${partner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
 			setBettingCommissionStats(statsData)
-			
-			toast({ title: "Succès", description: "Configuration des commissions de paris chargée" })
 		} catch (err: any) {
 			setBettingCommissionError(extractErrorMessages(err))
 			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
@@ -266,13 +314,10 @@ export default function PartnerPage() {
 				method,
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
+				successMessage: "Configuration des commissions de paris sauvegardée"
 			})
 
 			setBettingCommissionConfig(data)
-			toast({ 
-				title: "Succès", 
-				description: "Configuration des commissions de paris sauvegardée" 
-			})
 		} catch (err: any) {
 			setBettingCommissionError(extractErrorMessages(err))
 			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
@@ -301,11 +346,7 @@ export default function PartnerPage() {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
-			})
-
-			toast({ 
-				title: "Succès", 
-				description: data.message || "Commission de paris payée avec succès" 
+				successMessage: "Commission de paris payée avec succès"
 			})
 			
 			setBettingCommissionPaymentModalOpen(false)
@@ -355,11 +396,7 @@ export default function PartnerPage() {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(payload),
-			})
-
-			toast({ 
-				title: "Succès", 
-				description: data.message || "Permission accordée avec succès" 
+				successMessage: "Permission accordée avec succès"
 			})
 			
 			setGrantPermissionModalOpen(false)
@@ -677,6 +714,10 @@ export default function PartnerPage() {
 																<Wallet className="h-4 w-4 mr-2 text-emerald-600" />
 																<span>Payer Commission</span>
 															</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => handleOpenAccountTransactions(partner)}>
+																<History className="h-4 w-4 mr-2 text-indigo-600" />
+																<span>Transactions Compte</span>
+															</DropdownMenuItem>
 														</DropdownMenuContent>
 													</DropdownMenu>
 												</TableCell>
@@ -937,6 +978,194 @@ export default function PartnerPage() {
 										</TableBody>
 									</Table>
 								</div>
+							)}
+						</div>
+					)}
+				</DialogContent>
+			</Dialog>
+
+			{/* Account Transactions Modal */}
+			<Dialog open={accountTransactionsModalOpen} onOpenChange={setAccountTransactionsModalOpen}>
+				<DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle className="flex items-center space-x-2">
+							<History className="h-5 w-5 text-indigo-600" />
+							<span>Transactions de Compte - {accountTransactionsPartner?.display_name || 'Partenaire'}</span>
+						</DialogTitle>
+					</DialogHeader>
+					{accountTransactionsLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+						</div>
+					) : accountTransactionsError ? (
+						<ErrorDisplay error={accountTransactionsError} />
+					) : (
+						<div className="space-y-4">
+							{/* User Info Card */}
+							{accountTransactionsUserInfo && (
+								<Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-700">
+									<CardContent className="p-6">
+										<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+											<div>
+												<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Nom</p>
+												<p className="text-lg font-bold text-indigo-600">{accountTransactionsUserInfo.display_name || 'N/A'}</p>
+											</div>
+											<div>
+												<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</p>
+												<p className="text-sm text-gray-900 dark:text-gray-100">{accountTransactionsUserInfo.email || 'N/A'}</p>
+											</div>
+											<div>
+												<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Téléphone</p>
+												<p className="text-sm text-gray-900 dark:text-gray-100">{accountTransactionsUserInfo.phone || 'N/A'}</p>
+											</div>
+											<div>
+												<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Solde Actuel</p>
+												<p className="text-lg font-bold text-green-600">{parseFloat(accountTransactionsUserInfo.current_balance || 0).toFixed(2)} FCFA</p>
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							)}
+
+							{accountTransactions.length === 0 ? (
+								<div className="text-center py-8">
+									<History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+									<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+										Aucune transaction trouvée
+									</h3>
+									<p className="text-gray-500 dark:text-gray-400">
+										Ce compte n'a effectué aucune transaction.
+									</p>
+								</div>
+							) : (
+								<>
+									<div className="flex items-center justify-between mb-4">
+										<p className="text-sm text-gray-600 dark:text-gray-400">
+											Total: {accountTransactionsCount} transactions
+										</p>
+									</div>
+									<div className="overflow-x-auto">
+										<Table>
+											<TableHeader>
+												<TableRow className="bg-gray-50 dark:bg-gray-900/50">
+													<TableHead className="font-semibold">Type</TableHead>
+													<TableHead className="font-semibold">Référence</TableHead>
+													<TableHead className="font-semibold">Montant</TableHead>
+													<TableHead className="font-semibold">Solde Avant</TableHead>
+													<TableHead className="font-semibold">Solde Après</TableHead>
+													<TableHead className="font-semibold">Description</TableHead>
+													<TableHead className="font-semibold">Transaction Liée</TableHead>
+													<TableHead className="font-semibold">Date</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{accountTransactions.map((transaction) => (
+													<TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+														<TableCell>
+															<Badge className={transaction.is_credit 
+																? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+																: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+															}>
+																{transaction.type_display}
+															</Badge>
+														</TableCell>
+														<TableCell>
+															<div className="flex items-center space-x-2">
+																<Copy className="h-4 w-4 text-gray-400" />
+																<span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+																	{transaction.reference}
+																</span>
+															</div>
+														</TableCell>
+														<TableCell>
+															<div className="flex items-center space-x-1">
+																<DollarSign className={`h-4 w-4 ${transaction.is_credit ? 'text-green-600' : 'text-red-600'}`} />
+																<span className={`font-medium ${transaction.is_credit ? 'text-green-600' : 'text-red-600'}`}>
+																	{transaction.formatted_amount || `${transaction.is_credit ? '+' : '-'}${parseFloat(transaction.amount).toFixed(2)} FCFA`}
+																</span>
+															</div>
+														</TableCell>
+														<TableCell>
+															<span className="text-sm text-gray-600 dark:text-gray-400">
+																{parseFloat(transaction.balance_before).toFixed(2)} FCFA
+															</span>
+														</TableCell>
+														<TableCell>
+															<span className="text-sm text-gray-600 dark:text-gray-400">
+																{parseFloat(transaction.balance_after).toFixed(2)} FCFA
+															</span>
+														</TableCell>
+														<TableCell>
+															<span className="text-sm text-gray-700 dark:text-gray-300">
+																{transaction.description}
+															</span>
+														</TableCell>
+														<TableCell>
+															{transaction.related_payment_reference ? (
+																<div className="flex items-center space-x-2">
+																	<Copy className="h-3 w-3 text-gray-400" />
+																	<span className="text-xs font-mono text-gray-600 dark:text-gray-400">
+																		{transaction.related_payment_reference}
+																	</span>
+																</div>
+															) : (
+																<span className="text-xs text-gray-400">N/A</span>
+															)}
+														</TableCell>
+														<TableCell>
+															<div className="flex items-center space-x-2">
+																<Calendar className="h-4 w-4 text-gray-400" />
+																<span className="text-sm text-gray-600 dark:text-gray-400">
+																	{transaction.created_at 
+																		? new Date(transaction.created_at).toLocaleString()
+																		: 'Inconnu'
+																	}
+																</span>
+															</div>
+														</TableCell>
+													</TableRow>
+												))}
+											</TableBody>
+										</Table>
+									</div>
+									
+									{/* Pagination */}
+									{(accountTransactionsNext || accountTransactionsPrevious) && (
+										<div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => {
+													if (accountTransactionsPrevious) {
+														const prevPage = accountTransactionsCurrentPage - 1
+														handleOpenAccountTransactions(accountTransactionsPartner!, prevPage, null, accountTransactionsPrevious)
+													}
+												}}
+												disabled={!accountTransactionsPrevious || accountTransactionsLoading}
+											>
+												<ChevronLeft className="h-4 w-4 mr-1" />
+												Précédent
+											</Button>
+											<div className="text-sm text-gray-600 dark:text-gray-400">
+												Page {accountTransactionsCurrentPage} ({accountTransactionsCount} total)
+											</div>
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => {
+													if (accountTransactionsNext) {
+														const nextPage = accountTransactionsCurrentPage + 1
+														handleOpenAccountTransactions(accountTransactionsPartner!, nextPage, accountTransactionsNext, null)
+													}
+												}}
+												disabled={!accountTransactionsNext || accountTransactionsLoading}
+											>
+												Suivant
+												<ChevronRight className="h-4 w-4 ml-1" />
+											</Button>
+										</div>
+									)}
+								</>
 							)}
 						</div>
 					)}

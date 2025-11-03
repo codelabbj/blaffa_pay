@@ -108,7 +108,6 @@ export default function EditPlatformPage() {
           is_active: data.is_active ?? true,
         })
         
-        toast({ title: "Succès", description: "Plateforme chargée avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setFetchError(errorMessage)

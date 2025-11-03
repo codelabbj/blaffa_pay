@@ -92,7 +92,6 @@ export default function ApiConfigPage() {
         setConfigs(data.results || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-        toast({ title: "Succès", description: "Configurations API chargées avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -126,7 +125,6 @@ export default function ApiConfigPage() {
     setDetailConfig(null)
     try {
       setDetailConfig(config)
-      toast({ title: "Succès", description: "Détails de la configuration chargés" })
     } catch (err: any) {
       setDetailError(extractErrorMessages(err))
       toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
@@ -195,11 +193,7 @@ export default function ApiConfigPage() {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      })
-
-      toast({ 
-        title: "Succès", 
-        description: `Configuration API ${editConfig ? 'mise à jour' : 'créée'} avec succès` 
+        successMessage: `Configuration API ${editConfig ? 'mise à jour' : 'créée'} avec succès`
       })
       
       if (editConfig) {

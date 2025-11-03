@@ -99,7 +99,6 @@ export default function CreatePermissionPage() {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/`
         const data = await apiFetch(endpoint)
         setPartners(data.partners || [])
-        toast({ title: "Succès", description: "Partenaires chargés avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setPartnersError(errorMessage)
@@ -120,7 +119,6 @@ export default function CreatePermissionPage() {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/`
         const data = await apiFetch(endpoint)
         setPlatforms(data.results || [])
-        toast({ title: "Succès", description: "Plateformes chargées avec succès" })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setPlatformsError(errorMessage)

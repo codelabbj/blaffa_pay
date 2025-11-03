@@ -142,10 +142,6 @@ export default function TransactionsPage() {
       const data = await apiFetch(endpoint);
       setTransactions(data.results || []);
       setTotalCount(data.count || 0);
-      toast({
-        title: t("transactions.success"),
-        description: t("transactions.loadedSuccessfully"),
-      });
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("transactions.failedToLoad");
       setError(errorMessage);
@@ -261,8 +257,8 @@ export default function TransactionsPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(pendingEditPayload),
+        successMessage: t("transactions.transactionUpdatedSuccessfully") || "Transaction mise à jour avec succès"
       })
-      toast({ title: t("transactions.editSuccess"), description: t("transactions.transactionUpdatedSuccessfully") })
       setShowEditConfirm(false)
       setPendingEditPayload(null)
       setEditModalOpen(false)
@@ -296,10 +292,9 @@ export default function TransactionsPage() {
     setError("")
     try {
       const endpoint = `${baseUrl}api/payments/transactions/${deleteUid}/`
-      await apiFetch(endpoint, { method: "DELETE" })
-      toast({
-        title: t("transactions.deleteSuccess"),
-        description: t("transactions.transactionDeletedSuccessfully"),
+      await apiFetch(endpoint, { 
+        method: "DELETE",
+        successMessage: t("transactions.transactionDeletedSuccessfully") || "Transaction supprimée avec succès"
       })
       setDeleteUid(null)
       // Refetch transactions
@@ -417,10 +412,7 @@ export default function TransactionsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_uid: userUid }),
-      })
-      toast({
-        title: t("transactions.assignSuccess") || "Assigned",
-        description: t("transactions.assignedSuccessfully") || "Transaction assigned successfully.",
+        successMessage: t("transactions.assignedSuccessfully") || "Transaction assignée avec succès"
       })
       // Refresh list
       setCurrentPage(1)
@@ -455,10 +447,7 @@ export default function TransactionsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: retryReason.trim() }),
-      })
-      toast({
-        title: t("transactions.retryQueued") || "Retry queued",
-        description: t("transactions.retryRequested") || "Retry request sent successfully.",
+        successMessage: t("transactions.retryRequested") || "Demande de relance envoyée avec succès"
       })
       setRetryModalOpen(false)
       setRetryTransaction(null)
@@ -497,10 +486,7 @@ export default function TransactionsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: cancelReason.trim() }),
-      })
-      toast({
-        title: t("transactions.cancelQueued") || "Cancel queued",
-        description: t("transactions.cancelRequested") || "Cancel request sent successfully.",
+        successMessage: t("transactions.cancelRequested") || "Demande d'annulation envoyée avec succès"
       })
       setCancelModalOpen(false)
       setCancelTransaction(null)
@@ -538,10 +524,7 @@ export default function TransactionsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: successReason.trim() }),
-      })
-      toast({
-        title: t("transactions.successQueued") || "Success queued",
-        description: t("transactions.successRequested") || "Success update sent successfully.",
+        successMessage: t("transactions.successRequested") || "Success update sent successfully."
       })
       setSuccessModalOpen(false)
       setSuccessTransaction(null)
@@ -579,10 +562,7 @@ export default function TransactionsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: failedReason.trim() }),
-      })
-      toast({
-        title: t("transactions.failedQueued") || "Mark as failed queued",
-        description: t("transactions.failedRequested") || "Mark as failed request sent successfully.",
+        successMessage: t("transactions.failedRequested") || "Mark as failed request sent successfully."
       })
       setFailedModalOpen(false)
       setFailedTransaction(null)

@@ -35,7 +35,6 @@ export default function UserPlatformsPage() {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/permissions/user_platforms/?user_uid=${userUid}`
         const data = await apiFetch(endpoint)
         setUserPlatformsData(data)
-        toast({ title: "Succès", description: "Permissions utilisateur chargées avec succès" })
       } catch (err: any) {
         setUserPlatformsError(extractErrorMessages(err))
         toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./api";
+import { toast } from "@/hooks/use-toast";
 
 // Helper function to get access token from both localStorage and cookies
 function getAccessTokenFromStorage() {
@@ -70,21 +71,51 @@ export function useApi() {
     }
   }, []);
 
-  const apiFetch = useCallback(async (input: RequestInfo, init: RequestInit = {}) => {
+  const apiFetch = useCallback(async (input: RequestInfo, init: RequestInit & { showSuccessToast?: boolean; successMessage?: string } = {}) => {
     // Try to get access token from both localStorage and cookies
     let accessToken = getAccessTokenFromStorage() || getAccessTokenFromCookie();
     
+    // Extract showSuccessToast option and remove it from init
+    const { showSuccessToast = true, successMessage, ...fetchInit } = init;
+    
     // Attach access token if available
-    const headers = new Headers(init.headers || {});
+    const headers = new Headers(fetchInit.headers || {});
     if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
     
-    let res = await fetch(input, { ...init, headers });
+    // Determine HTTP method
+    // IMPORTANT: GET requests never show success toasts
+    let method = 'GET'; // Default to GET
+    
+    // Check if method is specified in fetchInit (most common case)
+    if (fetchInit.method) {
+      method = String(fetchInit.method).trim().toUpperCase();
+    } 
+    // If input is a Request object, check its method property
+    else if (typeof input === 'object' && input !== null && 'method' in input && input.method) {
+      method = String(input.method).trim().toUpperCase();
+    }
+    
+    // Ensure method is valid - default to GET if empty or invalid
+    if (!method || (method !== 'GET' && method !== 'POST' && method !== 'PUT' && method !== 'PATCH' && method !== 'DELETE')) {
+      method = 'GET';
+    }
+    
+    // CRITICAL: Never show success toasts for GET requests, regardless of other settings
+    const shouldShowSuccessToast = showSuccessToast && method !== 'GET';
+    
+    // Debug log to help identify issues (can be removed in production)
+    if (process.env.NODE_ENV === 'development' && method === 'GET') {
+      console.log('[useApi] GET request detected - success toast will NOT be shown');
+    }
+    
+    let res = await fetch(input, { ...fetchInit, headers });
     let data;
     
     try {
       data = await res.clone().json();
     } catch (e) {
-      // If not JSON, just return the response
+      // If not JSON, just return the response without showing any toast
+      // Success toasts will only show for JSON responses below
       return res;
     }
     
@@ -96,10 +127,12 @@ export function useApi() {
         headers.set('Authorization', `Bearer ${accessToken}`);
         
         // Retry the original request with new token
-        res = await fetch(input, { ...init, headers });
+        res = await fetch(input, { ...fetchInit, headers });
         try {
           data = await res.clone().json();
         } catch (e) {
+          // If not JSON, just return the response without showing any toast
+          // Success toasts will only show for JSON responses below
           return res;
         }
         
@@ -122,6 +155,49 @@ export function useApi() {
     if (!res.ok) {
       // Throw the full data object so error extraction works for non_field_errors and other fields
       throw data;
+    }
+    
+    // Show success toast for successful non-GET requests only
+    // FINAL SAFETY CHECK: Never show toasts for GET requests under any circumstances
+    if (shouldShowSuccessToast && res.ok && method !== 'GET') {
+      // Double-check method is not GET (extra safety)
+      if (method === 'GET') {
+        console.warn('[useApi] Attempted to show success toast for GET request - this should never happen!');
+        return data;
+      }
+      
+      // Generate default success message based on method if not provided
+      let defaultMessage = "Opération réussie";
+      if (!successMessage) {
+        switch (method) {
+          case 'POST':
+            defaultMessage = "Créé avec succès";
+            break;
+          case 'PUT':
+          case 'PATCH':
+            defaultMessage = "Mis à jour avec succès";
+            break;
+          case 'DELETE':
+            defaultMessage = "Supprimé avec succès";
+            break;
+          default:
+            defaultMessage = "Opération réussie";
+        }
+      }
+      
+      // Show toast immediately
+      try {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[useApi] Showing success toast for', method, 'request:', successMessage || defaultMessage);
+        }
+        toast({
+          title: "Succès",
+          description: successMessage || defaultMessage,
+          variant: "success",
+        });
+      } catch (toastError) {
+        console.error('[useApi] Failed to show success toast:', toastError);
+      }
     }
     
     return data;

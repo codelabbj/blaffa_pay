@@ -129,10 +129,6 @@ export default function UsersPage() {
         setUsers(users);
         setTotalCount(totalCount);
         setTotalPages(totalPages);
-        toast({
-          title: "Succès",
-          description: "Utilisateurs chargés avec succès",
-        });
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || "Échec du chargement des utilisateurs";
         setError(errorMessage);
@@ -180,8 +176,8 @@ export default function UsersPage() {
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${user.uid}/activate/`, {
         method: "PATCH",
+        successMessage: "Utilisateur activé avec succès"
       })
-      toast({ title: "Utilisateur activé", description: data.message || "Utilisateur activé avec succès" })
       setUsers((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, ...data.user } : u)))
     } catch (err: any) {
       toast({ title: "Échec de l'activation", description: extractErrorMessages(err) || "Impossible d'activer l'utilisateur", variant: "destructive" })
@@ -197,8 +193,8 @@ export default function UsersPage() {
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${user.uid}/deactivate/`, {
         method: "PATCH",
+        successMessage: "Utilisateur désactivé avec succès"
       })
-      toast({ title: "Utilisateur désactivé", description: data.message || "Utilisateur désactivé avec succès" })
       setUsers((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, ...data.user } : u)))
     } catch (err: any) {
       toast({ title: "Échec de la désactivation", description: extractErrorMessages(err) || "Impossible de désactiver l'utilisateur", variant: "destructive" })
@@ -227,8 +223,8 @@ export default function UsersPage() {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/bulk-action/`, {
         method: "POST",
         body: JSON.stringify({ action, user_ids: selectedUids }),
+        successMessage: "Action en lot terminée"
       })
-      toast({ title: "Action en lot réussie", description: data.message || "Action en lot terminée" })
       setUsers((prev) => prev.map((u) => selectedUids.includes(u.uid) ? { ...u, ...data.user } : u))
       setSelectedUids([])
       setCurrentPage(1)
@@ -248,7 +244,6 @@ export default function UsersPage() {
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${uid}/`)
       setDetailUser(data)
-      toast({ title: "Détails chargés", description: "Détails de l'utilisateur chargés avec succès" })
     } catch (err: any) {
       setDetailError(extractErrorMessages(err))
       toast({ title: "Échec du chargement des détails", description: extractErrorMessages(err), variant: "destructive" })
@@ -272,9 +267,9 @@ export default function UsersPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email_verified: true }),
+        successMessage: "Email vérifié avec succès"
       });
       setDetailUser((prev: any) => prev ? { ...prev, email_verified: true } : prev);
-      toast({ title: "Email vérifié", description: "Email vérifié avec succès" });
     } catch (err: any) {
       toast({ title: "Échec de la vérification", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -291,9 +286,9 @@ export default function UsersPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone_verified: true }),
+        successMessage: "Téléphone vérifié avec succès"
       });
       setDetailUser((prev: any) => prev ? { ...prev, phone_verified: true } : prev);
-      toast({ title: "Téléphone vérifié", description: "Téléphone vérifié avec succès" });
     } catch (err: any) {
       toast({ title: "Échec de la vérification", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -310,9 +305,9 @@ export default function UsersPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email_verified: verify }),
+        successMessage: verify ? "Email vérifié avec succès" : "Email non vérifié avec succès"
       });
       setDetailUser((prev: any) => prev ? { ...prev, email_verified: verify } : prev);
-      toast({ title: "Email vérifié", description: verify ? "Email vérifié avec succès" : "Email non vérifié avec succès" });
     } catch (err: any) {
       toast({ title: "Échec de la vérification", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -329,9 +324,9 @@ export default function UsersPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone_verified: verify }),
+        successMessage: verify ? "Téléphone vérifié avec succès" : "Téléphone non vérifié avec succès"
       });
       setDetailUser((prev: any) => prev ? { ...prev, phone_verified: verify } : prev);
-      toast({ title: "Téléphone vérifié", description: verify ? "Téléphone vérifié avec succès" : "Téléphone non vérifié avec succès" });
     } catch (err: any) {
       toast({ title: "Échec de la vérification", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -348,9 +343,9 @@ export default function UsersPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_partner: isPartner }),
+        successMessage: isPartner ? "Statut partenaire activé avec succès" : "Statut partenaire désactivé avec succès"
       });
       setDetailUser((prev: any) => prev ? { ...prev, is_partner: isPartner } : prev);
-      toast({ title: "Statut partenaire modifié", description: isPartner ? "Statut partenaire activé avec succès" : "Statut partenaire désactivé avec succès" });
     } catch (err: any) {
       toast({ title: "Échec de la modification du statut partenaire", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -367,9 +362,9 @@ export default function UsersPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ can_process_ussd_transaction: canProcessUssd }),
+        successMessage: canProcessUssd ? "Transactions USSD autorisées avec succès" : "Transactions USSD interdites avec succès"
       });
       setDetailUser((prev: any) => prev ? { ...prev, can_process_ussd_transaction: canProcessUssd } : prev);
-      toast({ title: "Statut USSD modifié", description: canProcessUssd ? "Transactions USSD autorisées avec succès" : "Transactions USSD interdites avec succès" });
     } catch (err: any) {
       toast({ title: "Échec de la modification du statut USSD", description: extractErrorMessages(err), variant: "destructive" });
     } finally {

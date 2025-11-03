@@ -591,6 +591,7 @@ export default function PartnerPage() {
 										<TableHead className="font-semibold text-xs sm:text-sm">Statut</TableHead>
 										<TableHead className="font-semibold text-xs sm:text-sm">USSD</TableHead>
 										<TableHead className="font-semibold text-xs sm:text-sm">Commission</TableHead>
+										<TableHead className="font-semibold text-xs sm:text-sm">Solde Compte</TableHead>
 										<TableHead className="font-semibold text-xs sm:text-sm">Rejoint</TableHead>
 										<TableHead className="font-semibold text-xs sm:text-sm">Actions</TableHead>
 								</TableRow>
@@ -662,6 +663,14 @@ export default function PartnerPage() {
 														<Copy className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
 														<span className="font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm">
 															XOF {parseFloat(partner.total_commission || 0).toFixed(2)}
+														</span>
+													</div>
+												</TableCell>
+												<TableCell>
+													<div className="flex items-center space-x-1">
+														<Wallet className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+														<span className="font-medium text-green-600 dark:text-green-400 text-xs sm:text-sm">
+															XOF {parseFloat(partner.account_balance || 0).toFixed(2)}
 														</span>
 													</div>
 												</TableCell>

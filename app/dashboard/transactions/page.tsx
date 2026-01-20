@@ -474,10 +474,6 @@ export default function TransactionsPage() {
   }
   const handleCancelSubmit = async () => {
     if (!cancelTransaction) return
-    if (!cancelReason.trim()) {
-      setCancelError(t("transactions.cancelReasonRequired") || "Reason is required")
-      return
-    }
     setCancelLoading(true)
     setCancelError("")
     try {
@@ -485,7 +481,7 @@ export default function TransactionsPage() {
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: cancelReason.trim() }),
+        body: JSON.stringify({ reason: cancelReason.trim() || "Aucune raison fournie" }),
         successMessage: t("transactions.cancelRequested") || "Demande d'annulation envoyée avec succès"
       })
       setCancelModalOpen(false)
@@ -512,10 +508,6 @@ export default function TransactionsPage() {
   }
   const handleSuccessSubmit = async () => {
     if (!successTransaction) return
-    if (!successReason.trim()) {
-      setSuccessError(t("transactions.successReasonRequired") || "Reason is required")
-      return
-    }
     setSuccessLoading(true)
     setSuccessError("")
     try {
@@ -523,7 +515,7 @@ export default function TransactionsPage() {
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: successReason.trim() }),
+        body: JSON.stringify({ reason: successReason.trim() || "Aucune raison fournie" }),
         successMessage: t("transactions.successRequested") || "Success update sent successfully."
       })
       setSuccessModalOpen(false)
@@ -550,10 +542,6 @@ export default function TransactionsPage() {
   }
   const handleFailedSubmit = async () => {
     if (!failedTransaction) return
-    if (!failedReason.trim()) {
-      setFailedError(t("transactions.failedReasonRequired") || "Reason is required")
-      return
-    }
     setFailedLoading(true)
     setFailedError("")
     try {
@@ -561,7 +549,7 @@ export default function TransactionsPage() {
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: failedReason.trim() }),
+        body: JSON.stringify({ reason: failedReason.trim() || "Aucune raison fournie" }),
         successMessage: t("transactions.failedRequested") || "Mark as failed request sent successfully."
       })
       setFailedModalOpen(false)

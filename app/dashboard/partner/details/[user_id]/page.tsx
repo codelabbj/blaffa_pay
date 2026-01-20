@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 // Colors for consistent theming
 const COLORS = {
   primary: '#3B82F6',
-  secondary: '#10B981', 
+  secondary: '#10B981',
   accent: '#F59E0B',
   danger: '#EF4444',
   warning: '#F97316',
@@ -66,13 +66,13 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => router.back()}
                 className="flex items-center space-x-2"
               >
@@ -122,10 +122,10 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                     </h2>
                     <p className="text-gray-600 dark:text-gray-400">UID: {partner.uid}</p>
                   </div>
-                  <Badge 
+                  <Badge
                     className={
-                      partner.is_active 
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+                      partner.is_active
+                        ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                         : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                     }
                   >
@@ -173,7 +173,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Créé</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {partner.created_at ? new Date(partner.created_at).toLocaleDateString() : 'Inconnu'}
+                        {partner.created_at ? new Date(partner.created_at).toLocaleString() : 'Inconnu'}
                       </p>
                     </div>
                   </div>
@@ -182,7 +182,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Dernière connexion</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {partner.last_login_at ? new Date(partner.last_login_at).toLocaleDateString() : 'Jamais'}
+                        {partner.last_login_at ? new Date(partner.last_login_at).toLocaleString() : 'Jamais'}
                       </p>
                     </div>
                   </div>
@@ -259,7 +259,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                   </div>
                   <span>Financial Information</span>
                 </CardTitle>
-        </CardHeader>
+              </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex items-center space-x-3">
@@ -323,9 +323,9 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
                       </Badge>
                     </div>
                   </div>
-            </div>
-        </CardContent>
-      </Card>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       </div>

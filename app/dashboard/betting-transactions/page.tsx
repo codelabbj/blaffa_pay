@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, TrendingUp, Clock, ArrowUpDown as ArrowUpDownIcon, Plus, Eye, Edit, Trash2, ToggleLeft, ToggleRight, BarChart3, Shield, User, AlertTriangle, RefreshCw } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, TrendingUp, Clock, ArrowUpDown as ArrowUpDownIcon, Plus, Eye, Edit, Trash2, ToggleLeft, ToggleRight, BarChart3, Shield, User, AlertTriangle, RefreshCw, MoreHorizontal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
@@ -18,6 +18,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface BettingTransaction {
   uid: string;
@@ -64,6 +65,26 @@ export default function BettingTransactionsPage() {
   const [cancellationLoading, setCancellationLoading] = useState(false)
   const [cancellationError, setCancellationError] = useState("")
   const [stats, setStats] = useState<any | null>(null)
+
+  // Success modal state
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [successReason, setSuccessReason] = useState("")
+  const [successLoading, setSuccessLoading] = useState(false)
+  const [successError, setSuccessError] = useState("")
+  const [successTransaction, setSuccessTransaction] = useState<any | null>(null)
+
+  // Refund modal state
+  const [refundModalOpen, setRefundModalOpen] = useState(false)
+  const [refundReason, setRefundReason] = useState("")
+  const [refundError, setRefundError] = useState("")
+  const [refundTransaction, setRefundTransaction] = useState<any | null>(null)
+
+  // Failed modal state
+  const [failedModalOpen, setFailedModalOpen] = useState(false)
+  const [failedReason, setFailedReason] = useState("Tentative de relance après timeout")
+  const [failedLoading, setFailedLoading] = useState(false)
+  const [failedError, setFailedError] = useState("")
+  const [failedTransaction, setFailedTransaction] = useState<any | null>(null)
 
   // Fetch transactions from API
   useEffect(() => {
@@ -167,36 +188,124 @@ export default function BettingTransactionsPage() {
   // Process cancellation
   const handleProcessCancellation = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!detailTransaction) return
+    if (!detailTransaction && !refundTransaction) return
+
+    const targetTransaction = detailTransaction || refundTransaction
+    if (!targetTransaction) return
 
     setCancellationLoading(true)
     setCancellationError("")
     try {
       const payload = {
-        success: true,
-        admin_notes: cancellationForm.admin_notes,
+        reason: (refundReason || cancellationForm.admin_notes || "Autre raison").trim(),
+        admin_notes: (cancellationForm.admin_notes || refundReason || "Aucune note fournie").trim(),
       }
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${detailTransaction.uid}/process_cancellation/`
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${targetTransaction.uid}/refund-partner/`
       const data = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-        successMessage: "Demande d'annulation traitée avec succès"
+        successMessage: "Remboursement effectué avec succès"
       })
-      
+
       setCancellationModalOpen(false)
+      setRefundModalOpen(false)
       setCancellationForm({ admin_notes: "" })
-      
-      // Refresh transaction details
-      const refreshEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${detailTransaction.uid}/`
-      const refreshData = await apiFetch(refreshEndpoint)
-      setDetailTransaction(refreshData)
+      setRefundReason("")
+
+      // Refresh data
+      setCurrentPage(1)
+      router.refresh()
     } catch (err: any) {
-      setCancellationError(extractErrorMessages(err))
-      toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+      const errMsg = extractErrorMessages(err)
+      setCancellationError(errMsg)
+      setRefundError(errMsg)
+      toast({ title: "Erreur", description: errMsg, variant: "destructive" })
     } finally {
       setCancellationLoading(false)
+    }
+  }
+
+  // Open success modal
+  const openSuccessModal = (tx: BettingTransaction) => {
+    setSuccessTransaction(tx)
+    setSuccessReason("")
+    setSuccessError("")
+    setSuccessModalOpen(true)
+  }
+
+  // Handle success submit
+  const handleSuccessSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!successTransaction) return
+
+    setSuccessLoading(true)
+    setSuccessError("")
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${successTransaction.uid}/mark-as-success/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: (successReason.trim() || "Aucune raison fournie") }),
+        successMessage: "Transaction marquée comme succès"
+      })
+      setSuccessModalOpen(false)
+      setSuccessTransaction(null)
+      setSuccessReason("")
+      setCurrentPage(1)
+      router.refresh()
+    } catch (err: any) {
+      const errMsg = extractErrorMessages(err)
+      setSuccessError(errMsg)
+      toast({ title: "Erreur", description: errMsg, variant: "destructive" })
+    } finally {
+      setSuccessLoading(false)
+    }
+  }
+
+  // Open refund modal
+  const openRefundModal = (tx: BettingTransaction) => {
+    setRefundTransaction(tx)
+    setRefundReason("")
+    setRefundError("")
+    setRefundModalOpen(true)
+  }
+
+  // Open failed modal
+  const openFailedModal = (tx: BettingTransaction) => {
+    setFailedTransaction(tx)
+    setFailedReason("Tentative de relance après timeout")
+    setFailedError("")
+    setFailedModalOpen(true)
+  }
+
+  // Handle failed submit
+  const handleFailedSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!failedTransaction) return
+
+    setFailedLoading(true)
+    setFailedError("")
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${failedTransaction.uid}/mark-as-failed/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: (failedReason.trim() || "Aucune raison fournie") }),
+        successMessage: "Transaction marquée comme échec"
+      })
+      setFailedModalOpen(false)
+      setFailedTransaction(null)
+      setFailedReason("Tentative de relance après timeout")
+      setCurrentPage(1)
+      router.refresh()
+    } catch (err: any) {
+      const errMsg = extractErrorMessages(err)
+      setFailedError(errMsg)
+      toast({ title: "Erreur", description: errMsg, variant: "destructive" })
+    } finally {
+      setFailedLoading(false)
     }
   }
 
@@ -208,10 +317,10 @@ export default function BettingTransactionsPage() {
       cancellation_requested: { color: "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300", icon: AlertTriangle, text: "Annulation demandée" },
       cancelled: { color: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300", icon: XCircle, text: "Annulé" },
     }
-    
+
     const statusInfo = statusMap[status] || { color: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300", icon: Clock, text: status }
     const Icon = statusInfo.icon
-    
+
     return (
       <Badge className={statusInfo.color}>
         <div className="flex items-center space-x-1">
@@ -252,7 +361,7 @@ export default function BettingTransactionsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -435,7 +544,7 @@ export default function BettingTransactionsPage() {
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+                <ErrorDisplay error={error} onRetry={() => {/* retry function */ }} />
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -525,26 +634,54 @@ export default function BettingTransactionsPage() {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {transaction.created_at 
-                                ? new Date(transaction.created_at).toLocaleDateString()
-                                : 'Inconnu'
-                              }
-                            </span>
+                            <div className="flex flex-col">
+                              <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                                {transaction.created_at
+                                  ? new Date(transaction.created_at).toLocaleDateString()
+                                  : 'Inconnu'
+                                }
+                              </span>
+                              {transaction.created_at && (
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {new Date(transaction.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            <Link href={`/dashboard/betting-transactions/${transaction.uid}`}>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-blue-900/30"
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                Détails
-                              </Button>
-                            </Link>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                  <span className="sr-only">Ouvrir le menu</span>
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/dashboard/betting-transactions/${transaction.uid}`} className="flex items-center">
+                                    <Eye className="h-4 w-4 mr-2 text-blue-600" />
+                                    <span>Détails</span>
+                                  </Link>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem onClick={() => openSuccessModal(transaction)}>
+                                  <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                                  <span>Marquer comme Succès</span>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem onClick={() => openFailedModal(transaction)}>
+                                  <XCircle className="h-4 w-4 mr-2 text-red-600" />
+                                  <span>Marquer comme Échec</span>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem onClick={() => openRefundModal(transaction)}>
+                                  <RefreshCw className="h-4 w-4 mr-2 text-orange-600" />
+                                  <span>Rembourser</span>
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -811,7 +948,7 @@ export default function BettingTransactionsPage() {
                         <div>
                           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Date de demande:</span>
                           <p className="text-sm text-gray-900 dark:text-gray-100">
-                            {detailTransaction.cancellation_requested_at 
+                            {detailTransaction.cancellation_requested_at
                               ? new Date(detailTransaction.cancellation_requested_at).toLocaleString()
                               : 'Non disponible'
                             }
@@ -842,7 +979,7 @@ export default function BettingTransactionsPage() {
                   <div>
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Créé le:</span>
                     <p className="text-sm text-gray-900 dark:text-gray-100">
-                      {detailTransaction.created_at 
+                      {detailTransaction.created_at
                         ? new Date(detailTransaction.created_at).toLocaleString()
                         : 'Non disponible'
                       }
@@ -851,7 +988,7 @@ export default function BettingTransactionsPage() {
                   <div>
                     <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Mis à jour le:</span>
                     <p className="text-sm text-gray-900 dark:text-gray-100">
-                      {detailTransaction.updated_at 
+                      {detailTransaction.updated_at
                         ? new Date(detailTransaction.updated_at).toLocaleString()
                         : 'Non disponible'
                       }
@@ -933,6 +1070,159 @@ export default function BettingTransactionsPage() {
                   Annuler
                 </Button>
               </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Mark as Success Modal */}
+        <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2 text-green-600">
+                <CheckCircle className="h-5 w-5" />
+                <span>Marquer comme Succès</span>
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSuccessSubmit} className="space-y-4">
+              {successError && <ErrorDisplay error={successError} />}
+              <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <p className="text-sm text-green-800 dark:text-green-300">
+                  Transaction: <span className="font-mono font-bold">{successTransaction?.reference}</span>
+                </p>
+                <p className="text-xs text-green-700 dark:text-green-400 mt-1">
+                  Cette action marquera manuellement cette transaction comme réussie.
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="success_reason">Raison / Notes</Label>
+                <Textarea
+                  id="success_reason"
+                  placeholder="Expliquez pourquoi vous marquez cette transaction comme succès..."
+                  value={successReason}
+                  onChange={(e) => setSuccessReason(e.target.value)}
+                  className="mt-1"
+                  rows={3}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSuccessModalOpen(false)}
+                  disabled={successLoading}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  disabled={successLoading}
+                >
+                  {successLoading ? "Traitement..." : "Confirmer"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Refund / Cancellation Modal (From Actions Menu) */}
+        <Dialog open={refundModalOpen} onOpenChange={setRefundModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2 text-orange-600">
+                <RefreshCw className="h-5 w-5" />
+                <span>Rembourser la transaction</span>
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleProcessCancellation} className="space-y-4">
+              {refundError && <ErrorDisplay error={refundError} />}
+              <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                <p className="text-sm text-orange-800 dark:text-orange-300">
+                  Transaction: <span className="font-mono font-bold">{refundTransaction?.reference}</span>
+                </p>
+                <p className="text-xs text-orange-700 dark:text-orange-400 mt-1">
+                  Cette action annulera la transaction et remboursera le partenaire.
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="refund_reason">Raison / Notes</Label>
+                <Textarea
+                  id="refund_reason"
+                  placeholder="Raison du remboursement..."
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value)}
+                  className="mt-1"
+                  rows={3}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setRefundModalOpen(false)}
+                  disabled={cancellationLoading}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  className="bg-orange-600 hover:bg-orange-700 text-white"
+                  disabled={cancellationLoading}
+                >
+                  {cancellationLoading ? "Traitement..." : "Confirmer le remboursement"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Mark as Failed Modal */}
+        <Dialog open={failedModalOpen} onOpenChange={setFailedModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2 text-red-600">
+                <XCircle className="h-5 w-5" />
+                <span>Marquer comme Échec</span>
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleFailedSubmit} className="space-y-4">
+              {failedError && <ErrorDisplay error={failedError} />}
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p className="text-sm text-red-800 dark:text-red-300">
+                  Transaction: <span className="font-mono font-bold">{failedTransaction?.reference}</span>
+                </p>
+                <p className="text-xs text-red-700 dark:text-red-400 mt-1">
+                  Cette action marquera manuellement cette transaction comme échouée.
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="failed_reason">Raison / Notes</Label>
+                <Textarea
+                  id="failed_reason"
+                  placeholder="Expliquez pourquoi vous marquez cette transaction comme échec..."
+                  value={failedReason}
+                  onChange={(e) => setFailedReason(e.target.value)}
+                  className="mt-1"
+                  rows={3}
+                />
+              </div>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setFailedModalOpen(false)}
+                  disabled={failedLoading}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  disabled={failedLoading}
+                >
+                  {failedLoading ? "Traitement..." : "Confirmer l'échec"}
+                </Button>
+              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>

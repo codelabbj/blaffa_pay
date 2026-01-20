@@ -243,7 +243,7 @@ export default function PartnerTransfersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -366,8 +366,8 @@ export default function PartnerTransfersPage() {
               </Select>
 
               {/* Sort */}
-              <Select 
-                value={sortField || ""} 
+              <Select
+                value={sortField || ""}
                 onValueChange={(value) => setSortField(value as "amount" | "created_at" | "status" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
@@ -417,7 +417,7 @@ export default function PartnerTransfersPage() {
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+                <ErrorDisplay error={error} onRetry={() => {/* retry function */ }} />
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -488,17 +488,24 @@ export default function PartnerTransfersPage() {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {transfer.created_at 
-                                ? new Date(transfer.created_at).toLocaleDateString()
-                                : 'Inconnu'
-                              }
-                            </span>
+                            <div className="flex flex-col">
+                              <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                                {transfer.created_at
+                                  ? new Date(transfer.created_at).toLocaleDateString()
+                                  : 'Inconnu'
+                                }
+                              </span>
+                              {transfer.created_at && (
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {new Date(transfer.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleOpenDetail(transfer)}
                             className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-blue-900/30"
@@ -713,7 +720,7 @@ export default function PartnerTransfersPage() {
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Créé le</label>
                     <p className="text-sm text-gray-900 dark:text-gray-100">
-                      {detailTransfer.created_at 
+                      {detailTransfer.created_at
                         ? new Date(detailTransfer.created_at).toLocaleString()
                         : 'Non disponible'
                       }
@@ -722,7 +729,7 @@ export default function PartnerTransfersPage() {
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Terminé le</label>
                     <p className="text-sm text-gray-900 dark:text-gray-100">
-                      {detailTransfer.completed_at 
+                      {detailTransfer.completed_at
                         ? new Date(detailTransfer.completed_at).toLocaleString()
                         : 'Non terminé'
                       }
@@ -731,7 +738,7 @@ export default function PartnerTransfersPage() {
                   <div>
                     <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Mis à jour le</label>
                     <p className="text-sm text-gray-900 dark:text-gray-100">
-                      {detailTransfer.updated_at 
+                      {detailTransfer.updated_at
                         ? new Date(detailTransfer.updated_at).toLocaleString()
                         : 'Non disponible'
                       }

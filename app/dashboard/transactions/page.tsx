@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash, CreditCard, TrendingUp, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Plus, Filter, MoreHorizontal, Eye, TrendingDown } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash, CreditCard, TrendingUp, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Plus, Filter, MoreHorizontal, Eye, TrendingDown, Calendar } from "lucide-react"
 import {
   Dialog,
   DialogTrigger,
@@ -174,37 +174,37 @@ export default function TransactionsPage() {
     setSortField(field)
   }
 
-  
-    const statusMap: Record<string, { label: string; color: string }> = {
-      pending:      { label: "En attente", color: "#ffc107" },      // jaune
-      sent_to_user: { label: "Envoyé", color: "#17a2b8" },          // bleu clair
-      processing:   { label: "En cours", color: "#fd7e14" },        // orange
-      completed:    { label: "Terminé", color: "#28a745" },         // vert foncé
-      success:      { label: "Succès", color: "#20c997" },          // turquoise
-      failed:       { label: "Échec", color: "#dc3545" },           // rouge
-      cancelled:    { label: "Annulé", color: "#6c757d" },          // gris
-      timeout:      { label: "Expiré", color: "#6f42c1" },          // violet
-    };
 
-    const getStatusBadge = (status: string) => {
-      const info = statusMap[status] || { label: status, color: "#adb5bd" };
-      return (
-        <span
-          style={{
-            backgroundColor: info.color,
-            color: "#fff",
-            borderRadius: "0.375rem",
-            padding: "0.25em 0.75em",
-            fontWeight: 500,
-            fontSize: "0.875rem",
-            display: "inline-block",
-          }}
-        >
-          {info.label}
-        </span>
-      );
-    };
-   
+  const statusMap: Record<string, { label: string; color: string }> = {
+    pending: { label: "En attente", color: "#ffc107" },      // jaune
+    sent_to_user: { label: "Envoyé", color: "#17a2b8" },          // bleu clair
+    processing: { label: "En cours", color: "#fd7e14" },        // orange
+    completed: { label: "Terminé", color: "#28a745" },         // vert foncé
+    success: { label: "Succès", color: "#20c997" },          // turquoise
+    failed: { label: "Échec", color: "#dc3545" },           // rouge
+    cancelled: { label: "Annulé", color: "#6c757d" },          // gris
+    timeout: { label: "Expiré", color: "#6f42c1" },          // violet
+  };
+
+  const getStatusBadge = (status: string) => {
+    const info = statusMap[status] || { label: status, color: "#adb5bd" };
+    return (
+      <span
+        style={{
+          backgroundColor: info.color,
+          color: "#fff",
+          borderRadius: "0.375rem",
+          padding: "0.25em 0.75em",
+          fontWeight: 500,
+          fontSize: "0.875rem",
+          display: "inline-block",
+        }}
+      >
+        {info.label}
+      </span>
+    );
+  };
+
 
   const getTypeBadge = (type: string) => {
     const colors: Record<string, string> = {
@@ -292,7 +292,7 @@ export default function TransactionsPage() {
     setError("")
     try {
       const endpoint = `${baseUrl}api/payments/transactions/${deleteUid}/`
-      await apiFetch(endpoint, { 
+      await apiFetch(endpoint, {
         method: "DELETE",
         successMessage: t("transactions.transactionDeletedSuccessfully") || "Transaction supprimée avec succès"
       })
@@ -601,7 +601,7 @@ export default function TransactionsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -612,7 +612,7 @@ export default function TransactionsPage() {
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
                 Surveiller et gérer les transactions de paiement
               </p>
-      </div>
+            </div>
             <div className="flex items-center space-x-4">
               <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
                 <div className="flex items-center space-x-2">
@@ -622,14 +622,14 @@ export default function TransactionsPage() {
                   </span>
                 </div>
               </div>
-            {/* <Button
+              {/* <Button
                 onClick={() => setCreateModalOpen(true)}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Transaction
             </Button> */}
-          </div>
+            </div>
           </div>
         </div>
 
@@ -640,43 +640,43 @@ export default function TransactionsPage() {
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
+                <Input
                   placeholder={t("transactions.searchPlaceholder")}
-                value={searchTerm}
+                  value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-              />
-            </div>
+                />
+              </div>
 
               {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder={t("transactions.filterByStatus")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("transactions.allStatuses")}</SelectItem>
-                <SelectItem value="completed">{t("transactions.completed")}</SelectItem>
-                <SelectItem value="pending">{t("transactions.pending")}</SelectItem>
-                <SelectItem value="failed">{t("transactions.failed")}</SelectItem>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("transactions.allStatuses")}</SelectItem>
+                  <SelectItem value="completed">{t("transactions.completed")}</SelectItem>
+                  <SelectItem value="pending">{t("transactions.pending")}</SelectItem>
+                  <SelectItem value="failed">{t("transactions.failed")}</SelectItem>
                   <SelectItem value="processing">{t("transactions.processing")}</SelectItem>
-              </SelectContent>
-            </Select>
+                </SelectContent>
+              </Select>
 
               {/* Type Filter */}
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder={t("transactions.filterByType")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t("transactions.allTypes")}</SelectItem>
-                <SelectItem value="deposit">{t("transactions.deposit")}</SelectItem>
-                <SelectItem value="withdrawal">{t("transactions.withdrawal")}</SelectItem>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("transactions.allTypes")}</SelectItem>
+                  <SelectItem value="deposit">{t("transactions.deposit")}</SelectItem>
+                  <SelectItem value="withdrawal">{t("transactions.withdrawal")}</SelectItem>
                 </SelectContent>
               </Select>
 
               {/* Sort */}
-              <Select 
-                value={sortField || ""} 
+              <Select
+                value={sortField || ""}
                 onValueChange={(value) => setSortField(value as "amount" | "date" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
@@ -685,23 +685,23 @@ export default function TransactionsPage() {
                 <SelectContent>
                   <SelectItem value="amount">Montant</SelectItem>
                   <SelectItem value="date">Date</SelectItem>
-              </SelectContent>
-            </Select>
+                </SelectContent>
+              </Select>
 
-            {/* Date Range Filter */}
-            <DateRangeFilter
-              startDate={startDate}
-              endDate={endDate}
-              onStartDateChange={setStartDate}
-              onEndDateChange={setEndDate}
-              onClear={() => {
-                setStartDate(null)
-                setEndDate(null)
-              }}
-              placeholder="Filtrer par date"
-              className="col-span-1"
-            />
-          </div>
+              {/* Date Range Filter */}
+              <DateRangeFilter
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
+                onClear={() => {
+                  setStartDate(null)
+                  setEndDate(null)
+                }}
+                placeholder="Filtrer par date"
+                className="col-span-1"
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -711,7 +711,7 @@ export default function TransactionsPage() {
             <CardTitle className="flex items-center space-x-2">
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <CreditCard className="h-5 w-5 text-green-600 dark:text-green-300" />
-            </div>
+              </div>
               <span>Liste des transactions</span>
             </CardTitle>
           </CardHeader>
@@ -729,8 +729,8 @@ export default function TransactionsPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
+                <Table>
+                  <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
                       <TableHead className="font-semibold">ID Transaction</TableHead>
                       <TableHead className="font-semibold">Destinataire</TableHead>
@@ -741,9 +741,9 @@ export default function TransactionsPage() {
                       <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Date</TableHead>
                       <TableHead className="font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {transactions.map((transaction) => (
                       <TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                         <TableCell>
@@ -767,7 +767,7 @@ export default function TransactionsPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge 
+                          <Badge
                             className={
                               transaction.type === 'deposit'
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
@@ -808,15 +808,15 @@ export default function TransactionsPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge 
+                          <Badge
                             className={
                               transaction.status === 'success'
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                                 : transaction.status === 'sent_to_user'
-                                ? "bg-yellow-100 text-yellow-400 dark:bg-yellow-900/20 dark:text-yellow-300"
-                                : transaction.status === 'failed'
-                                ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                                : "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
+                                  ? "bg-yellow-100 text-yellow-400 dark:bg-yellow-900/20 dark:text-yellow-300"
+                                  : transaction.status === 'failed'
+                                    ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                    : "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
                             }
                           >
                             <div className="flex items-center space-x-1">
@@ -829,11 +829,16 @@ export default function TransactionsPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {new Date(transaction.created_at).toLocaleDateString()}
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(transaction.created_at).toLocaleTimeString()}
+                          <div className="flex items-center space-x-2">
+                            <Calendar className="h-4 w-4 text-gray-400" />
+                            <div className="flex flex-col">
+                              <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                                {new Date(transaction.created_at).toLocaleDateString()}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {new Date(transaction.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -841,12 +846,12 @@ export default function TransactionsPage() {
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm">
                                 <MoreHorizontal className="h-4 w-4" />
-                            </Button>
+                              </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => router.push(`/dashboard/transactions/${transaction.uid}/edit`)}>
                                 <Pencil className="h-4 w-4 mr-2" />
-                               Modifier
+                                Modifier
                               </DropdownMenuItem>
                               {/* <DropdownMenuItem onClick={() => handleOpenEdit(transaction)}>
                                 <Pencil className="h-4 w-4 mr-2" />
@@ -880,14 +885,14 @@ export default function TransactionsPage() {
                         </TableCell>
                       </TableRow>
                     ))}
-                </TableBody>
-              </Table>
-          </div>
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
 
-          {/* Pagination */}
+        {/* Pagination */}
         {Math.ceil(totalCount / itemsPerPage) > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -1080,13 +1085,13 @@ export default function TransactionsPage() {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-                              <Button
-                  variant="outline"
-                  onClick={() => setShowEditConfirm(false)}
-                  disabled={editLoading}
-                >
-                  Annuler
-                </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowEditConfirm(false)}
+                disabled={editLoading}
+              >
+                Annuler
+              </Button>
               <Button
                 onClick={confirmEditAndSend}
                 disabled={editLoading}
@@ -1135,13 +1140,13 @@ export default function TransactionsPage() {
               </div>
             </div>
             <DialogFooter>
-                              <Button
-                  variant="outline"
-                  onClick={() => setRetryModalOpen(false)}
-                  disabled={retryLoading}
-                >
-                  Annuler
-                </Button>
+              <Button
+                variant="outline"
+                onClick={() => setRetryModalOpen(false)}
+                disabled={retryLoading}
+              >
+                Annuler
+              </Button>
               <Button
                 onClick={handleRetrySubmit}
                 disabled={retryLoading}
@@ -1190,13 +1195,13 @@ export default function TransactionsPage() {
               </div>
             </div>
             <DialogFooter>
-                              <Button
-                  variant="outline"
-                  onClick={() => setCancelModalOpen(false)}
-                  disabled={cancelLoading}
-                >
-                  Annuler
-                </Button>
+              <Button
+                variant="outline"
+                onClick={() => setCancelModalOpen(false)}
+                disabled={cancelLoading}
+              >
+                Annuler
+              </Button>
               <Button
                 onClick={handleCancelSubmit}
                 disabled={cancelLoading}
@@ -1245,13 +1250,13 @@ export default function TransactionsPage() {
               </div>
             </div>
             <DialogFooter>
-                              <Button
-                  variant="outline"
-                  onClick={() => setSuccessModalOpen(false)}
-                  disabled={successLoading}
-                >
-                  Annuler
-                </Button>
+              <Button
+                variant="outline"
+                onClick={() => setSuccessModalOpen(false)}
+                disabled={successLoading}
+              >
+                Annuler
+              </Button>
               <Button
                 onClick={handleSuccessSubmit}
                 disabled={successLoading}
@@ -1300,13 +1305,13 @@ export default function TransactionsPage() {
               </div>
             </div>
             <DialogFooter>
-                              <Button
-                  variant="outline"
-                  onClick={() => setFailedModalOpen(false)}
-                  disabled={failedLoading}
-                >
-                  Annuler
-                </Button>
+              <Button
+                variant="outline"
+                onClick={() => setFailedModalOpen(false)}
+                disabled={failedLoading}
+              >
+                Annuler
+              </Button>
               <Button
                 onClick={handleFailedSubmit}
                 disabled={failedLoading}
@@ -1356,7 +1361,7 @@ export default function TransactionsPage() {
                 Choisir le type de transaction que vous voulez créer
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <Button
@@ -1372,7 +1377,7 @@ export default function TransactionsPage() {
                     <span className="text-sm opacity-90">Ajouter de l'argent au compte</span>
                   </div>
                 </Button>
-                
+
                 <Button
                   onClick={() => {
                     setCreateModalOpen(false)
@@ -1388,7 +1393,7 @@ export default function TransactionsPage() {
                 </Button>
               </div>
             </div>
-            
+
             <DialogFooter>
               <Button
                 variant="outline"
@@ -1400,7 +1405,7 @@ export default function TransactionsPage() {
           </DialogContent>
         </Dialog>
 
-          </div>
+      </div>
     </div>
   )
 }

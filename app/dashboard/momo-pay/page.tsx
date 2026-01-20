@@ -92,7 +92,7 @@ export default function MomoPayPage() {
           page: currentPage.toString(),
           page_size: itemsPerPage.toString(),
         })
-        
+
         if (searchTerm.trim() !== "") {
           params.append("reference", searchTerm)
         }
@@ -118,17 +118,17 @@ export default function MomoPayPage() {
         const orderingParam = sortField
           ? `&ordering=${(sortDirection === "asc" ? "" : "-")}${sortField}`
           : ""
-        
+
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/?${params.toString()}${orderingParam}`
         const data: ApiResponse = await apiFetch(endpoint)
-        
+
         setTransactions(data.results || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-        
-        toast({ 
-          title: "Succès", 
-          description: "Transactions MoMo Pay chargées avec succès" 
+
+        toast({
+          title: "Succès",
+          description: "Transactions MoMo Pay chargées avec succès"
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -136,10 +136,10 @@ export default function MomoPayPage() {
         setTransactions([])
         setTotalCount(0)
         setTotalPages(1)
-        toast({ 
-          title: "Erreur de chargement", 
-          description: errorMessage, 
-          variant: "destructive" 
+        toast({
+          title: "Erreur de chargement",
+          description: errorMessage,
+          variant: "destructive"
         })
       } finally {
         setLoading(false)
@@ -168,7 +168,7 @@ export default function MomoPayPage() {
         </Badge>
       )
     }
-    
+
     switch (status) {
       case "pending":
         return (
@@ -254,22 +254,22 @@ export default function MomoPayPage() {
     setDetailTransaction(transaction)
     setDetailError("")
     setDetailLoading(true)
-    
+
     try {
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${transaction.uid}/`
       const data: MomoPayTransaction = await apiFetch(endpoint)
       setDetailTransaction(data)
-      toast({ 
-        title: "Détail chargé", 
-        description: "Détails de la transaction affichés avec succès" 
+      toast({
+        title: "Détail chargé",
+        description: "Détails de la transaction affichés avec succès"
       })
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
       setDetailError(errorMessage)
-      toast({ 
-        title: "Erreur de chargement", 
-        description: errorMessage, 
-        variant: "destructive" 
+      toast({
+        title: "Erreur de chargement",
+        description: errorMessage,
+        variant: "destructive"
       })
     } finally {
       setDetailLoading(false)
@@ -290,21 +290,21 @@ export default function MomoPayPage() {
       await apiFetch(endpoint, {
         method: 'POST'
       })
-      
-      toast({ 
-        title: "Succès", 
-        description: "Transaction annulée avec succès" 
+
+      toast({
+        title: "Succès",
+        description: "Transaction annulée avec succès"
       })
-      
+
       // Refresh the list
       setCurrentPage(1)
       setDetailModalOpen(false)
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
-      toast({ 
-        title: "Erreur d'annulation", 
-        description: errorMessage, 
-        variant: "destructive" 
+      toast({
+        title: "Erreur d'annulation",
+        description: errorMessage,
+        variant: "destructive"
       })
     } finally {
       setCancelLoading(false)
@@ -319,7 +319,7 @@ export default function MomoPayPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -520,8 +520,15 @@ export default function MomoPayPage() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2">
-                            <Calendar className="h-4 w-4 text-gray-600" />
-                            <span>{formatDate(transaction.created_at)}</span>
+                            <Calendar className="h-4 w-4 text-gray-400" />
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {new Date(transaction.created_at).toLocaleDateString()}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {new Date(transaction.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -531,9 +538,9 @@ export default function MomoPayPage() {
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleOpenDetail(transaction)}
                             className="border-gray-200 dark:border-gray-600"
                           >

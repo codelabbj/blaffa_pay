@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, DollarSign, Users, Clock, CheckCircle, XCircle, Loader2, Eye, AlertTriangle } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, DollarSign, Users, Clock, CheckCircle, XCircle, Loader2, Eye, AlertTriangle, Calendar } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
@@ -18,16 +18,16 @@ import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#FF6B35', // Orange (primary from logo)
-  secondary: '#00FF88', // Bright green from logo
-  accent: '#1E3A8A', // Dark blue from logo
-  danger: '#EF4444',
-  warning: '#F97316',
-  success: '#00FF88', // Using bright green for success
-  info: '#1E3A8A', // Using dark blue for info
-  purple: '#8B5CF6',
-  pink: '#EC4899',
-  indigo: '#6366F1'
+	primary: '#FF6B35', // Orange (primary from logo)
+	secondary: '#00FF88', // Bright green from logo
+	accent: '#1E3A8A', // Dark blue from logo
+	danger: '#EF4444',
+	warning: '#F97316',
+	success: '#00FF88', // Using bright green for success
+	info: '#1E3A8A', // Using dark blue for info
+	purple: '#8B5CF6',
+	pink: '#EC4899',
+	indigo: '#6366F1'
 };
 
 export default function TopupPage() {
@@ -52,16 +52,16 @@ export default function TopupPage() {
 	const [detailTopup, setDetailTopup] = useState<any | null>(null)
 	const [detailLoading, setDetailLoading] = useState(false)
 	const [detailError, setDetailError] = useState("")
-	
+
 	// Approve/Reject modal state
 	const [actionModalOpen, setActionModalOpen] = useState(false);
-	const [actionType, setActionType] = useState<"approve"|"reject"|null>(null);
-	const [actionTopup, setActionTopup] = useState<any|null>(null);
+	const [actionType, setActionType] = useState<"approve" | "reject" | null>(null);
+	const [actionTopup, setActionTopup] = useState<any | null>(null);
 	const [adminNotes, setAdminNotes] = useState("");
 	const [rejectionReason, setRejectionReason] = useState("");
 	const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 	const [pendingAction, setPendingAction] = useState(false);
-	const [disabledTopups, setDisabledTopups] = useState<{[uid:string]:"approved"|"rejected"|undefined}>({});
+	const [disabledTopups, setDisabledTopups] = useState<{ [uid: string]: "approved" | "rejected" | undefined }>({});
 	const [proofImageModalOpen, setProofImageModalOpen] = useState(false);
 	const [proofImageUrl, setProofImageUrl] = useState<string | null>(null);
 	const [actionError, setActionError] = useState<string>("");
@@ -170,10 +170,10 @@ export default function TopupPage() {
 			'proof_submitted': { color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300', icon: AlertTriangle },
 			'preuve soumise': { color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300', icon: AlertTriangle }
 		};
-		
+
 		const statusInfo = statusMap[statusDisplay.toLowerCase()] || statusMap['pending'];
 		const IconComponent = statusInfo.icon;
-		
+
 		return (
 			<Badge className={statusInfo.color}>
 				<div className="flex items-center space-x-1">
@@ -202,7 +202,7 @@ export default function TopupPage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-				
+
 				{/* Page Header */}
 				<div className="mb-8">
 					<div className="flex items-center justify-between">
@@ -284,7 +284,7 @@ export default function TopupPage() {
 				{error && (
 					<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
 						<CardContent className="p-6">
-							<ErrorDisplay 
+							<ErrorDisplay
 								error={error}
 								onRetry={() => {
 									setCurrentPage(1)
@@ -391,13 +391,22 @@ export default function TopupPage() {
 											<TableCell className="text-gray-600 dark:text-gray-400">{topup.user_email}</TableCell>
 											<TableCell className="font-mono text-sm">{topup.reference}</TableCell>
 											<TableCell className="text-gray-600 dark:text-gray-400">
-												{topup.created_at ? new Date(topup.created_at).toLocaleDateString() : "-"}
+												<div className="flex flex-col">
+													<span className="text-sm font-medium">
+														{topup.created_at ? new Date(topup.created_at).toLocaleDateString() : "-"}
+													</span>
+													{topup.created_at && (
+														<span className="text-xs text-gray-500 dark:text-gray-400">
+															{new Date(topup.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+														</span>
+													)}
+												</div>
 											</TableCell>
 											<TableCell>
 												<div className="flex gap-2 items-center">
-													<Button 
-														size="sm" 
-														variant="outline" 
+													<Button
+														size="sm"
+														variant="outline"
 														onClick={() => handleOpenDetail(topup.uid)}
 														className="flex items-center space-x-1"
 													>
@@ -700,8 +709,8 @@ export default function TopupPage() {
 									// || (actionTopup?.expires_at && new Date(actionTopup.expires_at) < new Date())
 								}
 								className={
-									actionType === "approve" 
-										? "bg-green-600 hover:bg-green-700 text-white" 
+									actionType === "approve"
+										? "bg-green-600 hover:bg-green-700 text-white"
 										: "bg-red-600 hover:bg-red-700 text-white"
 								}
 							>

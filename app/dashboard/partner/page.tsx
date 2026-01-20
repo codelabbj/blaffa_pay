@@ -23,16 +23,16 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#FF6B35', // Orange (primary from logo)
-  secondary: '#00FF88', // Bright green from logo
-  accent: '#1E3A8A', // Dark blue from logo
-  danger: '#EF4444',
-  warning: '#F97316',
-  success: '#00FF88', // Using bright green for success
-  info: '#1E3A8A', // Using dark blue for info
-  purple: '#8B5CF6',
-  pink: '#EC4899',
-  indigo: '#6366F1'
+	primary: '#FF6B35', // Orange (primary from logo)
+	secondary: '#00FF88', // Bright green from logo
+	accent: '#1E3A8A', // Dark blue from logo
+	danger: '#EF4444',
+	warning: '#F97316',
+	success: '#00FF88', // Using bright green for success
+	info: '#1E3A8A', // Using dark blue for info
+	purple: '#8B5CF6',
+	pink: '#EC4899',
+	indigo: '#6366F1'
 };
 
 export default function PartnerPage() {
@@ -62,7 +62,7 @@ export default function PartnerPage() {
 	const [transferLoading, setTransferLoading] = useState(false)
 	const [transferError, setTransferError] = useState("")
 	const [partnerTransfers, setPartnerTransfers] = useState<any[]>([])
-	
+
 	// Betting Commission States
 	const [bettingCommissionModalOpen, setBettingCommissionModalOpen] = useState(false)
 	const [bettingCommissionPartner, setBettingCommissionPartner] = useState<any | null>(null)
@@ -131,10 +131,10 @@ export default function PartnerPage() {
 					? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
 					: ""
 				const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}${orderingParam}`
-			const data = await apiFetch(endpoint)
-			setPartners(data.partners || [])
-			setTotalCount(data.pagination?.total_count || 0)
-			setTotalPages(data.pagination?.total_pages || 1)
+				const data = await apiFetch(endpoint)
+				setPartners(data.partners || [])
+				setTotalCount(data.pagination?.total_count || 0)
+				setTotalPages(data.pagination?.total_pages || 1)
 			} catch (err: any) {
 				const errorMessage = extractErrorMessages(err)
 				setError(errorMessage)
@@ -204,11 +204,11 @@ export default function PartnerPage() {
 			setAccountTransactionsPartner(partner)
 			setAccountTransactionsCurrentPage(1)
 		}
-		
+
 		setAccountTransactionsLoading(true)
 		setAccountTransactionsError("")
 		setAccountTransactions([])
-		
+
 		try {
 			let endpoint: string
 			if (useNextUrl) {
@@ -220,7 +220,7 @@ export default function PartnerPage() {
 				const params = new URLSearchParams({ page: page.toString() })
 				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/account-transactions/${partner.uid}/?${params.toString()}`
 			}
-			
+
 			const data = await apiFetch(endpoint, {
 				showSuccessToast: false // Disable automatic toast for GET request
 			})
@@ -247,12 +247,12 @@ export default function PartnerPage() {
 		setBettingCommissionConfig(null)
 		setBettingCommissionStats(null)
 		setPartnerAccountInfo(null)
-		
+
 		try {
 			// Get partner commission config
 			const configEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/get_partner_config/?partner_uid=${partner.uid}`
 			const configData = await apiFetch(configEndpoint)
-			
+
 			if (configData.success && configData.has_config) {
 				setBettingCommissionConfig(configData.config)
 				setPartnerAccountInfo(configData.account)
@@ -266,12 +266,12 @@ export default function PartnerPage() {
 					withdrawal_commission_rate: "3.00",
 				})
 			}
-			
+
 			// Store account info even if no config exists
 			if (configData.success && configData.account) {
 				setPartnerAccountInfo(configData.account)
 			}
-			
+
 			// Get partner-specific stats
 			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${partner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
@@ -291,7 +291,7 @@ export default function PartnerPage() {
 
 		setBettingCommissionLoading(true)
 		setBettingCommissionError("")
-		
+
 		try {
 			const payload = {
 				partner: bettingCommissionPartner.uid,
@@ -333,7 +333,7 @@ export default function PartnerPage() {
 
 		setBettingCommissionPaymentLoading(true)
 		setBettingCommissionPaymentError("")
-		
+
 		try {
 			const payload = {
 				partner_uid: bettingCommissionPartner.uid,
@@ -348,10 +348,10 @@ export default function PartnerPage() {
 				body: JSON.stringify(payload),
 				successMessage: "Commission de paris payée avec succès"
 			})
-			
+
 			setBettingCommissionPaymentModalOpen(false)
 			setBettingCommissionPaymentForm({ admin_notes: "" })
-			
+
 			// Refresh partner-specific stats
 			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${bettingCommissionPartner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
@@ -383,7 +383,7 @@ export default function PartnerPage() {
 
 		setGrantPermissionLoading(true)
 		setGrantPermissionError("")
-		
+
 		try {
 			const payload = {
 				partner_uid: grantPermissionForm.uid,
@@ -398,10 +398,10 @@ export default function PartnerPage() {
 				body: JSON.stringify(payload),
 				successMessage: "Permission accordée avec succès"
 			})
-			
+
 			setGrantPermissionModalOpen(false)
 			setGrantPermissionForm({ uid: "", permission_type: "ussd_transaction", notes: "" })
-			
+
 			// Refresh partners list
 			const params = new URLSearchParams({
 				page: currentPage.toString(),
@@ -440,7 +440,7 @@ export default function PartnerPage() {
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-				
+
 				{/* Page Header */}
 				<div className="mb-8">
 					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -449,15 +449,15 @@ export default function PartnerPage() {
 								{t("partners.title") || "Partner Management"}
 							</h1>
 							<p className="text-gray-600 dark:text-gray-300 mt-2 text-sm sm:text-base lg:text-lg">
-												Gérer les comptes partenaires et le suivi des commissions
-											</p>
+								Gérer les comptes partenaires et le suivi des commissions
+							</p>
 						</div>
 						<div className="flex items-center space-x-2 sm:space-x-4">
 							<div className="bg-white dark:bg-gray-800 rounded-lg px-3 sm:px-4 py-2 shadow-sm">
 								<div className="flex items-center space-x-2">
 									<Users className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500" />
 									<span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
-																						{totalCount} partenaires
+										{totalCount} partenaires
 									</span>
 								</div>
 							</div>
@@ -474,7 +474,7 @@ export default function PartnerPage() {
 									<UserCheck className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-300" />
 								</div>
 								<div>
-																					<p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Partenaires actifs</p>
+									<p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Partenaires actifs</p>
 									<p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
 										{activePartners}
 									</p>
@@ -490,7 +490,7 @@ export default function PartnerPage() {
 									<Copy className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600 dark:text-orange-300" />
 								</div>
 								<div>
-																					<p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Commission totale</p>
+									<p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Commission totale</p>
 									<p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
 										XOF {totalCommission.toFixed(2)}
 									</p>
@@ -507,55 +507,55 @@ export default function PartnerPage() {
 							{/* Search */}
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-																				<Input
-														placeholder="Rechercher des partenaires..."
-													value={searchTerm}
-													onChange={(e) => setSearchTerm(e.target.value)}
-														className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-												/>
-						</div>
+								<Input
+									placeholder="Rechercher des partenaires..."
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+								/>
+							</div>
 
 							{/* Status Filter */}
-						<Select value={statusFilter} onValueChange={setStatusFilter}>
+							<Select value={statusFilter} onValueChange={setStatusFilter}>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-																							<SelectValue placeholder="Filtrer par statut" />
+									<SelectValue placeholder="Filtrer par statut" />
 								</SelectTrigger>
 								<SelectContent>
-																							<SelectItem value="all">Tous les partenaires</SelectItem>
-														<SelectItem value="active">Actif</SelectItem>
-														<SelectItem value="inactive">Inactif</SelectItem>
+									<SelectItem value="all">Tous les partenaires</SelectItem>
+									<SelectItem value="active">Actif</SelectItem>
+									<SelectItem value="inactive">Inactif</SelectItem>
 								</SelectContent>
 							</Select>
 
 							{/* Sort */}
-							<Select 
-								value={sortField || ""} 
+							<Select
+								value={sortField || ""}
 								onValueChange={(value) => setSortField(value as "display_name" | "email" | "created_at" | null)}
 							>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
-																							<SelectValue placeholder="Trier par" />
-							</SelectTrigger>
-							<SelectContent>
-																							<SelectItem value="display_name">Nom</SelectItem>
-														<SelectItem value="email">E-mail</SelectItem>
-														<SelectItem value="created_at">Date</SelectItem>
-							</SelectContent>
-						</Select>
+									<SelectValue placeholder="Trier par" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="display_name">Nom</SelectItem>
+									<SelectItem value="email">E-mail</SelectItem>
+									<SelectItem value="created_at">Date</SelectItem>
+								</SelectContent>
+							</Select>
 
-						{/* Date Range Filter */}
-						<DateRangeFilter
-							startDate={startDate}
-							endDate={endDate}
-							onStartDateChange={setStartDate}
-							onEndDateChange={setEndDate}
-							onClear={() => {
-								setStartDate(null)
-								setEndDate(null)
-							}}
-							placeholder="Filtrer par date"
-							className="col-span-1"
-						/>
-					</div>
+							{/* Date Range Filter */}
+							<DateRangeFilter
+								startDate={startDate}
+								endDate={endDate}
+								onStartDateChange={setStartDate}
+								onEndDateChange={setEndDate}
+								onClear={() => {
+									setStartDate(null)
+									setEndDate(null)
+								}}
+								placeholder="Filtrer par date"
+								className="col-span-1"
+							/>
+						</div>
 					</CardContent>
 				</Card>
 
@@ -566,7 +566,7 @@ export default function PartnerPage() {
 							<div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
 								<Users className="h-5 w-5 text-orange-600 dark:text-orange-300" />
 							</div>
-																				<span>Liste des partenaires</span>
+							<span>Liste des partenaires</span>
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="p-0">
@@ -579,25 +579,25 @@ export default function PartnerPage() {
 							</div>
 						) : error ? (
 							<div className="p-6 text-center">
-								<ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+								<ErrorDisplay error={error} onRetry={() => {/* retry function */ }} />
 							</div>
 						) : (
 							<div className="overflow-x-auto">
-							<Table>
-								<TableHeader>
-									<TableRow className="bg-gray-50 dark:bg-gray-900/50">
-										<TableHead className="font-semibold text-xs sm:text-sm">Partenaire</TableHead>
-										<TableHead className="font-semibold text-xs sm:text-sm">E-mail</TableHead>
-										<TableHead className="font-semibold text-xs sm:text-sm">Statut</TableHead>
-										<TableHead className="font-semibold text-xs sm:text-sm">USSD</TableHead>
-										<TableHead className="font-semibold text-xs sm:text-sm">Commission</TableHead>
-										<TableHead className="font-semibold text-xs sm:text-sm">Solde Compte</TableHead>
-										<TableHead className="font-semibold text-xs sm:text-sm">Rejoint</TableHead>
-										<TableHead className="font-semibold text-xs sm:text-sm">Actions</TableHead>
-								</TableRow>
-								</TableHeader>
-								<TableBody>
-									{partners.map((partner) => (
+								<Table>
+									<TableHeader>
+										<TableRow className="bg-gray-50 dark:bg-gray-900/50">
+											<TableHead className="font-semibold text-xs sm:text-sm">Partenaire</TableHead>
+											<TableHead className="font-semibold text-xs sm:text-sm">E-mail</TableHead>
+											<TableHead className="font-semibold text-xs sm:text-sm">Statut</TableHead>
+											<TableHead className="font-semibold text-xs sm:text-sm">USSD</TableHead>
+											<TableHead className="font-semibold text-xs sm:text-sm">Commission</TableHead>
+											<TableHead className="font-semibold text-xs sm:text-sm">Solde Compte</TableHead>
+											<TableHead className="font-semibold text-xs sm:text-sm">Rejoint</TableHead>
+											<TableHead className="font-semibold text-xs sm:text-sm">Actions</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{partners.map((partner) => (
 											<TableRow key={partner.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
 												<TableCell>
 													<div className="flex items-center space-x-2 sm:space-x-3">
@@ -622,10 +622,10 @@ export default function PartnerPage() {
 														</span>
 													</div>
 												</TableCell>
-											<TableCell>
-													<Badge 
+												<TableCell>
+													<Badge
 														className={
-															partner.is_active 
+															partner.is_active
 																? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
 																: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
 														}
@@ -641,9 +641,9 @@ export default function PartnerPage() {
 													</Badge>
 												</TableCell>
 												<TableCell>
-													<Badge 
+													<Badge
 														className={
-															partner.can_process_ussd_transaction 
+															partner.can_process_ussd_transaction
 																? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300"
 																: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300"
 														}
@@ -677,14 +677,18 @@ export default function PartnerPage() {
 												<TableCell>
 													<div className="flex items-center space-x-2">
 														<Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
-														<span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-															{partner.created_at 
-																? new Date(partner.created_at).toLocaleDateString()
-																: 'Inconnu'
-															}
-														</span>
+														<div className="flex flex-col">
+															<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+																{partner.created_at ? new Date(partner.created_at).toLocaleDateString() : 'Inconnu'}
+															</span>
+															{partner.created_at && (
+																<span className="text-xs text-gray-500 dark:text-gray-400">
+																	{new Date(partner.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+																</span>
+															)}
+														</div>
 													</div>
-											</TableCell>
+												</TableCell>
 												<TableCell>
 													<DropdownMenu>
 														<DropdownMenuTrigger asChild>
@@ -730,16 +734,16 @@ export default function PartnerPage() {
 														</DropdownMenuContent>
 													</DropdownMenu>
 												</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
 							</div>
 						)}
 					</CardContent>
 				</Card>
 
-					{/* Pagination */}
+				{/* Pagination */}
 				{totalPages > 1 && (
 					<div className="flex items-center justify-between mt-6">
 						<div className="text-sm text-gray-600 dark:text-gray-400">
@@ -767,7 +771,7 @@ export default function PartnerPage() {
 											className={currentPage === page ? "bg-orange-500 text-white" : ""}
 										>
 											{page}
-							</Button>
+										</Button>
 									);
 								})}
 							</div>
@@ -795,26 +799,26 @@ export default function PartnerPage() {
 							<p className="text-gray-500 dark:text-gray-400 mb-4">
 								{searchTerm ? `Aucun partenaire ne correspond à "${searchTerm}"` : "Aucun partenaire n'a encore été enregistré."}
 							</p>
-				</CardContent>
-			</Card>
+						</CardContent>
+					</Card>
 				)}
 
 				{/* Detail Modal */}
 				<Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
 					<DialogContent className="max-w-2xl">
-					<DialogHeader>
+						<DialogHeader>
 							<DialogTitle className="flex items-center space-x-2">
 								<Users className="h-5 w-5 text-purple-600" />
 								<span>Détails du partenaire</span>
 							</DialogTitle>
-					</DialogHeader>
-					{detailLoading ? (
+						</DialogHeader>
+						{detailLoading ? (
 							<div className="flex items-center justify-center py-8">
 								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
 							</div>
-					) : detailError ? (
+						) : detailError ? (
 							<ErrorDisplay error={detailError} />
-					) : detailPartner ? (
+						) : detailPartner ? (
 							<div className="space-y-4">
 								<div className="grid grid-cols-2 gap-4">
 									<div>
@@ -837,7 +841,7 @@ export default function PartnerPage() {
 									</div>
 									<div>
 										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Statut</label>
-										<Badge 
+										<Badge
 											className={
 												detailPartner.is_active
 													? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
@@ -856,277 +860,127 @@ export default function PartnerPage() {
 									<div>
 										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Rejoint</label>
 										<p className="text-sm text-gray-900 dark:text-gray-100">
-											{detailPartner.created_at 
+											{detailPartner.created_at
 												? new Date(detailPartner.created_at).toLocaleString()
 												: 'Inconnu'
 											}
 										</p>
 									</div>
+								</div>
 							</div>
-						</div>
-					) : null}
-				</DialogContent>
-			</Dialog>
+						) : null}
+					</DialogContent>
+				</Dialog>
 
-			{/* Transfer Modal */}
-			<Dialog open={transferModalOpen} onOpenChange={setTransferModalOpen}>
-				<DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-					<DialogHeader>
-						<DialogTitle className="flex items-center space-x-2">
-							<ArrowUpDownIcon className="h-5 w-5 text-blue-600" />
-							<span>Transferts de {transferPartner?.display_name || 'Partenaire'}</span>
-						</DialogTitle>
-					</DialogHeader>
-					{transferLoading ? (
-						<div className="flex items-center justify-center py-8">
-							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-						</div>
-					) : transferError ? (
-						<ErrorDisplay error={transferError} />
-					) : (
-						<div className="space-y-4">
-							{partnerTransfers.length === 0 ? (
-								<div className="text-center py-8">
-									<ArrowUpDownIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-									<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-										Aucun transfert trouvé
-									</h3>
-									<p className="text-gray-500 dark:text-gray-400">
-										Ce partenaire n'a effectué aucun transfert.
-									</p>
-								</div>
-							) : (
-								<div className="overflow-x-auto">
-									<Table>
-										<TableHeader>
-											<TableRow className="bg-gray-50 dark:bg-gray-900/50">
-												<TableHead className="font-semibold">Référence</TableHead>
-												<TableHead className="font-semibold">Type</TableHead>
-												<TableHead className="font-semibold">Contrepartie</TableHead>
-												<TableHead className="font-semibold">Montant</TableHead>
-												<TableHead className="font-semibold">Statut</TableHead>
-												<TableHead className="font-semibold">Date</TableHead>
-											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{partnerTransfers.map((transfer) => (
-												<TableRow key={transfer.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-													<TableCell>
-														<div className="flex items-center space-x-2">
-															<Copy className="h-4 w-4 text-gray-400" />
-															<span className="text-sm font-mono text-gray-700 dark:text-gray-300">
-																{transfer.reference}
-															</span>
-														</div>
-													</TableCell>
-													<TableCell>
-														<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-															{transfer.sender === transferPartner?.id ? 'Envoi' : 'Réception'}
-														</Badge>
-													</TableCell>
-													<TableCell>
-														<div className="flex items-center space-x-3">
-															<div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
-																{(transfer.sender === transferPartner?.id ? transfer.receiver_name : transfer.sender_name)?.charAt(0)?.toUpperCase() || 'U'}
-															</div>
-															<div>
-																<div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
-																	{transfer.sender === transferPartner?.id ? transfer.receiver_name : transfer.sender_name}
-																</div>
-																<div className="text-xs text-gray-500 dark:text-gray-400">
-																	{transfer.sender === transferPartner?.id ? transfer.receiver_email : transfer.sender_email}
-																</div>
-															</div>
-														</div>
-													</TableCell>
-													<TableCell>
-														<div className="flex items-center space-x-1">
-															<DollarSign className="h-4 w-4 text-gray-400" />
-															<span className={`font-medium ${transfer.sender === transferPartner?.id ? 'text-red-600' : 'text-green-600'}`}>
-																{transfer.sender === transferPartner?.id ? '-' : '+'}XOF {parseFloat(transfer.amount).toFixed(2)}
-															</span>
-														</div>
-													</TableCell>
-													<TableCell>
-														{transfer.status === 'completed' ? (
-															<Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-																<div className="flex items-center space-x-1">
-																	<CheckCircle className="h-3 w-3" />
-																	<span>Terminé</span>
-																</div>
-															</Badge>
-														) : transfer.status === 'pending' ? (
-															<Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
-																<div className="flex items-center space-x-1">
-																	<Clock className="h-3 w-3" />
-																	<span>En attente</span>
-																</div>
-															</Badge>
-														) : (
-															<Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">
-																<div className="flex items-center space-x-1">
-																	<XCircle className="h-3 w-3" />
-																	<span>Échec</span>
-																</div>
-															</Badge>
-														)}
-													</TableCell>
-													<TableCell>
-														<div className="flex items-center space-x-2">
-															<Calendar className="h-4 w-4 text-gray-400" />
-															<span className="text-sm text-gray-600 dark:text-gray-400">
-																{transfer.created_at 
-																	? new Date(transfer.created_at).toLocaleDateString()
-																	: 'Inconnu'
-																}
-															</span>
-														</div>
-													</TableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
-								</div>
-							)}
-						</div>
-					)}
-				</DialogContent>
-			</Dialog>
-
-			{/* Account Transactions Modal */}
-			<Dialog open={accountTransactionsModalOpen} onOpenChange={setAccountTransactionsModalOpen}>
-				<DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-					<DialogHeader>
-						<DialogTitle className="flex items-center space-x-2">
-							<History className="h-5 w-5 text-indigo-600" />
-							<span>Transactions de Compte - {accountTransactionsPartner?.display_name || 'Partenaire'}</span>
-						</DialogTitle>
-					</DialogHeader>
-					{accountTransactionsLoading ? (
-						<div className="flex items-center justify-center py-8">
-							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-						</div>
-					) : accountTransactionsError ? (
-						<ErrorDisplay error={accountTransactionsError} />
-					) : (
-						<div className="space-y-4">
-							{/* User Info Card */}
-							{accountTransactionsUserInfo && (
-								<Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-700">
-									<CardContent className="p-6">
-										<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-											<div>
-												<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Nom</p>
-												<p className="text-lg font-bold text-indigo-600">{accountTransactionsUserInfo.display_name || 'N/A'}</p>
-											</div>
-											<div>
-												<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</p>
-												<p className="text-sm text-gray-900 dark:text-gray-100">{accountTransactionsUserInfo.email || 'N/A'}</p>
-											</div>
-											<div>
-												<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Téléphone</p>
-												<p className="text-sm text-gray-900 dark:text-gray-100">{accountTransactionsUserInfo.phone || 'N/A'}</p>
-											</div>
-											<div>
-												<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Solde Actuel</p>
-												<p className="text-lg font-bold text-green-600">{parseFloat(accountTransactionsUserInfo.current_balance || 0).toFixed(2)} FCFA</p>
-											</div>
-										</div>
-									</CardContent>
-								</Card>
-							)}
-
-							{accountTransactions.length === 0 ? (
-								<div className="text-center py-8">
-									<History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-									<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-										Aucune transaction trouvée
-									</h3>
-									<p className="text-gray-500 dark:text-gray-400">
-										Ce compte n'a effectué aucune transaction.
-									</p>
-								</div>
-							) : (
-								<>
-									<div className="flex items-center justify-between mb-4">
-										<p className="text-sm text-gray-600 dark:text-gray-400">
-											Total: {accountTransactionsCount} transactions
+				{/* Transfer Modal */}
+				<Dialog open={transferModalOpen} onOpenChange={setTransferModalOpen}>
+					<DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+						<DialogHeader>
+							<DialogTitle className="flex items-center space-x-2">
+								<ArrowUpDownIcon className="h-5 w-5 text-blue-600" />
+								<span>Transferts de {transferPartner?.display_name || 'Partenaire'}</span>
+							</DialogTitle>
+						</DialogHeader>
+						{transferLoading ? (
+							<div className="flex items-center justify-center py-8">
+								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+							</div>
+						) : transferError ? (
+							<ErrorDisplay error={transferError} />
+						) : (
+							<div className="space-y-4">
+								{partnerTransfers.length === 0 ? (
+									<div className="text-center py-8">
+										<ArrowUpDownIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+										<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+											Aucun transfert trouvé
+										</h3>
+										<p className="text-gray-500 dark:text-gray-400">
+											Ce partenaire n'a effectué aucun transfert.
 										</p>
 									</div>
+								) : (
 									<div className="overflow-x-auto">
 										<Table>
 											<TableHeader>
 												<TableRow className="bg-gray-50 dark:bg-gray-900/50">
-													<TableHead className="font-semibold">Type</TableHead>
 													<TableHead className="font-semibold">Référence</TableHead>
+													<TableHead className="font-semibold">Type</TableHead>
+													<TableHead className="font-semibold">Contrepartie</TableHead>
 													<TableHead className="font-semibold">Montant</TableHead>
-													<TableHead className="font-semibold">Solde Avant</TableHead>
-													<TableHead className="font-semibold">Solde Après</TableHead>
-													<TableHead className="font-semibold">Description</TableHead>
-													<TableHead className="font-semibold">Transaction Liée</TableHead>
+													<TableHead className="font-semibold">Statut</TableHead>
 													<TableHead className="font-semibold">Date</TableHead>
 												</TableRow>
 											</TableHeader>
 											<TableBody>
-												{accountTransactions.map((transaction) => (
-													<TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-														<TableCell>
-															<Badge className={transaction.is_credit 
-																? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
-																: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-															}>
-																{transaction.type_display}
-															</Badge>
-														</TableCell>
+												{partnerTransfers.map((transfer) => (
+													<TableRow key={transfer.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
 														<TableCell>
 															<div className="flex items-center space-x-2">
 																<Copy className="h-4 w-4 text-gray-400" />
 																<span className="text-sm font-mono text-gray-700 dark:text-gray-300">
-																	{transaction.reference}
+																	{transfer.reference}
 																</span>
+															</div>
+														</TableCell>
+														<TableCell>
+															<Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
+																{transfer.sender === transferPartner?.id ? 'Envoi' : 'Réception'}
+															</Badge>
+														</TableCell>
+														<TableCell>
+															<div className="flex items-center space-x-3">
+																<div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">
+																	{(transfer.sender === transferPartner?.id ? transfer.receiver_name : transfer.sender_name)?.charAt(0)?.toUpperCase() || 'U'}
+																</div>
+																<div>
+																	<div className="font-medium text-gray-900 dark:text-gray-100 text-sm">
+																		{transfer.sender === transferPartner?.id ? transfer.receiver_name : transfer.sender_name}
+																	</div>
+																	<div className="text-xs text-gray-500 dark:text-gray-400">
+																		{transfer.sender === transferPartner?.id ? transfer.receiver_email : transfer.sender_email}
+																	</div>
+																</div>
 															</div>
 														</TableCell>
 														<TableCell>
 															<div className="flex items-center space-x-1">
-																<DollarSign className={`h-4 w-4 ${transaction.is_credit ? 'text-green-600' : 'text-red-600'}`} />
-																<span className={`font-medium ${transaction.is_credit ? 'text-green-600' : 'text-red-600'}`}>
-																	{transaction.formatted_amount || `${transaction.is_credit ? '+' : '-'}${parseFloat(transaction.amount).toFixed(2)} FCFA`}
+																<DollarSign className="h-4 w-4 text-gray-400" />
+																<span className={`font-medium ${transfer.sender === transferPartner?.id ? 'text-red-600' : 'text-green-600'}`}>
+																	{transfer.sender === transferPartner?.id ? '-' : '+'}XOF {parseFloat(transfer.amount).toFixed(2)}
 																</span>
 															</div>
 														</TableCell>
 														<TableCell>
-															<span className="text-sm text-gray-600 dark:text-gray-400">
-																{parseFloat(transaction.balance_before).toFixed(2)} FCFA
-															</span>
-														</TableCell>
-														<TableCell>
-															<span className="text-sm text-gray-600 dark:text-gray-400">
-																{parseFloat(transaction.balance_after).toFixed(2)} FCFA
-															</span>
-														</TableCell>
-														<TableCell>
-															<span className="text-sm text-gray-700 dark:text-gray-300">
-																{transaction.description}
-															</span>
-														</TableCell>
-														<TableCell>
-															{transaction.related_payment_reference ? (
-																<div className="flex items-center space-x-2">
-																	<Copy className="h-3 w-3 text-gray-400" />
-																	<span className="text-xs font-mono text-gray-600 dark:text-gray-400">
-																		{transaction.related_payment_reference}
-																	</span>
-																</div>
+															{transfer.status === 'completed' ? (
+																<Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+																	<div className="flex items-center space-x-1">
+																		<CheckCircle className="h-3 w-3" />
+																		<span>Terminé</span>
+																	</div>
+																</Badge>
+															) : transfer.status === 'pending' ? (
+																<Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
+																	<div className="flex items-center space-x-1">
+																		<Clock className="h-3 w-3" />
+																		<span>En attente</span>
+																	</div>
+																</Badge>
 															) : (
-																<span className="text-xs text-gray-400">N/A</span>
+																<Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">
+																	<div className="flex items-center space-x-1">
+																		<XCircle className="h-3 w-3" />
+																		<span>Échec</span>
+																	</div>
+																</Badge>
 															)}
 														</TableCell>
 														<TableCell>
 															<div className="flex items-center space-x-2">
 																<Calendar className="h-4 w-4 text-gray-400" />
 																<span className="text-sm text-gray-600 dark:text-gray-400">
-																	{transaction.created_at 
-																		? new Date(transaction.created_at).toLocaleString()
+																	{transfer.created_at
+																		? new Date(transfer.created_at).toLocaleDateString()
 																		: 'Inconnu'
 																	}
 																</span>
@@ -1137,480 +991,630 @@ export default function PartnerPage() {
 											</TableBody>
 										</Table>
 									</div>
-									
-									{/* Pagination */}
-									{(accountTransactionsNext || accountTransactionsPrevious) && (
-										<div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => {
-													if (accountTransactionsPrevious) {
-														const prevPage = accountTransactionsCurrentPage - 1
-														handleOpenAccountTransactions(accountTransactionsPartner!, prevPage, null, accountTransactionsPrevious)
-													}
-												}}
-												disabled={!accountTransactionsPrevious || accountTransactionsLoading}
-											>
-												<ChevronLeft className="h-4 w-4 mr-1" />
-												Précédent
-											</Button>
-											<div className="text-sm text-gray-600 dark:text-gray-400">
-												Page {accountTransactionsCurrentPage} ({accountTransactionsCount} total)
-											</div>
-											<Button
-												variant="outline"
-												size="sm"
-												onClick={() => {
-													if (accountTransactionsNext) {
-														const nextPage = accountTransactionsCurrentPage + 1
-														handleOpenAccountTransactions(accountTransactionsPartner!, nextPage, accountTransactionsNext, null)
-													}
-												}}
-												disabled={!accountTransactionsNext || accountTransactionsLoading}
-											>
-												Suivant
-												<ChevronRight className="h-4 w-4 ml-1" />
-											</Button>
-										</div>
-									)}
-								</>
-							)}
-						</div>
-					)}
-				</DialogContent>
-			</Dialog>
+								)}
+							</div>
+						)}
+					</DialogContent>
+				</Dialog>
 
-			{/* Betting Commission Modal */}
-			<Dialog open={bettingCommissionModalOpen} onOpenChange={setBettingCommissionModalOpen}>
-				<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-					<DialogHeader>
-						<DialogTitle className="flex items-center space-x-2">
-							<TrendingUp className="h-5 w-5 text-orange-600" />
-							<span>Commissions de Paris - {bettingCommissionPartner?.display_name || 'Partenaire'}</span>
-						</DialogTitle>
-					</DialogHeader>
-					{bettingCommissionLoading ? (
-						<div className="flex items-center justify-center py-8">
-							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
-						</div>
-					) : bettingCommissionError ? (
-						<ErrorDisplay error={bettingCommissionError} />
-					) : (
-						<div className="space-y-6">
-							{/* Partner Balance */}
-							{partnerAccountInfo && (
-								<Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700">
-									<CardContent className="p-6">
-										<div className="flex items-center justify-between">
-											<div className="flex items-center space-x-3">
-												<div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
-													<Wallet className="h-6 w-6 text-green-600" />
+				{/* Account Transactions Modal */}
+				<Dialog open={accountTransactionsModalOpen} onOpenChange={setAccountTransactionsModalOpen}>
+					<DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+						<DialogHeader>
+							<DialogTitle className="flex items-center space-x-2">
+								<History className="h-5 w-5 text-indigo-600" />
+								<span>Transactions de Compte - {accountTransactionsPartner?.display_name || 'Partenaire'}</span>
+							</DialogTitle>
+						</DialogHeader>
+						{accountTransactionsLoading ? (
+							<div className="flex items-center justify-center py-8">
+								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+							</div>
+						) : accountTransactionsError ? (
+							<ErrorDisplay error={accountTransactionsError} />
+						) : (
+							<div className="space-y-4">
+								{/* User Info Card */}
+								{accountTransactionsUserInfo && (
+									<Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-700">
+										<CardContent className="p-6">
+											<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+												<div>
+													<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Nom</p>
+													<p className="text-lg font-bold text-indigo-600">{accountTransactionsUserInfo.display_name || 'N/A'}</p>
 												</div>
 												<div>
-													<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Solde du Compte</p>
-													<p className="text-2xl font-bold text-green-600">{partnerAccountInfo.formatted_balance}</p>
+													<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Email</p>
+													<p className="text-sm text-gray-900 dark:text-gray-100">{accountTransactionsUserInfo.email || 'N/A'}</p>
+												</div>
+												<div>
+													<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Téléphone</p>
+													<p className="text-sm text-gray-900 dark:text-gray-100">{accountTransactionsUserInfo.phone || 'N/A'}</p>
+												</div>
+												<div>
+													<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Solde Actuel</p>
+													<p className="text-lg font-bold text-green-600">{parseFloat(accountTransactionsUserInfo.current_balance || 0).toFixed(2)} FCFA</p>
 												</div>
 											</div>
+										</CardContent>
+									</Card>
+								)}
+
+								{accountTransactions.length === 0 ? (
+									<div className="text-center py-8">
+										<History className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+										<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+											Aucune transaction trouvée
+										</h3>
+										<p className="text-gray-500 dark:text-gray-400">
+											Ce compte n'a effectué aucune transaction.
+										</p>
+									</div>
+								) : (
+									<>
+										<div className="flex items-center justify-between mb-4">
+											<p className="text-sm text-gray-600 dark:text-gray-400">
+												Total: {accountTransactionsCount} transactions
+											</p>
 										</div>
-									</CardContent>
-								</Card>
-							)}
+										<div className="overflow-x-auto">
+											<Table>
+												<TableHeader>
+													<TableRow className="bg-gray-50 dark:bg-gray-900/50">
+														<TableHead className="font-semibold">Type</TableHead>
+														<TableHead className="font-semibold">Référence</TableHead>
+														<TableHead className="font-semibold">Montant</TableHead>
+														<TableHead className="font-semibold">Solde Avant</TableHead>
+														<TableHead className="font-semibold">Solde Après</TableHead>
+														<TableHead className="font-semibold">Description</TableHead>
+														<TableHead className="font-semibold">Transaction Liée</TableHead>
+														<TableHead className="font-semibold">Date</TableHead>
+													</TableRow>
+												</TableHeader>
+												<TableBody>
+													{accountTransactions.map((transaction) => (
+														<TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+															<TableCell>
+																<Badge className={transaction.is_credit
+																	? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+																	: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+																}>
+																	{transaction.type_display}
+																</Badge>
+															</TableCell>
+															<TableCell>
+																<div className="flex items-center space-x-2">
+																	<Copy className="h-4 w-4 text-gray-400" />
+																	<span className="text-sm font-mono text-gray-700 dark:text-gray-300">
+																		{transaction.reference}
+																	</span>
+																</div>
+															</TableCell>
+															<TableCell>
+																<div className="flex items-center space-x-1">
+																	<DollarSign className={`h-4 w-4 ${transaction.is_credit ? 'text-green-600' : 'text-red-600'}`} />
+																	<span className={`font-medium ${transaction.is_credit ? 'text-green-600' : 'text-red-600'}`}>
+																		{transaction.formatted_amount || `${transaction.is_credit ? '+' : '-'}${parseFloat(transaction.amount).toFixed(2)} FCFA`}
+																	</span>
+																</div>
+															</TableCell>
+															<TableCell>
+																<span className="text-sm text-gray-600 dark:text-gray-400">
+																	{parseFloat(transaction.balance_before).toFixed(2)} FCFA
+																</span>
+															</TableCell>
+															<TableCell>
+																<span className="text-sm text-gray-600 dark:text-gray-400">
+																	{parseFloat(transaction.balance_after).toFixed(2)} FCFA
+																</span>
+															</TableCell>
+															<TableCell>
+																<span className="text-sm text-gray-700 dark:text-gray-300">
+																	{transaction.description}
+																</span>
+															</TableCell>
+															<TableCell>
+																{transaction.related_payment_reference ? (
+																	<div className="flex items-center space-x-2">
+																		<Copy className="h-3 w-3 text-gray-400" />
+																		<span className="text-xs font-mono text-gray-600 dark:text-gray-400">
+																			{transaction.related_payment_reference}
+																		</span>
+																	</div>
+																) : (
+																	<span className="text-xs text-gray-400">N/A</span>
+																)}
+															</TableCell>
+															<TableCell>
+																<div className="flex items-center space-x-2">
+																	<Calendar className="h-4 w-4 text-gray-400" />
+																	<span className="text-sm text-gray-600 dark:text-gray-400">
+																		{transaction.created_at
+																			? new Date(transaction.created_at).toLocaleString()
+																			: 'Inconnu'
+																		}
+																	</span>
+																</div>
+															</TableCell>
+														</TableRow>
+													))}
+												</TableBody>
+											</Table>
+										</div>
 
-							{/* Global Stats */}
-							{bettingCommissionStats && bettingCommissionStats.commissions && (
-								<div className="space-y-4">
-									{/* First Row - Main Stats */}
-									<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-										<Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
-											<CardContent className="p-4">
-												<div className="flex items-center space-x-2">
-													<DollarSign className="h-5 w-5 text-blue-600" />
-													<div>
-														<p className="text-sm font-medium text-blue-800 dark:text-blue-300">Total Transactions</p>
-														<p className="text-lg font-bold text-blue-600">{bettingCommissionStats.commissions.total_transaction_count}</p>
-													</div>
+										{/* Pagination */}
+										{(accountTransactionsNext || accountTransactionsPrevious) && (
+											<div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => {
+														if (accountTransactionsPrevious) {
+															const prevPage = accountTransactionsCurrentPage - 1
+															handleOpenAccountTransactions(accountTransactionsPartner!, prevPage, null, accountTransactionsPrevious)
+														}
+													}}
+													disabled={!accountTransactionsPrevious || accountTransactionsLoading}
+												>
+													<ChevronLeft className="h-4 w-4 mr-1" />
+													Précédent
+												</Button>
+												<div className="text-sm text-gray-600 dark:text-gray-400">
+													Page {accountTransactionsCurrentPage} ({accountTransactionsCount} total)
 												</div>
-											</CardContent>
-										</Card>
-										<Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700">
-											<CardContent className="p-4">
-												<div className="flex items-center space-x-2">
-													<TrendingUp className="h-5 w-5 text-green-600" />
-													<div>
-														<p className="text-sm font-medium text-green-800 dark:text-green-300">Total Gagné</p>
-														<p className="text-lg font-bold text-green-600">XOF {parseFloat(bettingCommissionStats.commissions.total_earned || 0).toFixed(2)}</p>
-													</div>
-												</div>
-											</CardContent>
-										</Card>
-										<Card className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700">
-											<CardContent className="p-4">
-												<div className="flex items-center space-x-2">
-													<CheckCircle className="h-5 w-5 text-orange-600" />
-													<div>
-														<p className="text-sm font-medium text-orange-800 dark:text-orange-300">Commission Payée</p>
-														<p className="text-lg font-bold text-orange-600">XOF {parseFloat(bettingCommissionStats.commissions.total_paid || 0).toFixed(2)}</p>
-													</div>
-												</div>
-											</CardContent>
-										</Card>
-										<Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700">
-											<CardContent className="p-4">
-												<div className="flex items-center space-x-2">
-													<Clock className="h-5 w-5 text-red-600" />
-													<div>
-														<p className="text-sm font-medium text-red-800 dark:text-red-300">Commission Impayée</p>
-														<p className="text-lg font-bold text-red-600">XOF {parseFloat(bettingCommissionStats.commissions.total_unpaid || 0).toFixed(2)}</p>
-													</div>
-												</div>
-											</CardContent>
-										</Card>
-									</div>
-
-									{/* Second Row - Additional Stats */}
-									<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-										<Card className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
-											<CardContent className="p-4">
-												<div className="flex items-center space-x-2">
-													<CreditCard className="h-5 w-5 text-purple-600" />
-													<div>
-														<p className="text-sm font-medium text-purple-800 dark:text-purple-300">Commission Payable</p>
-														<p className="text-lg font-bold text-purple-600">XOF {parseFloat(bettingCommissionStats.commissions.payable || 0).toFixed(2)}</p>
-													</div>
-												</div>
-											</CardContent>
-										</Card>
-										<Card className="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-700">
-											<CardContent className="p-4">
-												<div className="flex items-center space-x-2">
-													<Users className="h-5 w-5 text-indigo-600" />
-													<div>
-														<p className="text-sm font-medium text-indigo-800 dark:text-indigo-300">Transactions Payables</p>
-														<p className="text-lg font-bold text-indigo-600">{bettingCommissionStats.commissions.payable_count}</p>
-													</div>
-												</div>
-											</CardContent>
-										</Card>
-										<Card className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700">
-											<CardContent className="p-4">
-												<div className="flex items-center space-x-2">
-													<Calendar className="h-5 w-5 text-emerald-600" />
-													<div>
-														<p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Commission Mois Actuel</p>
-														<p className="text-lg font-bold text-emerald-600">XOF {parseFloat(bettingCommissionStats.commissions.current_month || 0).toFixed(2)}</p>
-													</div>
-												</div>
-											</CardContent>
-										</Card>
-										<Card className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-700">
-											<CardContent className="p-4">
-												<div className="flex items-center space-x-2">
-													<TrendingUp className="h-5 w-5 text-teal-600" />
-													<div>
-														<p className="text-sm font-medium text-teal-800 dark:text-teal-300">Transactions Mois Actuel</p>
-														<p className="text-lg font-bold text-teal-600">{bettingCommissionStats.commissions.current_month_count}</p>
-													</div>
-												</div>
-											</CardContent>
-										</Card>
-									</div>
-								</div>
-							)}
-
-							{/* Commission Configuration Form */}
-							<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
-								<CardHeader>
-									<CardTitle className="flex items-center space-x-2">
-										<Settings className="h-5 w-5 text-orange-600" />
-										<span>Configuration des Commissions</span>
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<form onSubmit={handleSaveBettingCommission} className="space-y-4">
-										{bettingCommissionError && (
-											<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
-												<ErrorDisplay error={bettingCommissionError} />
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => {
+														if (accountTransactionsNext) {
+															const nextPage = accountTransactionsCurrentPage + 1
+															handleOpenAccountTransactions(accountTransactionsPartner!, nextPage, accountTransactionsNext, null)
+														}
+													}}
+													disabled={!accountTransactionsNext || accountTransactionsLoading}
+												>
+													Suivant
+													<ChevronRight className="h-4 w-4 ml-1" />
+												</Button>
 											</div>
 										)}
+									</>
+								)}
+							</div>
+						)}
+					</DialogContent>
+				</Dialog>
 
-										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-											<div>
-												<Label htmlFor="deposit_commission_rate">Taux de Commission Dépôt (%)</Label>
-												<Input
-													id="deposit_commission_rate"
-													type="number"
-													step="0.01"
-													min="0"
-													max="100"
-													value={bettingCommissionForm.deposit_commission_rate}
-													onChange={(e) => setBettingCommissionForm(prev => ({ ...prev, deposit_commission_rate: e.target.value }))}
-													className="mt-1"
-													required
-												/>
+				{/* Betting Commission Modal */}
+				<Dialog open={bettingCommissionModalOpen} onOpenChange={setBettingCommissionModalOpen}>
+					<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+						<DialogHeader>
+							<DialogTitle className="flex items-center space-x-2">
+								<TrendingUp className="h-5 w-5 text-orange-600" />
+								<span>Commissions de Paris - {bettingCommissionPartner?.display_name || 'Partenaire'}</span>
+							</DialogTitle>
+						</DialogHeader>
+						{bettingCommissionLoading ? (
+							<div className="flex items-center justify-center py-8">
+								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+							</div>
+						) : bettingCommissionError ? (
+							<ErrorDisplay error={bettingCommissionError} />
+						) : (
+							<div className="space-y-6">
+								{/* Partner Balance */}
+								{partnerAccountInfo && (
+									<Card className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-700">
+										<CardContent className="p-6">
+											<div className="flex items-center justify-between">
+												<div className="flex items-center space-x-3">
+													<div className="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+														<Wallet className="h-6 w-6 text-green-600" />
+													</div>
+													<div>
+														<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Solde du Compte</p>
+														<p className="text-2xl font-bold text-green-600">{partnerAccountInfo.formatted_balance}</p>
+													</div>
+												</div>
 											</div>
-											<div>
-												<Label htmlFor="withdrawal_commission_rate">Taux de Commission Retrait (%)</Label>
-												<Input
-													id="withdrawal_commission_rate"
-													type="number"
-													step="0.01"
-													min="0"
-													max="100"
-													value={bettingCommissionForm.withdrawal_commission_rate}
-													onChange={(e) => setBettingCommissionForm(prev => ({ ...prev, withdrawal_commission_rate: e.target.value }))}
-													className="mt-1"
-													required
-												/>
-											</div>
+										</CardContent>
+									</Card>
+								)}
+
+								{/* Global Stats */}
+								{bettingCommissionStats && bettingCommissionStats.commissions && (
+									<div className="space-y-4">
+										{/* First Row - Main Stats */}
+										<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+											<Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
+												<CardContent className="p-4">
+													<div className="flex items-center space-x-2">
+														<DollarSign className="h-5 w-5 text-blue-600" />
+														<div>
+															<p className="text-sm font-medium text-blue-800 dark:text-blue-300">Total Transactions</p>
+															<p className="text-lg font-bold text-blue-600">{bettingCommissionStats.commissions.total_transaction_count}</p>
+														</div>
+													</div>
+												</CardContent>
+											</Card>
+											<Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700">
+												<CardContent className="p-4">
+													<div className="flex items-center space-x-2">
+														<TrendingUp className="h-5 w-5 text-green-600" />
+														<div>
+															<p className="text-sm font-medium text-green-800 dark:text-green-300">Total Gagné</p>
+															<p className="text-lg font-bold text-green-600">XOF {parseFloat(bettingCommissionStats.commissions.total_earned || 0).toFixed(2)}</p>
+														</div>
+													</div>
+												</CardContent>
+											</Card>
+											<Card className="bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700">
+												<CardContent className="p-4">
+													<div className="flex items-center space-x-2">
+														<CheckCircle className="h-5 w-5 text-orange-600" />
+														<div>
+															<p className="text-sm font-medium text-orange-800 dark:text-orange-300">Commission Payée</p>
+															<p className="text-lg font-bold text-orange-600">XOF {parseFloat(bettingCommissionStats.commissions.total_paid || 0).toFixed(2)}</p>
+														</div>
+													</div>
+												</CardContent>
+											</Card>
+											<Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700">
+												<CardContent className="p-4">
+													<div className="flex items-center space-x-2">
+														<Clock className="h-5 w-5 text-red-600" />
+														<div>
+															<p className="text-sm font-medium text-red-800 dark:text-red-300">Commission Impayée</p>
+															<p className="text-lg font-bold text-red-600">XOF {parseFloat(bettingCommissionStats.commissions.total_unpaid || 0).toFixed(2)}</p>
+														</div>
+													</div>
+												</CardContent>
+											</Card>
 										</div>
 
-										<div className="flex items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-											<Button
-												type="submit"
-												disabled={bettingCommissionLoading}
-												className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
-											>
-												{bettingCommissionLoading ? (
-													<>
-														<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-														Sauvegarde...
-													</>
-												) : (
-													<>
-														<Settings className="h-4 w-4 mr-2" />
-														{bettingCommissionConfig ? 'Mettre à jour' : 'Créer'} Configuration
-													</>
-												)}
-											</Button>
-											<Button
-												type="button"
-												variant="outline"
-												onClick={() => setBettingCommissionPaymentModalOpen(true)}
-												disabled={bettingCommissionLoading}
-												className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700 dark:hover:bg-green-900/30"
-											>
-												<CreditCard className="h-4 w-4 mr-2" />
-												Payer Commission
-											</Button>
+										{/* Second Row - Additional Stats */}
+										<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+											<Card className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-700">
+												<CardContent className="p-4">
+													<div className="flex items-center space-x-2">
+														<CreditCard className="h-5 w-5 text-purple-600" />
+														<div>
+															<p className="text-sm font-medium text-purple-800 dark:text-purple-300">Commission Payable</p>
+															<p className="text-lg font-bold text-purple-600">XOF {parseFloat(bettingCommissionStats.commissions.payable || 0).toFixed(2)}</p>
+														</div>
+													</div>
+												</CardContent>
+											</Card>
+											<Card className="bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-700">
+												<CardContent className="p-4">
+													<div className="flex items-center space-x-2">
+														<Users className="h-5 w-5 text-indigo-600" />
+														<div>
+															<p className="text-sm font-medium text-indigo-800 dark:text-indigo-300">Transactions Payables</p>
+															<p className="text-lg font-bold text-indigo-600">{bettingCommissionStats.commissions.payable_count}</p>
+														</div>
+													</div>
+												</CardContent>
+											</Card>
+											<Card className="bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700">
+												<CardContent className="p-4">
+													<div className="flex items-center space-x-2">
+														<Calendar className="h-5 w-5 text-emerald-600" />
+														<div>
+															<p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">Commission Mois Actuel</p>
+															<p className="text-lg font-bold text-emerald-600">XOF {parseFloat(bettingCommissionStats.commissions.current_month || 0).toFixed(2)}</p>
+														</div>
+													</div>
+												</CardContent>
+											</Card>
+											<Card className="bg-teal-50 dark:bg-teal-900/20 border-teal-200 dark:border-teal-700">
+												<CardContent className="p-4">
+													<div className="flex items-center space-x-2">
+														<TrendingUp className="h-5 w-5 text-teal-600" />
+														<div>
+															<p className="text-sm font-medium text-teal-800 dark:text-teal-300">Transactions Mois Actuel</p>
+															<p className="text-lg font-bold text-teal-600">{bettingCommissionStats.commissions.current_month_count}</p>
+														</div>
+													</div>
+												</CardContent>
+											</Card>
 										</div>
-									</form>
-								</CardContent>
-							</Card>
+									</div>
+								)}
 
-							{/* Current Configuration Display */}
-							{bettingCommissionConfig && (
-								<Card className="bg-gray-50 dark:bg-gray-700 border-0 shadow-lg">
+								{/* Commission Configuration Form */}
+								<Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
 									<CardHeader>
 										<CardTitle className="flex items-center space-x-2">
-											<CheckCircle className="h-5 w-5 text-green-600" />
-											<span>Configuration Actuelle</span>
+											<Settings className="h-5 w-5 text-orange-600" />
+											<span>Configuration des Commissions</span>
 										</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-											<div>
-												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Taux de Commission Dépôt:</span>
-												<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-													{bettingCommissionConfig.deposit_commission_rate}%
-												</p>
+										<form onSubmit={handleSaveBettingCommission} className="space-y-4">
+											{bettingCommissionError && (
+												<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+													<ErrorDisplay error={bettingCommissionError} />
+												</div>
+											)}
+
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+												<div>
+													<Label htmlFor="deposit_commission_rate">Taux de Commission Dépôt (%)</Label>
+													<Input
+														id="deposit_commission_rate"
+														type="number"
+														step="0.01"
+														min="0"
+														max="100"
+														value={bettingCommissionForm.deposit_commission_rate}
+														onChange={(e) => setBettingCommissionForm(prev => ({ ...prev, deposit_commission_rate: e.target.value }))}
+														className="mt-1"
+														required
+													/>
+												</div>
+												<div>
+													<Label htmlFor="withdrawal_commission_rate">Taux de Commission Retrait (%)</Label>
+													<Input
+														id="withdrawal_commission_rate"
+														type="number"
+														step="0.01"
+														min="0"
+														max="100"
+														value={bettingCommissionForm.withdrawal_commission_rate}
+														onChange={(e) => setBettingCommissionForm(prev => ({ ...prev, withdrawal_commission_rate: e.target.value }))}
+														className="mt-1"
+														required
+													/>
+												</div>
 											</div>
-											<div>
-												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Taux de Commission Retrait:</span>
-												<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-													{bettingCommissionConfig.withdrawal_commission_rate}%
-												</p>
+
+											<div className="flex items-center space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+												<Button
+													type="submit"
+													disabled={bettingCommissionLoading}
+													className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
+												>
+													{bettingCommissionLoading ? (
+														<>
+															<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+															Sauvegarde...
+														</>
+													) : (
+														<>
+															<Settings className="h-4 w-4 mr-2" />
+															{bettingCommissionConfig ? 'Mettre à jour' : 'Créer'} Configuration
+														</>
+													)}
+												</Button>
+												<Button
+													type="button"
+													variant="outline"
+													onClick={() => setBettingCommissionPaymentModalOpen(true)}
+													disabled={bettingCommissionLoading}
+													className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700 dark:hover:bg-green-900/30"
+												>
+													<CreditCard className="h-4 w-4 mr-2" />
+													Payer Commission
+												</Button>
 											</div>
-											<div>
-												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Mis à jour par:</span>
-												<p className="text-sm text-gray-900 dark:text-gray-100">
-													{bettingCommissionConfig.updated_by_name}
-												</p>
-											</div>
-											<div>
-												<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Dernière mise à jour:</span>
-												<p className="text-sm text-gray-900 dark:text-gray-100">
-													{bettingCommissionConfig.updated_at 
-														? new Date(bettingCommissionConfig.updated_at).toLocaleString()
-														: 'Non disponible'
-													}
-												</p>
-											</div>
-										</div>
+										</form>
 									</CardContent>
 								</Card>
+
+								{/* Current Configuration Display */}
+								{bettingCommissionConfig && (
+									<Card className="bg-gray-50 dark:bg-gray-700 border-0 shadow-lg">
+										<CardHeader>
+											<CardTitle className="flex items-center space-x-2">
+												<CheckCircle className="h-5 w-5 text-green-600" />
+												<span>Configuration Actuelle</span>
+											</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+												<div>
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Taux de Commission Dépôt:</span>
+													<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+														{bettingCommissionConfig.deposit_commission_rate}%
+													</p>
+												</div>
+												<div>
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Taux de Commission Retrait:</span>
+													<p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+														{bettingCommissionConfig.withdrawal_commission_rate}%
+													</p>
+												</div>
+												<div>
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Mis à jour par:</span>
+													<p className="text-sm text-gray-900 dark:text-gray-100">
+														{bettingCommissionConfig.updated_by_name}
+													</p>
+												</div>
+												<div>
+													<span className="text-sm font-medium text-gray-600 dark:text-gray-400">Dernière mise à jour:</span>
+													<p className="text-sm text-gray-900 dark:text-gray-100">
+														{bettingCommissionConfig.updated_at
+															? new Date(bettingCommissionConfig.updated_at).toLocaleString()
+															: 'Non disponible'
+														}
+													</p>
+												</div>
+											</div>
+										</CardContent>
+									</Card>
+								)}
+							</div>
+						)}
+					</DialogContent>
+				</Dialog>
+
+				{/* Betting Commission Payment Modal */}
+				<Dialog open={bettingCommissionPaymentModalOpen} onOpenChange={setBettingCommissionPaymentModalOpen}>
+					<DialogContent className="max-w-2xl">
+						<DialogHeader>
+							<DialogTitle className="flex items-center space-x-2">
+								<CreditCard className="h-5 w-5 text-green-600" />
+								<span>Payer Commission de Paris</span>
+							</DialogTitle>
+						</DialogHeader>
+						<form onSubmit={handlePayBettingCommission} className="space-y-6">
+							{bettingCommissionPaymentError && (
+								<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+									<ErrorDisplay error={bettingCommissionPaymentError} />
+								</div>
 							)}
-						</div>
-					)}
-				</DialogContent>
-			</Dialog>
 
-			{/* Betting Commission Payment Modal */}
-			<Dialog open={bettingCommissionPaymentModalOpen} onOpenChange={setBettingCommissionPaymentModalOpen}>
-				<DialogContent className="max-w-2xl">
-					<DialogHeader>
-						<DialogTitle className="flex items-center space-x-2">
-							<CreditCard className="h-5 w-5 text-green-600" />
-							<span>Payer Commission de Paris</span>
-						</DialogTitle>
-					</DialogHeader>
-					<form onSubmit={handlePayBettingCommission} className="space-y-6">
-						{bettingCommissionPaymentError && (
-							<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
-								<ErrorDisplay error={bettingCommissionPaymentError} />
+							<div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
+								<h3 className="font-medium text-orange-800 dark:text-orange-300 mb-2">
+									Partennaire: {bettingCommissionPartner?.display_name}
+								</h3>
+								<p className="text-sm text-orange-700 dark:text-orange-400">
+									Cette action va payer toutes les commissions impayées pour ce partenaire.
+								</p>
 							</div>
-						)}
 
-						<div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
-							<h3 className="font-medium text-orange-800 dark:text-orange-300 mb-2">
-								Partennaire: {bettingCommissionPartner?.display_name}
-							</h3>
-							<p className="text-sm text-orange-700 dark:text-orange-400">
-								Cette action va payer toutes les commissions impayées pour ce partenaire.
-							</p>
-						</div>
-
-						<div>
-							<Label htmlFor="admin_notes">Notes Administrateur</Label>
-							<Textarea
-								id="admin_notes"
-								placeholder="Ajouter des notes pour ce paiement de commission..."
-								value={bettingCommissionPaymentForm.admin_notes}
-								onChange={(e) => setBettingCommissionPaymentForm(prev => ({ ...prev, admin_notes: e.target.value }))}
-								className="mt-1"
-								rows={3}
-							/>
-						</div>
-
-						<div className="flex items-center space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-							<Button
-								type="submit"
-								disabled={bettingCommissionPaymentLoading}
-								className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
-							>
-								{bettingCommissionPaymentLoading ? (
-									<>
-										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-										Paiement...
-									</>
-								) : (
-									<>
-										<CreditCard className="h-4 w-4 mr-2" />
-										Payer Commission
-									</>
-								)}
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setBettingCommissionPaymentModalOpen(false)}
-								disabled={bettingCommissionPaymentLoading}
-							>
-								Annuler
-							</Button>
-						</div>
-					</form>
-				</DialogContent>
-			</Dialog>
-
-			{/* Grant Permission Modal */}
-			<Dialog open={grantPermissionModalOpen} onOpenChange={setGrantPermissionModalOpen}>
-				<DialogContent className="max-w-2xl">
-					<DialogHeader>
-						<DialogTitle className="flex items-center space-x-2">
-							<Shield className="h-5 w-5 text-purple-600" />
-							<span>Accorder Permission au Partenaire</span>
-						</DialogTitle>
-					</DialogHeader>
-					<form onSubmit={handleGrantPermission} className="space-y-6">
-						{grantPermissionError && (
-							<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
-								<ErrorDisplay error={grantPermissionError} />
+							<div>
+								<Label htmlFor="admin_notes">Notes Administrateur</Label>
+								<Textarea
+									id="admin_notes"
+									placeholder="Ajouter des notes pour ce paiement de commission..."
+									value={bettingCommissionPaymentForm.admin_notes}
+									onChange={(e) => setBettingCommissionPaymentForm(prev => ({ ...prev, admin_notes: e.target.value }))}
+									className="mt-1"
+									rows={3}
+								/>
 							</div>
-						)}
 
-						<div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
-							<h3 className="font-medium text-purple-800 dark:text-purple-300 mb-2">
-								Partennaire: {grantPermissionPartner?.display_name}
-							</h3>
-							<p className="text-sm text-purple-700 dark:text-purple-400">
-								Accorder des permissions supplémentaires à ce partenaire.
-							</p>
-						</div>
+							<div className="flex items-center space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+								<Button
+									type="submit"
+									disabled={bettingCommissionPaymentLoading}
+									className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+								>
+									{bettingCommissionPaymentLoading ? (
+										<>
+											<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+											Paiement...
+										</>
+									) : (
+										<>
+											<CreditCard className="h-4 w-4 mr-2" />
+											Payer Commission
+										</>
+									)}
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => setBettingCommissionPaymentModalOpen(false)}
+									disabled={bettingCommissionPaymentLoading}
+								>
+									Annuler
+								</Button>
+							</div>
+						</form>
+					</DialogContent>
+				</Dialog>
 
-						<div>
-							<Label htmlFor="uid">UID du Partenaire</Label>
-							<Input
-								id="uid"
-								type="text"
-								value={grantPermissionForm.uid}
-								onChange={(e) => setGrantPermissionForm(prev => ({ ...prev, uid: e.target.value }))}
-								className="mt-1"
-								required
-								placeholder="UID du partenaire"
-							/>
-						</div>
+				{/* Grant Permission Modal */}
+				<Dialog open={grantPermissionModalOpen} onOpenChange={setGrantPermissionModalOpen}>
+					<DialogContent className="max-w-2xl">
+						<DialogHeader>
+							<DialogTitle className="flex items-center space-x-2">
+								<Shield className="h-5 w-5 text-purple-600" />
+								<span>Accorder Permission au Partenaire</span>
+							</DialogTitle>
+						</DialogHeader>
+						<form onSubmit={handleGrantPermission} className="space-y-6">
+							{grantPermissionError && (
+								<div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
+									<ErrorDisplay error={grantPermissionError} />
+								</div>
+							)}
 
-						<div>
-							<Label htmlFor="permission_type">Type de Permission</Label>
-							<Select 
-								value={grantPermissionForm.permission_type} 
-								onValueChange={(value) => setGrantPermissionForm(prev => ({ ...prev, permission_type: value }))}
-							>
-								<SelectTrigger className="mt-1">
-									<SelectValue placeholder="Sélectionner le type de permission" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="ussd_transaction">Transaction USSD</SelectItem>
-									<SelectItem value="betting_transaction">Transaction de Paris</SelectItem>
-									<SelectItem value="admin_access">Accès Administrateur</SelectItem>
-									<SelectItem value="commission_management">Gestion des Commissions</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
+							<div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+								<h3 className="font-medium text-purple-800 dark:text-purple-300 mb-2">
+									Partennaire: {grantPermissionPartner?.display_name}
+								</h3>
+								<p className="text-sm text-purple-700 dark:text-purple-400">
+									Accorder des permissions supplémentaires à ce partenaire.
+								</p>
+							</div>
 
-						<div>
-							<Label htmlFor="notes">Notes</Label>
-							<Textarea
-								id="notes"
-								placeholder="Ajouter des notes pour cette permission..."
-								value={grantPermissionForm.notes}
-								onChange={(e) => setGrantPermissionForm(prev => ({ ...prev, notes: e.target.value }))}
-								className="mt-1"
-								rows={3}
-							/>
-						</div>
+							<div>
+								<Label htmlFor="uid">UID du Partenaire</Label>
+								<Input
+									id="uid"
+									type="text"
+									value={grantPermissionForm.uid}
+									onChange={(e) => setGrantPermissionForm(prev => ({ ...prev, uid: e.target.value }))}
+									className="mt-1"
+									required
+									placeholder="UID du partenaire"
+								/>
+							</div>
 
-						<div className="flex items-center space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-							<Button
-								type="submit"
-								disabled={grantPermissionLoading}
-								className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white"
-							>
-								{grantPermissionLoading ? (
-									<>
-										<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-										Accord...
-									</>
-								) : (
-									<>
-										<Shield className="h-4 w-4 mr-2" />
-										Accorder Permission
-									</>
-								)}
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setGrantPermissionModalOpen(false)}
-								disabled={grantPermissionLoading}
-							>
-								Annuler
-							</Button>
-						</div>
-					</form>
-				</DialogContent>
-			</Dialog>
+							<div>
+								<Label htmlFor="permission_type">Type de Permission</Label>
+								<Select
+									value={grantPermissionForm.permission_type}
+									onValueChange={(value) => setGrantPermissionForm(prev => ({ ...prev, permission_type: value }))}
+								>
+									<SelectTrigger className="mt-1">
+										<SelectValue placeholder="Sélectionner le type de permission" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="ussd_transaction">Transaction USSD</SelectItem>
+										<SelectItem value="betting_transaction">Transaction de Paris</SelectItem>
+										<SelectItem value="admin_access">Accès Administrateur</SelectItem>
+										<SelectItem value="commission_management">Gestion des Commissions</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+
+							<div>
+								<Label htmlFor="notes">Notes</Label>
+								<Textarea
+									id="notes"
+									placeholder="Ajouter des notes pour cette permission..."
+									value={grantPermissionForm.notes}
+									onChange={(e) => setGrantPermissionForm(prev => ({ ...prev, notes: e.target.value }))}
+									className="mt-1"
+									rows={3}
+								/>
+							</div>
+
+							<div className="flex items-center space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+								<Button
+									type="submit"
+									disabled={grantPermissionLoading}
+									className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white"
+								>
+									{grantPermissionLoading ? (
+										<>
+											<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+											Accord...
+										</>
+									) : (
+										<>
+											<Shield className="h-4 w-4 mr-2" />
+											Accorder Permission
+										</>
+									)}
+								</Button>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => setGrantPermissionModalOpen(false)}
+									disabled={grantPermissionLoading}
+								>
+									Annuler
+								</Button>
+							</div>
+						</form>
+					</DialogContent>
+				</Dialog>
 
 			</div>
 		</div>

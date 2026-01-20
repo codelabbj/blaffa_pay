@@ -130,13 +130,13 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => router.back()}
                 className="flex items-center space-x-2"
               >
@@ -154,7 +154,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
             </div>
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
                   onClick={handlePayClick}
                 >
@@ -203,7 +203,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                   <Button variant="outline" onClick={() => setModalOpen(false)}>
                     Annuler
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handlePayCommissionClick}
                     disabled={!amount}
                     className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
@@ -293,7 +293,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Début de période</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {stats.period_info?.start ? new Date(stats.period_info.start).toLocaleDateString() : 'Non défini'}
+                        {stats.period_info?.start ? new Date(stats.period_info.start).toLocaleString() : 'Non défini'}
                       </p>
                     </div>
                   </div>
@@ -302,7 +302,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Fin de période</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {stats.period_info?.end ? new Date(stats.period_info.end).toLocaleDateString() : 'Non défini'}
+                        {stats.period_info?.end ? new Date(stats.period_info.end).toLocaleString() : 'Non défini'}
                       </p>
                     </div>
                   </div>
@@ -334,21 +334,21 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                               XOF {parseFloat(commission.amount || 0).toFixed(2)}
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {commission.period_start && commission.period_end ? 
-                                `${new Date(commission.period_start).toLocaleDateString()} - ${new Date(commission.period_end).toLocaleDateString()}` : 
+                              {commission.period_start && commission.period_end ?
+                                `${new Date(commission.period_start).toLocaleString()} - ${new Date(commission.period_end).toLocaleString()}` :
                                 'Période non spécifiée'
                               }
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <Badge 
+                          <Badge
                             className={
-                              commission.status === 'completed' 
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+                              commission.status === 'completed'
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                                 : commission.status === 'pending'
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
-                                : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+                                  : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                             }
                           >
                             <div className="flex items-center space-x-1">
@@ -407,7 +407,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
               <Button variant="outline" onClick={() => setConfirmModalOpen(false)}>
                 Annuler
               </Button>
-              <Button 
+              <Button
                 onClick={handleConfirmPay}
                 disabled={payLoading}
                 className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"

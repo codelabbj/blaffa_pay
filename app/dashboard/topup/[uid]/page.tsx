@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 // Colors for consistent theming
 const COLORS = {
   primary: '#3B82F6',
-  secondary: '#10B981', 
+  secondary: '#10B981',
   accent: '#F59E0B',
   danger: '#EF4444',
   warning: '#F97316',
@@ -62,10 +62,10 @@ export default function TopupDetailPage() {
       'completed': { color: 'bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300', icon: CheckCircle },
       'expired': { color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300', icon: XCircle }
     };
-    
+
     const statusInfo = statusMap[status.toLowerCase()] || statusMap['pending'];
     const IconComponent = statusInfo.icon;
-    
+
     return (
       <Badge className={statusInfo.color}>
         <div className="flex items-center space-x-1">
@@ -94,13 +94,13 @@ export default function TopupDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => router.back()}
                 className="flex items-center space-x-2"
               >
@@ -245,7 +245,7 @@ export default function TopupDetailPage() {
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Créé le</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {topup.created_at ? new Date(topup.created_at).toLocaleDateString() : 'N/A'}
+                        {topup.created_at ? new Date(topup.created_at).toLocaleString() : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -254,7 +254,7 @@ export default function TopupDetailPage() {
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Expire le</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {topup.expires_at ? new Date(topup.expires_at).toLocaleDateString() : 'N/A'}
+                        {topup.expires_at ? new Date(topup.expires_at).toLocaleString() : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -263,7 +263,7 @@ export default function TopupDetailPage() {
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Date de transaction</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {topup.transaction_date ? new Date(topup.transaction_date).toLocaleDateString() : 'N/A'}
+                        {topup.transaction_date ? new Date(topup.transaction_date).toLocaleString() : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -272,7 +272,7 @@ export default function TopupDetailPage() {
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Examiné le</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {topup.reviewed_at ? new Date(topup.reviewed_at).toLocaleDateString() : 'N/A'}
+                        {topup.reviewed_at ? new Date(topup.reviewed_at).toLocaleString() : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -281,7 +281,7 @@ export default function TopupDetailPage() {
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Traité le</p>
                       <p className="text-gray-900 dark:text-gray-100">
-                        {topup.processed_at ? new Date(topup.processed_at).toLocaleDateString() : 'N/A'}
+                        {topup.processed_at ? new Date(topup.processed_at).toLocaleString() : 'N/A'}
                       </p>
                     </div>
                   </div>

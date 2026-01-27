@@ -6,15 +6,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useLanguage } from "@/components/providers/language-provider"
-import { ArrowLeft, Save, Loader2, CheckCircle, XCircle, BarChart3, Search, User, Shield, DollarSign, TrendingUp } from "lucide-react"
+import { ArrowLeft, Save, Loader2, CheckCircle, XCircle, BarChart3, Search, User, Shield, DollarSign, TrendingUp, Check, ChevronsUpDown } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -73,7 +75,7 @@ export default function CreatePermissionPage() {
     can_deposit: true,
     can_withdraw: true,
   })
-  
+
   const [partners, setPartners] = useState<Partner[]>([])
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null)
@@ -84,6 +86,9 @@ export default function CreatePermissionPage() {
   const [error, setError] = useState("")
   const [partnersError, setPartnersError] = useState("")
   const [platformsError, setPlatformsError] = useState("")
+  const [openPartnerCombobox, setOpenPartnerCombobox] = useState(false)
+  const [openPlatformCombobox, setOpenPlatformCombobox] = useState(false)
+
   const { t } = useLanguage()
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
@@ -138,12 +143,14 @@ export default function CreatePermissionPage() {
     const partner = partners.find(p => p.uid === partnerId)
     setSelectedPartner(partner || null)
     setForm(prev => ({ ...prev, partner: partnerId }))
+    setOpenPartnerCombobox(false)
   }
 
   const handlePlatformSelect = (platformId: string) => {
     const platform = platforms.find(p => p.uid === platformId)
     setSelectedPlatform(platform || null)
     setForm(prev => ({ ...prev, platform: platformId }))
+    setOpenPlatformCombobox(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -166,11 +173,11 @@ export default function CreatePermissionPage() {
         body: JSON.stringify(payload),
       })
 
-      toast({ 
-        title: "Succès", 
-        description: "Permission créée avec succès" 
+      toast({
+        title: "Succès",
+        description: "Permission créée avec succès"
       })
-      
+
       router.push("/dashboard/permissions/list")
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
@@ -196,7 +203,7 @@ export default function CreatePermissionPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-4 mb-4">
@@ -242,11 +249,10 @@ export default function CreatePermissionPage() {
                     {partners.map((partner) => (
                       <div
                         key={partner.uid}
-                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
-                          selectedPartner?.uid === partner.uid
+                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${selectedPartner?.uid === partner.uid
                             ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                             : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                        }`}
+                          }`}
                         onClick={() => handlePartnerSelect(partner.uid)}
                       >
                         <div className="flex items-center space-x-3">
@@ -261,9 +267,9 @@ export default function CreatePermissionPage() {
                               {partner.email}
                             </div>
                             <div className="flex items-center space-x-2 mt-1">
-                              <Badge 
+                              <Badge
                                 className={
-                                  partner.is_active 
+                                  partner.is_active
                                     ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                                     : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                                 }
@@ -310,11 +316,10 @@ export default function CreatePermissionPage() {
                     {platforms.map((platform) => (
                       <div
                         key={platform.uid}
-                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
-                          selectedPlatform?.uid === platform.uid
+                        className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${selectedPlatform?.uid === platform.uid
                             ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
                             : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                        }`}
+                          }`}
                         onClick={() => handlePlatformSelect(platform.uid)}
                       >
                         <div className="flex items-center space-x-3">
@@ -329,9 +334,9 @@ export default function CreatePermissionPage() {
                               {platform.description}
                             </div>
                             <div className="flex items-center space-x-2 mt-1">
-                              <Badge 
+                              <Badge
                                 className={
-                                  platform.is_active 
+                                  platform.is_active
                                     ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                                     : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                                 }
@@ -372,43 +377,99 @@ export default function CreatePermissionPage() {
                   )}
 
                   {/* Partner Selection */}
-                  <div>
+                  <div className="flex flex-col space-y-2">
                     <Label htmlFor="partner">Partenaire *</Label>
-                    <Select value={form.partner} onValueChange={handlePartnerSelect}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Sélectionner un partenaire" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {partners.map((partner) => (
-                          <SelectItem key={partner.uid} value={partner.uid}>
-                            {partner.display_name} ({partner.email})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={openPartnerCombobox} onOpenChange={setOpenPartnerCombobox}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openPartnerCombobox}
+                          className="w-full justify-between"
+                        >
+                          {form.partner
+                            ? partners.find((partner) => partner.uid === form.partner)?.display_name
+                            : "Sélectionner un partenaire..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[300px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Rechercher un partenaire..." />
+                          <CommandList>
+                            <CommandEmpty>Aucun partenaire trouvé.</CommandEmpty>
+                            <CommandGroup>
+                              {partners.map((partner) => (
+                                <CommandItem
+                                  key={partner.uid}
+                                  value={partner.display_name}
+                                  onSelect={() => handlePartnerSelect(partner.uid)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      form.partner === partner.uid ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {partner.display_name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   {/* Platform Selection */}
-                  <div>
+                  <div className="flex flex-col space-y-2">
                     <Label htmlFor="platform">Plateforme *</Label>
-                    <Select value={form.platform} onValueChange={handlePlatformSelect}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Sélectionner une plateforme" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {platforms.map((platform) => (
-                          <SelectItem key={platform.uid} value={platform.uid}>
-                            {platform.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={openPlatformCombobox} onOpenChange={setOpenPlatformCombobox}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={openPlatformCombobox}
+                          className="w-full justify-between"
+                        >
+                          {form.platform
+                            ? platforms.find((platform) => platform.uid === form.platform)?.name
+                            : "Sélectionner une plateforme..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[300px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Rechercher une plateforme..." />
+                          <CommandList>
+                            <CommandEmpty>Aucune plateforme trouvée.</CommandEmpty>
+                            <CommandGroup>
+                              {platforms.map((platform) => (
+                                <CommandItem
+                                  key={platform.uid}
+                                  value={platform.name}
+                                  onSelect={() => handlePlatformSelect(platform.uid)}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      form.platform === platform.uid ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {platform.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
 
                   {/* Permissions */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Permissions</h3>
-                    
+
                     <div className="flex items-center space-x-3">
                       <Switch
                         id="can_deposit"
@@ -518,7 +579,7 @@ export default function CreatePermissionPage() {
                     </div>
                   </div>
                 )}
-                
+
                 {selectedPlatform && (
                   <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
                     <h4 className="font-medium text-orange-800 dark:text-orange-300 mb-3 flex items-center">

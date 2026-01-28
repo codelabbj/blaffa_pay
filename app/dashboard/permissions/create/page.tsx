@@ -88,6 +88,8 @@ export default function CreatePermissionPage() {
   const [platformsError, setPlatformsError] = useState("")
   const [openPartnerCombobox, setOpenPartnerCombobox] = useState(false)
   const [openPlatformCombobox, setOpenPlatformCombobox] = useState(false)
+  const [partnerSearch, setPartnerSearch] = useState("")
+  const [platformSearch, setPlatformSearch] = useState("")
 
   const { t } = useLanguage()
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
@@ -95,45 +97,73 @@ export default function CreatePermissionPage() {
   const apiFetch = useApi();
   const router = useRouter()
 
-  // Fetch partners on component mount
-  useEffect(() => {
-    const fetchPartners = async () => {
-      setPartnersLoading(true)
-      setPartnersError("")
-      try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/`
-        const data = await apiFetch(endpoint)
-        setPartners(data.partners || [])
-      } catch (err: any) {
-        const errorMessage = extractErrorMessages(err)
-        setPartnersError(errorMessage)
-        toast({ title: "Erreur", description: errorMessage, variant: "destructive" })
-      } finally {
-        setPartnersLoading(false)
-      }
-    }
-    fetchPartners()
-  }, [baseUrl, apiFetch, toast])
+  // Fetch partners function
+  const fetchPartners = async (search: string = "") => {
+    setPartnersLoading(true)
+    setPartnersError("")
+    try {
+      const queryParams = new URLSearchParams()
+      if (search) queryParams.append("search", search)
 
-  // Fetch platforms on component mount
-  useEffect(() => {
-    const fetchPlatforms = async () => {
-      setPlatformsLoading(true)
-      setPlatformsError("")
-      try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/`
-        const data = await apiFetch(endpoint)
-        setPlatforms(data.results || [])
-      } catch (err: any) {
-        const errorMessage = extractErrorMessages(err)
-        setPlatformsError(errorMessage)
-        toast({ title: "Erreur", description: errorMessage, variant: "destructive" })
-      } finally {
-        setPlatformsLoading(false)
-      }
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${search ? `?${queryParams.toString()}` : ""}`
+      const data = await apiFetch(endpoint)
+      setPartners(data.partners || [])
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      setPartnersError(errorMessage)
+      toast({ title: "Erreur", description: errorMessage, variant: "destructive" })
+    } finally {
+      setPartnersLoading(false)
     }
+  }
+
+  // Fetch platforms function
+  const fetchPlatforms = async (search: string = "") => {
+    setPlatformsLoading(true)
+    setPlatformsError("")
+    try {
+      const queryParams = new URLSearchParams()
+      if (search) queryParams.append("search", search)
+
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${search ? `?${queryParams.toString()}` : ""}`
+      const data = await apiFetch(endpoint)
+      setPlatforms(data.results || [])
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      setPlatformsError(errorMessage)
+      toast({ title: "Erreur", description: errorMessage, variant: "destructive" })
+    } finally {
+      setPlatformsLoading(false)
+    }
+  }
+
+  // Initial fetch
+  useEffect(() => {
+    fetchPartners()
     fetchPlatforms()
-  }, [baseUrl, apiFetch, toast])
+  }, [baseUrl, apiFetch])
+
+  // Debounced search for partners
+  useEffect(() => {
+    if (!openPartnerCombobox) return;
+
+    const timer = setTimeout(() => {
+      fetchPartners(partnerSearch)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [partnerSearch, openPartnerCombobox])
+
+  // Debounced search for platforms
+  useEffect(() => {
+    if (!openPlatformCombobox) return;
+
+    const timer = setTimeout(() => {
+      fetchPlatforms(platformSearch)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [platformSearch, openPlatformCombobox])
 
   const handleInputChange = (field: keyof PermissionForm, value: string | boolean) => {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -144,6 +174,7 @@ export default function CreatePermissionPage() {
     setSelectedPartner(partner || null)
     setForm(prev => ({ ...prev, partner: partnerId }))
     setOpenPartnerCombobox(false)
+    setPartnerSearch("") // Clear search after selection
   }
 
   const handlePlatformSelect = (platformId: string) => {
@@ -151,6 +182,7 @@ export default function CreatePermissionPage() {
     setSelectedPlatform(platform || null)
     setForm(prev => ({ ...prev, platform: platformId }))
     setOpenPlatformCombobox(false)
+    setPlatformSearch("") // Clear search after selection
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -198,6 +230,8 @@ export default function CreatePermissionPage() {
     setSelectedPartner(null)
     setSelectedPlatform(null)
     setError("")
+    setPartnerSearch("")
+    setPlatformSearch("")
   }
 
   return (
@@ -235,7 +269,7 @@ export default function CreatePermissionPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {partnersLoading ? (
+                {partnersLoading && partners.length === 0 ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="flex flex-col items-center space-y-4">
                       <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
@@ -302,7 +336,7 @@ export default function CreatePermissionPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {platformsLoading ? (
+                {platformsLoading && platforms.length === 0 ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="flex flex-col items-center space-y-4">
                       <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
@@ -388,21 +422,30 @@ export default function CreatePermissionPage() {
                           className="w-full justify-between"
                         >
                           {form.partner
-                            ? partners.find((partner) => partner.uid === form.partner)?.display_name
+                            ? (partners.find((partner) => partner.uid === form.partner)?.display_name || selectedPartner?.display_name)
                             : "Sélectionner un partenaire..."}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[300px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Rechercher un partenaire..." />
+                      <PopoverContent className="w-[300px] p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Rechercher un partenaire..."
+                            value={partnerSearch}
+                            onValueChange={setPartnerSearch}
+                          />
                           <CommandList>
+                            {partnersLoading && (
+                              <div className="flex items-center justify-center py-2">
+                                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                              </div>
+                            )}
                             <CommandEmpty>Aucun partenaire trouvé.</CommandEmpty>
                             <CommandGroup>
                               {partners.map((partner) => (
                                 <CommandItem
                                   key={partner.uid}
-                                  value={partner.display_name}
+                                  value={partner.uid}
                                   onSelect={() => handlePartnerSelect(partner.uid)}
                                 >
                                   <Check
@@ -411,7 +454,10 @@ export default function CreatePermissionPage() {
                                       form.partner === partner.uid ? "opacity-100" : "opacity-0"
                                     )}
                                   />
-                                  {partner.display_name}
+                                  <div className="flex flex-col">
+                                    <span>{partner.display_name}</span>
+                                    <span className="text-xs text-gray-500">{partner.email}</span>
+                                  </div>
                                 </CommandItem>
                               ))}
                             </CommandGroup>
@@ -433,21 +479,30 @@ export default function CreatePermissionPage() {
                           className="w-full justify-between"
                         >
                           {form.platform
-                            ? platforms.find((platform) => platform.uid === form.platform)?.name
+                            ? (platforms.find((platform) => platform.uid === form.platform)?.name || selectedPlatform?.name)
                             : "Sélectionner une plateforme..."}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[300px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Rechercher une plateforme..." />
+                      <PopoverContent className="w-[300px] p-0" align="start">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Rechercher une plateforme..."
+                            value={platformSearch}
+                            onValueChange={setPlatformSearch}
+                          />
                           <CommandList>
+                            {platformsLoading && (
+                              <div className="flex items-center justify-center py-2">
+                                <Loader2 className="h-4 w-4 animate-spin text-orange-600" />
+                              </div>
+                            )}
                             <CommandEmpty>Aucune plateforme trouvée.</CommandEmpty>
                             <CommandGroup>
                               {platforms.map((platform) => (
                                 <CommandItem
                                   key={platform.uid}
-                                  value={platform.name}
+                                  value={platform.uid}
                                   onSelect={() => handlePlatformSelect(platform.uid)}
                                 >
                                   <Check

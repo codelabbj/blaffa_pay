@@ -8,9 +8,15 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye, DollarSign, Phone, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye, DollarSign, Phone, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, Loader2, MoreHorizontal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
@@ -75,6 +81,12 @@ export default function WaveBusinessPage() {
   const [detailTransaction, setDetailTransaction] = useState<WaveBusinessTransaction | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState("")
+
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [successReason, setSuccessReason] = useState("")
+  const [selectedTransactionForSuccess, setSelectedTransactionForSuccess] = useState<WaveBusinessTransaction | null>(null)
+  const [successLoading, setSuccessLoading] = useState(false)
+
   const itemsPerPage = 20
 
   // Récupérer les transactions depuis l'API
@@ -222,6 +234,43 @@ export default function WaveBusinessPage() {
     setDetailModalOpen(false)
     setDetailTransaction(null)
     setDetailError("")
+  }
+
+  // Marquer la transaction comme réussie
+  const handleMarkAsSuccess = async () => {
+    if (!selectedTransactionForSuccess) return
+    setSuccessLoading(true)
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/${selectedTransactionForSuccess.uid}/success/`
+      await apiFetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: successReason || "other reasons" })
+      })
+
+      toast({
+        title: "Succès",
+        description: "Transaction marquée comme réussie"
+      })
+
+      setSuccessModalOpen(false)
+      setSuccessReason("")
+      setSelectedTransactionForSuccess(null)
+
+      // Rafraîchir la liste
+      setCurrentPage(1)
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      toast({
+        title: "Erreur",
+        description: errorMessage,
+        variant: "destructive"
+      })
+    } finally {
+      setSuccessLoading(false)
+    }
   }
 
   const copyToClipboard = (text: string, label: string) => {
@@ -431,15 +480,31 @@ export default function WaveBusinessPage() {
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleOpenDetail(transaction)}
-                            className="border-gray-200 dark:border-gray-600"
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Détails
-                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700">
+                              <DropdownMenuItem onClick={() => handleOpenDetail(transaction)} className="cursor-pointer">
+                                <Eye className="mr-2 h-4 w-4" />
+                                Voir les détails
+                              </DropdownMenuItem>
+                              {transaction.status === "pending" && (
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedTransactionForSuccess(transaction);
+                                    setSuccessModalOpen(true);
+                                  }}
+                                  className="cursor-pointer text-green-600 focus:text-green-700 focus:bg-green-50 dark:focus:bg-green-900/20"
+                                >
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Marquer comme succès
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -634,6 +699,58 @@ export default function WaveBusinessPage() {
                 Fermer
               </Button>
             </DialogClose>
+          </DialogContent>
+        </Dialog>
+
+        {/* Success Modal */}
+        <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
+          <DialogContent className="bg-white dark:bg-gray-800 border-0 shadow-xl max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                </div>
+                <span>Marquer comme succès</span>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Voulez-vous vraiment marquer cette transaction comme réussie ? Cette action est irréversible.
+              </p>
+              <div className="space-y-2">
+                <label htmlFor="success-reason" className="text-sm font-medium">Raison (optionnel)</label>
+                <Input
+                  id="success-reason"
+                  placeholder="Ex: Confirmation manuelle reçue"
+                  value={successReason}
+                  onChange={(e) => setSuccessReason(e.target.value)}
+                  className="bg-gray-50 dark:bg-gray-700"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setSuccessModalOpen(false)}
+                disabled={successLoading}
+              >
+                Annuler
+              </Button>
+              <Button
+                onClick={handleMarkAsSuccess}
+                disabled={successLoading}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {successLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Traitement...
+                  </>
+                ) : (
+                  "Confirmer"
+                )}
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

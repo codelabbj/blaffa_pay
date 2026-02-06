@@ -12,17 +12,17 @@ import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { 
-  ClipboardList, 
-  Users, 
-  KeyRound, 
-  Bell, 
-  Clock, 
-  TrendingUp, 
-  Loader, 
-  ServerCrash, 
-  DollarSign, 
-  RefreshCw, 
+import {
+  ClipboardList,
+  Users,
+  KeyRound,
+  Bell,
+  Clock,
+  TrendingUp,
+  Loader,
+  ServerCrash,
+  DollarSign,
+  RefreshCw,
   UserCheck,
   Activity,
   Zap,
@@ -143,7 +143,7 @@ export default function DashboardPage() {
         setSummaryLoading(false);
       }
 
-  // Fetch transaction stats
+      // Fetch transaction stats
       setTransactionStatsLoading(true);
       try {
         const res = await apiFetch(`${baseUrl}api/payments/stats/transactions/`);
@@ -154,7 +154,7 @@ export default function DashboardPage() {
         setTransactionStatsLoading(false);
       }
 
-  // Fetch system events
+      // Fetch system events
       setSystemEventsLoading(true);
       try {
         const res = await apiFetch(`${baseUrl}api/payments/system-events/`);
@@ -165,7 +165,7 @@ export default function DashboardPage() {
         setSystemEventsLoading(false);
       }
 
-  // Fetch balance operations stats
+      // Fetch balance operations stats
       setBalanceOpsLoading(true);
       try {
         const res = await apiFetch(`${baseUrl}api/payments/admin/balance-operations/stats/`);
@@ -176,7 +176,7 @@ export default function DashboardPage() {
         setBalanceOpsLoading(false);
       }
 
-  // Fetch recharge requests stats
+      // Fetch recharge requests stats
       setRechargeLoading(true);
       try {
         const res = await apiFetch(`${baseUrl}api/payments/user/recharge_requests/stats/`);
@@ -187,7 +187,7 @@ export default function DashboardPage() {
         setRechargeLoading(false);
       }
 
-  // Fetch MoMo Pay stats
+      // Fetch MoMo Pay stats
       setMomoPayLoading(true);
       try {
         const res = await apiFetch(`${baseUrl}api/payments/momo-pay-transactions/stats/`);
@@ -198,7 +198,7 @@ export default function DashboardPage() {
         setMomoPayLoading(false);
       }
 
-  // Fetch Wave Business stats
+      // Fetch Wave Business stats
       setWaveLoading(true);
       try {
         const res = await apiFetch(`${baseUrl}api/payments/wave-business-transactions/stats/`);
@@ -271,7 +271,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center h-96">
         <div className="flex flex-col items-center space-y-4">
           <Loader className="animate-spin h-8 w-8 text-orange-500" />
-        <span className="text-lg font-semibold">Chargement...</span>
+          <span className="text-lg font-semibold">Chargement...</span>
         </div>
       </div>
     );
@@ -319,9 +319,9 @@ export default function DashboardPage() {
       {/* Main Dashboard Content */}
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          
+
           {/* Dashboard Header */}
-        <div className="mb-8">
+          <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
@@ -343,7 +343,7 @@ export default function DashboardPage() {
                     <span className="sm:hidden">Utilisateurs actifs</span>
                   </label>
                 </div>
-                  {/* <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
+                {/* <div className="bg-white dark:bg-gray-800 rounded-lg px-4 py-2 shadow-sm">
                     <div className="flex items-center space-x-2">
                       <Clock className="h-4 w-4 text-gray-500" />
                       <span className="text-sm text-gray-600 dark:text-gray-300">
@@ -351,9 +351,9 @@ export default function DashboardPage() {
                       </span>
                       </div>
                   </div> */}
-                    </div>
-                    </div>
-                  </div>
+              </div>
+            </div>
+          </div>
 
           {/* Key Metrics Overview */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
@@ -362,20 +362,20 @@ export default function DashboardPage() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
-                      <div>
+                  <div>
                     <p className="text-blue-100 text-xs sm:text-sm font-medium">Utilisateurs totaux</p>
                     <p className="text-2xl sm:text-3xl font-bold">{stats.user_stats.total_users}</p>
                     <div className="flex items-center mt-1 sm:mt-2">
                       <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
                       <span className="text-xs sm:text-sm text-blue-100 ml-1">+{stats.user_stats.users_registered_today} aujourd'hui</span>
-                      </div>
-                      </div>
+                    </div>
+                  </div>
                   <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
                     <Users className="h-6 w-6 sm:h-8 sm:w-8" />
-                      </div>
-                      </div>
-            </CardContent>
-          </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Active Tasks */}
             <Card className="relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600 text-white border-0 shadow-lg">
@@ -388,12 +388,12 @@ export default function DashboardPage() {
                     <div className="flex items-center mt-1 sm:mt-2">
                       <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
                       <span className="text-xs sm:text-sm text-green-100 ml-1">En cours</span>
-              </div>
-                </div>
-                  <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
-                    <ClipboardList className="h-6 w-6 sm:h-8 sm:w-8" />
                     </div>
                   </div>
+                  <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
+                    <ClipboardList className="h-6 w-6 sm:h-8 sm:w-8" />
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -411,15 +411,15 @@ export default function DashboardPage() {
                       <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-purple-300" />
                       <span className="text-xs sm:text-sm text-purple-100 ml-1">
                         {summary ? `${summary.today_success_rate?.toFixed(1)}%` : '0%'} taux de réussite
-                    </span>
+                      </span>
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
                     <DollarSign className="h-6 w-6 sm:h-8 sm:w-8" />
-                    </div>
-                    </div>
-            </CardContent>
-          </Card>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* System Status */}
             <Card className="relative overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg">
@@ -440,54 +440,54 @@ export default function DashboardPage() {
                       <span className="text-xs sm:text-sm text-orange-100 ml-1">
                         {stats.notification_info.async_enabled ? 'Tous les systèmes' : 'Problèmes détectés'}
                       </span>
-              </div>
-              </div>
+                    </div>
+                  </div>
                   <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
                     <Shield className="h-6 w-6 sm:h-8 sm:w-8" />
-              </div>
+                  </div>
                 </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8">
             {/* Financial Overview Chart */}
-      {financialChartData.length > 0 && (
+            {financialChartData.length > 0 && (
               <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
                 <CardHeader className="border-b border-gray-100 dark:border-gray-700">
                   <CardTitle className="flex items-center space-x-2">
                     <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                       <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-300" />
-              </div>
+                    </div>
                     <span>Aperçu financier</span>
-              </CardTitle>
-            </CardHeader>
+                  </CardTitle>
+                </CardHeader>
                 <CardContent className="p-4 sm:p-6">
-              <div className="h-64 sm:h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={financialChartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
+                  <div className="h-64 sm:h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={financialChartData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
                           label={({ name, value }) => `${name}: ${value.toFixed(2)} FCFA`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {financialChartData.map((entry, index) => (
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {financialChartData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
+                          ))}
+                        </Pie>
                         <Tooltip formatter={(value) => [`${value} FCFA`, 'Montant']} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
             )}
 
             {/* Transaction Trends */}
@@ -497,23 +497,23 @@ export default function DashboardPage() {
                   <CardTitle className="flex items-center space-x-2">
                     <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                       <BarChart3 className="h-5 w-5 text-green-600 dark:text-green-300" />
-              </div>
+                    </div>
                     <span>Tendances des transactions</span>
-              </CardTitle>
-            </CardHeader>
+                  </CardTitle>
+                </CardHeader>
                 <CardContent className="p-4 sm:p-6">
-              <div className="h-64 sm:h-80">
-                <ResponsiveContainer width="100%" height="100%">
+                  <div className="h-64 sm:h-80">
+                    <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={transactionTrendData}>
                         <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
+                        <YAxis />
+                        <Tooltip />
                         <Bar dataKey="value" fill={COLORS.primary} radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </div>
 
@@ -557,16 +557,16 @@ export default function DashboardPage() {
                 <CardTitle className="flex items-center space-x-2">
                   <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                     <ClipboardList className="h-5 w-5 text-green-600 dark:text-green-300" />
-              </div>
+                  </div>
                   <span>Statistiques des tâches</span>
-              </CardTitle>
-            </CardHeader>
+                </CardTitle>
+              </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
                     <span className="text-sm font-medium">Tâches actives</span>
                     <Badge className="bg-green-600 text-white">{stats.task_stats.active}</Badge>
-                </div>
+                  </div>
                   <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <span className="text-sm font-medium">Tâches programmées</span>
                     <Badge className="bg-blue-600 text-white">{stats.task_stats.scheduled}</Badge>
@@ -575,7 +575,7 @@ export default function DashboardPage() {
                     <span className="text-sm font-medium">Tâches réservées</span>
                     <Badge className="bg-orange-600 text-white">{stats.task_stats.reserved}</Badge>
                   </div>
-                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -610,11 +610,11 @@ export default function DashboardPage() {
                     <Badge className={stats.notification_info.logging_enabled ? "bg-green-600 text-white" : "bg-red-600 text-white"}>
                       {stats.notification_info.logging_enabled ? 'Oui' : 'Non'}
                     </Badge>
+                  </div>
                 </div>
-                </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Payment & Transaction Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 mb-8">
@@ -624,19 +624,19 @@ export default function DashboardPage() {
                 <CardTitle className="flex items-center space-x-2">
                   <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
                     <CreditCard className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />
-            </div>
+                  </div>
                   <span>Résumé des paiements</span>
-            </CardTitle>
-          </CardHeader>
+                </CardTitle>
+              </CardHeader>
               <CardContent className="p-4 sm:p-6">
                 {summaryLoading ? (
                   <div className="flex items-center justify-center py-8">
-                <Loader className="animate-spin mr-2" /> Chargement...
-              </div>
+                    <Loader className="animate-spin mr-2" /> Chargement...
+                  </div>
                 ) : summaryError ? (
                   <div className="text-red-600 text-center py-4">{summaryError}</div>
                 ) : summary ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-3 sm:p-4 rounded-lg">
                       <div className="text-xs sm:text-sm text-orange-600 dark:text-orange-300 font-medium">Transactions d'aujourd'hui</div>
                       <div className="text-xl sm:text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_transactions}</div>
@@ -653,12 +653,12 @@ export default function DashboardPage() {
                       <div className="text-xs sm:text-sm text-orange-600 dark:text-orange-300 font-medium">Taux de réussite</div>
                       <div className="text-xl sm:text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_success_rate?.toFixed(1)}%</div>
                     </div>
-              </div>
-            ) : (
+                  </div>
+                ) : (
                   <div className="text-gray-500 text-center py-8">Aucune donnée disponible</div>
-            )}
-          </CardContent>
-        </Card>
+                )}
+              </CardContent>
+            </Card>
 
             {/* System Events */}
             <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
@@ -666,38 +666,38 @@ export default function DashboardPage() {
                 <CardTitle className="flex items-center space-x-2">
                   <div className="p-2 bg-cyan-100 dark:bg-cyan-900 rounded-lg">
                     <AlertCircle className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
-            </div>
+                  </div>
                   <span>Événements système récents</span>
-            </CardTitle>
-          </CardHeader>
+                </CardTitle>
+              </CardHeader>
               <CardContent className="p-6">
-            {systemEventsLoading ? (
+                {systemEventsLoading ? (
                   <div className="flex items-center justify-center py-8">
-                <Loader className="animate-spin mr-2" /> Chargement...
-              </div>
-            ) : systemEventsError ? (
+                    <Loader className="animate-spin mr-2" /> Chargement...
+                  </div>
+                ) : systemEventsError ? (
                   <div className="text-red-600 text-center py-4">{systemEventsError}</div>
-            ) : systemEvents && systemEvents.length > 0 ? (
+                ) : systemEvents && systemEvents.length > 0 ? (
                   <div className="space-y-4 max-h-80 overflow-y-auto">
-                {systemEvents.slice(0, 5).map((event, idx) => (
+                    {systemEvents.slice(0, 5).map((event, idx) => (
                       <div key={event.uid} className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                         <div className="flex items-center justify-between mb-2">
                           <span className="font-semibold text-sm">{event.event_type.replace(/_/g, " ").toUpperCase()}</span>
                           <Badge variant="outline" className="text-xs">{event.level}</Badge>
-                    </div>
+                        </div>
                         <div className="text-sm text-gray-600 dark:text-gray-300 mb-2">{event.description}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">
                           {new Date(event.created_at).toLocaleString()}
                         </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            ) : (
+                ) : (
                   <div className="text-gray-500 text-center py-8">Aucun événement récent</div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
           {/* Additional Stats Cards */}
           {rechargeStats && (
@@ -736,7 +736,7 @@ export default function DashboardPage() {
                 <CardTitle className="flex items-center space-x-2">
                   <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
                     <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
-          </div>
+                  </div>
                   <span>Opérations de solde</span>
                 </CardTitle>
               </CardHeader>
@@ -878,8 +878,8 @@ export default function DashboardPage() {
             </Card>
           </div>
 
+        </div>
       </div>
-    </div>
     </>
   )
 }

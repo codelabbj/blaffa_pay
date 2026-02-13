@@ -91,6 +91,11 @@ export default function MomoPayPage() {
   const [selectedTransactionForSuccess, setSelectedTransactionForSuccess] = useState<MomoPayTransaction | null>(null)
   const [successLoading, setSuccessLoading] = useState(false)
 
+  const [failedModalOpen, setFailedModalOpen] = useState(false)
+  const [failedReason, setFailedReason] = useState("")
+  const [selectedTransactionForFailed, setSelectedTransactionForFailed] = useState<MomoPayTransaction | null>(null)
+  const [failedLoading, setFailedLoading] = useState(false)
+
   const itemsPerPage = 20
 
 
@@ -362,6 +367,42 @@ export default function MomoPayPage() {
     }
   }
 
+  // Mark transaction as failed
+  const handleMarkAsFailed = async () => {
+    if (!selectedTransactionForFailed) return
+    setFailedLoading(true)
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/${selectedTransactionForFailed.uid}/mark-failed/`
+      await apiFetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: failedReason || "other reasons" })
+      })
+
+      toast({
+        title: "Succès",
+        description: "Transaction marquée comme échouée"
+      })
+
+      setFailedModalOpen(false)
+      setFailedReason("")
+      setSelectedTransactionForFailed(null)
+
+      setCurrentPage(1)
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      toast({
+        title: "Erreur",
+        description: errorMessage,
+        variant: "destructive"
+      })
+    } finally {
+      setFailedLoading(false)
+    }
+  }
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
     toast({ title: `${label} copié !` })
@@ -600,7 +641,7 @@ export default function MomoPayPage() {
                                 <Eye className="mr-2 h-4 w-4" />
                                 Voir les détails
                               </DropdownMenuItem>
-                              {transaction.status === "pending" && (
+                              {["pending", "expired"].includes(transaction.status) && (
                                 <DropdownMenuItem
                                   onClick={() => {
                                     setSelectedTransactionForSuccess(transaction);
@@ -610,6 +651,18 @@ export default function MomoPayPage() {
                                 >
                                   <CheckCircle className="mr-2 h-4 w-4" />
                                   Marquer comme succès
+                                </DropdownMenuItem>
+                              )}
+                              {["pending", "confirmed", "accept", "successfull"].includes(transaction.status) && (
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedTransactionForFailed(transaction);
+                                    setFailedModalOpen(true);
+                                  }}
+                                  className="cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20"
+                                >
+                                  <XCircle className="mr-2 h-4 w-4" />
+                                  Marquer comme échoué
                                 </DropdownMenuItem>
                               )}
                             </DropdownMenuContent>
@@ -883,6 +936,58 @@ export default function MomoPayPage() {
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
                 {successLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Traitement...
+                  </>
+                ) : (
+                  "Confirmer"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Failed Modal */}
+        <Dialog open={failedModalOpen} onOpenChange={setFailedModalOpen}>
+          <DialogContent className="bg-white dark:bg-gray-800 border-0 shadow-xl max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                  <XCircle className="h-5 w-5 text-red-600" />
+                </div>
+                <span>Marquer comme échoué</span>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Voulez-vous vraiment marquer cette transaction comme échouée ? Cette action est irréversible.
+              </p>
+              <div className="space-y-2">
+                <label htmlFor="failed-reason" className="text-sm font-medium">Raison (optionnel)</label>
+                <Input
+                  id="failed-reason"
+                  placeholder="Ex: Paiement non reçu après vérification"
+                  value={failedReason}
+                  onChange={(e) => setFailedReason(e.target.value)}
+                  className="bg-gray-50 dark:bg-gray-700"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setFailedModalOpen(false)}
+                disabled={failedLoading}
+              >
+                Annuler
+              </Button>
+              <Button
+                onClick={handleMarkAsFailed}
+                disabled={failedLoading}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {failedLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Traitement...

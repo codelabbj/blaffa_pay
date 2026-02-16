@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { LanguageSwitcher } from "@/components/ui/language-switcher"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Zap, Eye, EyeOff, Mail, Lock, Shield, ArrowRight, Sparkles } from "lucide-react"
+import { Zap, Eye, EyeOff, Mail, Lock, Shield, ArrowRight, Sparkles, CheckCircle } from "lucide-react"
 import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
@@ -43,6 +43,12 @@ export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
   const apiFetch = useApi();
   const { toast } = useToast();
+
+  // Forgot Password Flow State
+  const [flow, setFlow] = useState<"login" | "forgot-password" | "otp" | "reset-password" | "success">("login")
+  const [otpCode, setOtpCode] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -97,14 +103,11 @@ export function SignInForm() {
       router.push("/dashboard")
     } catch (err: any) {
       let backendError = t("auth.networkError");
-      // Try to extract error message from API response
       if (err && err.message) {
         try {
-          // Try to parse JSON from the error message if possible
           const parsed = JSON.parse(err.message);
           backendError = extractErrorMessages(parsed) || backendError;
         } catch {
-          // If not JSON, try to extract from err.message directly
           backendError = extractErrorMessages(err.message) || backendError;
         }
       } else if (err) {
@@ -120,183 +123,310 @@ export function SignInForm() {
     }
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+    try {
+      const response = await apiFetch(`${baseUrl}api/auth/password-reset/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier }),
+        successMessage: "Un code OTP a été envoyé à votre adresse e-mail.",
+      })
+
+      // Check if response indicates an error (even with 200 status)
+      if (response?.error || response?.errors || response?.detail) {
+        const errorMsg = response.error || response.detail || extractErrorMessages(response) || "Impossible d'envoyer l'OTP"
+        setError(errorMsg)
+        return // Don't advance to next step
+      }
+
+      // Only advance to next step if we got a successful response
+      if (response) {
+        setFlow("otp")
+      }
+    } catch (err: any) {
+      setError(extractErrorMessages(err) || "Impossible d'envoyer l'OTP")
+      // Don't advance to next step on error
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+  const handleVerifyOtp = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (otpCode.length < 6) {
+      setError("Le code OTP doit comporter 6 chiffres.")
+      return
+    }
+    setFlow("reset-password")
+  }
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    if (newPassword !== confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.")
+      return
+    }
+    setLoading(true)
+    try {
+      const response = await apiFetch(`${baseUrl}api/auth/password-reset/confirm/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          identifier,
+          code: otpCode,
+          new_password: newPassword,
+        }),
+        successMessage: "Votre mot de passe a été réinitialisé avec succès.",
+      })
+
+      // Check if response indicates an error (even with 200 status)
+      if (response?.error || response?.errors || response?.detail) {
+        const errorMsg = response.error || response.detail || extractErrorMessages(response) || "Impossible de réinitialiser le mot de passe"
+        setError(errorMsg)
+        return // Don't advance to next step
+      }
+
+      // Only advance to success step if we got a successful response
+      if (response) {
+        setFlow("success")
+      }
+    } catch (err: any) {
+      setError(extractErrorMessages(err) || "Impossible de réinitialiser le mot de passe")
+      // Don't advance to next step on error
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-orange-50/30 via-transparent to-green-50/30 dark:from-gray-900/50 dark:via-transparent dark:to-gray-800/50">
       <div className="w-full max-w-md space-y-8">
-        
-        {/* Header Section */}
-        <div className="text-center space-y-6">
-          {/* <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <img src="/logo.png" alt="Blaffa Pay Logo" className="h-16 w-16" />
-                <div className="absolute -top-1 -right-1">
-                  <div className="w-6 h-6 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
-                    <Sparkles className="h-3 w-3 text-white" />
-                  </div>
-                </div>
-              </div>
-              <div className="text-left">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Blaffa Pay
-                </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Admin Dashboard
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <ThemeToggle />
-              <LanguageSwitcher />
-            </div>
-          </div> */}
-          
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-              {/* Blaffa Pay */}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 text-lg">
-              {/* {t("auth.subtitle")} */}
-            </p>
-          </div>
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
+            Blaffa Pay
+          </h2>
         </div>
 
-        {/* Login Form Card */}
         <Card className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-orange-200/20 dark:border-orange-800/20 shadow-2xl shadow-orange-500/10">
           <CardHeader className="space-y-4 pb-6">
-            {/* <div className="flex items-center justify-center">
-              <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
-            </div> */}
             <div className="text-center space-y-2">
               <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-              {t("auth.welcome")} à Blaffa Pay
-              
+                {flow === "login" && `${t("auth.welcome")} à Blaffa Pay`}
+                {flow === "forgot-password" && "Mot de passe oublié"}
+                {flow === "otp" && "Vérification OTP"}
+                {flow === "reset-password" && "Nouveau mot de passe"}
+                {flow === "success" && "Succès !"}
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
-                Accédez à votre tableau de bord administrateur
+                {flow === "login" && "Accédez à votre tableau de bord administrateur"}
+                {flow === "forgot-password" && "Entrez votre identifiant pour recevoir un code OTP"}
+                {flow === "otp" && `Entrez le code envoyé à ${identifier}`}
+                {flow === "reset-password" && "Choisissez votre nouveau mot de passe"}
+                {flow === "success" && "Votre mot de passe a été modifié"}
               </CardDescription>
             </div>
           </CardHeader>
-          
+
           <CardContent className="space-y-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              
-              {/* Email Input */}
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                  <Mail className="h-4 w-4 text-orange-500" />
-                  <span>{t("auth.email")}</span>
-                </Label>
-                <div className="relative">
+            {flow === "login" && (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                    <Mail className="h-4 w-4 text-orange-500" />
+                    <span>{t("auth.email")}</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="email"
+                      type="email"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      required
+                      className="pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
+                    />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
+                    <Lock className="h-4 w-4 text-orange-500" />
+                    <span>{t("auth.password")}</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="pl-12 pr-12 py-3 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
+                    />
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <button
+                      type="button"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+                      onClick={() => setShowPassword((v) => !v)}
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="remember"
+                      checked={rememberMe}
+                      onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                    />
+                    <Label htmlFor="remember" className="text-sm text-gray-700 dark:text-gray-300">
+                      {t("auth.rememberMe")}
+                    </Label>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="px-0 text-sm text-orange-600 hover:text-orange-700"
+                    onClick={() => setFlow("forgot-password")}
+                  >
+                    Mot de passe oublié ?
+                  </Button>
+                </div>
+
+                <Button type="submit" className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600" disabled={loading}>
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ArrowRight className="h-4 w-4 mr-2" />}
+                  {loading ? t("auth.loggingIn") : t("auth.signIn")}
+                </Button>
+              </form>
+            )}
+
+            {flow === "forgot-password" && (
+              <form onSubmit={handleForgotPassword} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="reset-email">Identifiant (Email)</Label>
                   <Input
-                    id="email"
+                    id="reset-email"
                     type="email"
-                    placeholder="john@example.com"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     required
-                    className="pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
                   />
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
-              </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Envoyer le code OTP
+                </Button>
+                <Button variant="ghost" className="w-full" onClick={() => setFlow("login")}>
+                  Retour à la connexion
+                </Button>
+              </form>
+            )}
 
-              {/* Password Input */}
-              <div className="space-y-3">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                  <Lock className="h-4 w-4 text-orange-500" />
-                  <span>{t("auth.password")}</span>
-                </Label>
-                <div className="relative">
+            {flow === "otp" && (
+              <form onSubmit={handleVerifyOtp} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="otp">Code OTP</Label>
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    id="otp"
+                    type="text"
+                    placeholder="720290"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    maxLength={6}
                     required
-                    className="pl-12 pr-12 py-3 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500 transition-all duration-200"
                   />
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <button
-                    type="button"
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
-                    onClick={() => setShowPassword((v) => !v)}
-                    tabIndex={-1}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
                 </div>
-              </div>
+                <Button type="submit" className="w-full">
+                  Vérifier le code
+                </Button>
+                <Button variant="ghost" className="w-full" onClick={() => setFlow("forgot-password")}>
+                  Changer l'email
+                </Button>
+              </form>
+            )}
 
-              {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                    className="border-gray-300 dark:border-gray-600"
+            {flow === "reset-password" && (
+              <form onSubmit={handleResetPassword} className="space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
                   />
-                  <Label htmlFor="remember" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                    {t("auth.rememberMe")}
-                  </Label>
                 </div>
-                {/* <Button 
-                  variant="link" 
-                  className="px-0 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200"
-                >
-                  {t("auth.forgotPassword")}
-                </Button> */}
-              </div>
+                <div className="space-y-3">
+                  <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Réinitialiser le mot de passe
+                </Button>
+                <Button variant="ghost" className="w-full" onClick={() => setFlow("otp")} type="button">
+                  Retour
+                </Button>
+              </form>
+            )}
 
-              {/* Submit Button */}
-              <Button 
-                type="submit" 
-                className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    <span>{t("auth.loggingIn")}</span>
+            {flow === "success" && (
+              <div className="text-center space-y-6">
+                <div className="flex justify-center">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <CheckCircle className="h-10 w-10 text-green-600" />
                   </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <span>{t("auth.signIn")}</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </div>
-                )}
-              </Button>
-
-              {/* Error Display */}
-              {error && (
-                <div className="mt-4">
-                  <ErrorDisplay
-                    error={error}
-                    variant="inline"
-                    showRetry={false}
-                    className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
-                  />
                 </div>
-              )}
-            </form>
+                <p>Votre mot de passe a été mis à jour avec succès. Vous pouvez maintenant vous connecter.</p>
+                <Button className="w-full" onClick={() => setFlow("login")}>
+                  Aller à la connexion
+                </Button>
+              </div>
+            )}
+
+            {error && (
+              <ErrorDisplay
+                error={error}
+                variant="inline"
+                className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+              />
+            )}
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="text-center space-y-4">
-          {/* <div className="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-            <Shield className="h-4 w-4" />
-            <span>Connexion sécurisée par chiffrement SSL</span>
-          </div> */}
-          <div className="text-xs text-gray-400 dark:text-gray-500">
-            © 2025 Blaffa Pay. Tous droits réservés.
-          </div>
-        </div>
       </div>
     </div>
   )
 }
+
+function Loader2(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  )
+}
+

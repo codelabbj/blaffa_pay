@@ -11,21 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { useApi } from '@/lib/useApi';
-import { Loader2, Edit, Save, X, User, Mail, Phone, Shield, Calendar, CheckCircle, XCircle } from 'lucide-react';
-
-// Colors for consistent theming
-const COLORS = {
-  primary: '#3B82F6',
-  secondary: '#10B981', 
-  accent: '#F59E0B',
-  danger: '#EF4444',
-  warning: '#F97316',
-  success: '#22C55E',
-  info: '#06B6D4',
-  purple: '#8B5CF6',
-  pink: '#EC4899',
-  indigo: '#6366F1'
-};
+import { Loader2, Edit, Save, X, User, Mail, Phone, Shield, Calendar, CheckCircle, XCircle, Lock } from 'lucide-react';
+import { CopyButton } from '@/components/ui/copy-button';
+import { extractErrorMessages } from '@/components/ui/error-display';
 
 interface UserProfile {
   uid: string;
@@ -54,14 +42,20 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const apiFetch = useApi();
 
-  // Get token from localStorage (same as sign-in-form and dashboard layout)
+  // Password Update State
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+
+  // Get token from localStorage
   let token = "";
   if (typeof window !== "undefined") {
     token = localStorage.getItem("accessToken") || "";
   }
 
   useEffect(() => {
-    // Redirect if not logged in (no token)
     if (!token) {
       router.push("/login");
       return;
@@ -99,6 +93,40 @@ export default function ProfilePage() {
     }));
   };
 
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("Les nouveaux mots de passe ne correspondent pas.");
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      await apiFetch(`${baseUrl}api/auth/password-update/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          old_password: oldPassword,
+          new_password: newPassword,
+        }),
+        successMessage: 'Mot de passe mis à jour avec succès.',
+      });
+      // Only clear form after successful update
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+    } catch (error: any) {
+      const backendError = extractErrorMessages(error) || 'Échec de la mise à jour du mot de passe';
+      setPasswordError(backendError);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -109,8 +137,11 @@ export default function ProfilePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
-        successMessage: 'Profil mis à jour avec succès'
+        body: JSON.stringify({
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+        }),
+        successMessage: 'Profil mis à jour avec succès',
       });
       setProfile(updatedProfile);
       setEditing(false);
@@ -156,16 +187,14 @@ export default function ProfilePage() {
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase();
+      ? name.split(' ').map(n => n[0]).join('').toUpperCase()
+      : 'U';
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -178,41 +207,31 @@ export default function ProfilePage() {
               </p>
             </div>
             {!editing ? (
-              <Button 
-                onClick={() => setEditing(true)} 
+              <Button
+                onClick={() => setEditing(true)}
                 variant="outline"
                 className="flex items-center space-x-2"
               >
                 <Edit className="h-4 w-4" />
-                Modifier le profil
+                <span>Modifier le profil</span>
               </Button>
             ) : (
               <div className="space-x-2">
-                <Button 
-                  onClick={() => setEditing(false)} 
-                  variant="outline" 
+                <Button
+                  onClick={() => setEditing(false)}
+                  variant="outline"
                   disabled={loading}
-                  className="flex items-center space-x-2"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-4 w-4 mr-2" />
                   Annuler
                 </Button>
-                <Button 
-                  onClick={handleSubmit} 
+                <Button
+                  onClick={handleSubmit}
                   disabled={loading}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Sauvegarde...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4" />
-                      Sauvegarder les modifications
-                    </>
-                  )}
+                  {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Sauvegarder
                 </Button>
               </div>
             )}
@@ -224,7 +243,6 @@ export default function ProfilePage() {
           <CardHeader className="border-b border-gray-100 dark:border-gray-700">
             <CardTitle className="flex items-center space-x-4">
               <Avatar className="h-20 w-20">
-                <AvatarImage src="" alt={profile.display_name} />
                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-2xl font-semibold">
                   {getInitials(profile.display_name)}
                 </AvatarFallback>
@@ -233,25 +251,6 @@ export default function ProfilePage() {
                 <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{profile.display_name}</div>
                 <div className="text-gray-600 dark:text-gray-400 mt-1">
                   Membre depuis {new Date(profile.created_at).toLocaleDateString()}
-                </div>
-                <div className="flex items-center space-x-2 mt-2">
-                  <Badge 
-                    variant={profile.is_active ? "default" : "secondary"}
-                    className={
-                      profile.is_active 
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
-                        : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                    }
-                  >
-                    <div className="flex items-center space-x-1">
-                      {profile.is_active ? (
-                        <CheckCircle className="h-3 w-3" />
-                      ) : (
-                        <XCircle className="h-3 w-3" />
-                      )}
-                      <span>{profile.is_active ? 'Active' : 'Inactive'}</span>
-                    </div>
-                  </Badge>
                 </div>
               </div>
             </CardTitle>
@@ -268,30 +267,26 @@ export default function ProfilePage() {
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="first_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Prénom</Label>
+                    <Label htmlFor="first_name">Prénom</Label>
                     {editing ? (
                       <Input
                         id="first_name"
                         name="first_name"
                         value={formData.first_name || ''}
                         onChange={handleInputChange}
-                        disabled={loading}
-                        className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                       />
                     ) : (
                       <div className="text-gray-900 dark:text-gray-100 font-medium">{profile.first_name}</div>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="last_name" className="text-sm font-medium text-gray-700 dark:text-gray-300">Nom de famille</Label>
+                    <Label htmlFor="last_name">Nom de famille</Label>
                     {editing ? (
                       <Input
                         id="last_name"
                         name="last_name"
                         value={formData.last_name || ''}
                         onChange={handleInputChange}
-                        disabled={loading}
-                        className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                       />
                     ) : (
                       <div className="text-gray-900 dark:text-gray-100 font-medium">{profile.last_name}</div>
@@ -308,124 +303,20 @@ export default function ProfilePage() {
                   </div>
                   <span>Informations de contact</span>
                 </h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                      <Mail className="h-4 w-4" />
-                      <span>Adresse e-mail</span>
-                    </Label>
-                    {editing ? (
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email || ''}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                        className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-                      />
-                    ) : (
-                      <div className="flex items-center space-x-3">
-                        <span className="text-gray-900 dark:text-gray-100 font-medium">{profile.email}</span>
-                        {profile.email_verified ? (
-                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                            <div className="flex items-center space-x-1">
-                              <CheckCircle className="h-3 w-3" />
-                              <span>Vérifié</span>
-                            </div>
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-                            <div className="flex items-center space-x-1">
-                              <XCircle className="h-3 w-3" />
-                              <span>Non vérifié</span>
-                            </div>
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center space-x-2">
-                      <Phone className="h-4 w-4" />
-                      <span>Numéro de téléphone</span>
-                    </Label>
-                    {editing ? (
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={formData.phone || ''}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                        className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-                      />
-                    ) : (
-                      <div className="flex items-center space-x-3">
-                        <span className="text-gray-900 dark:text-gray-100 font-medium">{profile.phone}</span>
-                        {profile.phone_verified ? (
-                          <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
-                            <div className="flex items-center space-x-1">
-                              <CheckCircle className="h-3 w-3" />
-                              <span>Vérifié</span>
-                            </div>
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-                            <div className="flex items-center space-x-1">
-                              <XCircle className="h-3 w-3" />
-                              <span>Non vérifié</span>
-                            </div>
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Account Settings */}
-              <div className="space-y-4 pt-6 border-t border-gray-100 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                    <Shield className="h-4 w-4 text-purple-600 dark:text-purple-300" />
-                  </div>
-                  <span>Paramètres du compte</span>
-                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Statut du compte</div>
-                    <Badge 
-                      variant={profile.is_active ? "default" : "secondary"}
-                      className={
-                        profile.is_active 
-                          ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
-                          : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
-                      }
-                    >
-                      <div className="flex items-center space-x-1">
-                        {profile.is_active ? (
-                          <CheckCircle className="h-3 w-3" />
-                        ) : (
-                          <XCircle className="h-3 w-3" />
-                        )}
-                        <span>{profile.is_active ? 'Actif' : 'Inactif'}</span>
-                      </div>
-                    </Badge>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Adresse e-mail</div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">{profile.email}</span>
+                      {profile.email_verified && <Badge className="bg-green-100 text-green-800">Vérifié</Badge>}
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Méthode de contact préférée</div>
-                    <Badge className="bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300">
-                      <div className="flex items-center space-x-1">
-                        {profile.contact_method === 'email' ? (
-                          <Mail className="h-3 w-3" />
-                        ) : (
-                          <Phone className="h-3 w-3" />
-                        )}
-                        <span>{profile.contact_method === 'email' ? 'E-mail' : 'Téléphone'}</span>
-                      </div>
-                    </Badge>
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Numéro de téléphone</div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">{profile.phone}</span>
+                      {profile.phone_verified && <Badge className="bg-green-100 text-green-800">Vérifié</Badge>}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -441,17 +332,94 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">ID utilisateur</div>
-                    <div className="text-gray-900 dark:text-gray-100 font-mono text-sm">{profile.uid}</div>
+                    <div className="flex items-center space-x-2 font-mono text-sm bg-gray-50 dark:bg-gray-900 p-2 rounded border border-gray-200 dark:border-gray-700">
+                      <span className="truncate">{profile.uid}</span>
+                      <CopyButton value={profile.uid} className="h-6 w-6" />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Dernière mise à jour</div>
-                    <div className="text-gray-900 dark:text-gray-100">
+                    <div className="text-gray-900 dark:text-gray-100 p-2">
                       {new Date(profile.updated_at).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Change Password Card */}
+        <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
+          <CardHeader className="border-b border-gray-100 dark:border-gray-700">
+            <CardTitle className="flex items-center space-x-2">
+              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                <Lock className="h-4 w-4 text-red-600 dark:text-red-300" />
+              </div>
+              <span>Sécurité</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handlePasswordUpdate} className="space-y-4 max-w-md">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Modifier le mot de passe</h3>
+
+              <div className="space-y-2">
+                <Label htmlFor="old_password">Mot de passe actuel</Label>
+                <Input
+                  id="old_password"
+                  type="password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  minLength={0}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="new_password">Nouveau mot de passe</Label>
+                <Input
+                  id="new_password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  minLength={0}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirm_new_password">Confirmer le nouveau mot de passe</Label>
+                <Input
+                  id="confirm_new_password"
+                  type="password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  minLength={0}
+                  required
+                />
+              </div>
+
+              {passwordError && (
+                <div className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">
+                  {passwordError}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                disabled={passwordLoading}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                {passwordLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Mise à jour...
+                  </>
+                ) : (
+                  'Mettre à jour le mot de passe'
+                )}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       </div>

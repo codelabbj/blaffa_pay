@@ -34,26 +34,26 @@ export function useApi() {
       console.log('No refresh token available');
       throw new Error('No refresh token available');
     }
-    
+
     try {
       const res = await fetch(`${baseUrl.replace(/\/$/, "")}/api/auth/token/refresh/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh }),
       });
-      
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
         console.log('Refresh token request failed:', res.status, errorData);
         throw new Error(errorData?.detail || 'Refresh token invalid');
       }
-      
+
       const data = await res.json();
       if (!data.access) {
         console.log('No access token in refresh response');
         throw new Error('No access token in refresh response');
       }
-      
+
       setTokens({ access: data.access, refresh });
       console.log('Token refreshed successfully');
       return data.access;
@@ -74,58 +74,70 @@ export function useApi() {
   const apiFetch = useCallback(async (input: RequestInfo, init: RequestInit & { showSuccessToast?: boolean; successMessage?: string } = {}) => {
     // Try to get access token from both localStorage and cookies
     let accessToken = getAccessTokenFromStorage() || getAccessTokenFromCookie();
-    
+
     // Extract showSuccessToast option and remove it from init
     const { showSuccessToast = true, successMessage, ...fetchInit } = init;
-    
+
     // Attach access token if available
     const headers = new Headers(fetchInit.headers || {});
     if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
-    
+
     // Determine HTTP method
     // IMPORTANT: GET requests never show success toasts
     let method = 'GET'; // Default to GET
-    
+
     // Check if method is specified in fetchInit (most common case)
     if (fetchInit.method) {
       method = String(fetchInit.method).trim().toUpperCase();
-    } 
+    }
     // If input is a Request object, check its method property
     else if (typeof input === 'object' && input !== null && 'method' in input && input.method) {
       method = String(input.method).trim().toUpperCase();
     }
-    
+
     // Ensure method is valid - default to GET if empty or invalid
     if (!method || (method !== 'GET' && method !== 'POST' && method !== 'PUT' && method !== 'PATCH' && method !== 'DELETE')) {
       method = 'GET';
     }
-    
+
     // CRITICAL: Never show success toasts for GET requests, regardless of other settings
     const shouldShowSuccessToast = showSuccessToast && method !== 'GET';
-    
+
     // Debug log to help identify issues (can be removed in production)
     if (process.env.NODE_ENV === 'development' && method === 'GET') {
       console.log('[useApi] GET request detected - success toast will NOT be shown');
     }
-    
+
     let res = await fetch(input, { ...fetchInit, headers });
     let data;
-    
+
+    // Check if response is OK before trying to parse JSON
+    // This ensures we throw errors for 500, 404, etc. even if response is not JSON
+    if (!res.ok) {
+      try {
+        data = await res.clone().json();
+      } catch (e) {
+        // If we can't parse JSON from an error response, throw a generic error
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+      // Throw the parsed error data
+      throw data;
+    }
+
     try {
       data = await res.clone().json();
     } catch (e) {
-      // If not JSON, just return the response without showing any toast
-      // Success toasts will only show for JSON responses below
+      // If not JSON but response is OK, just return the response
       return res;
     }
-    
+
     // If token is invalid/expired, try to refresh and retry once
     if (data?.code === 'token_not_valid' || res.status === 401) {
       try {
         console.log('Token expired, attempting refresh...');
         accessToken = await refreshAccessToken();
         headers.set('Authorization', `Bearer ${accessToken}`);
-        
+
         // Retry the original request with new token
         res = await fetch(input, { ...fetchInit, headers });
         try {
@@ -135,7 +147,7 @@ export function useApi() {
           // Success toasts will only show for JSON responses below
           return res;
         }
-        
+
         // If still unauthorized after refresh, force logout
         if (data?.code === 'token_not_valid' || res.status === 401) {
           console.log('Token refresh failed, logging out...');
@@ -150,13 +162,7 @@ export function useApi() {
         throw new Error('Token refresh failed');
       }
     }
-    
-    // If the response is an error, throw it so it can be handled by the calling component
-    if (!res.ok) {
-      // Throw the full data object so error extraction works for non_field_errors and other fields
-      throw data;
-    }
-    
+
     // Show success toast for successful non-GET requests only
     // FINAL SAFETY CHECK: Never show toasts for GET requests under any circumstances
     if (shouldShowSuccessToast && res.ok && method !== 'GET') {
@@ -165,7 +171,7 @@ export function useApi() {
         console.warn('[useApi] Attempted to show success toast for GET request - this should never happen!');
         return data;
       }
-      
+
       // Generate default success message based on method if not provided
       let defaultMessage = "Opération réussie";
       if (!successMessage) {
@@ -184,7 +190,7 @@ export function useApi() {
             defaultMessage = "Opération réussie";
         }
       }
-      
+
       // Show toast immediately
       try {
         if (process.env.NODE_ENV === 'development') {
@@ -199,7 +205,7 @@ export function useApi() {
         console.error('[useApi] Failed to show success toast:', toastError);
       }
     }
-    
+
     return data;
   }, [refreshAccessToken, clearAllAuth, router]);
 

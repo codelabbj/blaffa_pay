@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { CopyButton } from "@/components/ui/copy-button"
+
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -140,17 +142,17 @@ export default function PlatformsListPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       })
-      
+
       // Update the platform in the list
-      setPlatforms(prev => prev.map(p => 
-        p.uid === platform.uid 
+      setPlatforms(prev => prev.map(p =>
+        p.uid === platform.uid
           ? { ...p, is_active: data.is_active }
           : p
       ))
-      
-      toast({ 
-        title: "Succès", 
-        description: data.message || `Plateforme ${data.is_active ? 'activée' : 'désactivée'}` 
+
+      toast({
+        title: "Succès",
+        description: data.message || `Plateforme ${data.is_active ? 'activée' : 'désactivée'}`
       })
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
@@ -163,7 +165,7 @@ export default function PlatformsListPage() {
   // Delete platform
   const handleDeletePlatform = async () => {
     if (!platformToDelete) return
-    
+
     setDeleteLoading(platformToDelete.uid)
     try {
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformToDelete.uid}/`
@@ -172,11 +174,11 @@ export default function PlatformsListPage() {
         headers: { "Content-Type": "application/json" },
         successMessage: `Plateforme "${platformToDelete.name}" supprimée avec succès`
       })
-      
+
       // Remove the platform from the list
       setPlatforms(prev => prev.filter(p => p.uid !== platformToDelete.uid))
       setTotalCount(prev => prev - 1)
-      
+
       setDeleteModalOpen(false)
       setPlatformToDelete(null)
     } catch (err: any) {
@@ -223,7 +225,7 @@ export default function PlatformsListPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -334,8 +336,8 @@ export default function PlatformsListPage() {
               </Select>
 
               {/* Sort */}
-              <Select 
-                value={sortField || ""} 
+              <Select
+                value={sortField || ""}
                 onValueChange={(value) => setSortField(value as "name" | "created_at" | "is_active" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
@@ -385,7 +387,7 @@ export default function PlatformsListPage() {
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+                <ErrorDisplay error={error} onRetry={() => {/* retry function */ }} />
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -410,9 +412,11 @@ export default function PlatformsListPage() {
                               {platform.name?.charAt(0)?.toUpperCase() || 'P'}
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900 dark:text-gray-100">
-                                {platform.name}
+                              <div className="flex items-center space-x-2">
+                                <span className="font-medium text-gray-900 dark:text-gray-100">{platform.name}</span>
+                                <CopyButton value={platform.uid} className="h-4 w-4" iconClassName="h-3 w-3" />
                               </div>
+
                               <div className="text-sm text-gray-500 dark:text-gray-400">
                                 {platform.description}
                               </div>
@@ -452,7 +456,7 @@ export default function PlatformsListPage() {
                           <div className="flex items-center space-x-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
                             <span className="text-sm text-gray-600 dark:text-gray-400">
-                              {platform.created_at 
+                              {platform.created_at
                                 ? new Date(platform.created_at).toLocaleDateString()
                                 : 'Inconnu'
                               }
@@ -462,8 +466,8 @@ export default function PlatformsListPage() {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Link href={`/dashboard/platforms/edit/${platform.uid}`}>
-                              <Button 
-                                variant="outline" 
+                              <Button
+                                variant="outline"
                                 size="sm"
                                 className="bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-700 dark:hover:bg-orange-900/30"
                               >
@@ -471,12 +475,12 @@ export default function PlatformsListPage() {
                                 Modifier
                               </Button>
                             </Link>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => handleToggleStatus(platform)}
                               disabled={toggleLoading === platform.uid}
-                              className={platform.is_active 
+                              className={platform.is_active
                                 ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700 dark:hover:bg-red-900/30"
                                 : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700 dark:hover:bg-green-900/30"
                               }
@@ -490,8 +494,8 @@ export default function PlatformsListPage() {
                               )}
                               {platform.is_active ? 'Désactiver' : 'Activer'}
                             </Button>
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => openDeleteModal(platform)}
                               disabled={deleteLoading === platform.uid}

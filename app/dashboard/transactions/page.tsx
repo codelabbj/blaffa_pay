@@ -44,6 +44,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { CopyButton } from "@/components/ui/copy-button"
+
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -735,10 +737,12 @@ export default function TransactionsPage() {
                     {transactions.map((transaction) => (
                       <TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                         <TableCell>
-                          <div className="font-mono text-sm text-gray-900 dark:text-gray-100">
-                            {transaction.uid}
+                          <div className="flex items-center space-x-2 font-mono text-sm text-gray-900 dark:text-gray-100">
+                            <span>{transaction.uid}</span>
+                            <CopyButton value={transaction.uid} className="h-4 w-4" iconClassName="h-3 w-3" />
                           </div>
                         </TableCell>
+
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             {/* <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">

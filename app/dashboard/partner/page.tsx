@@ -17,6 +17,8 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { CopyButton } from "@/components/ui/copy-button"
+
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -605,9 +607,11 @@ export default function PartnerPage() {
 															{partner.display_name?.charAt(0)?.toUpperCase() || 'P'}
 														</div>
 														<div>
-															<div className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">
-																{partner.display_name || 'Partenaire inconnu'}
+															<div className="flex items-center space-x-2">
+																<span className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-base">{partner.display_name || 'Partenaire inconnu'}</span>
+																<CopyButton value={partner.uid} className="h-4 w-4" iconClassName="h-3 w-3" />
 															</div>
+
 															<div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
 																{partner.phone_number || 'Aucun téléphone'}
 															</div>

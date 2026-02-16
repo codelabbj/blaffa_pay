@@ -19,6 +19,8 @@ import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Copy } from "lucide-react"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { CopyButton } from "@/components/ui/copy-button"
+
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -62,7 +64,7 @@ export default function UsersPage() {
   const [detailUser, setDetailUser] = useState<any | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState("")
-  
+
   const [verifyingEmail, setVerifyingEmail] = useState(false);
   const [verifyingPhone, setVerifyingPhone] = useState(false);
   const [verifyingPartner, setVerifyingPartner] = useState(false);
@@ -88,18 +90,18 @@ export default function UsersPage() {
             page: currentPage.toString(),
             page_size: itemsPerPage.toString(),
           });
-        if (searchTerm.trim() !== "") {
-          params.append("search", searchTerm);
-        }
-        if (statusFilter !== "all") {
-          params.append("status", statusFilter);
-        }
-        if (startDate) {
-          params.append("created_at__gte", startDate);
-        }
-        if (endDate) {
-          params.append("created_at__lte", endDate);
-        }
+          if (searchTerm.trim() !== "") {
+            params.append("search", searchTerm);
+          }
+          if (statusFilter !== "all") {
+            params.append("status", statusFilter);
+          }
+          if (startDate) {
+            params.append("created_at__gte", startDate);
+          }
+          if (endDate) {
+            params.append("created_at__lte", endDate);
+          }
           const orderingParam = sortField
             ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${(sortField === "display_name" ? "display_name" : sortField)}`
             : "";
@@ -120,12 +122,12 @@ export default function UsersPage() {
         console.log("User API endpoint:", endpoint);
         const data = await apiFetch(endpoint);
         console.log("API response data:", data);
-        
+
         // Handle the actual API response structure
         const users = data.users || data.results || [];
         const totalCount = data.pagination?.total_count || data.count || 0;
         const totalPages = data.pagination?.total_pages || Math.ceil(totalCount / itemsPerPage);
-        
+
         setUsers(users);
         setTotalCount(totalCount);
         setTotalPages(totalPages);
@@ -375,7 +377,7 @@ export default function UsersPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -407,26 +409,26 @@ export default function UsersPage() {
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
+                <Input
                   placeholder="Rechercher des utilisateurs..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-              />
-            </div>
+                />
+              </div>
 
               {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Filtrer par statut" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous les statuts</SelectItem>
-                <SelectItem value="active">Actif</SelectItem>
-                <SelectItem value="inactive">Inactif</SelectItem>
-                <SelectItem value="pending">En attente</SelectItem>
-              </SelectContent>
-            </Select>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="active">Actif</SelectItem>
+                  <SelectItem value="inactive">Inactif</SelectItem>
+                  <SelectItem value="pending">En attente</SelectItem>
+                </SelectContent>
+              </Select>
 
               {/* View Type */}
               <Select value={viewType} onValueChange={setViewType}>
@@ -452,30 +454,30 @@ export default function UsersPage() {
                 placeholder="Filtrer par date"
               />
 
-          {/* Bulk Actions */}
+              {/* Bulk Actions */}
               {someSelected && (
                 <div className="flex items-center space-x-2">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
-                    onClick={() => {/* handle bulk activate */}}
+                    onClick={() => {/* handle bulk activate */ }}
                     className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Activer la sélection
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
-                    onClick={() => {/* handle bulk deactivate */}}
+                    onClick={() => {/* handle bulk deactivate */ }}
                     className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700"
                   >
                     <XCircle className="h-4 w-4 mr-2" />
                     Désactiver la sélection
-                </Button>
+                  </Button>
                 </div>
               )}
-          </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -499,16 +501,16 @@ export default function UsersPage() {
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+                <ErrorDisplay error={error} onRetry={() => {/* retry function */ }} />
               </div>
             ) : (
               <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
+                <Table>
+                  <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
                       <TableHead className="w-12">
-                      <Checkbox
-                        checked={allSelected}
+                        <Checkbox
+                          checked={allSelected}
                           onCheckedChange={(checked) => {
                             if (checked) {
                               setSelectedUids(users.map(u => u.uid));
@@ -516,22 +518,22 @@ export default function UsersPage() {
                               setSelectedUids([]);
                             }
                           }}
-                      />
-                    </TableHead>
+                        />
+                      </TableHead>
                       <TableHead className="font-semibold">Utilisateur</TableHead>
                       <TableHead className="font-semibold">Email</TableHead>
                       <TableHead className="font-semibold">Statut</TableHead>
                       <TableHead className="font-semibold">Vérification</TableHead>
                       <TableHead className="font-semibold">Créé le</TableHead>
                       <TableHead className="font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {users.map((user) => (
                       <TableRow key={user.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-                      <TableCell>
-                        <Checkbox
-                          checked={selectedUids.includes(user.uid)}
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedUids.includes(user.uid)}
                             onCheckedChange={(checked) => {
                               if (checked) {
                                 setSelectedUids([...selectedUids, user.uid]);
@@ -539,8 +541,8 @@ export default function UsersPage() {
                                 setSelectedUids(selectedUids.filter(id => id !== user.uid));
                               }
                             }}
-                        />
-                      </TableCell>
+                          />
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
@@ -560,36 +562,40 @@ export default function UsersPage() {
                           <div className="text-sm text-gray-900 dark:text-gray-100">
                             {user.email}
                           </div>
+                          <div className="text-xs text-gray-500 font-mono mt-1 flex items-center space-x-1">
+                            <span>ID: {user.uid}</span>
+                            <CopyButton value={user.uid} className="h-4 w-4" iconClassName="h-3 w-3" />
+                          </div>
                         </TableCell>
                         <TableCell>
-                          <Badge 
+                          <Badge
                             className={
-                              user.is_active 
-                                ? "bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300" 
+                              user.is_active
+                                ? "bg-green-100 text-green-800 dark:bg-green-800/30 dark:text-green-300"
                                 : "bg-red-200 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                             }
                           >
                             {user.is_active ? 'Actif' : 'Inactif'}
                           </Badge>
-                      </TableCell>
-                      <TableCell>
+                        </TableCell>
+                        <TableCell>
                           <div className="flex items-center space-x-2">
-                            <Badge 
-                            variant="outline"
+                            <Badge
+                              variant="outline"
                               className={
-                                user.email_verified 
-                                  ? "border-green-200 text-green-700 dark:border-green-700 dark:text-green-300" 
+                                user.email_verified
+                                  ? "border-green-200 text-green-700 dark:border-green-700 dark:text-green-300"
                                   : "border-red-200 text-red-700 dark:border-red-700 dark:text-red-300"
                               }
                             >
                               <Mail className="h-3 w-3 mr-1" />
                               {user.email_verified ? 'Vérifié' : 'Non vérifié'}
                             </Badge>
-                            <Badge 
-                            variant="outline"
+                            <Badge
+                              variant="outline"
                               className={
-                                user.phone_verified 
-                                  ? "border-green-200 text-green-700 dark:border-green-700 dark:text-green-300" 
+                                user.phone_verified
+                                  ? "border-green-200 text-green-700 dark:border-green-700 dark:text-green-300"
                                   : "border-red-200 text-red-700 dark:border-red-700 dark:text-red-300"
                               }
                             >
@@ -597,8 +603,8 @@ export default function UsersPage() {
                               {user.phone_verified ? 'Vérifié' : 'Non vérifié'}
                             </Badge>
                           </div>
-                      </TableCell>
-                      <TableCell>
+                        </TableCell>
+                        <TableCell>
                           <div className="text-sm text-gray-600 dark:text-gray-400">
                             {user.created_at}
                           </div>
@@ -608,7 +614,7 @@ export default function UsersPage() {
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm">
                                 <MoreHorizontal className="h-4 w-4" />
-                        </Button>
+                              </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleOpenDetail(user.uid)}>
@@ -638,17 +644,17 @@ export default function UsersPage() {
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             )}
           </CardContent>
         </Card>
 
-          {/* Pagination */}
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -676,7 +682,7 @@ export default function UsersPage() {
                       className={currentPage === page ? "bg-blue-600 text-white" : ""}
                     >
                       {page}
-              </Button>
+                    </Button>
                   );
                 })}
               </div>

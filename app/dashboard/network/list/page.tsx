@@ -14,6 +14,8 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { Badge } from "@/components/ui/badge"
 import { Pencil } from "lucide-react"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { CopyButton } from "@/components/ui/copy-button"
+
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -47,7 +49,7 @@ export default function NetworkListPage() {
   const { t } = useLanguage()
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1)
-  
+
 
   useEffect(() => {
     const fetchNetworks = async () => {
@@ -107,7 +109,7 @@ export default function NetworkListPage() {
         setLoading(false)
       }
     }
-    
+
     fetchNetworks()
   }, [searchTerm, statusFilter, countryFilter, sortField, sortDirection, startDate, endDate])
 
@@ -143,7 +145,7 @@ export default function NetworkListPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -209,8 +211,8 @@ export default function NetworkListPage() {
                 <SelectContent>
                   <SelectItem value="all">Tous les pays</SelectItem>
                   {countries.map((country) => (
-                    <SelectItem 
-                      key={country.id || country.uid || Math.random()} 
+                    <SelectItem
+                      key={country.id || country.uid || Math.random()}
                       value={(country.id || country.uid || '').toString()}
                     >
                       {country.nom}
@@ -233,8 +235,8 @@ export default function NetworkListPage() {
               />
 
               {/* Sort */}
-              <Select 
-                value={sortField || ""} 
+              <Select
+                value={sortField || ""}
                 onValueChange={(value) => setSortField(value as "nom" | "code" | null)}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
@@ -253,8 +255,8 @@ export default function NetworkListPage() {
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
           <CardHeader className="border-b border-gray-100 dark:border-gray-700">
             <CardTitle className="flex items-center space-x-2">
-                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
-                  <Share2 className="h-5 w-5 text-orange-600 dark:text-orange-300" />
+              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                <Share2 className="h-5 w-5 text-orange-600 dark:text-orange-300" />
               </div>
               <span>Liste des réseaux</span>
             </CardTitle>
@@ -269,7 +271,7 @@ export default function NetworkListPage() {
               </div>
             ) : error ? (
               <div className="p-6 text-center">
-                <ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+                <ErrorDisplay error={error} onRetry={() => {/* retry function */ }} />
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -304,10 +306,14 @@ export default function NetworkListPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="font-mono">
-                            {network.code}
-                          </Badge>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="font-mono">
+                              {network.code}
+                            </Badge>
+                            <CopyButton value={network.code} className="h-4 w-4" iconClassName="h-3 w-3" />
+                          </div>
                         </TableCell>
+
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Globe className="h-4 w-4 text-gray-400" />
@@ -317,10 +323,10 @@ export default function NetworkListPage() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge 
+                          <Badge
                             className={
-                              network.is_active 
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300" 
+                              network.is_active
+                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
                                 : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                             }
                           >

@@ -67,6 +67,8 @@ export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
+  const [networkFilter, setNetworkFilter] = useState("all")
+  const [networks, setNetworks] = useState<any[]>([])
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -109,7 +111,7 @@ export default function TransactionsPage() {
     setError("")
     try {
       let endpoint = "";
-      if (searchTerm.trim() !== "" || statusFilter !== "all" || typeFilter !== "all" || sortField || startDate || endDate) {
+      if (searchTerm.trim() !== "" || statusFilter !== "all" || typeFilter !== "all" || networkFilter !== "all" || sortField || startDate || endDate) {
         const params = new URLSearchParams({
           page: currentPage.toString(),
           page_size: itemsPerPage.toString(),
@@ -122,6 +124,9 @@ export default function TransactionsPage() {
         }
         if (typeFilter !== "all") {
           params.append("type", typeFilter);
+        }
+        if (networkFilter !== "all") {
+          params.append("network", networkFilter);
         }
         if (sortField) {
           params.append("ordering", `${sortDirection === "asc" ? "+" : "-"}${sortField}`);
@@ -161,7 +166,19 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     fetchTransactions();
-  }, [searchTerm, statusFilter, typeFilter, currentPage, sortField, sortDirection, startDate, endDate]);
+  }, [searchTerm, statusFilter, typeFilter, networkFilter, currentPage, sortField, sortDirection, startDate, endDate]);
+
+  useEffect(() => {
+    const fetchNetworks = async () => {
+      try {
+        const data = await apiFetch(`${baseUrl}api/payments/networks/`)
+        setNetworks(data.results || [])
+      } catch (err) {
+        console.error("Failed to load networks", err)
+      }
+    }
+    fetchNetworks()
+  }, [apiFetch])
 
   // Remove client-side filtering and sorting since it's now handled by the API
   const filteredAndSortedTransactions = transactions
@@ -626,7 +643,7 @@ export default function TransactionsPage() {
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -661,6 +678,21 @@ export default function TransactionsPage() {
                   <SelectItem value="all">{t("transactions.allTypes")}</SelectItem>
                   <SelectItem value="deposit">{t("transactions.deposit")}</SelectItem>
                   <SelectItem value="withdrawal">{t("transactions.withdrawal")}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Network Filter */}
+              <Select value={networkFilter} onValueChange={setNetworkFilter}>
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Réseau" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les réseaux</SelectItem>
+                  {networks.map((n) => (
+                    <SelectItem key={n.uid} value={n.uid}>
+                      {n.nom}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 

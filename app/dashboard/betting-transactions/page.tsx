@@ -40,6 +40,8 @@ export default function BettingTransactionsPage() {
   const [typeFilter, setTypeFilter] = useState("all")
   const [platformFilter, setPlatformFilter] = useState("all")
   const [commissionFilter, setCommissionFilter] = useState("all")
+  const [networkFilter, setNetworkFilter] = useState("all")
+  const [networks, setNetworks] = useState<any[]>([])
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -111,6 +113,9 @@ export default function BettingTransactionsPage() {
         if (commissionFilter !== "all") {
           params.append("commission_paid", commissionFilter === "paid" ? "true" : "false")
         }
+        if (networkFilter !== "all") {
+          params.append("network", networkFilter)
+        }
         if (startDate) {
           params.append("created_at__gte", startDate)
         }
@@ -137,7 +142,20 @@ export default function BettingTransactionsPage() {
       }
     }
     fetchTransactions()
-  }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, typeFilter, platformFilter, commissionFilter, sortField, sortDirection, startDate, endDate, t, toast, apiFetch])
+  }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, typeFilter, platformFilter, commissionFilter, networkFilter, sortField, sortDirection, startDate, endDate, t, toast, apiFetch])
+
+  // Fetch networks
+  useEffect(() => {
+    const fetchNetworks = async () => {
+      try {
+        const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`)
+        setNetworks(data.results || [])
+      } catch (err) {
+        console.error("Failed to load networks", err)
+      }
+    }
+    fetchNetworks()
+  }, [baseUrl, apiFetch])
 
   // Fetch stats
   useEffect(() => {
@@ -456,7 +474,7 @@ export default function BettingTransactionsPage() {
         {/* Filters and Search */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg mb-6">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
               {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -504,6 +522,21 @@ export default function BettingTransactionsPage() {
                   <SelectItem value="all">Toutes les commissions</SelectItem>
                   <SelectItem value="paid">Commission payée</SelectItem>
                   <SelectItem value="unpaid">Commission impayée</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Network Filter */}
+              <Select value={networkFilter} onValueChange={setNetworkFilter}>
+                <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
+                  <SelectValue placeholder="Réseau" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les réseaux</SelectItem>
+                  {networks.map((n) => (
+                    <SelectItem key={n.uid} value={n.uid}>
+                      {n.nom}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 

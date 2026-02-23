@@ -57,6 +57,7 @@ const translations = {
     "nav.networkConfigCreate": "Create Network Config",
     "nav.remoteCommand": "Remote Command",
     "nav.partner": "Partners",
+    "nav.bulkDepositNetworks": "Bulk Payments Auth",
 
     // Dashboard
     "dashboard.title": "Dashboard",
@@ -788,6 +789,7 @@ const translations = {
     "nav.networkConfigCreate": "Créer une configuration réseau",
     "nav.remoteCommand": "Commande à distance",
     "nav.partner": "Partenaires",
+    "nav.bulkDepositNetworks": "Auth. Paiements Masse",
 
     // Dashboard
     "dashboard.title": "Tableau de bord",

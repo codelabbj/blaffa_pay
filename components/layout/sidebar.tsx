@@ -72,6 +72,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
   const isBettingTransactionsActive = pathname.startsWith("/dashboard/betting-transactions")
   const isApiConfigActive = pathname.startsWith("/dashboard/api-config")
   const isPartnerPermissionsSummaryActive = pathname.startsWith("/dashboard/partner-permissions-summary")
+  const isBulkDepositNetworksActive = pathname.startsWith("/dashboard/bulk-deposit-networks")
 
   const handleLogout = () => {
     clearTokens();
@@ -126,7 +127,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Home className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.dashboard")}
             </Link>
-            
+
             {/* Users Dropdown */}
             <div>
               <button
@@ -179,7 +180,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 </Link>
               </div>
             </div>
-            
+
             <Link
               href="/dashboard/transactions"
               className={cn(
@@ -193,7 +194,21 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.transactions")}
             </Link>
-            
+
+            <Link
+              href="/dashboard/bulk-deposit-networks"
+              className={cn(
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isBulkDepositNetworksActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+              )}
+              onClick={onToggleMobileSidebar}
+            >
+              <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
+              {t("nav.bulkDepositNetworks")}
+            </Link>
+
             <div>
               <button
                 className={cn(
@@ -233,7 +248,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>{t("nav.countryCreate")}</Link>
               </div>
             </div>
-            
+
             <div>
               <button
                 className={cn(
@@ -273,7 +288,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>{t("nav.networkCreate")}</Link>
               </div>
             </div>
-            
+
             <Link href="/dashboard/phone-number/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/phone-number/list"
@@ -283,7 +298,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Phone className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.phoneNumbers")}
             </Link>
-            
+
             <div>
               <button
                 className={cn(
@@ -317,7 +332,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>{t("nav.devicesList")}</Link>
               </div>
             </div>
-            
+
             <Link href="/dashboard/sms-logs/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/sms-logs/list"
@@ -327,7 +342,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <MessageCircle className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.smsLogs")}
             </Link>
-            
+
             <Link href="/dashboard/fcm-logs/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/fcm-logs/list"
@@ -337,7 +352,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Bell className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.fcmLogs")}
             </Link>
-            
+
             <Link href="/dashboard/partner" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/partner"
@@ -347,7 +362,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.partner")}
             </Link>
-            
+
             <Link href="/dashboard/partner-transfers" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/partner-transfers"
@@ -357,7 +372,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
               Transferts Partenaires
             </Link>
-            
+
             <div>
               <button
                 className={cn(
@@ -397,7 +412,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>Créer une Plateforme</Link>
               </div>
             </div>
-            
+
             <div>
               <button
                 className={cn(
@@ -437,7 +452,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>Créer une Permission</Link>
               </div>
             </div>
-            
+
             <div>
               <Link href="/dashboard/betting-transactions" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
@@ -449,7 +464,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 Transactions de Paris
               </Link>
             </div>
-            
+
             <div>
               <Link href="/dashboard/api-config" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
@@ -461,7 +476,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 Configuration API
               </Link>
             </div>
-            
+
             <div>
               <Link href="/dashboard/partner-permissions-summary" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
@@ -473,7 +488,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 Résumé Permissions
               </Link>
             </div>
-            
+
             <Link href="/dashboard/topup" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/topup"
@@ -483,7 +498,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("topup.title")}
             </Link>
-            
+
             <Link href="/dashboard/earning-management" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/earning-management"
@@ -493,7 +508,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("earning.title")}
             </Link>
-            
+
             <Link
               href="/dashboard/wave-business-transaction"
               className={cn(
@@ -507,7 +522,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("Wave Business Transaction")}
             </Link>
-            
+
             <Link
               href="/dashboard/momo-pay"
               className={cn(
@@ -522,11 +537,11 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               MoMo Pay
             </Link>
           </nav>
-          
+
           <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200" 
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200"
               onClick={handleLogout}
             >
               <LogOut className="mr-3 h-5 w-5" />
@@ -560,7 +575,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </div>
             </div>
           </div>
-          
+
           <nav className="flex-1 space-y-2 px-4 py-6 overflow-y-auto min-h-0">
             <Link
               href="/dashboard"
@@ -574,7 +589,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Home className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.dashboard")}
             </Link>
-            
+
             {/* Users Dropdown */}
             <div>
               <button
@@ -625,7 +640,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 </Link>
               </div>
             </div>
-            
+
             <Link
               href="/dashboard/transactions"
               className={cn(
@@ -638,7 +653,20 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.transactions")}
             </Link>
-            
+
+            <Link
+              href="/dashboard/bulk-deposit-networks"
+              className={cn(
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isBulkDepositNetworksActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+              )}
+            >
+              <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
+              {t("nav.bulkDepositNetworks")}
+            </Link>
+
             <div>
               <button
                 className={cn(
@@ -678,7 +706,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>{t("nav.countryCreate")}</Link>
               </div>
             </div>
-            
+
             <div>
               <button
                 className={cn(
@@ -718,7 +746,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>{t("nav.networkCreate")}</Link>
               </div>
             </div>
-            
+
             <Link href="/dashboard/phone-number/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/phone-number/list"
@@ -728,7 +756,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Phone className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.phoneNumbers")}
             </Link>
-            
+
             <div>
               <button
                 className={cn(
@@ -762,7 +790,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>{t("nav.devicesList")}</Link>
               </div>
             </div>
-            
+
             <Link href="/dashboard/sms-logs/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/sms-logs/list"
@@ -772,7 +800,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <MessageCircle className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.smsLogs")}
             </Link>
-            
+
             <Link href="/dashboard/fcm-logs/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/fcm-logs/list"
@@ -782,7 +810,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Bell className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.fcmLogs")}
             </Link>
-            
+
             <Link href="/dashboard/partner" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/partner"
@@ -792,7 +820,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.partner")}
             </Link>
-            
+
             <Link href="/dashboard/partner-transfers" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/partner-transfers"
@@ -802,7 +830,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
               Transferts Partenaires
             </Link>
-            
+
             <div>
               <button
                 className={cn(
@@ -842,7 +870,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>Créer une Plateforme</Link>
               </div>
             </div>
-            
+
             <div>
               <button
                 className={cn(
@@ -882,7 +910,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>Créer une Permission</Link>
               </div>
             </div>
-            
+
             <div>
               <Link href="/dashboard/betting-transactions" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
@@ -894,7 +922,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 Transactions de Paris
               </Link>
             </div>
-            
+
             <div>
               <Link href="/dashboard/api-config" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
@@ -906,7 +934,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 Configuration API
               </Link>
             </div>
-            
+
             <div>
               <Link href="/dashboard/partner-permissions-summary" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
@@ -918,7 +946,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 Résumé Permissions
               </Link>
             </div>
-            
+
             <Link href="/dashboard/topup" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/topup"
@@ -928,7 +956,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("topup.title")}
             </Link>
-            
+
             <Link href="/dashboard/earning-management" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
               pathname === "/dashboard/earning-management"
@@ -938,7 +966,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("earning.title")}
             </Link>
-            
+
             <Link
               href="/dashboard/wave-business-transaction"
               className={cn(
@@ -952,7 +980,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("Wave Business Transaction")}
             </Link>
-            
+
             <Link
               href="/dashboard/momo-pay"
               className={cn(
@@ -967,11 +995,11 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               MoMo Pay
             </Link>
           </nav>
-          
+
           <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200" 
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200"
               onClick={handleLogout}
             >
               <LogOut className="mr-3 h-5 w-5" />

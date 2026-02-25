@@ -58,6 +58,7 @@ const translations = {
     "nav.remoteCommand": "Remote Command",
     "nav.partner": "Partners",
     "nav.bulkDepositNetworks": "Bulk Payments Auth",
+    "nav.deviceAuthorizations": "SMS Device Authorizations",
 
     // Dashboard
     "dashboard.title": "Dashboard",
@@ -508,6 +509,10 @@ const translations = {
     "common.dismiss": "Dismiss",
     "common.submitting": "Submitting...",
     "common.refresh": "Refresh",
+    "common.total": "Total",
+    "common.page": "Page",
+    "common.online": "Online",
+    "common.offline": "Offline",
 
     // Registration Form
     "register.title": "Register New User",
@@ -748,6 +753,28 @@ const translations = {
     "signIn.accessDashboard": "Access your admin dashboard",
     "signIn.sslSecure": "Secure connection with SSL encryption",
     "signIn.copyright": "© 2024 Blaffa Pay. All rights reserved.",
+
+    // Device Authorizations
+    "deviceAuthorizations.title": "SMS Device Authorizations",
+    "deviceAuthorizations.list": "Device Authorizations List",
+    "deviceAuthorizations.create": "Create Authorization",
+    "deviceAuthorizations.edit": "Edit Authorization",
+    "deviceAuthorizations.detail": "Authorization Detail",
+    "deviceAuthorizations.partner": "Partner",
+    "deviceAuthorizations.device": "Device",
+    "deviceAuthorizations.notes": "Notes",
+    "deviceAuthorizations.status": "Status",
+    "deviceAuthorizations.isActive": "Is Active",
+    "deviceAuthorizations.createdAt": "Created At",
+    "deviceAuthorizations.updatedAt": "Updated At",
+    "deviceAuthorizations.selectPartner": "Select Partner",
+    "deviceAuthorizations.selectDevice": "Select Device",
+    "deviceAuthorizations.searchPlaceholder": "Search by partner, device or notes...",
+    "deviceAuthorizations.toggleSuccess": "Status updated successfully",
+    "deviceAuthorizations.createSuccess": "Authorization created successfully",
+    "deviceAuthorizations.updateSuccess": "Authorization updated successfully",
+    "deviceAuthorizations.notesPlaceholder": "Optional notes...",
+    "deviceAuthorizations.selectPartnerAndDevice": "Please select a partner and a device",
   },
   fr: {
     // Auth
@@ -790,6 +817,7 @@ const translations = {
     "nav.remoteCommand": "Commande à distance",
     "nav.partner": "Partenaires",
     "nav.bulkDepositNetworks": "Auth. Paiements Masse",
+    "nav.deviceAuthorizations": "Autorisations d'Appareils SMS",
 
     // Dashboard
     "dashboard.title": "Tableau de bord",
@@ -1248,6 +1276,10 @@ const translations = {
     "common.dismiss": "Fermer",
     "common.submitting": "Envoi...",
     "common.refresh": "Rafraîchir",
+    "common.total": "Total",
+    "common.page": "Page",
+    "common.online": "En ligne",
+    "common.offline": "Hors ligne",
 
     // Registration Form
     "register.title": "Enregistrer un nouvel utilisateur",
@@ -1500,6 +1532,28 @@ const translations = {
     "users.copyUid": "Copy UID",
 
     "users.enablePartner": "Enable Partner",
+
+    // Device Authorizations
+    "deviceAuthorizations.title": "Autorisations d'Appareils SMS",
+    "deviceAuthorizations.list": "Liste des Autorisations d'Appareils",
+    "deviceAuthorizations.create": "Créer une Autorisation",
+    "deviceAuthorizations.edit": "Modifier l'Autorisation",
+    "deviceAuthorizations.detail": "Détail de l'Autorisation",
+    "deviceAuthorizations.partner": "Partenaire",
+    "deviceAuthorizations.device": "Appareil",
+    "deviceAuthorizations.notes": "Notes",
+    "deviceAuthorizations.status": "Statut",
+    "deviceAuthorizations.isActive": "Est Actif",
+    "deviceAuthorizations.createdAt": "Créé le",
+    "deviceAuthorizations.updatedAt": "Mis à jour le",
+    "deviceAuthorizations.selectPartner": "Sélectionner un Partenaire",
+    "deviceAuthorizations.selectDevice": "Sélectionner un Appareil",
+    "deviceAuthorizations.searchPlaceholder": "Rechercher par partenaire, appareil ou notes...",
+    "deviceAuthorizations.toggleSuccess": "Statut mis à jour avec succès",
+    "deviceAuthorizations.createSuccess": "Autorisation créée avec succès",
+    "deviceAuthorizations.updateSuccess": "Autorisation mise à jour avec succès",
+    "deviceAuthorizations.notesPlaceholder": "Notes facultatives...",
+    "deviceAuthorizations.selectPartnerAndDevice": "Veuillez sélectionner un partenaire et un appareil",
   },
 }
 

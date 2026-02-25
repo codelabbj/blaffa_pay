@@ -6,7 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/providers/language-provider"
-import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt } from "lucide-react"
+import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt, ShieldCheck } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 
 // Colors for consistent theming - using logo colors
@@ -73,6 +73,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
   const isApiConfigActive = pathname.startsWith("/dashboard/api-config")
   const isPartnerPermissionsSummaryActive = pathname.startsWith("/dashboard/partner-permissions-summary")
   const isBulkDepositNetworksActive = pathname.startsWith("/dashboard/bulk-deposit-networks")
+  const isDeviceAuthorizationsActive = pathname.startsWith("/dashboard/device-authorizations")
 
   const handleLogout = () => {
     clearTokens();
@@ -207,6 +208,20 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             >
               <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.bulkDepositNetworks")}
+            </Link>
+
+            <Link
+              href="/dashboard/device-authorizations"
+              className={cn(
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isDeviceAuthorizationsActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+              )}
+              onClick={onToggleMobileSidebar}
+            >
+              <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
+              {t("nav.deviceAuthorizations")}
             </Link>
 
             <div>
@@ -665,6 +680,19 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             >
               <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.bulkDepositNetworks")}
+            </Link>
+
+            <Link
+              href="/dashboard/device-authorizations"
+              className={cn(
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                isDeviceAuthorizationsActive
+                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+              )}
+            >
+              <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
+              {t("nav.deviceAuthorizations")}
             </Link>
 
             <div>

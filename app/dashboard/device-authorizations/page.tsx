@@ -147,7 +147,7 @@ export default function DeviceAuthorizationsPage() {
                 method: "POST",
                 body: JSON.stringify({
                     partner: selectedPartner.uid,
-                    device: selectedDevice.uid,
+                    origin_device: selectedDevice.uid,
                     notes,
                     is_active: isActive,
                 }),

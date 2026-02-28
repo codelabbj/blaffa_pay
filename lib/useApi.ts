@@ -82,6 +82,14 @@ export function useApi() {
     const headers = new Headers(fetchInit.headers || {});
     if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
 
+    // Automatically set Content-Type for JSON requests if body is present
+    if (fetchInit.body && !headers.has('Content-Type')) {
+      // Check if body is NOT FormData (which should have its own boundary headers)
+      if (!(fetchInit.body instanceof FormData)) {
+        headers.set('Content-Type', 'application/json');
+      }
+    }
+
     // Determine HTTP method
     // IMPORTANT: GET requests never show success toasts
     let method = 'GET'; // Default to GET

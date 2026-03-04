@@ -36,6 +36,9 @@ export default function RegisterUserForm() {
     password_confirm: "",
     is_partner: false,
     can_process_ussd_transaction: false,
+    can_process_momo: true,
+    can_process_mobcash: true,
+    can_process_bulk_payment: true,
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -90,6 +93,9 @@ export default function RegisterUserForm() {
         password_confirm: form.password_confirm,
         is_partner: form.is_partner,
         can_process_ussd_transaction: form.can_process_ussd_transaction,
+        can_process_momo: form.can_process_momo,
+        can_process_mobcash: form.can_process_mobcash,
+        can_process_bulk_payment: form.can_process_bulk_payment,
       }
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/register/`, {
         method: "POST",
@@ -115,6 +121,9 @@ export default function RegisterUserForm() {
           password_confirm: "",
           is_partner: false,
           can_process_ussd_transaction: false,
+          can_process_momo: false,
+          can_process_mobcash: false,
+          can_process_bulk_payment: false,
         })
       }
     } catch (err: any) {
@@ -133,7 +142,7 @@ export default function RegisterUserForm() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
@@ -180,7 +189,7 @@ export default function RegisterUserForm() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal Information */}
           <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
-           
+
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -348,7 +357,7 @@ export default function RegisterUserForm() {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Les partenaires ont accès au suivi des commissions et à des fonctionnalités supplémentaires
               </p>
-              
+
               <div className="flex items-center space-x-2 pt-2 border-t border-gray-200 dark:border-gray-700">
                 <Switch
                   id="can_process_ussd_transaction"
@@ -361,20 +370,50 @@ export default function RegisterUserForm() {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Autorise l'utilisateur à effectuer des transactions via USSD
               </p>
+
+              <div className="flex items-center space-x-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <Switch
+                  id="can_process_momo"
+                  name="can_process_momo"
+                  checked={form.can_process_momo}
+                  onCheckedChange={(checked) => setForm({ ...form, can_process_momo: checked })}
+                />
+                <Label htmlFor="can_process_momo">{t("register.canProcessMomo") || "Peut traiter MoMo"}</Label>
+              </div>
+
+              <div className="flex items-center space-x-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <Switch
+                  id="can_process_mobcash"
+                  name="can_process_mobcash"
+                  checked={form.can_process_mobcash}
+                  onCheckedChange={(checked) => setForm({ ...form, can_process_mobcash: checked })}
+                />
+                <Label htmlFor="can_process_mobcash">{t("register.canProcessMobcash") || "Peut traiter Mobcash"}</Label>
+              </div>
+
+              <div className="flex items-center space-x-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <Switch
+                  id="can_process_bulk_payment"
+                  name="can_process_bulk_payment"
+                  checked={form.can_process_bulk_payment}
+                  onCheckedChange={(checked) => setForm({ ...form, can_process_bulk_payment: checked })}
+                />
+                <Label htmlFor="can_process_bulk_payment">{t("register.canProcessBulkPayment") || "Peut traiter Pajement en masse"}</Label>
+              </div>
             </CardContent>
           </Card>
 
           {/* Submit Button */}
           <div className="flex justify-end space-x-4">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => router.back()}
             >
               Annuler
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
             >

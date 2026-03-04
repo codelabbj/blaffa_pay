@@ -69,11 +69,17 @@ export default function UsersPage() {
   const [verifyingPhone, setVerifyingPhone] = useState(false);
   const [verifyingPartner, setVerifyingPartner] = useState(false);
   const [verifyingUssd, setVerifyingUssd] = useState(false);
+  const [verifyingMomo, setVerifyingMomo] = useState(false);
+  const [verifyingMobcash, setVerifyingMobcash] = useState(false);
+  const [verifyingBulkPayment, setVerifyingBulkPayment] = useState(false);
 
   const [confirmEmailToggle, setConfirmEmailToggle] = useState<null | boolean>(null);
   const [confirmPhoneToggle, setConfirmPhoneToggle] = useState<null | boolean>(null);
   const [confirmPartnerToggle, setConfirmPartnerToggle] = useState<null | boolean>(null);
   const [confirmUssdToggle, setConfirmUssdToggle] = useState<null | boolean>(null);
+  const [confirmMomoToggle, setConfirmMomoToggle] = useState<null | boolean>(null);
+  const [confirmMobcashToggle, setConfirmMobcashToggle] = useState<null | boolean>(null);
+  const [confirmBulkPaymentToggle, setConfirmBulkPaymentToggle] = useState<null | boolean>(null);
 
   const [confirmActionUser, setConfirmActionUser] = useState<any | null>(null);
   const [confirmActionType, setConfirmActionType] = useState<"activate" | "deactivate" | null>(null);
@@ -124,7 +130,13 @@ export default function UsersPage() {
         console.log("API response data:", data);
 
         // Handle the actual API response structure
-        const users = data.users || data.results || [];
+        const rawUsers = data.users || data.results || [];
+        const users = rawUsers.map((u: any) => ({
+          ...u,
+          can_process_momo: u.can_process_momo ?? true,
+          can_process_mobcash: u.can_process_mobcash ?? true,
+          can_process_bulk_payment: u.can_process_bulk_payment ?? true,
+        }));
         const totalCount = data.pagination?.total_count || data.count || 0;
         const totalPages = data.pagination?.total_pages || Math.ceil(totalCount / itemsPerPage);
 
@@ -245,7 +257,12 @@ export default function UsersPage() {
     setDetailUser(null)
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${uid}/`)
-      setDetailUser(data)
+      setDetailUser({
+        ...data,
+        can_process_momo: data.can_process_momo ?? true,
+        can_process_mobcash: data.can_process_mobcash ?? true,
+        can_process_bulk_payment: data.can_process_bulk_payment ?? true,
+      })
     } catch (err: any) {
       setDetailError(extractErrorMessages(err))
       toast({ title: "Échec du chargement des détails", description: extractErrorMessages(err), variant: "destructive" })
@@ -364,13 +381,70 @@ export default function UsersPage() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ can_process_ussd_transaction: canProcessUssd }),
-        successMessage: canProcessUssd ? "Transactions USSD autorisées avec succès" : "Transactions USSD interdites avec succès"
+        successMessage: canProcessUssd ? t("users.ussdAuthorized") || "Transactions USSD autorisées avec succès" : t("users.ussdForbidden") || "Transactions USSD interdites avec succès"
       });
       setDetailUser((prev: any) => prev ? { ...prev, can_process_ussd_transaction: canProcessUssd } : prev);
     } catch (err: any) {
-      toast({ title: "Échec de la modification du statut USSD", description: extractErrorMessages(err), variant: "destructive" });
+      toast({ title: t("users.ussdUpdateFailed") || "Échec de la modification du statut USSD", description: extractErrorMessages(err), variant: "destructive" });
     } finally {
       setVerifyingUssd(false);
+    }
+  };
+
+  // Add handler for toggling can_process_momo
+  const handleToggleMomo = async (canProcessMomo: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingMomo(true);
+    try {
+      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ can_process_momo: canProcessMomo }),
+        successMessage: canProcessMomo ? t("users.momoAuthorized") || "MoMo autorisé avec succès" : t("users.momoForbidden") || "MoMo interdit avec succès"
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, can_process_momo: canProcessMomo } : prev);
+    } catch (err: any) {
+      toast({ title: t("users.momoUpdateFailed") || "Échec de la modification MoMo", description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingMomo(false);
+    }
+  };
+
+  // Add handler for toggling can_process_mobcash
+  const handleToggleMobcash = async (canProcessMobcash: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingMobcash(true);
+    try {
+      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ can_process_mobcash: canProcessMobcash }),
+        successMessage: canProcessMobcash ? t("users.mobcashAuthorized") || "Mobcash autorisé avec succès" : t("users.mobcashForbidden") || "Mobcash interdit avec succès"
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, can_process_mobcash: canProcessMobcash } : prev);
+    } catch (err: any) {
+      toast({ title: t("users.mobcashUpdateFailed") || "Échec de la modification Mobcash", description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingMobcash(false);
+    }
+  };
+
+  // Add handler for toggling can_process_bulk_payment
+  const handleToggleBulkPayment = async (canProcessBulkPayment: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingBulkPayment(true);
+    try {
+      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ can_process_bulk_payment: canProcessBulkPayment }),
+        successMessage: canProcessBulkPayment ? t("users.bulkAuthorized") || "Paiement en masse autorisé avec succès" : t("users.bulkForbidden") || "Paiement en masse interdit avec succès"
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, can_process_bulk_payment: canProcessBulkPayment } : prev);
+    } catch (err: any) {
+      toast({ title: t("users.bulkUpdateFailed") || "Échec de la modification Paiement en masse", description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingBulkPayment(false);
     }
   };
 
@@ -768,6 +842,30 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
+                <div><b>{t("users.momo") || "MoMo"}:</b> {detailUser.can_process_momo ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}
+                  <Switch
+                    checked={detailUser.can_process_momo}
+                    disabled={detailLoading || verifyingMomo}
+                    onCheckedChange={() => setConfirmMomoToggle(!detailUser.can_process_momo)}
+                    className="ml-2"
+                  />
+                </div>
+                <div><b>{t("users.mobcash") || "Mobcash"}:</b> {detailUser.can_process_mobcash ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}
+                  <Switch
+                    checked={detailUser.can_process_mobcash}
+                    disabled={detailLoading || verifyingMobcash}
+                    onCheckedChange={() => setConfirmMobcashToggle(!detailUser.can_process_mobcash)}
+                    className="ml-2"
+                  />
+                </div>
+                <div><b>{t("users.bulkPayment") || "Paiement en masse"}:</b> {detailUser.can_process_bulk_payment ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}
+                  <Switch
+                    checked={detailUser.can_process_bulk_payment}
+                    disabled={detailLoading || verifyingBulkPayment}
+                    onCheckedChange={() => setConfirmBulkPaymentToggle(!detailUser.can_process_bulk_payment)}
+                    className="ml-2"
+                  />
+                </div>
                 <div><b>Créé le:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
                 <div><b>Dernière connexion:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
               </div>
@@ -782,12 +880,12 @@ export default function UsersPage() {
         <Dialog open={confirmEmailToggle !== null} onOpenChange={(open) => { if (!open) setConfirmEmailToggle(null) }}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{confirmEmailToggle ? "Vérifier l'email" : "Ne pas vérifier l'email"}</DialogTitle>
+              <DialogTitle>{confirmEmailToggle ? t("users.verifyEmail") || "Vérifier l'email" : t("users.unverifyEmail") || "Ne pas vérifier l'email"}</DialogTitle>
             </DialogHeader>
             <div className="py-4 text-center">
               {confirmEmailToggle
-                ? "Êtes-vous sûr de vouloir vérifier l'email de cet utilisateur ?"
-                : "Êtes-vous sûr de vouloir ne pas vérifier l'email de cet utilisateur ?"}
+                ? t("users.confirmVerifyEmail") || "Êtes-vous sûr de vouloir vérifier l'email de cet utilisateur ?"
+                : t("users.confirmUnverifyEmail") || "Êtes-vous sûr de vouloir ne pas vérifier l'email de cet utilisateur ?"}
             </div>
             <DialogFooter>
               <Button
@@ -816,12 +914,12 @@ export default function UsersPage() {
         <Dialog open={confirmPhoneToggle !== null} onOpenChange={(open) => { if (!open) setConfirmPhoneToggle(null) }}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{confirmPhoneToggle ? "Vérifier le téléphone" : "Ne pas vérifier le téléphone"}</DialogTitle>
+              <DialogTitle>{confirmPhoneToggle ? t("users.verifyPhone") || "Vérifier le téléphone" : t("users.unverifyPhone") || "Ne pas vérifier le téléphone"}</DialogTitle>
             </DialogHeader>
             <div className="py-4 text-center">
               {confirmPhoneToggle
-                ? "Êtes-vous sûr de vouloir vérifier le téléphone de cet utilisateur ?"
-                : "Êtes-vous sûr de vouloir ne pas vérifier le téléphone de cet utilisateur ?"}
+                ? t("users.confirmVerifyPhone") || "Êtes-vous sûr de vouloir vérifier le téléphone de cet utilisateur ?"
+                : t("users.confirmUnverifyPhone") || "Êtes-vous sûr de vouloir ne pas vérifier le téléphone de cet utilisateur ?"}
             </div>
             <DialogFooter>
               <Button
@@ -850,12 +948,12 @@ export default function UsersPage() {
         <Dialog open={confirmPartnerToggle !== null} onOpenChange={(open) => { if (!open) setConfirmPartnerToggle(null) }}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{confirmPartnerToggle ? "Activer le statut partenaire" : "Désactiver le statut partenaire"}</DialogTitle>
+              <DialogTitle>{confirmPartnerToggle ? t("register.isPartner") || "Activer le statut partenaire" : t("users.disablePartner") || "Désactiver le statut partenaire"}</DialogTitle>
             </DialogHeader>
             <div className="py-4 text-center">
               {confirmPartnerToggle
-                ? "Êtes-vous sûr de vouloir activer le statut partenaire ?"
-                : "Êtes-vous sûr de vouloir désactiver le statut partenaire ?"}
+                ? t("users.confirmTogglePartner") || "Êtes-vous sûr de vouloir activer le statut partenaire ?"
+                : t("users.confirmDisablePartner") || "Êtes-vous sûr de vouloir désactiver le statut partenaire ?"}
             </div>
             <DialogFooter>
               <Button
@@ -884,12 +982,12 @@ export default function UsersPage() {
         <Dialog open={confirmUssdToggle !== null} onOpenChange={(open) => { if (!open) setConfirmUssdToggle(null) }}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{confirmUssdToggle ? "Autoriser les transactions USSD" : "Interdire les transactions USSD"}</DialogTitle>
+              <DialogTitle>{confirmUssdToggle ? t("users.authorizeUssd") || "Autoriser les transactions USSD" : t("users.forbidUssd") || "Interdire les transactions USSD"}</DialogTitle>
             </DialogHeader>
             <div className="py-4 text-center">
               {confirmUssdToggle
-                ? "Êtes-vous sûr de vouloir autoriser les transactions USSD pour cet utilisateur ?"
-                : "Êtes-vous sûr de vouloir interdire les transactions USSD pour cet utilisateur ?"}
+                ? t("users.confirmAuthorizeUssd") || "Êtes-vous sûr de vouloir autoriser les transactions USSD pour cet utilisateur ?"
+                : t("users.confirmForbidUssd") || "Êtes-vous sûr de vouloir interdire les transactions USSD pour cet utilisateur ?"}
             </div>
             <DialogFooter>
               <Button
@@ -906,6 +1004,105 @@ export default function UsersPage() {
                 variant="outline"
                 className="w-full mt-2"
                 onClick={() => setConfirmUssdToggle(null)}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* MoMo Toggle Confirmation Modal */}
+        <Dialog open={confirmMomoToggle !== null} onOpenChange={(open) => { if (!open) setConfirmMomoToggle(null) }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirmMomoToggle ? t("users.authorizeMomo") || "Autoriser MoMo" : t("users.forbidMomo") || "Interdire MoMo"}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-center">
+              {confirmMomoToggle
+                ? t("users.confirmAuthorizeMomo") || "Êtes-vous sûr de vouloir autoriser MoMo pour cet utilisateur ?"
+                : t("users.confirmForbidMomo") || "Êtes-vous sûr de vouloir interdire MoMo pour cet utilisateur ?"}
+            </div>
+            <DialogFooter>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  await handleToggleMomo(!!confirmMomoToggle);
+                  setConfirmMomoToggle(null);
+                }}
+                disabled={verifyingMomo}
+              >
+                {verifyingMomo ? "Modification..." : "OK"}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => setConfirmMomoToggle(null)}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Mobcash Toggle Confirmation Modal */}
+        <Dialog open={confirmMobcashToggle !== null} onOpenChange={(open) => { if (!open) setConfirmMobcashToggle(null) }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirmMobcashToggle ? t("users.authorizeMobcash") || "Autoriser Mobcash" : t("users.forbidMobcash") || "Interdire Mobcash"}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-center">
+              {confirmMobcashToggle
+                ? t("users.confirmAuthorizeMobcash") || "Êtes-vous sûr de vouloir autoriser Mobcash pour cet utilisateur ?"
+                : t("users.confirmForbidMobcash") || "Êtes-vous sûr de vouloir interdire Mobcash pour cet utilisateur ?"}
+            </div>
+            <DialogFooter>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  await handleToggleMobcash(!!confirmMobcashToggle);
+                  setConfirmMobcashToggle(null);
+                }}
+                disabled={verifyingMobcash}
+              >
+                {verifyingMobcash ? "Modification..." : "OK"}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => setConfirmMobcashToggle(null)}
+              >
+                Annuler
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Bulk Payment Toggle Confirmation Modal */}
+        <Dialog open={confirmBulkPaymentToggle !== null} onOpenChange={(open) => { if (!open) setConfirmBulkPaymentToggle(null) }}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{confirmBulkPaymentToggle ? t("users.authorizeBulk") || "Autoriser Paiement en masse" : t("users.forbidBulk") || "Interdire Paiement en masse"}</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 text-center">
+              {confirmBulkPaymentToggle
+                ? t("users.confirmAuthorizeBulk") || "Êtes-vous sûr de vouloir autoriser le paiement en masse pour cet utilisateur ?"
+                : t("users.confirmForbidBulk") || "Êtes-vous sûr de vouloir interdire le paiement en masse pour cet utilisateur ?"}
+            </div>
+            <DialogFooter>
+              <Button
+                className="w-full"
+                onClick={async () => {
+                  await handleToggleBulkPayment(!!confirmBulkPaymentToggle);
+                  setConfirmBulkPaymentToggle(null);
+                }}
+                disabled={verifyingBulkPayment}
+              >
+                {verifyingBulkPayment ? "Modification..." : "OK"}
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full mt-2"
+                onClick={() => setConfirmBulkPaymentToggle(null)}
               >
                 Annuler
               </Button>

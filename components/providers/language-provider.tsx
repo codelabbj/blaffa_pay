@@ -59,6 +59,11 @@ const translations = {
     "nav.partner": "Partners",
     "nav.bulkDepositNetworks": "Bulk Payments Auth",
     "nav.deviceAuthorizations": "SMS Device Authorizations",
+    "nav.aggregators": "Aggregators",
+    "nav.aggregatorUsers": "Aggregator Users",
+    "nav.aggregatorAuthorizations": "Authorizations",
+    "nav.aggregatorNetworkMappings": "Network Mappings",
+    "nav.aggregatorTransactions": "Audit Log",
 
     // Dashboard
     "dashboard.title": "Dashboard",
@@ -859,6 +864,11 @@ const translations = {
     "nav.partner": "Partenaires",
     "nav.bulkDepositNetworks": "Auth. Paiements Masse",
     "nav.deviceAuthorizations": "Autorisations d'Appareils SMS",
+    "nav.aggregators": "Agrégateurs",
+    "nav.aggregatorUsers": "Utilisateurs Agrégateurs",
+    "nav.aggregatorAuthorizations": "Autorisations",
+    "nav.aggregatorNetworkMappings": "Configuration Réseaux",
+    "nav.aggregatorTransactions": "Journal d'Audit",
 
     // Dashboard
     "dashboard.title": "Tableau de bord",

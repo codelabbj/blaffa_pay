@@ -6,7 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/providers/language-provider"
-import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt, ShieldCheck } from "lucide-react"
+import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt, ShieldCheck, Layers } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 
 // Colors for consistent theming - using logo colors
@@ -36,6 +36,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
   const [networkConfigDropdownOpen, setNetworkConfigDropdownOpen] = useState(false)
   const [platformsDropdownOpen, setPlatformsDropdownOpen] = useState(false)
   const [permissionsDropdownOpen, setPermissionsDropdownOpen] = useState(false)
+  const [aggregatorsDropdownOpen, setAggregatorsDropdownOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const { t } = useLanguage()
@@ -74,6 +75,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
   const isPartnerPermissionsSummaryActive = pathname.startsWith("/dashboard/partner-permissions-summary")
   const isBulkDepositNetworksActive = pathname.startsWith("/dashboard/bulk-deposit-networks")
   const isDeviceAuthorizationsActive = pathname.startsWith("/dashboard/device-authorizations")
+  const isAggregatorsActive = pathname.startsWith("/dashboard/aggregators")
 
   const handleLogout = () => {
     clearTokens();
@@ -223,6 +225,95 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.deviceAuthorizations")}
             </Link>
+
+            {/* Aggregators Dropdown */}
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  isAggregatorsActive
+                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                )}
+                onClick={() => setAggregatorsDropdownOpen((open) => !open)}
+                aria-expanded={aggregatorsDropdownOpen}
+              >
+                <Layers className="mr-3 h-5 w-5 flex-shrink-0" />
+                {t("nav.aggregators")}
+                {aggregatorsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  aggregatorsDropdownOpen ? "max-h-64 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link
+                  href="/dashboard/aggregators"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname === "/dashboard/aggregators"
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={onToggleMobileSidebar}
+                >
+                  {t("nav.dashboard")}
+                </Link>
+                <Link
+                  href="/dashboard/aggregators/users"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname.startsWith("/dashboard/aggregators/users")
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={onToggleMobileSidebar}
+                >
+                  {t("nav.aggregatorUsers")}
+                </Link>
+                <Link
+                  href="/dashboard/aggregators/authorizations"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname === "/dashboard/aggregators/authorizations"
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={onToggleMobileSidebar}
+                >
+                  {t("nav.aggregatorAuthorizations")}
+                </Link>
+                <Link
+                  href="/dashboard/aggregators/network-mappings"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname === "/dashboard/aggregators/network-mappings"
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={onToggleMobileSidebar}
+                >
+                  {t("nav.aggregatorNetworkMappings")}
+                </Link>
+                <Link
+                  href="/dashboard/aggregators/transactions"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname === "/dashboard/aggregators/transactions"
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={onToggleMobileSidebar}
+                >
+                  {t("nav.aggregatorTransactions")}
+                </Link>
+              </div>
+            </div>
 
             <div>
               <button
@@ -694,6 +785,90 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
               {t("nav.deviceAuthorizations")}
             </Link>
+
+            {/* Aggregators Dropdown */}
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  isAggregatorsActive
+                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
+                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                )}
+                onClick={() => setAggregatorsDropdownOpen((open) => !open)}
+                aria-expanded={aggregatorsDropdownOpen}
+              >
+                <Layers className="mr-3 h-5 w-5 flex-shrink-0" />
+                {t("nav.aggregators")}
+                {aggregatorsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  aggregatorsDropdownOpen ? "max-h-64 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link
+                  href="/dashboard/aggregators"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname === "/dashboard/aggregators"
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.dashboard")}
+                </Link>
+                <Link
+                  href="/dashboard/aggregators/users"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname.startsWith("/dashboard/aggregators/users")
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.aggregatorUsers")}
+                </Link>
+                <Link
+                  href="/dashboard/aggregators/authorizations"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname === "/dashboard/aggregators/authorizations"
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.aggregatorAuthorizations")}
+                </Link>
+                <Link
+                  href="/dashboard/aggregators/network-mappings"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname === "/dashboard/aggregators/network-mappings"
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.aggregatorNetworkMappings")}
+                </Link>
+                <Link
+                  href="/dashboard/aggregators/transactions"
+                  className={cn(
+                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    pathname === "/dashboard/aggregators/transactions"
+                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.aggregatorTransactions")}
+                </Link>
+              </div>
+            </div>
 
             <div>
               <button

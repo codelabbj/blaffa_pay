@@ -145,7 +145,7 @@ export default function MomoPayPage() {
 
         toast({
           title: "Succès",
-          description: "Transactions MoMo Pay chargées avec succès"
+          description: "<span>Transactions MoMo Pay chargées avec succès</span>"
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -181,7 +181,7 @@ export default function MomoPayPage() {
       return (
         <Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">
           <AlertTriangle className="h-3 w-3 mr-1" />
-          Expiré
+          <span>Expiré</span>
         </Badge>
       )
     }
@@ -191,34 +191,34 @@ export default function MomoPayPage() {
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300">
             <Clock className="h-3 w-3 mr-1" />
-            En attente
+            <span>En attente</span>
           </Badge>
         )
       case "confirmed":
         return (
           <Badge className="bg-green-100 text-green-500 dark:bg-green-900/20 dark:text-green-300">
             <CheckCircle className="h-3 w-3 mr-1" />
-            Confirmé
+            <span>Confirmé</span>
           </Badge>
         )
       case "cancelled":
         return (
           <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300">
             <XCircle className="h-3 w-3 mr-1" />
-            Annulé
+            <span>Annulé</span>
           </Badge>
         )
       case "failed":
         return (
           <Badge className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">
             <XCircle className="h-3 w-3 mr-1" />
-            Échoué
+            <span>Échoué</span>
           </Badge>
         )
       default:
         return (
           <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-300">
-            {status}
+            <span>{status}</span>
           </Badge>
         )
     }
@@ -417,10 +417,10 @@ export default function MomoPayPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                Transactions MoMo Pay
+                <span>Transactions MoMo Pay</span>
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Gérer et surveiller les transactions MoMo Pay
+                <span>Gérer et surveiller les transactions MoMo Pay</span>
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -428,7 +428,7 @@ export default function MomoPayPage() {
                 <div className="flex items-center space-x-2">
                   <Smartphone className="h-5 w-5 text-green-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {totalCount} transactions
+                    <span>{totalCount}</span> <span>transactions</span>
                   </span>
                 </div>
               </div>
@@ -526,7 +526,7 @@ export default function MomoPayPage() {
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <Smartphone className="h-5 w-5 text-green-600 dark:text-green-300" />
               </div>
-              <span>Liste des Transactions</span>
+              <span><span>Liste des Transactions</span></span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -534,7 +534,7 @@ export default function MomoPayPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Chargement des transactions...</span>
+                  <span className="text-gray-600 dark:text-gray-300"><span>Chargement des transactions...</span></span>
                 </div>
               </div>
             ) : error ? (
@@ -554,29 +554,29 @@ export default function MomoPayPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">Référence</TableHead>
+                      <TableHead className="font-semibold"><span>Référence</span></TableHead>
                       <TableHead className="font-semibold">
                         <Button variant="ghost" onClick={() => handleSort("amount")} className="h-auto p-0 font-semibold">
-                          Montant
+                          <span>Montant</span>
                           <ArrowUpDown className="ml-2 h-4 w-4" />
                         </Button>
                       </TableHead>
                       <TableHead className="font-semibold">
                         <Button variant="ghost" onClick={() => handleSort("phone")} className="h-auto p-0 font-semibold">
-                          Téléphone
+                          <span>Téléphone</span>
                           <ArrowUpDown className="ml-2 h-4 w-4" />
                         </Button>
                       </TableHead>
-                      <TableHead className="font-semibold">Type</TableHead>
-                      <TableHead className="font-semibold">Statut</TableHead>
+                      <TableHead className="font-semibold"><span>Type</span></TableHead>
+                      <TableHead className="font-semibold"><span>Statut</span></TableHead>
                       <TableHead className="font-semibold">
                         <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-auto p-0 font-semibold">
-                          Date de création
+                          <span>Date de création</span>
                           <ArrowUpDown className="ml-2 h-4 w-4" />
                         </Button>
                       </TableHead>
-                      <TableHead className="font-semibold">Date d'expiration</TableHead>
-                      <TableHead className="font-semibold text-right">Actions</TableHead>
+                      <TableHead className="font-semibold"><span>Date d'expiration</span></TableHead>
+                      <TableHead className="font-semibold text-right"><span>Actions</span></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -626,7 +626,7 @@ export default function MomoPayPage() {
                         <TableCell>
                           <div className="flex items-center space-x-2">
                             <Clock className="h-4 w-4 text-orange-600" />
-                            <span>{formatDate(transaction.expires_at)}</span>
+                            <span><span>{formatDate(transaction.expires_at)}</span></span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -639,7 +639,7 @@ export default function MomoPayPage() {
                             <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700">
                               <DropdownMenuItem onClick={() => handleOpenDetail(transaction)} className="cursor-pointer">
                                 <Eye className="mr-2 h-4 w-4" />
-                                Voir les détails
+                                <span>Voir les détails</span>
                               </DropdownMenuItem>
                               {["pending", "expired"].includes(transaction.status) && (
                                 <DropdownMenuItem
@@ -650,7 +650,7 @@ export default function MomoPayPage() {
                                   className="cursor-pointer text-green-600 focus:text-green-700 focus:bg-green-50 dark:focus:bg-green-900/20"
                                 >
                                   <CheckCircle className="mr-2 h-4 w-4" />
-                                  Marquer comme succès
+                                  <span>Marquer comme succès</span>
                                 </DropdownMenuItem>
                               )}
                               {["pending", "confirmed", "accept", "successfull"].includes(transaction.status) && (
@@ -662,7 +662,7 @@ export default function MomoPayPage() {
                                   className="cursor-pointer text-red-600 focus:text-red-700 focus:bg-red-50 dark:focus:bg-red-900/20"
                                 >
                                   <XCircle className="mr-2 h-4 w-4" />
-                                  Marquer comme échoué
+                                  <span>Marquer comme échoué</span>
                                 </DropdownMenuItem>
                               )}
                             </DropdownMenuContent>
@@ -681,7 +681,7 @@ export default function MomoPayPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Résultats affichés : {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalCount)} sur {totalCount}
+              <span>Résultats affichés :</span> <span>{startIndex + 1}</span>-<span>{Math.min(startIndex + itemsPerPage, totalCount)}</span> <span>sur</span> <span>{totalCount}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -692,7 +692,7 @@ export default function MomoPayPage() {
                 className="border-gray-200 dark:border-gray-600"
               >
                 <ChevronLeft className="h-4 w-4" />
-                Précédent
+                <span>Précédent</span>
               </Button>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -717,7 +717,7 @@ export default function MomoPayPage() {
                 disabled={currentPage === totalPages}
                 className="border-gray-200 dark:border-gray-600"
               >
-                Suivant
+                <span>Suivant</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -732,14 +732,14 @@ export default function MomoPayPage() {
                 <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                   <Eye className="h-5 w-5 text-green-600" />
                 </div>
-                <span>Détails de la transaction</span>
+                <span><span>Détails de la transaction</span></span>
               </DialogTitle>
             </DialogHeader>
             {detailLoading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Chargement des détails...</span>
+                  <span className="text-gray-600 dark:text-gray-300"><span>Chargement des détails...</span></span>
                 </div>
               </div>
             ) : detailError ? (
@@ -827,8 +827,8 @@ export default function MomoPayPage() {
                       <Clock className="h-4 w-4 text-red-600" />
                     </div>
                     <div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">Expire le</div>
-                      <div className="font-medium">{formatDate(detailTransaction.expires_at)}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400"><span>Expire le</span></div>
+                      <div className="font-medium"><span>{formatDate(detailTransaction.expires_at)}</span></div>
                     </div>
                   </div>
                 </div>

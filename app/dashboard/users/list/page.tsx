@@ -457,7 +457,7 @@ export default function UsersPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                {t("users.title") || "Utilisateurs"}
+                <span>{t("users.title") || "Utilisateurs"}</span>
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
                 Gérer et surveiller les comptes utilisateurs
@@ -468,7 +468,7 @@ export default function UsersPage() {
                 <div className="flex items-center space-x-2">
                   <Users className="h-5 w-5 text-orange-500" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {totalCount} utilisateurs
+                    <span>{totalCount}</span> <span>utilisateurs</span>
                   </span>
                 </div>
               </div>
@@ -538,7 +538,7 @@ export default function UsersPage() {
                     className="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700"
                   >
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    Activer la sélection
+                    <span>Activer la sélection</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -547,7 +547,7 @@ export default function UsersPage() {
                     className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700"
                   >
                     <XCircle className="h-4 w-4 mr-2" />
-                    Désactiver la sélection
+                    <span>Désactiver la sélection</span>
                   </Button>
                 </div>
               )}
@@ -562,7 +562,7 @@ export default function UsersPage() {
               <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
                 <Users className="h-5 w-5 text-blue-600 dark:text-blue-300" />
               </div>
-              <span>Liste des utilisateurs</span>
+              <span><span>Liste des utilisateurs</span></span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -570,7 +570,7 @@ export default function UsersPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Chargement des utilisateurs...</span>
+                  <span className="text-gray-600 dark:text-gray-300"><span>Chargement des utilisateurs...</span></span>
                 </div>
               </div>
             ) : error ? (
@@ -594,12 +594,12 @@ export default function UsersPage() {
                           }}
                         />
                       </TableHead>
-                      <TableHead className="font-semibold">Utilisateur</TableHead>
-                      <TableHead className="font-semibold">Email</TableHead>
-                      <TableHead className="font-semibold">Statut</TableHead>
-                      <TableHead className="font-semibold">Vérification</TableHead>
-                      <TableHead className="font-semibold">Créé le</TableHead>
-                      <TableHead className="font-semibold text-right">Actions</TableHead>
+                      <TableHead className="font-semibold"><span>Utilisateur</span></TableHead>
+                      <TableHead className="font-semibold"><span>Email</span></TableHead>
+                      <TableHead className="font-semibold"><span>Statut</span></TableHead>
+                      <TableHead className="font-semibold"><span>Vérification</span></TableHead>
+                      <TableHead className="font-semibold"><span>Créé le</span></TableHead>
+                      <TableHead className="font-semibold text-right"><span>Actions</span></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -624,20 +624,20 @@ export default function UsersPage() {
                             </div>
                             <div>
                               <div className="font-medium text-gray-900 dark:text-gray-100">
-                                {user.display_name || 'Sans nom'}
+                                <span>{user.display_name || 'Sans nom'}</span>
                               </div>
                               <div className="text-sm text-gray-500 dark:text-gray-400">
-                                ID: {user.uid}
+                                <span>ID:</span> <span>{user.uid}</span>
                               </div>
                             </div>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm text-gray-900 dark:text-gray-100">
-                            {user.email}
+                            <span>{user.email}</span>
                           </div>
                           <div className="text-xs text-gray-500 font-mono mt-1 flex items-center space-x-1">
-                            <span>ID: {user.uid}</span>
+                            <span>ID:</span> <span>{user.uid}</span>
                             <CopyButton value={user.uid} className="h-4 w-4" iconClassName="h-3 w-3" />
                           </div>
                         </TableCell>
@@ -649,7 +649,7 @@ export default function UsersPage() {
                                 : "bg-red-200 text-red-800 dark:bg-red-900/20 dark:text-red-300"
                             }
                           >
-                            {user.is_active ? 'Actif' : 'Inactif'}
+                            <span>{user.is_active ? 'Actif' : 'Inactif'}</span>
                           </Badge>
                         </TableCell>
                         <TableCell>
@@ -663,7 +663,7 @@ export default function UsersPage() {
                               }
                             >
                               <Mail className="h-3 w-3 mr-1" />
-                              {user.email_verified ? 'Vérifié' : 'Non vérifié'}
+                              <span>{user.email_verified ? 'Vérifié' : 'Non vérifié'}</span>
                             </Badge>
                             <Badge
                               variant="outline"
@@ -674,13 +674,13 @@ export default function UsersPage() {
                               }
                             >
                               <Phone className="h-3 w-3 mr-1" />
-                              {user.phone_verified ? 'Vérifié' : 'Non vérifié'}
+                              <span>{user.phone_verified ? 'Vérifié' : 'Non vérifié'}</span>
                             </Badge>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm text-gray-600 dark:text-gray-400">
-                            {user.created_at}
+                            <span>{user.created_at}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
@@ -732,7 +732,7 @@ export default function UsersPage() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Affichage de {((currentPage - 1) * itemsPerPage) + 1} à {Math.min(currentPage * itemsPerPage, totalCount)} sur {totalCount} résultats
+              <span>Affichage de</span> <span>{((currentPage - 1) * itemsPerPage) + 1}</span> <span>à</span> <span>{Math.min(currentPage * itemsPerPage, totalCount)}</span> <span>sur</span> <span>{totalCount}</span> <span>résultats</span>
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -777,10 +777,10 @@ export default function UsersPage() {
         <Dialog open={detailModalOpen} onOpenChange={(open) => { if (!open) handleCloseDetail() }}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Détails de l'utilisateur</DialogTitle>
+              <DialogTitle><span>Détails de l'utilisateur</span></DialogTitle>
             </DialogHeader>
             {detailLoading ? (
-              <div className="p-4 text-center">Chargement...</div>
+              <div className="p-4 text-center"><span>Chargement...</span></div>
             ) : detailError ? (
               <ErrorDisplay
                 error={detailError}
@@ -790,26 +790,25 @@ export default function UsersPage() {
               />
             ) : detailUser ? (
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <b>UID:</b> {detailUser.uid}
+                <div><b>UID:</b> <span>{detailUser.uid}</span>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-5 w-5"
                     onClick={() => {
                       navigator.clipboard.writeText(detailUser.uid);
-                      toast({ title: "UID copié!" });
+                      toast({ title: t("common.uidCopied") || "UID copié!" });
                     }}
                     aria-label="Copier l'UID"
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <div><b>Nom:</b> {detailUser.display_name || `${detailUser.first_name || ""} ${detailUser.last_name || ""}`}</div>
-                <div><b>Email:</b> {detailUser.email}</div>
-                <div><b>Téléphone:</b> {detailUser.phone}</div>
-                <div><b>Statut:</b> {detailUser.is_active ? 'Actif' : 'Inactif'}</div>
-                <div><b>Email vérifié:</b> {detailUser.email_verified ? 'Oui' : 'Non'}
+                <div><b>Nom:</b> <span>{detailUser.display_name || `${detailUser.first_name || ""} ${detailUser.last_name || ""}`}</span></div>
+                <div><b>Email:</b> <span>{detailUser.email}</span></div>
+                <div><b>Téléphone:</b> <span>{detailUser.phone}</span></div>
+                <div><b>Statut:</b> <span>{detailUser.is_active ? 'Actif' : 'Inactif'}</span></div>
+                <div><b>Email vérifié:</b> <span>{detailUser.email_verified ? 'Oui' : 'Non'}</span>
                   <Switch
                     checked={detailUser.email_verified}
                     disabled={detailLoading || verifyingEmail}
@@ -817,7 +816,7 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
-                <div><b>Téléphone vérifié:</b> {detailUser.phone_verified ? 'Oui' : 'Non'}
+                <div><b>Téléphone vérifié:</b> <span>{detailUser.phone_verified ? 'Oui' : 'Non'}</span>
                   <Switch
                     checked={detailUser.phone_verified}
                     disabled={detailLoading || verifyingPhone}
@@ -825,8 +824,8 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
-                <div><b>Méthode de contact:</b> {detailUser.contact_method}</div>
-                <div><b>Partenaire:</b> {detailUser.is_partner ? 'Oui' : 'Non'}
+                <div><b>Méthode de contact:</b> <span>{detailUser.contact_method}</span></div>
+                <div><b>Partenaire:</b> <span>{detailUser.is_partner ? 'Oui' : 'Non'}</span>
                   <Switch
                     checked={detailUser.is_partner}
                     disabled={detailLoading || verifyingPartner}
@@ -834,7 +833,7 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
-                <div><b>Transactions USSD:</b> {detailUser.can_process_ussd_transaction ? 'Autorisé' : 'Non autorisé'}
+                <div><b>Transactions USSD:</b> <span>{detailUser.can_process_ussd_transaction ? 'Autorisé' : 'Non autorisé'}</span>
                   <Switch
                     checked={detailUser.can_process_ussd_transaction}
                     disabled={detailLoading || verifyingUssd}
@@ -842,7 +841,7 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
-                <div><b>{t("users.momo") || "MoMo"}:</b> {detailUser.can_process_momo ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}
+                <div><b>{t("users.momo") || "MoMo"}:</b> <span>{detailUser.can_process_momo ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}</span>
                   <Switch
                     checked={detailUser.can_process_momo}
                     disabled={detailLoading || verifyingMomo}
@@ -850,7 +849,7 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
-                <div><b>{t("users.mobcash") || "Mobcash"}:</b> {detailUser.can_process_mobcash ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}
+                <div><b>{t("users.mobcash") || "Mobcash"}:</b> <span>{detailUser.can_process_mobcash ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}</span>
                   <Switch
                     checked={detailUser.can_process_mobcash}
                     disabled={detailLoading || verifyingMobcash}
@@ -858,7 +857,7 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
-                <div><b>{t("users.bulkPayment") || "Paiement en masse"}:</b> {detailUser.can_process_bulk_payment ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}
+                <div><b>{t("users.bulkPayment") || "Paiement en masse"}:</b> <span>{detailUser.can_process_bulk_payment ? t("users.authorized") || 'Autorisé' : t("users.notAuthorized") || 'Non autorisé'}</span>
                   <Switch
                     checked={detailUser.can_process_bulk_payment}
                     disabled={detailLoading || verifyingBulkPayment}
@@ -866,12 +865,12 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
-                <div><b>Créé le:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
-                <div><b>Dernière connexion:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
+                <div><b>Créé le:</b> <span>{detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</span></div>
+                <div><b>Dernière connexion:</b> <span>{detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</span></div>
               </div>
             ) : null}
             <DialogClose asChild>
-              <Button className="mt-4 w-full">Fermer</Button>
+              <Button className="mt-4 w-full"><span>Fermer</span></Button>
             </DialogClose>
           </DialogContent>
         </Dialog>
@@ -1160,6 +1159,6 @@ export default function UsersPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+    </div >
   )
 }

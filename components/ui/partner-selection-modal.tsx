@@ -70,7 +70,7 @@ export function PartnerSelectionModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>{t("deviceAuthorizations.selectPartner")}</DialogTitle>
+                    <DialogTitle><span>{t("deviceAuthorizations.selectPartner")}</span></DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
                     <Command shouldFilter={false}>
@@ -85,7 +85,7 @@ export function PartnerSelectionModal({
                                         <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
                                     </div>
                                 ) : (
-                                    t("partners.noPartnersFound")
+                                    <span>{t("partners.noPartnersFound")}</span>
                                 )}
                             </CommandEmpty>
                             <CommandGroup>
@@ -113,7 +113,7 @@ export function PartnerSelectionModal({
                 </div>
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="outline">{t("common.cancel")}</Button>
+                        <Button variant="outline"><span>{t("common.cancel")}</span></Button>
                     </DialogClose>
                 </DialogFooter>
             </DialogContent>

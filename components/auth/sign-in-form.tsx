@@ -216,11 +216,11 @@ export function SignInForm() {
           <CardHeader className="space-y-4 pb-6">
             <div className="text-center space-y-2">
               <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                {flow === "login" && `${t("auth.welcome")} à Blaffa Pay`}
-                {flow === "forgot-password" && "Mot de passe oublié"}
-                {flow === "otp" && "Vérification OTP"}
-                {flow === "reset-password" && "Nouveau mot de passe"}
-                {flow === "success" && "Succès !"}
+                {flow === "login" && <span>{t("auth.welcome")} à Blaffa Pay</span>}
+                {flow === "forgot-password" && <span>Mot de passe oublié</span>}
+                {flow === "otp" && <span>Vérification OTP</span>}
+                {flow === "reset-password" && <span>Nouveau mot de passe</span>}
+                {flow === "success" && <span>Succès !</span>}
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
                 {flow === "login" && "Accédez à votre tableau de bord administrateur"}
@@ -286,7 +286,7 @@ export function SignInForm() {
                       onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                     />
                     <Label htmlFor="remember" className="text-sm text-gray-700 dark:text-gray-300">
-                      {t("auth.rememberMe")}
+                      <span>{t("auth.rememberMe")}</span>
                     </Label>
                   </div>
                   <Button
@@ -301,7 +301,7 @@ export function SignInForm() {
 
                 <Button type="submit" className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600" disabled={loading}>
                   {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <ArrowRight className="h-4 w-4 mr-2" />}
-                  {loading ? t("auth.loggingIn") : t("auth.signIn")}
+                  {loading ? <span>{t("auth.loggingIn")}</span> : <span>{t("auth.signIn")}</span>}
                 </Button>
               </form>
             )}

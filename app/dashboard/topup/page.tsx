@@ -178,7 +178,7 @@ export default function TopupPage() {
 			<Badge className={statusInfo.color}>
 				<div className="flex items-center space-x-1">
 					<IconComponent className="h-3 w-3" />
-					<span className="capitalize">{statusDisplay}</span>
+					<span className="capitalize"><span>{statusDisplay}</span></span>
 				</div>
 			</Badge>
 		);
@@ -191,7 +191,7 @@ export default function TopupPage() {
 					<div className="flex items-center justify-center py-12">
 						<div className="flex flex-col items-center space-y-4">
 							<Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-							<span className="text-gray-600 dark:text-gray-300">Loading topup requests...</span>
+							<span className="text-gray-600 dark:text-gray-300"><span>Loading topup requests...</span></span>
 						</div>
 					</div>
 				</div>
@@ -208,10 +208,10 @@ export default function TopupPage() {
 					<div className="flex items-center justify-between">
 						<div>
 							<h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-								{t("topup.title") || "Top Up Requests"}
+								<span>{t("topup.title") || "Top Up Requests"}</span>
 							</h1>
 							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-								Manage and review topup requests from users
+								<span>Manage and review topup requests from users</span>
 							</p>
 						</div>
 					</div>
@@ -226,9 +226,9 @@ export default function TopupPage() {
 									<DollarSign className="h-6 w-6 text-blue-600 dark:text-blue-300" />
 								</div> */}
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Amount</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400"><span>Total Amount</span></p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{totalAmount.toFixed(2)} FCFA
+										<span>{totalAmount.toFixed(2)} FCFA</span>
 									</p>
 								</div>
 							</div>
@@ -241,9 +241,9 @@ export default function TopupPage() {
 									<Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400"><span>Pending</span></p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{pendingCount}
+										<span>{pendingCount}</span>
 									</p>
 								</div>
 							</div>
@@ -256,9 +256,9 @@ export default function TopupPage() {
 									<CheckCircle className="h-6 w-6 text-green-600 dark:text-green-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Approved</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400"><span>Approved</span></p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{approvedCount}
+										<span>{approvedCount}</span>
 									</p>
 								</div>
 							</div>
@@ -271,9 +271,9 @@ export default function TopupPage() {
 									<XCircle className="h-6 w-6 text-red-600 dark:text-red-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Rejected</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400"><span>Rejected</span></p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{rejectedCount}
+										<span>{rejectedCount}</span>
 									</p>
 								</div>
 							</div>
@@ -304,7 +304,7 @@ export default function TopupPage() {
 							<div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
 								<Users className="h-5 w-5 text-orange-600 dark:text-orange-300" />
 							</div>
-							<span>Topup Requests</span>
+							<span><span>Topup Requests</span></span>
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="p-6">
@@ -352,52 +352,52 @@ export default function TopupPage() {
 							<Table>
 								<TableHeader>
 									<TableRow className="bg-gray-50 dark:bg-gray-700">
-										<TableHead className="font-semibold">{t("topup.uid") || "UID"}</TableHead>
+										<TableHead className="font-semibold"><span>{t("topup.uid") || "UID"}</span></TableHead>
 										<TableHead>
 											<Button variant="ghost" onClick={() => handleSort("amount")} className="h-auto p-0 font-semibold hover:bg-transparent">
-												{t("topup.amount") || "Amount"}
+												<span>{t("topup.amount") || "Amount"}</span>
 												<ArrowUpDown className="ml-2 h-4 w-4" />
 											</Button>
 										</TableHead>
-										<TableHead>{t("topup.formattedAmount") || "Formatted Amount"}</TableHead>
+										<TableHead><span>{t("topup.formattedAmount") || "Formatted Amount"}</span></TableHead>
 										<TableHead>
 											<Button variant="ghost" onClick={() => handleSort("status")} className="h-auto p-0 font-semibold hover:bg-transparent">
-												{t("topup.status") || "Status"}
+												<span>{t("topup.status") || "Status"}</span>
 												<ArrowUpDown className="ml-2 h-4 w-4" />
 											</Button>
 										</TableHead>
-										<TableHead>{t("topup.userName") || "User Name"}</TableHead>
-										<TableHead>{t("topup.userEmail") || "User Email"}</TableHead>
-										<TableHead>{t("topup.reference") || "Reference"}</TableHead>
+										<TableHead><span>{t("topup.userName") || "User Name"}</span></TableHead>
+										<TableHead><span>{t("topup.userEmail") || "User Email"}</span></TableHead>
+										<TableHead><span>{t("topup.reference") || "Reference"}</span></TableHead>
 										<TableHead>
 											<Button variant="ghost" onClick={() => handleSort("created_at")} className="h-auto p-0 font-semibold hover:bg-transparent">
-												{t("topup.createdAt") || "Created At"}
+												<span>{t("topup.createdAt") || "Created At"}</span>
 												<ArrowUpDown className="ml-2 h-4 w-4" />
 											</Button>
 										</TableHead>
-										<TableHead>{t("topup.details") || "Details"}</TableHead>
+										<TableHead><span>{t("topup.details") || "Details"}</span></TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
 									{topups.map((topup) => (
 										<TableRow key={topup.uid} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-											<TableCell className="font-mono text-sm">{topup.uid}</TableCell>
-											<TableCell className="font-semibold">{topup.amount} FCFA</TableCell>
-											<TableCell>{topup.formatted_amount}</TableCell>
+											<TableCell className="font-mono text-sm"><span>{topup.uid}</span></TableCell>
+											<TableCell className="font-semibold"><span>{topup.amount} FCFA</span></TableCell>
+											<TableCell><span>{topup.formatted_amount}</span></TableCell>
 											<TableCell>
 												{getStatusBadge(topup.status_display || topup.status)}
 											</TableCell>
-											<TableCell className="font-medium">{topup.user_name}</TableCell>
-											<TableCell className="text-gray-600 dark:text-gray-400">{topup.user_email}</TableCell>
-											<TableCell className="font-mono text-sm">{topup.reference}</TableCell>
+											<TableCell className="font-medium"><span>{topup.user_name}</span></TableCell>
+											<TableCell className="text-gray-600 dark:text-gray-400"><span>{topup.user_email}</span></TableCell>
+											<TableCell className="font-mono text-sm"><span>{topup.reference}</span></TableCell>
 											<TableCell className="text-gray-600 dark:text-gray-400">
 												<div className="flex flex-col">
 													<span className="text-sm font-medium">
-														{topup.created_at ? new Date(topup.created_at).toLocaleDateString() : "-"}
+														<span>{topup.created_at ? new Date(topup.created_at).toLocaleDateString() : "-"}</span>
 													</span>
 													{topup.created_at && (
 														<span className="text-xs text-gray-500 dark:text-gray-400">
-															{new Date(topup.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+															<span>{new Date(topup.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
 														</span>
 													)}
 												</div>
@@ -431,7 +431,7 @@ export default function TopupPage() {
 															setActionModalOpen(true);
 														}}
 													>
-														{disabledTopups[topup.uid] === "approved" ? t("topup.approved") || "Approved" : t("topup.approve") || "Approve"}
+														<span>{disabledTopups[topup.uid] === "approved" ? t("topup.approved") || "Approved" : t("topup.approve") || "Approve"}</span>
 													</Button>
 													{/* Reject Button */}
 													<Button
@@ -451,7 +451,7 @@ export default function TopupPage() {
 															setActionModalOpen(true);
 														}}
 													>
-														{disabledTopups[topup.uid] === "rejected" ? t("topup.rejected") || "Rejected" : t("topup.reject") || "Reject"}
+														<span>{disabledTopups[topup.uid] === "rejected" ? t("topup.rejected") || "Rejected" : t("topup.reject") || "Reject"}</span>
 													</Button>
 												</div>
 											</TableCell>
@@ -464,7 +464,7 @@ export default function TopupPage() {
 						{/* Pagination */}
 						<div className="flex items-center justify-between mt-6">
 							<div className="text-sm text-gray-600 dark:text-gray-400">
-								{`${t("topup.showingResults") || "Showing"}: ${startIndex + 1}-${Math.min(startIndex + itemsPerPage, totalCount)} / ${totalCount}`}
+								<span>{`${t("topup.showingResults") || "Showing"}: ${startIndex + 1}-${Math.min(startIndex + itemsPerPage, totalCount)} / ${totalCount}`}</span>
 							</div>
 							<div className="flex items-center space-x-2">
 								<Button
@@ -478,7 +478,7 @@ export default function TopupPage() {
 									<span>{t("common.previous")}</span>
 								</Button>
 								<div className="text-sm text-gray-600 dark:text-gray-400 px-4">
-									{`${t("topup.pageOf") || "Page"}: ${currentPage}/${totalPages}`}
+									<span>{`${t("topup.pageOf") || "Page"}: ${currentPage}/${totalPages}`}</span>
 								</div>
 								<Button
 									variant="outline"
@@ -501,12 +501,13 @@ export default function TopupPage() {
 						<DialogHeader>
 							<DialogTitle className="flex items-center space-x-2">
 								<Eye className="h-5 w-5" />
-								<span>{t("topup.details") || "Top Up Details"}</span>
+								<span><span>{t("topup.details") || "Top Up Details"}</span></span>
 							</DialogTitle>
 						</DialogHeader>
 						{detailLoading ? (
 							<div className="flex items-center justify-center py-8">
 								<Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+								<span>Loading...</span>
 							</div>
 						) : detailError ? (
 							<ErrorDisplay
@@ -518,7 +519,7 @@ export default function TopupPage() {
 						) : detailTopup ? (
 							<div className="space-y-4">
 								<div className="flex items-center gap-2">
-									<b>{t("topup.uid") || "UID"}:</b> {detailTopup.uid}
+									<b><span>{t("topup.uid") || "UID"}</span>:</b> <span>{detailTopup.uid}</span>
 									<Button
 										variant="ghost"
 										size="icon"
@@ -532,15 +533,15 @@ export default function TopupPage() {
 										<Copy className="h-4 w-4" />
 									</Button>
 								</div>
-								<div><b>{t("topup.formattedAmount") || "Formatted Amount"}:</b> {detailTopup.formatted_amount}</div>
-								<div><b>{t("topup.status") || "Status"}:</b> {detailTopup.status_display || detailTopup.status}</div>
-								<div><b>{t("topup.userName") || "User Name"}:</b> {detailTopup.user_name}</div>
-								<div><b>{t("topup.userEmail") || "User Email"}:</b> {detailTopup.user_email}</div>
-								<div><b>{t("topup.reference") || "Reference"}:</b> {detailTopup.reference}</div>
-								<div><b>{t("topup.createdAt") || "Created At"}:</b> {detailTopup.created_at ? detailTopup.created_at.split("T")[0] : "-"}</div>
-								<div><b>{t("topup.expiresAt") || "Expires At"}:</b> {detailTopup.expires_at ? detailTopup.expires_at.split("T")[0] : "-"}</div>
+								<div><b><span>{t("topup.formattedAmount") || "Formatted Amount"}</span>:</b> <span>{detailTopup.formatted_amount}</span></div>
+								<div><b><span>{t("topup.status") || "Status"}</span>:</b> <span>{detailTopup.status_display || detailTopup.status}</span></div>
+								<div><b><span>{t("topup.userName") || "User Name"}</span>:</b> <span>{detailTopup.user_name}</span></div>
+								<div><b><span>{t("topup.userEmail") || "User Email"}</span>:</b> <span>{detailTopup.user_email}</span></div>
+								<div><b><span>{t("topup.reference") || "Reference"}</span>:</b> <span>{detailTopup.reference}</span></div>
+								<div><b><span>{t("topup.createdAt") || "Created At"}</span>:</b> <span>{detailTopup.created_at ? detailTopup.created_at.split("T")[0] : "-"}</span></div>
+								<div><b><span>{t("topup.expiresAt") || "Expires At"}</span>:</b> <span>{detailTopup.expires_at ? detailTopup.expires_at.split("T")[0] : "-"}</span></div>
 								<div className="flex items-center gap-2">
-									<b>{t("topup.proofImage") || "Proof Image"}:</b>
+									<b><span>{t("topup.proofImage") || "Proof Image"}</span>:</b>
 									{detailTopup.proof_image ? (
 										<Button
 											size="sm"
@@ -555,17 +556,17 @@ export default function TopupPage() {
 											<span>{t("topup.viewProof") || "View Image"}</span>
 										</Button>
 									) : (
-										<span className="text-gray-500">{t("topup.noProofImage") || "No image"}</span>
+										<span className="text-gray-500"><span>{t("topup.noProofImage") || "No image"}</span></span>
 									)}
 								</div>
-								<div><b>{t("topup.proofDescription") || "Proof Description"}:</b> {detailTopup.proof_description}</div>
-								<div><b>{t("topup.isExpired") || "Expired"}:</b> {detailTopup.is_expired ? "Yes" : "No"}</div>
-								<div><b>{t("topup.timeRemaining") || "Time Remaining"}:</b> {detailTopup.time_remaining ? `${detailTopup.time_remaining} seconds` : "-"}</div>
-								<div><b>{t("topup.reviewedBy") || "Reviewed By"}:</b> {detailTopup.reviewed_by_name}</div>
-								<div><b>{t("topup.reviewedAt") || "Reviewed At"}:</b> {detailTopup.reviewed_at ? detailTopup.reviewed_at.split("T")[0] : "-"}</div>
-								<div><b>{t("topup.processedAt") || "Processed At"}:</b> {detailTopup.processed_at ? detailTopup.processed_at.split("T")[0] : "-"}</div>
-								<div><b>{t("topup.adminNotes") || "Notes d'administrateur"}:</b> {detailTopup.admin_notes}</div>
-								<div><b>{t("topup.rejectionReason") || "Raison du rejet"}:</b> {detailTopup.rejection_reason}</div>
+								<div><b><span>{t("topup.proofDescription") || "Proof Description"}</span>:</b> <span>{detailTopup.proof_description}</span></div>
+								<div><b><span>{t("topup.isExpired") || "Expired"}</span>:</b> <span>{detailTopup.is_expired ? "Yes" : "No"}</span></div>
+								<div><b><span>{t("topup.timeRemaining") || "Time Remaining"}</span>:</b> <span>{detailTopup.time_remaining ? `${detailTopup.time_remaining} seconds` : "-"}</span></div>
+								<div><b><span>{t("topup.reviewedBy") || "Reviewed By"}</span>:</b> <span>{detailTopup.reviewed_by_name}</span></div>
+								<div><b><span>{t("topup.reviewedAt") || "Reviewed At"}</span>:</b> <span>{detailTopup.reviewed_at ? detailTopup.reviewed_at.split("T")[0] : "-"}</span></div>
+								<div><b><span>{t("topup.processedAt") || "Processed At"}</span>:</b> <span>{detailTopup.processed_at ? detailTopup.processed_at.split("T")[0] : "-"}</span></div>
+								<div><b><span>{t("topup.adminNotes") || "Notes d'administrateur"}</span>:</b> <span>{detailTopup.admin_notes}</span></div>
+								<div><b><span>{t("topup.rejectionReason") || "Raison du rejet"}</span>:</b> <span>{detailTopup.rejection_reason}</span></div>
 							</div>
 						) : null}
 						<DialogClose asChild>

@@ -20,37 +20,37 @@ interface ErrorDisplayProps {
 export function extractErrorMessages(errorObj: any): string {
   // Handle null/undefined
   if (!errorObj) return "An unknown error occurred"
-  
+
   // Handle strings (already extracted)
   if (typeof errorObj === "string") return errorObj
-  
+
   // Handle non-objects
   if (typeof errorObj !== "object") return String(errorObj)
-  
+
   // Handle arrays
   if (Array.isArray(errorObj)) {
     return errorObj.map(item => extractErrorMessages(item)).join(" ")
   }
-  
+
   // Handle objects - check for common error fields
   if (errorObj.detail) return errorObj.detail
   if (errorObj.message) return errorObj.message
   if (errorObj.error) return errorObj.error
   if (errorObj.msg) return errorObj.msg
-  
+
   // Handle field-specific errors (e.g., {"email": ["This field is required"]})
   const fieldErrors = Object.entries(errorObj)
     .filter(([key, value]) => Array.isArray(value) && value.length > 0)
     .map(([key, value]) => `${key}: ${Array.isArray(value) ? value.join(", ") : value}`)
     .join("; ")
-  
+
   if (fieldErrors) return fieldErrors
-  
+
   // Handle other object values
   const values = Object.values(errorObj)
     .map((v) => Array.isArray(v) ? v.join(" ") : String(v))
     .join(" ")
-  
+
   return values || "An unknown error occurred"
 }
 
@@ -89,10 +89,10 @@ export function ErrorDisplay({
           </div>
           <div className="space-y-3">
             <h3 className="text-xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent dark:from-red-400 dark:to-red-300">
-              {t("common.errorOccurred")}
+              <span>{t("common.errorOccurred")}</span>
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md">
-              {errorMessage}
+              <span>{errorMessage}</span>
             </p>
           </div>
         </div>
@@ -107,12 +107,12 @@ export function ErrorDisplay({
               {isRetrying ? (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  {t("common.retrying")}
+                  <span>{t("common.retrying")}</span>
                 </>
               ) : (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  {t("common.retry")}
+                  <span>{t("common.retry")}</span>
                 </>
               )}
             </Button>
@@ -123,7 +123,7 @@ export function ErrorDisplay({
               variant="ghost"
               className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             >
-              {t("common.dismiss")}
+              <span>{t("common.dismiss")}</span>
             </Button>
           )}
         </div>
@@ -141,10 +141,10 @@ export function ErrorDisplay({
             </div>
             <div className="flex-1 space-y-3">
               <h3 className="font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent dark:from-red-400 dark:to-red-300">
-                {t("common.errorOccurred")}
+                <span>{t("common.errorOccurred")}</span>
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {errorMessage}
+                <span>{errorMessage}</span>
               </p>
               <div className="flex items-center space-x-2 pt-3">
                 {showRetry && onRetry && (
@@ -158,12 +158,12 @@ export function ErrorDisplay({
                     {isRetrying ? (
                       <>
                         <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-                        {t("common.retrying")}
+                        <span>{t("common.retrying")}</span>
                       </>
                     ) : (
                       <>
                         <RefreshCw className="h-3 w-3 mr-1" />
-                        {t("common.retry")}
+                        <span>{t("common.retry")}</span>
                       </>
                     )}
                   </Button>
@@ -175,7 +175,7 @@ export function ErrorDisplay({
                     variant="ghost"
                     className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
                   >
-                    {t("common.dismiss")}
+                    <span>{t("common.dismiss")}</span>
                   </Button>
                 )}
               </div>
@@ -214,12 +214,12 @@ export function ErrorDisplay({
               {isRetrying ? (
                 <>
                   <RefreshCw className="h-3 w-3 mr-1 animate-spin" />
-                  {t("common.retrying")}
+                  <span>{t("common.retrying")}</span>
                 </>
               ) : (
                 <>
                   <RefreshCw className="h-3 w-3 mr-1" />
-                  {t("common.retry")}
+                  <span>{t("common.retry")}</span>
                 </>
               )}
             </Button>

@@ -24,10 +24,12 @@ import {
     Settings2,
     Activity,
     CheckCircle2,
-    XCircle
+    XCircle,
+    Zap
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { CreateNetworkMappingModal } from "@/components/aggregator/create-network-mapping-modal"
+import { cn } from "@/lib/utils"
 
 export default function AggregatorNetworkMappingsPage() {
     const { t } = useLanguage()
@@ -76,89 +78,96 @@ export default function AggregatorNetworkMappingsPage() {
                         {t("nav.aggregatorNetworkMappings")}
                     </h1>
                     <p className="text-gray-600 dark:text-gray-300 mt-1">
-                        Configure global network settings and gateway adapters
+                        {t("aggregator.configureInfrastructure")}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button onClick={fetchMappings} variant="outline" className="border-orange-200">
-                        <RefreshCw className={loading ? "animate-spin mr-2 h-4 w-4" : "mr-2 h-4 w-4"} />
-                        {t("dashboard.refresh") || "Refresh"}
+                        <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
+                        {t("common.refresh")}
                     </Button>
-                    <Button onClick={handleCreate} className="bg-orange-500 hover:bg-orange-600 shadow-md">
-                        <Plus className="mr-2 h-4 w-4" /> New Mapping
+                    <Button onClick={handleCreate} className="bg-orange-500 hover:bg-orange-600 shadow-md transition-all hover:shadow-lg">
+                        <Plus className="mr-2 h-4 w-4" /> {t("aggregator.newMapping")}
                     </Button>
                 </div>
             </div>
 
-            {/* Mappings Table */}
+            {/* Network Mappings Table */}
             <Card className="border-0 shadow-lg overflow-hidden">
                 <CardHeader className="border-b bg-gray-50/50 dark:bg-gray-900/50">
                     <CardTitle className="text-lg flex items-center gap-2">
-                        <Settings2 className="h-5 w-5 text-orange-500" />
-                        Infrastructure Mappings
+                        <Zap className="h-5 w-5 text-orange-500" />
+                        {t("aggregator.infrastructureMappings")}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     {loading && mappings.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <Loader className="animate-spin h-8 w-8 text-orange-500 mb-2" />
-                            <span className="text-gray-500">Loading network configurations...</span>
+                            <span className="text-gray-500">{t("aggregator.loadingMappings")}</span>
                         </div>
                     ) : error ? (
                         <div className="py-20 text-center text-red-500">{error}</div>
                     ) : mappings.length === 0 ? (
-                        <div className="py-20 text-center text-gray-500">No network mappings configured.</div>
+                        <div className="py-20 text-center text-gray-500">{t("aggregator.noMappingsFound")}</div>
                     ) : (
                         <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader className="bg-gray-50/50 dark:bg-gray-900/50">
                                     <TableRow>
-                                        <TableHead>Network</TableHead>
-                                        <TableHead>Processor</TableHead>
-                                        <TableHead>Base Fee</TableHead>
-                                        <TableHead>Limits</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead>{t("common.network")}</TableHead>
+                                        <TableHead>{t("aggregator.processor")}</TableHead>
+                                        <TableHead>{t("aggregator.baseFee")}</TableHead>
+                                        <TableHead>{t("aggregator.limits")}</TableHead>
+                                        <TableHead>{t("aggregator.status")}</TableHead>
+                                        <TableHead className="text-right">{t("common.actions")}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {mappings.map((mapping) => (
-                                        <TableRow key={mapping.uid} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                    {mappings.map((mapping: any) => (
+                                        <TableRow key={mapping.uid} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b">
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
-                                                    <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400">
-                                                        <Globe className="h-5 w-5" />
+                                                    <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                                        <Globe className="h-4 w-4 text-orange-600" />
                                                     </div>
                                                     <div>
-                                                        <div className="font-semibold">{mapping.network_name || mapping.network}</div>
-                                                        <div className="text-xs text-gray-500 font-mono italic">{mapping.network}</div>
+                                                        <div className="font-semibold text-gray-900 dark:text-gray-100">{mapping.network_name}</div>
+                                                        <div className="text-xs text-gray-500 font-mono">{mapping.network}</div>
                                                     </div>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="outline" className="capitalize bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300">
-                                                    {mapping.payin_processor.replace(/_/g, " ")}
+                                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 uppercase">
+                                                    {mapping.payin_processor}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="font-mono text-sm font-bold text-gray-700 dark:text-gray-300">
-                                                {mapping.network_payin_fee_percent}%
+                                            <TableCell className="font-mono text-sm">
+                                                <div className="flex flex-col">
+                                                    <span className="text-orange-600 dark:text-orange-400 font-bold">{mapping.network_payin_fee_percent}%</span>
+                                                </div>
                                             </TableCell>
-                                            <TableCell>
-                                                <div className="text-xs space-y-1">
-                                                    <div className="text-gray-500">Min: <span className="font-semibold text-gray-900 dark:text-gray-100">{parseFloat(mapping.min_amount).toLocaleString()} FCFA</span></div>
-                                                    <div className="text-gray-500">Max: <span className="font-semibold text-gray-900 dark:text-gray-100">{parseFloat(mapping.max_amount).toLocaleString()} FCFA</span></div>
+                                            <TableCell className="text-xs text-gray-600 dark:text-gray-400">
+                                                <div className="space-y-1">
+                                                    <div>Min: {parseFloat(mapping.min_amount).toLocaleString()}</div>
+                                                    <div>Max: {parseFloat(mapping.max_amount).toLocaleString()}</div>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                {mapping.enable_payin ? (
-                                                    <div className="flex items-center text-green-600 font-medium text-sm">
-                                                        <CheckCircle2 className="h-4 w-4 mr-1.5" /> Active
+                                                <div className="flex flex-col gap-1">
+                                                    <div className={cn(
+                                                        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border w-fit transition-colors",
+                                                        mapping.enable_payin
+                                                            ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800"
+                                                            : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800"
+                                                    )}>
+                                                        <span className={cn(
+                                                            "h-1.5 w-1.5 rounded-full",
+                                                            mapping.enable_payin ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+                                                        )} />
+                                                        {mapping.enable_payin ? t("common.active") : t("aggregator.maintenance")}
                                                     </div>
-                                                ) : (
-                                                    <div className="flex items-center text-red-500 font-medium text-sm">
-                                                        <XCircle className="h-4 w-4 mr-1.5" /> Maintenance
-                                                    </div>
-                                                )}
+                                                </div>
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button
@@ -185,6 +194,6 @@ export default function AggregatorNetworkMappingsPage() {
                 onSuccess={fetchMappings}
                 editingMapping={editingMapping}
             />
-        </div>
+        </div >
     )
 }

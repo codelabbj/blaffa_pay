@@ -18,16 +18,16 @@ import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
-  primary: '#FF6B35', // Orange (primary from logo)
-  secondary: '#00FF88', // Bright green from logo
-  accent: '#1E3A8A', // Dark blue from logo
-  danger: '#EF4444',
-  warning: '#F97316',
-  success: '#00FF88', // Using bright green for success
-  info: '#1E3A8A', // Using dark blue for info
-  purple: '#8B5CF6',
-  pink: '#EC4899',
-  indigo: '#6366F1'
+	primary: '#FF6B35', // Orange (primary from logo)
+	secondary: '#00FF88', // Bright green from logo
+	accent: '#1E3A8A', // Dark blue from logo
+	danger: '#EF4444',
+	warning: '#F97316',
+	success: '#00FF88', // Using bright green for success
+	info: '#1E3A8A', // Using dark blue for info
+	purple: '#8B5CF6',
+	pink: '#EC4899',
+	indigo: '#6366F1'
 };
 
 export default function EarningManagementPage() {
@@ -131,19 +131,19 @@ export default function EarningManagementPage() {
 	const pendingEarnings = earnings.filter(e => e.status === 'pending').reduce((sum, earning) => sum + (parseFloat(earning.amount) || 0), 0)
 	const completedEarnings = earnings.filter(e => e.status === 'completed').reduce((sum, earning) => sum + (parseFloat(earning.amount) || 0), 0)
 
-		return (
+	return (
 		<div className="min-h-screen bg-gradient-to-br from-orange-50 via-gray-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-				
+
 				{/* Page Header */}
 				<div className="mb-8">
 					<div className="flex items-center justify-between">
 						<div>
 							<h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-								{t("earning.title") || "Earning Management"}
+								<span>{t("earning.title") || "Earning Management"}</span>
 							</h1>
 							<p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-								Surveiller et gérer les paiements de commission
+								<span>Surveiller et gérer les paiements de commission</span>
 							</p>
 						</div>
 						<div className="flex items-center space-x-4">
@@ -151,7 +151,7 @@ export default function EarningManagementPage() {
 								<div className="flex items-center space-x-2">
 									<DollarSign className="h-5 w-5 text-green-600" />
 									<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-										{totalCount} paiements
+										<span>{totalCount} paiements</span>
 									</span>
 								</div>
 							</div>
@@ -168,9 +168,9 @@ export default function EarningManagementPage() {
 									<TrendingUp className="h-6 w-6 text-green-600 dark:text-green-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Gains totaux</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400"><span>Gains totaux</span></p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{totalEarnings.toFixed(2)} FCFA
+										<span>{totalEarnings.toFixed(2)} FCFA</span>
 									</p>
 								</div>
 							</div>
@@ -184,9 +184,9 @@ export default function EarningManagementPage() {
 									<Clock className="h-6 w-6 text-yellow-600 dark:text-yellow-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">En attente</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400"><span>En attente</span></p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{pendingEarnings.toFixed(2)} FCFA
+										<span>{pendingEarnings.toFixed(2)} FCFA</span>
 									</p>
 								</div>
 							</div>
@@ -200,9 +200,9 @@ export default function EarningManagementPage() {
 									<CheckCircle className="h-6 w-6 text-orange-600 dark:text-orange-300" />
 								</div>
 								<div>
-									<p className="text-sm font-medium text-gray-600 dark:text-gray-400">Terminé</p>
+									<p className="text-sm font-medium text-gray-600 dark:text-gray-400"><span>Terminé</span></p>
 									<p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-										{completedEarnings.toFixed(2)} FCFA
+										<span>{completedEarnings.toFixed(2)} FCFA</span>
 									</p>
 								</div>
 							</div>
@@ -239,8 +239,8 @@ export default function EarningManagementPage() {
 							</Select>
 
 							{/* Sort */}
-							<Select 
-								value={sortField || ""} 
+							<Select
+								value={sortField || ""}
 								onValueChange={(value) => setSortField(value as "amount" | "created_at" | "status" | null)}
 							>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
@@ -277,31 +277,31 @@ export default function EarningManagementPage() {
 							<div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
 								<DollarSign className="h-5 w-5 text-green-600 dark:text-green-300" />
 							</div>
-							<span>Liste des gains</span>
+							<span><span>Liste des gains</span></span>
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="p-0">
-							{loading ? (
+						{loading ? (
 							<div className="flex items-center justify-center py-12">
 								<div className="flex flex-col items-center space-y-4">
 									<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-									<span className="text-gray-600 dark:text-gray-300">Chargement des gains...</span>
+									<span className="text-gray-600 dark:text-gray-300"><span>Chargement des gains...</span></span>
 								</div>
 							</div>
-							) : error ? (
+						) : error ? (
 							<div className="p-6 text-center">
-								<ErrorDisplay error={error} onRetry={() => {/* retry function */}} />
+								<ErrorDisplay error={error} onRetry={() => {/* retry function */ }} />
 							</div>
 						) : (
 							<div className="overflow-x-auto">
 								<Table>
 									<TableHeader>
 										<TableRow className="bg-gray-50 dark:bg-gray-900/50">
-											<TableHead className="font-semibold">Utilisateur</TableHead>
-											<TableHead className="font-semibold">Montant</TableHead>
-											<TableHead className="font-semibold">Statut</TableHead>
-											<TableHead className="font-semibold">Date</TableHead>
-											<TableHead className="font-semibold">Actions</TableHead>
+											<TableHead className="font-semibold"><span>Utilisateur</span></TableHead>
+											<TableHead className="font-semibold"><span>Montant</span></TableHead>
+											<TableHead className="font-semibold"><span>Statut</span></TableHead>
+											<TableHead className="font-semibold"><span>Date</span></TableHead>
+											<TableHead className="font-semibold"><span>Actions</span></TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
@@ -314,10 +314,10 @@ export default function EarningManagementPage() {
 														</div>
 														<div>
 															<div className="font-medium text-gray-900 dark:text-gray-100">
-																{earning.user_name || 'Utilisateur inconnu'}
+																<span>{earning.user_name || 'Utilisateur inconnu'}</span>
 															</div>
 															<div className="text-sm text-gray-500 dark:text-gray-400">
-																{earning.user_id || earning.uid}
+																<span>{earning.user_id || earning.uid}</span>
 															</div>
 														</div>
 													</div>
@@ -326,18 +326,18 @@ export default function EarningManagementPage() {
 													<div className="flex items-center space-x-1">
 														{/* <DollarSign className="h-4 w-4 text-gray-400" /> */}
 														<span className="font-medium text-gray-900 dark:text-gray-100">
-															{parseFloat(earning.amount).toFixed(2)} FCFA
+															<span>{parseFloat(earning.amount).toFixed(2)} FCFA</span>
 														</span>
 													</div>
 												</TableCell>
 												<TableCell>
-													<Badge 
+													<Badge
 														className={
 															earning.status === 'completed'
 																? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
 																: earning.status === 'pending'
-																? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
-																: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+																	? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+																	: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
 														}
 													>
 														<div className="flex items-center space-x-1">
@@ -354,45 +354,45 @@ export default function EarningManagementPage() {
 												</TableCell>
 												<TableCell>
 													<div className="text-sm text-gray-600 dark:text-gray-400">
-														{earning.created_at 
+														<span>{earning.created_at
 															? new Date(earning.created_at).toLocaleString()
 															: 'Inconnu'
-														}
+														}</span>
 													</div>
 												</TableCell>
-													<TableCell>
-													<Button 
-														variant="outline" 
+												<TableCell>
+													<Button
+														variant="outline"
 														size="sm"
 														onClick={() => handleOpenDetail(earning.uid)}
 													>
-														Voir les détails
-														</Button>
-													</TableCell>
-												</TableRow>
+														<span>Voir les détails</span>
+													</Button>
+												</TableCell>
+											</TableRow>
 										))}
 									</TableBody>
 								</Table>
 							</div>
-							)}
+						)}
 					</CardContent>
 				</Card>
 
-						{/* Pagination */}
+				{/* Pagination */}
 				{totalPages > 1 && (
-						<div className="flex items-center justify-between mt-6">
+					<div className="flex items-center justify-between mt-6">
 						<div className="text-sm text-gray-600 dark:text-gray-400">
-							Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, totalCount)} sur {totalCount} résultats
-							</div>
-							<div className="flex items-center space-x-2">
-								<Button
-									variant="outline"
-									size="sm"
+							<span>Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, totalCount)} sur {totalCount} résultats</span>
+						</div>
+						<div className="flex items-center space-x-2">
+							<Button
+								variant="outline"
+								size="sm"
 								onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-									disabled={currentPage === 1}
-								>
+								disabled={currentPage === 1}
+							>
 								<ChevronLeft className="h-4 w-4" />
-								Précédent
+								<span>Précédent</span>
 							</Button>
 							<div className="flex items-center space-x-1">
 								{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -406,21 +406,21 @@ export default function EarningManagementPage() {
 											className={currentPage === page ? "bg-orange-500 text-white" : ""}
 										>
 											{page}
-								</Button>
+										</Button>
 									);
 								})}
-								</div>
-								<Button
-									variant="outline"
-									size="sm"
-								onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-									disabled={currentPage === totalPages}
-								>
-								Suivant
-								<ChevronRight className="h-4 w-4" />
-								</Button>
 							</div>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+								disabled={currentPage === totalPages}
+							>
+								<span>Suivant</span>
+								<ChevronRight className="h-4 w-4" />
+							</Button>
 						</div>
+					</div>
 				)}
 
 				{/* Empty State */}
@@ -429,13 +429,13 @@ export default function EarningManagementPage() {
 						<CardContent className="p-12 text-center">
 							<DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
 							<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-								Aucun gain trouvé
+								<span>Aucun gain trouvé</span>
 							</h3>
 							<p className="text-gray-500 dark:text-gray-400 mb-4">
-								{searchTerm ? `Aucun gain ne correspond à "${searchTerm}"` : "Aucun gain n'a encore été enregistré."}
+								<span>{searchTerm ? `Aucun gain ne correspond à "${searchTerm}"` : "Aucun gain n'a encore été enregistré."}</span>
 							</p>
-					</CardContent>
-				</Card>
+						</CardContent>
+					</Card>
 				)}
 
 				{/* Detail Modal */}
@@ -444,7 +444,7 @@ export default function EarningManagementPage() {
 						<DialogHeader>
 							<DialogTitle className="flex items-center space-x-2">
 								<DollarSign className="h-5 w-5 text-green-600" />
-								<span>Détails du gain</span>
+								<span><span>Détails du gain</span></span>
 							</DialogTitle>
 						</DialogHeader>
 						{detailLoading ? (
@@ -528,7 +528,7 @@ export default function EarningManagementPage() {
 									<div>
 										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Début de période</label>
 										<p className="text-sm text-gray-900 dark:text-gray-100">
-											{detailEarning.period_start 
+											{detailEarning.period_start
 												? new Date(detailEarning.period_start).toLocaleString()
 												: 'Non disponible'
 											}
@@ -537,7 +537,7 @@ export default function EarningManagementPage() {
 									<div>
 										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Fin de période</label>
 										<p className="text-sm text-gray-900 dark:text-gray-100">
-											{detailEarning.period_end 
+											{detailEarning.period_end
 												? new Date(detailEarning.period_end).toLocaleString()
 												: 'Non disponible'
 											}
@@ -584,7 +584,7 @@ export default function EarningManagementPage() {
 									<div>
 										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Créé le</label>
 										<p className="text-sm text-gray-900 dark:text-gray-100">
-											{detailEarning.created_at 
+											{detailEarning.created_at
 												? new Date(detailEarning.created_at).toLocaleString()
 												: 'Non disponible'
 											}
@@ -592,13 +592,13 @@ export default function EarningManagementPage() {
 									</div>
 									<div>
 										<label className="text-sm font-medium text-gray-600 dark:text-gray-400">Statut</label>
-										<Badge 
+										<Badge
 											className={
 												detailEarning.status === 'completed'
 													? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
 													: detailEarning.status === 'pending'
-													? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
-													: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+														? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300"
+														: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
 											}
 										>
 											{detailEarning.status || 'Inconnu'}
@@ -612,5 +612,5 @@ export default function EarningManagementPage() {
 
 			</div>
 		</div>
-		)
+	)
 }

@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { ChartContainer } from "@/components/ui/chart"
 import { useApi } from "@/lib/useApi"
+import { useAggregatorApi, AggregatorDashboardStats } from "@/lib/aggregator-api"
+import { StatCard as AggregatorStatCard } from "@/components/aggregator/stat-card"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useRouter } from "next/navigation"
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area } from "recharts";
@@ -42,7 +44,8 @@ import {
   Settings,
   Waves,
   Phone,
-  Wallet
+  Wallet,
+  Layers
 } from "lucide-react";
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
@@ -92,8 +95,12 @@ export default function DashboardPage() {
   const [waveStats, setWaveStats] = useState<any>(null);
   const [waveLoading, setWaveLoading] = useState(false);
   const [waveError, setWaveError] = useState("");
+  const [aggregatorStats, setAggregatorStats] = useState<AggregatorDashboardStats | null>(null);
+  const [aggregatorLoading, setAggregatorLoading] = useState(false);
+  const [aggregatorError, setAggregatorError] = useState("");
 
   const apiFetch = useApi();
+  const { getDashboardStats } = useAggregatorApi();
   const { t } = useLanguage();
   const router = useRouter();
   const { toast } = useToast();
@@ -208,6 +215,17 @@ export default function DashboardPage() {
       } finally {
         setWaveLoading(false);
       }
+
+      // Fetch Aggregator stats
+      setAggregatorLoading(true);
+      try {
+        const data = await getDashboardStats();
+        setAggregatorStats(data);
+      } catch (err: any) {
+        setAggregatorError("Échec du chargement des statistiques d'agrégateur");
+      } finally {
+        setAggregatorLoading(false);
+      }
     };
 
     fetchAllData();
@@ -271,7 +289,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center h-96">
         <div className="flex flex-col items-center space-y-4">
           <Loader className="animate-spin h-8 w-8 text-orange-500" />
-          <span className="text-lg font-semibold">Chargement...</span>
+          <span className="text-lg font-semibold"><span>Chargement...</span></span>
         </div>
       </div>
     );
@@ -325,10 +343,10 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                  Tableau de bord administrateur
+                  <span>Tableau de bord administrateur</span>
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm sm:text-base lg:text-lg">
-                  Aperçu en temps réel
+                  <span>Aperçu en temps réel</span>
                 </p>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4">
@@ -363,11 +381,11 @@ export default function DashboardPage() {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100 text-xs sm:text-sm font-medium">Utilisateurs totaux</p>
-                    <p className="text-2xl sm:text-3xl font-bold">{stats.user_stats.total_users}</p>
+                    <p className="text-blue-100 text-xs sm:text-sm font-medium"><span>Utilisateurs totaux</span></p>
+                    <p className="text-2xl sm:text-3xl font-bold"><span>{stats.user_stats.total_users}</span></p>
                     <div className="flex items-center mt-1 sm:mt-2">
                       <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
-                      <span className="text-xs sm:text-sm text-blue-100 ml-1">+{stats.user_stats.users_registered_today} aujourd'hui</span>
+                      <span className="text-xs sm:text-sm text-blue-100 ml-1"><span>{`+${stats.user_stats.users_registered_today}`}</span> <span>aujourd'hui</span></span>
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
@@ -383,11 +401,11 @@ export default function DashboardPage() {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-100 text-xs sm:text-sm font-medium">Tâches actives</p>
-                    <p className="text-2xl sm:text-3xl font-bold">{stats.task_stats.active}</p>
+                    <p className="text-green-100 text-xs sm:text-sm font-medium"><span>Tâches actives</span></p>
+                    <p className="text-2xl sm:text-3xl font-bold"><span>{stats.task_stats.active}</span></p>
                     <div className="flex items-center mt-1 sm:mt-2">
                       <Activity className="h-3 w-3 sm:h-4 sm:w-4 text-green-300" />
-                      <span className="text-xs sm:text-sm text-green-100 ml-1">En cours</span>
+                      <span className="text-xs sm:text-sm text-green-100 ml-1"><span>En cours</span></span>
                     </div>
                   </div>
                   <div className="bg-white bg-opacity-20 rounded-full p-2 sm:p-3">
@@ -403,14 +421,14 @@ export default function DashboardPage() {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-100 text-xs sm:text-sm font-medium">Revenus d'aujourd'hui</p>
+                    <p className="text-purple-100 text-xs sm:text-sm font-medium"><span>Revenus d'aujourd'hui</span></p>
                     <p className="text-xl sm:text-2xl lg:text-3xl font-bold">
-                      {summary ? `${parseFloat(summary.today_revenue || 0).toFixed(2)}` : '0.00'} FCFA
+                      <span>{summary ? `${parseFloat(summary.today_revenue || 0).toFixed(2)}` : '0.00'}</span> <span>FCFA</span>
                     </p>
                     <div className="flex items-center mt-1 sm:mt-2">
                       <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-purple-300" />
                       <span className="text-xs sm:text-sm text-purple-100 ml-1">
-                        {summary ? `${summary.today_success_rate?.toFixed(1)}%` : '0%'} taux de réussite
+                        <span>{summary ? `${summary.today_success_rate?.toFixed(1)}%` : '0%'}</span> <span>taux de réussite</span>
                       </span>
                     </div>
                   </div>
@@ -427,9 +445,9 @@ export default function DashboardPage() {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-orange-100 text-xs sm:text-sm font-medium">Statut du système</p>
+                    <p className="text-orange-100 text-xs sm:text-sm font-medium"><span>Statut du système</span></p>
                     <p className="text-xl sm:text-2xl lg:text-3xl font-bold">
-                      {stats.notification_info.async_enabled ? 'En ligne' : 'Hors ligne'}
+                      <span>{stats.notification_info.async_enabled ? 'En ligne' : 'Hors ligne'}</span>
                     </p>
                     <div className="flex items-center mt-1 sm:mt-2">
                       {stats.notification_info.async_enabled ? (
@@ -438,7 +456,7 @@ export default function DashboardPage() {
                         <XCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-300" />
                       )}
                       <span className="text-xs sm:text-sm text-orange-100 ml-1">
-                        {stats.notification_info.async_enabled ? 'Tous les systèmes' : 'Problèmes détectés'}
+                        <span>{stats.notification_info.async_enabled ? 'Tous les systèmes' : 'Problèmes détectés'}</span>
                       </span>
                     </div>
                   </div>
@@ -460,7 +478,7 @@ export default function DashboardPage() {
                     <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                       <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                     </div>
-                    <span>Aperçu financier</span>
+                    <span><span>Aperçu financier</span></span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6">
@@ -498,7 +516,7 @@ export default function DashboardPage() {
                     <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                       <BarChart3 className="h-5 w-5 text-green-600 dark:text-green-300" />
                     </div>
-                    <span>Tendances des transactions</span>
+                    <span><span>Tendances des transactions</span></span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6">
@@ -526,7 +544,7 @@ export default function DashboardPage() {
                   <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                     <Users className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                   </div>
-                  <span>Statistiques des utilisateurs</span>
+                  <span><span>Statistiques des utilisateurs</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -558,7 +576,7 @@ export default function DashboardPage() {
                   <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                     <ClipboardList className="h-5 w-5 text-green-600 dark:text-green-300" />
                   </div>
-                  <span>Statistiques des tâches</span>
+                  <span><span>Statistiques des tâches</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -586,7 +604,7 @@ export default function DashboardPage() {
                   <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
                     <Settings className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                   </div>
-                  <span>Informations système</span>
+                  <span><span>Informations système</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -625,7 +643,7 @@ export default function DashboardPage() {
                   <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
                     <CreditCard className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />
                   </div>
-                  <span>Résumé des paiements</span>
+                  <span><span>Résumé des paiements</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4 sm:p-6">
@@ -639,19 +657,19 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-3 sm:p-4 rounded-lg">
                       <div className="text-xs sm:text-sm text-orange-600 dark:text-orange-300 font-medium">Transactions d'aujourd'hui</div>
-                      <div className="text-xl sm:text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_transactions}</div>
+                      <div className="text-xl sm:text-2xl font-bold text-orange-900 dark:text-orange-100"><span>{summary.today_transactions}</span></div>
                     </div>
                     <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-3 sm:p-4 rounded-lg">
                       <div className="text-xs sm:text-sm text-green-600 dark:text-green-300 font-medium">Terminées</div>
-                      <div className="text-xl sm:text-2xl font-bold text-green-900 dark:text-green-100">{summary.today_completed}</div>
+                      <div className="text-xl sm:text-2xl font-bold text-green-900 dark:text-green-100"><span>{summary.today_completed}</span></div>
                     </div>
                     <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-3 sm:p-4 rounded-lg">
                       <div className="text-xs sm:text-sm text-purple-600 dark:text-purple-300 font-medium">Revenus</div>
-                      <div className="text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-100">{parseFloat(summary.today_revenue || 0).toFixed(2)} FCFA</div>
+                      <div className="text-xl sm:text-2xl font-bold text-purple-900 dark:text-purple-100"><span>{parseFloat(summary.today_revenue || 0).toFixed(2)}</span> <span>FCFA</span></div>
                     </div>
                     <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-3 sm:p-4 rounded-lg">
                       <div className="text-xs sm:text-sm text-orange-600 dark:text-orange-300 font-medium">Taux de réussite</div>
-                      <div className="text-xl sm:text-2xl font-bold text-orange-900 dark:text-orange-100">{summary.today_success_rate?.toFixed(1)}%</div>
+                      <div className="text-xl sm:text-2xl font-bold text-orange-900 dark:text-orange-100"><span>{summary.today_success_rate?.toFixed(1)}%</span></div>
                     </div>
                   </div>
                 ) : (
@@ -667,7 +685,7 @@ export default function DashboardPage() {
                   <div className="p-2 bg-cyan-100 dark:bg-cyan-900 rounded-lg">
                     <AlertCircle className="h-5 w-5 text-cyan-600 dark:text-cyan-300" />
                   </div>
-                  <span>Événements système récents</span>
+                  <span><span>Événements système récents</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -707,21 +725,21 @@ export default function DashboardPage() {
                   <div className="p-2 bg-sky-100 dark:bg-sky-900 rounded-lg">
                     <RefreshCw className="h-5 w-5 text-sky-600 dark:text-sky-300" />
                   </div>
-                  <span>Aperçu des demandes de recharge</span>
+                  <span><span>Aperçu des demandes de recharge</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="text-center p-4 bg-sky-50 dark:bg-sky-900/20 rounded-lg">
-                    <div className="text-2xl font-bold text-sky-600 dark:text-sky-300">{rechargeStats.total_requests}</div>
+                    <div className="text-2xl font-bold text-sky-600 dark:text-sky-300"><span>{rechargeStats.total_requests}</span></div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">Demandes totales</div>
                   </div>
                   <div className="text-center p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-300">{rechargeStats.pending_review}</div>
+                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-300"><span>{rechargeStats.pending_review}</span></div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">En attente de révision</div>
                   </div>
                   <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">{parseFloat(rechargeStats.total_approved_amount || 0).toFixed(2)} FCFA</div>
+                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-300"><span>{parseFloat(rechargeStats.total_approved_amount || 0).toFixed(2)}</span> <span>FCFA</span></div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">Montant approuvé</div>
                   </div>
                 </div>
@@ -737,25 +755,25 @@ export default function DashboardPage() {
                   <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg">
                     <DollarSign className="h-5 w-5 text-emerald-600 dark:text-emerald-300" />
                   </div>
-                  <span>Opérations de solde</span>
+                  <span><span>Opérations de solde</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">{balanceOps.adjustments.total_count}</div>
+                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-300"><span>{balanceOps.adjustments.total_count}</span></div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">Ajustements totaux</div>
                   </div>
                   <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-300">{balanceOps.adjustments.total_credits.count}</div>
+                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-300"><span>{balanceOps.adjustments.total_credits.count}</span></div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">Crédits</div>
                   </div>
                   <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-300">{balanceOps.adjustments.total_debits.count}</div>
+                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-300"><span>{balanceOps.adjustments.total_debits.count}</span></div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">Débits</div>
                   </div>
                   <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                    <div className="text-2xl font-bold text-red-600 dark:text-red-300">{balanceOps.refunds.total_count}</div>
+                    <div className="text-2xl font-bold text-red-600 dark:text-red-300"><span>{balanceOps.refunds.total_count}</span></div>
                     <div className="text-sm text-gray-600 dark:text-gray-300">Remboursements</div>
                   </div>
                 </div>
@@ -772,7 +790,7 @@ export default function DashboardPage() {
                   <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                     <Smartphone className="h-5 w-5 text-green-600 dark:text-green-300" />
                   </div>
-                  <span>Statistiques MoMo Pay</span>
+                  <span><span>Statistiques MoMo Pay</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -787,31 +805,31 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 rounded-lg">
                         <div className="text-sm text-green-600 dark:text-green-300 font-medium">Total Transactions</div>
-                        <div className="text-2xl font-bold text-green-900 dark:text-green-100">{momoPayStats.total_transactions || 0}</div>
+                        <div className="text-2xl font-bold text-green-900 dark:text-green-100"><span>{momoPayStats.total_transactions || 0}</span></div>
                       </div>
                       <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
                         <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Montant Total</div>
-                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{parseFloat((momoPayStats.total_amount || 0).toString()).toFixed(2)} FCFA</div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100"><span>{parseFloat((momoPayStats.total_amount || 0).toString()).toFixed(2)}</span> <span>FCFA</span></div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-4 rounded-lg">
                         <div className="text-sm text-emerald-600 dark:text-emerald-300 font-medium">Confirmées</div>
-                        <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{momoPayStats.confirmed_count || 0}</div>
+                        <div className="text-2xl font-bold text-emerald-900 dark:text-green-100"><span>{momoPayStats.confirmed_count || 0}</span></div>
                       </div>
                       <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 p-4 rounded-lg">
                         <div className="text-sm text-yellow-600 dark:text-yellow-300 font-medium">En Attente</div>
-                        <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{momoPayStats.pending_count || 0}</div>
+                        <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100"><span>{momoPayStats.pending_count || 0}</span></div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4 rounded-lg">
                         <div className="text-sm text-red-600 dark:text-red-300 font-medium">Annulées</div>
-                        <div className="text-2xl font-bold text-red-900 dark:text-red-100">{momoPayStats.cancelled_count || 0}</div>
+                        <div className="text-2xl font-bold text-red-900 dark:text-red-100"><span>{momoPayStats.cancelled_count || 0}</span></div>
                       </div>
                       <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 rounded-lg">
                         <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Échouées</div>
-                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{momoPayStats.failed_count || 0}</div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100"><span>{momoPayStats.failed_count || 0}</span></div>
                       </div>
                     </div>
                   </div>
@@ -828,7 +846,7 @@ export default function DashboardPage() {
                   <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                     <Waves className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                   </div>
-                  <span>Statistiques Wave Business</span>
+                  <span><span>Statistiques Wave Business</span></span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
@@ -843,31 +861,31 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 p-4 rounded-lg">
                         <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Total Transactions</div>
-                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{waveStats.total_transactions || 0}</div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100"><span>{waveStats.total_transactions || 0}</span></div>
                       </div>
                       <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 p-4 rounded-lg">
                         <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">Montant Total</div>
-                        <div className="text-2xl font-bold text-purple-900 dark:text-purple-100">{parseFloat((waveStats.total_amount || 0).toString()).toFixed(2)} FCFA</div>
+                        <div className="text-2xl font-bold text-purple-900 dark:text-purple-100"><span>{parseFloat((waveStats.total_amount || 0).toString()).toFixed(2)}</span> <span>FCFA</span></div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 p-4 rounded-lg">
                         <div className="text-sm text-emerald-600 dark:text-emerald-300 font-medium">Confirmées</div>
-                        <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">{waveStats.confirmed_count || 0}</div>
+                        <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100"><span>{waveStats.confirmed_count || 0}</span></div>
                       </div>
                       <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 p-4 rounded-lg">
                         <div className="text-sm text-yellow-600 dark:text-yellow-300 font-medium">En Attente</div>
-                        <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">{waveStats.pending_count || 0}</div>
+                        <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100"><span>{waveStats.pending_count || 0}</span></div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 p-4 rounded-lg">
                         <div className="text-sm text-red-600 dark:text-red-300 font-medium">Annulées</div>
-                        <div className="text-2xl font-bold text-red-900 dark:text-red-100">{waveStats.cancelled_count || 0}</div>
+                        <div className="text-2xl font-bold text-red-900 dark:text-red-100"><span>{waveStats.cancelled_count || 0}</span></div>
                       </div>
                       <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-4 rounded-lg">
                         <div className="text-sm text-orange-600 dark:text-orange-300 font-medium">Expirées</div>
-                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100">{waveStats.expired_count || 0}</div>
+                        <div className="text-2xl font-bold text-orange-900 dark:text-orange-100"><span>{waveStats.expired_count || 0}</span></div>
                       </div>
                     </div>
                   </div>
@@ -876,6 +894,186 @@ export default function DashboardPage() {
                 )}
               </CardContent>
             </Card>
+          </div>
+
+          {/* Aggregator Overview Section */}
+          <div className="mt-12 mb-8" id="aggregator-overview">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6 flex items-center space-x-2">
+              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                <Layers className="h-5 w-5 text-orange-600 dark:text-orange-300" />
+              </div>
+              <span>{t("dashboard.aggregatorOverview")}</span>
+            </h2>
+
+            {aggregatorLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader className="animate-spin h-8 w-8 text-orange-500 mr-3" />
+                <span className="text-lg font-medium text-gray-600">{t("dashboard.loadingAggregatorData")}</span>
+              </div>
+            ) : aggregatorError ? (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-6 rounded-xl text-center">
+                <AlertCircle className="h-10 w-10 text-red-500 mx-auto mb-3" />
+                <p className="text-red-700 dark:text-red-400 font-medium">{aggregatorError}</p>
+              </div>
+            ) : aggregatorStats ? (
+              <div className="space-y-8 animate-in fade-in duration-500">
+                {/* Aggregator Stats Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <AggregatorStatCard
+                    title={t("nav.aggregatorUsers")}
+                    value={aggregatorStats.users?.total_aggregators || 0}
+                    icon={Users}
+                    className="bg-gradient-to-br from-orange-500 to-orange-600 text-white"
+                    description={<span>{`${aggregatorStats.users?.active_aggregators || 0} actifs aujourd'hui`}</span>}
+                  />
+                  <AggregatorStatCard
+                    title="Volume Payin"
+                    value={`${(aggregatorStats.payin?.total_amount || 0).toLocaleString()} FCFA`}
+                    icon={TrendingUp}
+                    className="bg-gradient-to-br from-green-500 to-green-600 text-white"
+                    description={<span>{`${aggregatorStats.payin?.success_count || 0} transactions (${aggregatorStats.payin?.total_platform_profit || 0} profit)`}</span>}
+                  />
+                  <AggregatorStatCard
+                    title={t("dashboard.successRate")}
+                    value={`${(aggregatorStats.transactions?.success_rate || 0).toFixed(1)}%`}
+                    icon={Activity}
+                    className="bg-gradient-to-br from-blue-500 to-blue-600 text-white"
+                    description={<span>{`${aggregatorStats.transactions?.success_count || 0} réussies sur ${aggregatorStats.transactions?.total_count || 0}`}</span>}
+                  />
+                  <AggregatorStatCard
+                    title="Volume 7 jours"
+                    value={`${(aggregatorStats.last_7_days?.total_amount || 0).toLocaleString()} FCFA`}
+                    icon={Zap}
+                    className="bg-gradient-to-br from-purple-500 to-purple-600 text-white"
+                    description={<span>{`${aggregatorStats.last_7_days?.success_count || 0} transactions réussies`}</span>}
+                  />
+                </div>
+
+                {/* Today's Specific Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card className="border-0 shadow-lg bg-orange-50/50 dark:bg-orange-900/10">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider">Trx Aujourd'hui</p>
+                        <p className="text-2xl font-bold"><span>{aggregatorStats.today?.total_count || 0}</span></p>
+                      </div>
+                      <div className="bg-orange-100 dark:bg-orange-900/40 p-2 rounded-full text-orange-600">
+                        <Activity className="h-5 w-5" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 shadow-lg bg-green-50/50 dark:bg-green-900/10">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold text-green-600 uppercase tracking-wider">Volume Aujourd'hui</p>
+                        <p className="text-2xl font-bold"><span>{(aggregatorStats.today?.total_amount || 0).toLocaleString()}</span> <span>FCFA</span></p>
+                      </div>
+                      <div className="bg-green-100 dark:bg-green-900/40 p-2 rounded-full text-green-600">
+                        <DollarSign className="h-5 w-5" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-0 shadow-lg bg-blue-50/50 dark:bg-blue-900/10">
+                    <CardContent className="p-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Profit Aujourd'hui</p>
+                        <p className="text-2xl font-bold"><span>{(aggregatorStats.today?.total_platform_profit || 0).toLocaleString()}</span> <span>FCFA</span></p>
+                      </div>
+                      <div className="bg-blue-100 dark:bg-blue-900/40 p-2 rounded-full text-blue-600">
+                        <TrendingUp className="h-5 w-5" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Top Aggregators */}
+                  <Card className="border-0 shadow-lg bg-white dark:bg-gray-800 transition-all duration-300 hover:shadow-xl overflow-hidden">
+                    <CardHeader className="border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                      <CardTitle className="flex items-center space-x-2 text-lg">
+                        <Users className="h-5 w-5 text-indigo-500" />
+                        <span><span>Top Agrégateurs</span></span>
+                      </CardTitle>
+                    </CardHeader>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                        <thead className="text-xs uppercase bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400">
+                          <tr>
+                            <th className="px-6 py-4 font-semibold tracking-wider"><span>Agrégateur</span></th>
+                            <th className="px-6 py-4 font-semibold tracking-wider"><span>Montant</span></th>
+                            <th className="px-6 py-4 font-semibold tracking-wider"><span>Transactions</span></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                          {(aggregatorStats.top_aggregators || []).map((item, index) => (
+                            <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                              <td className="px-6 py-4">
+                                <div className="font-medium"><span>{item.user__first_name}</span> <span>{item.user__last_name}</span></div>
+                                <div className="text-xs text-gray-500"><span>{item.user__email}</span></div>
+                              </td>
+                              <td className="px-6 py-4 font-mono text-sm">
+                                <span>{(item.total_amount || 0).toLocaleString()}</span> <span>FCFA</span>
+                              </td>
+                              <td className="px-6 py-4 text-sm">
+                                <span>{item.tx_count}</span>
+                              </td>
+                            </tr>
+                          ))}
+                          {(aggregatorStats.top_aggregators || []).length === 0 && (
+                            <tr>
+                              <td colSpan={3} className="px-6 py-4 text-center text-gray-500"><span>Aucun agrégateur</span></td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Card>
+
+                  {/* Network Performance Table */}
+                  <Card className="border-0 shadow-lg bg-white dark:bg-gray-800 transition-all duration-300 hover:shadow-xl overflow-hidden">
+                    <CardHeader className="border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                      <CardTitle className="flex items-center space-x-2 text-lg">
+                        <Activity className="h-5 w-5 text-orange-500" />
+                        <span><span>Performances par Réseau</span></span>
+                      </CardTitle>
+                    </CardHeader>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                        <thead className="text-xs uppercase bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400">
+                          <tr>
+                            <th className="px-6 py-4 font-semibold tracking-wider"><span>{t("dashboard.network")}</span></th>
+                            <th className="px-6 py-4 font-semibold tracking-wider"><span>Opérations</span></th>
+                            <th className="px-6 py-4 font-semibold tracking-wider text-right"><span>{t("dashboard.volume")}</span></th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                          {(aggregatorStats.network_stats || []).map((item, index) => (
+                            <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                              <td className="px-6 py-4 font-medium"><span>{item.network__nom || 'Inconnu'}</span></td>
+                              <td className="px-6 py-4 font-medium text-sm text-gray-600 dark:text-gray-300">
+                                <span>{item.tx_count || 0}</span> <span>trx</span>
+                              </td>
+                              <td className="px-6 py-4 text-right font-mono text-sm font-semibold text-green-600">
+                                <span>{(item.total_amount || 0).toLocaleString()}</span> <span>FCFA</span>
+                              </td>
+                            </tr>
+                          ))}
+                          {(aggregatorStats.network_stats || []).length === 0 && (
+                            <tr>
+                              <td colSpan={3} className="px-6 py-4 text-center text-gray-500"><span>Aucun réseau actif</span></td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Card>
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-500 text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+                <span>{t("dashboard.noAggregatorData")}</span>
+              </div>
+            )}
           </div>
 
         </div>

@@ -81,16 +81,16 @@ export default function AggregatorAuthorizationsPage() {
                         {t("nav.aggregatorAuthorizations")}
                     </h1>
                     <p className="text-gray-600 dark:text-gray-300 mt-1">
-                        Configure user-network access and fee structures
+                        {t("aggregator.configureAccess")}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Button onClick={fetchAuthorizations} variant="outline" className="border-orange-200">
                         <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
-                        {t("dashboard.refresh") || "Refresh"}
+                        {t("common.refresh")}
                     </Button>
                     <Button onClick={handleCreate} className="bg-orange-500 hover:bg-orange-600 shadow-md transition-all hover:shadow-lg">
-                        <Plus className="mr-2 h-4 w-4" /> Grant New
+                        <Plus className="mr-2 h-4 w-4" /> {t("aggregator.grantNew")}
                     </Button>
                 </div>
             </div>
@@ -101,7 +101,7 @@ export default function AggregatorAuthorizationsPage() {
                     <div className="relative max-w-sm">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                         <Input
-                            placeholder="Search by user or network..."
+                            placeholder={t("aggregator.searchUserNetwork")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-10 bg-gray-50 dark:bg-gray-800"
@@ -115,34 +115,34 @@ export default function AggregatorAuthorizationsPage() {
                 <CardHeader className="border-b bg-gray-50/50 dark:bg-gray-900/50">
                     <CardTitle className="text-lg flex items-center gap-2">
                         <ShieldCheck className="h-5 w-5 text-orange-500" />
-                        Network Access Rules
+                        {t("aggregator.networkAccessRules")}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                     {loading && authorizations.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-20">
                             <Loader className="animate-spin h-8 w-8 text-orange-500 mb-2" />
-                            <span className="text-gray-500">Loading authorizations...</span>
+                            <span className="text-gray-500">{t("aggregator.loadingAuthorizations")}</span>
                         </div>
                     ) : error ? (
                         <div className="py-20 text-center text-red-500">{error}</div>
                     ) : filteredAuthorizations.length === 0 ? (
-                        <div className="py-20 text-center text-gray-500">No authorizations found.</div>
+                        <div className="py-20 text-center text-gray-500">{t("aggregator.noAuthorizationsFound")}</div>
                     ) : (
                         <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader className="bg-gray-50/50 dark:bg-gray-900/50">
                                     <TableRow>
-                                        <TableHead>Aggregator</TableHead>
-                                        <TableHead>Network</TableHead>
-                                        <TableHead>Payin Fee</TableHead>
-                                        <TableHead>Payout Fee</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
+                                        <TableHead>{t("aggregator.aggregatorUser")}</TableHead>
+                                        <TableHead>{t("aggregator.paymentNetwork")}</TableHead>
+                                        <TableHead>{t("aggregator.payinFee")}</TableHead>
+                                        <TableHead>{t("aggregator.payoutFee")}</TableHead>
+                                        <TableHead>{t("aggregator.status")}</TableHead>
+                                        <TableHead className="text-right">{t("common.actions")}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredAuthorizations.map((auth) => (
+                                    {filteredAuthorizations.map((auth: any) => (
                                         <TableRow key={auth.uid} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b">
                                             <TableCell>
                                                 <div className="font-semibold text-gray-900 dark:text-gray-100">{auth.user_name || auth.user}</div>
@@ -167,7 +167,7 @@ export default function AggregatorAuthorizationsPage() {
                                                         <ShieldAlert className="h-4 w-4 text-red-500 mr-2" />
                                                     )}
                                                     <Badge variant={auth.is_active ? "success" : "destructive"} className="px-2 py-0">
-                                                        {auth.is_active ? "Active" : "Locked"}
+                                                        {auth.is_active ? t("common.active") : t("aggregator.locked")}
                                                     </Badge>
                                                 </div>
                                             </TableCell>

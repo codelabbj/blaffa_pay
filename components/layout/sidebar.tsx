@@ -128,7 +128,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               onClick={onToggleMobileSidebar}
             >
               <Home className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.dashboard")}
+              <span>{t("nav.dashboard")}</span>
             </Link>
 
             {/* Users Dropdown */}
@@ -144,7 +144,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={usersDropdownOpen}
               >
                 <Users className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.users")}
+                <span>{t("nav.users")}</span>
                 {usersDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -167,7 +167,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   )}
                   onClick={onToggleMobileSidebar}
                 >
-                  {t("nav.register")}
+                  <span><span>{t("nav.register")}</span></span>
                 </Link>
                 <Link
                   href="/dashboard/users/list"
@@ -179,7 +179,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   )}
                   onClick={onToggleMobileSidebar}
                 >
-                  {t("nav.userList")}
+                  <span><span>{t("nav.userList")}</span></span>
                 </Link>
               </div>
             </div>
@@ -195,7 +195,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               onClick={onToggleMobileSidebar}
             >
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.transactions")}
+              <span><span>{t("nav.transactions")}</span></span>
             </Link>
 
             <Link
@@ -209,7 +209,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               onClick={onToggleMobileSidebar}
             >
               <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.bulkDepositNetworks")}
+              <span><span>{t("nav.bulkDepositNetworks")}</span></span>
             </Link>
 
             <Link
@@ -223,7 +223,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               onClick={onToggleMobileSidebar}
             >
               <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.deviceAuthorizations")}
+              <span><span>{t("nav.deviceAuthorizations")}</span></span>
             </Link>
 
             {/* Aggregators Dropdown */}
@@ -239,7 +239,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={aggregatorsDropdownOpen}
               >
                 <Layers className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.aggregators")}
+                <span><span>{t("nav.aggregators")}</span></span>
                 {aggregatorsDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -249,21 +249,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <div
                 className={cn(
                   "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
-                  aggregatorsDropdownOpen ? "max-h-64 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                  aggregatorsDropdownOpen ? "max-h-[22rem] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
-                <Link
-                  href="/dashboard/aggregators"
-                  className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
-                    pathname === "/dashboard/aggregators"
-                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                  )}
-                  onClick={onToggleMobileSidebar}
-                >
-                  {t("nav.dashboard")}
-                </Link>
+
                 <Link
                   href="/dashboard/aggregators/users"
                   className={cn(
@@ -274,7 +263,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   )}
                   onClick={onToggleMobileSidebar}
                 >
-                  {t("nav.aggregatorUsers")}
+                  <span><span>{t("nav.aggregatorUsers")}</span></span>
                 </Link>
                 <Link
                   href="/dashboard/aggregators/authorizations"
@@ -286,7 +275,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   )}
                   onClick={onToggleMobileSidebar}
                 >
-                  {t("nav.aggregatorAuthorizations")}
+                  <span><span>{t("nav.aggregatorAuthorizations")}</span></span>
                 </Link>
                 <Link
                   href="/dashboard/aggregators/network-mappings"
@@ -298,7 +287,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   )}
                   onClick={onToggleMobileSidebar}
                 >
-                  {t("nav.aggregatorNetworkMappings")}
+                  <span><span>{t("nav.aggregatorNetworkMappings")}</span></span>
                 </Link>
                 <Link
                   href="/dashboard/aggregators/transactions"
@@ -310,7 +299,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   )}
                   onClick={onToggleMobileSidebar}
                 >
-                  {t("nav.aggregatorTransactions")}
+                  <span><span>{t("nav.aggregatorTransactions")}</span></span>
                 </Link>
               </div>
             </div>
@@ -327,7 +316,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={countryDropdownOpen}
               >
                 <Globe className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.country")}
+                <span><span>{t("nav.country")}</span></span>
                 {countryDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -345,13 +334,13 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   isCountryListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>{t("nav.countryList")}</Link>
+                )}><span><span>{t("nav.countryList")}</span></span></Link>
                 <Link href="/dashboard/country/create" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isCountryCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>{t("nav.countryCreate")}</Link>
+                )}><span><span>{t("nav.countryCreate")}</span></span></Link>
               </div>
             </div>
 
@@ -367,7 +356,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={networkDropdownOpen}
               >
                 <Share2 className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.network")}
+                <span>{t("nav.network")}</span>
                 {networkDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -385,13 +374,13 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   isNetworkListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>{t("nav.networkList")}</Link>
+                )}><span>{t("nav.networkList")}</span></Link>
                 <Link href="/dashboard/network/create" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isNetworkCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>{t("nav.networkCreate")}</Link>
+                )}><span><span>{t("nav.networkCreate")}</span></span></Link>
               </div>
             </div>
 
@@ -402,7 +391,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <Phone className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.phoneNumbers")}
+              <span>{t("nav.phoneNumbers")}</span>
             </Link>
 
             <div>
@@ -417,7 +406,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={devicesDropdownOpen}
               >
                 <Monitor className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.devices")}
+                <span><span>{t("nav.devices")}</span></span>
                 {devicesDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -446,7 +435,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <MessageCircle className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.smsLogs")}
+              <span>{t("nav.smsLogs")}</span>
             </Link>
 
             <Link href="/dashboard/fcm-logs/list" className={cn(
@@ -456,7 +445,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <Bell className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.fcmLogs")}
+              <span>{t("nav.fcmLogs")}</span>
             </Link>
 
             <Link href="/dashboard/partner" className={cn(
@@ -466,7 +455,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.partner")}
+              <span>{t("nav.partner")}</span>
             </Link>
 
             <Link href="/dashboard/partner-transfers" className={cn(
@@ -476,7 +465,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
-              Transferts Partenaires
+              <span>Transferts Partenaires</span>
             </Link>
 
             <div>
@@ -509,13 +498,13 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   isPlatformsListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>Liste des Plateformes</Link>
+                )}><span>Liste des Plateformes</span></Link>
                 <Link href="/dashboard/platforms/create" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isPlatformsCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>Créer une Plateforme</Link>
+                )}><span>Créer une Plateforme</span></Link>
               </div>
             </div>
 
@@ -549,13 +538,13 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   isPermissionsListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>Liste des Permissions</Link>
+                )}><span>Liste des Permissions</span></Link>
                 <Link href="/dashboard/permissions/create" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isPermissionsCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>Créer une Permission</Link>
+                )}><span>Créer une Permission</span></Link>
               </div>
             </div>
 
@@ -602,7 +591,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("topup.title")}
+              <span>{t("topup.title")}</span>
             </Link>
 
             <Link href="/dashboard/earning-management" className={cn(
@@ -612,7 +601,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("earning.title")}
+              <span>{t("earning.title")}</span>
             </Link>
 
             <Link
@@ -626,7 +615,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               onClick={onToggleMobileSidebar}
             >
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("Wave Business Transaction")}
+              <span>{t("Wave Business Transaction")}</span>
             </Link>
 
             <Link
@@ -693,7 +682,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               )}
             >
               <Home className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.dashboard")}
+              <span>{t("nav.dashboard")}</span>
             </Link>
 
             {/* Users Dropdown */}
@@ -709,7 +698,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={usersDropdownOpen}
               >
                 <Users className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.users")}
+                <span>{t("nav.users")}</span>
                 {usersDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -731,7 +720,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
                 >
-                  {t("nav.register")}
+                  <span><span>{t("nav.register")}</span></span>
                 </Link>
                 <Link
                   href="/dashboard/users/list"
@@ -742,7 +731,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
                 >
-                  {t("nav.userList")}
+                  <span><span>{t("nav.userList")}</span></span>
                 </Link>
               </div>
             </div>
@@ -757,7 +746,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               )}
             >
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.transactions")}
+              <span><span>{t("nav.transactions")}</span></span>
             </Link>
 
             <Link
@@ -770,7 +759,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               )}
             >
               <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.bulkDepositNetworks")}
+              <span><span>{t("nav.bulkDepositNetworks")}</span></span>
             </Link>
 
             <Link
@@ -783,7 +772,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               )}
             >
               <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.deviceAuthorizations")}
+              <span><span>{t("nav.deviceAuthorizations")}</span></span>
             </Link>
 
             {/* Aggregators Dropdown */}
@@ -799,7 +788,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={aggregatorsDropdownOpen}
               >
                 <Layers className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.aggregators")}
+                <span><span>{t("nav.aggregators")}</span></span>
                 {aggregatorsDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -809,20 +798,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <div
                 className={cn(
                   "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
-                  aggregatorsDropdownOpen ? "max-h-64 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                  aggregatorsDropdownOpen ? "max-h-[22rem] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
-                <Link
-                  href="/dashboard/aggregators"
-                  className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
-                    pathname === "/dashboard/aggregators"
-                      ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                  )}
-                >
-                  {t("nav.dashboard")}
-                </Link>
+
                 <Link
                   href="/dashboard/aggregators/users"
                   className={cn(
@@ -832,7 +811,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
                 >
-                  {t("nav.aggregatorUsers")}
+                  <span><span>{t("nav.aggregatorUsers")}</span></span>
                 </Link>
                 <Link
                   href="/dashboard/aggregators/authorizations"
@@ -843,7 +822,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
                 >
-                  {t("nav.aggregatorAuthorizations")}
+                  <span><span>{t("nav.aggregatorAuthorizations")}</span></span>
                 </Link>
                 <Link
                   href="/dashboard/aggregators/network-mappings"
@@ -854,7 +833,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
                 >
-                  {t("nav.aggregatorNetworkMappings")}
+                  <span><span>{t("nav.aggregatorNetworkMappings")}</span></span>
                 </Link>
                 <Link
                   href="/dashboard/aggregators/transactions"
@@ -865,7 +844,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
                 >
-                  {t("nav.aggregatorTransactions")}
+                  <span><span>{t("nav.aggregatorTransactions")}</span></span>
                 </Link>
               </div>
             </div>
@@ -882,7 +861,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={countryDropdownOpen}
               >
                 <Globe className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.country")}
+                <span><span>{t("nav.country")}</span></span>
                 {countryDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -900,13 +879,13 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   isCountryListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>{t("nav.countryList")}</Link>
+                )}><span><span>{t("nav.countryList")}</span></span></Link>
                 <Link href="/dashboard/country/create" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isCountryCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>{t("nav.countryCreate")}</Link>
+                )}><span><span>{t("nav.countryCreate")}</span></span></Link>
               </div>
             </div>
 
@@ -922,7 +901,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={networkDropdownOpen}
               >
                 <Share2 className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.network")}
+                <span>{t("nav.network")}</span>
                 {networkDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -940,13 +919,13 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   isNetworkListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>{t("nav.networkList")}</Link>
+                )}><span>{t("nav.networkList")}</span></Link>
                 <Link href="/dashboard/network/create" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isNetworkCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>{t("nav.networkCreate")}</Link>
+                )}><span>{t("nav.networkCreate")}</span></Link>
               </div>
             </div>
 
@@ -957,7 +936,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <Phone className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.phoneNumbers")}
+              <span>{t("nav.phoneNumbers")}</span>
             </Link>
 
             <div>
@@ -972,7 +951,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={devicesDropdownOpen}
               >
                 <Monitor className="mr-3 h-5 w-5 flex-shrink-0" />
-                {t("nav.devices")}
+                <span>{t("nav.devices")}</span>
                 {devicesDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -1001,7 +980,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <MessageCircle className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.smsLogs")}
+              <span>{t("nav.smsLogs")}</span>
             </Link>
 
             <Link href="/dashboard/fcm-logs/list" className={cn(
@@ -1011,7 +990,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <Bell className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.fcmLogs")}
+              <span>{t("nav.fcmLogs")}</span>
             </Link>
 
             <Link href="/dashboard/partner" className={cn(
@@ -1021,7 +1000,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("nav.partner")}
+              <span>{t("nav.partner")}</span>
             </Link>
 
             <Link href="/dashboard/partner-transfers" className={cn(
@@ -1064,13 +1043,13 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   isPlatformsListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>Liste des Plateformes</Link>
+                )}><span>Liste des Plateformes</span></Link>
                 <Link href="/dashboard/platforms/create" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isPlatformsCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>Créer une Plateforme</Link>
+                )}><span>Créer une Plateforme</span></Link>
               </div>
             </div>
 
@@ -1086,7 +1065,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 aria-expanded={permissionsDropdownOpen}
               >
                 <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
-                Permissions
+                <span>Permissions</span>
                 {permissionsDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -1104,13 +1083,13 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   isPermissionsListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>Liste des Permissions</Link>
+                )}><span>Liste des Permissions</span></Link>
                 <Link href="/dashboard/permissions/create" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isPermissionsCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-                )}>Créer une Permission</Link>
+                )}><span>Créer une Permission</span></Link>
               </div>
             </div>
 
@@ -1122,7 +1101,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
               )}>
                 <Receipt className="mr-3 h-5 w-5 flex-shrink-0" />
-                Transactions de Paris
+                <span>Transactions de Paris</span>
               </Link>
             </div>
 
@@ -1134,7 +1113,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
               )}>
                 <Settings className="mr-3 h-5 w-5 flex-shrink-0" />
-                Configuration API
+                <span>Configuration API</span>
               </Link>
             </div>
 
@@ -1146,7 +1125,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                   : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
               )}>
                 <Users className="mr-3 h-5 w-5 flex-shrink-0" />
-                Résumé Permissions
+                <span>Résumé Permissions</span>
               </Link>
             </div>
 
@@ -1157,7 +1136,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("topup.title")}
+              <span><span>{t("topup.title")}</span></span>
             </Link>
 
             <Link href="/dashboard/earning-management" className={cn(
@@ -1167,7 +1146,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
             )}>
               <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("earning.title")}
+              <span><span>{t("earning.title")}</span></span>
             </Link>
 
             <Link
@@ -1181,7 +1160,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               onClick={onToggleMobileSidebar}
             >
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
-              {t("Wave Business Transaction")}
+              <span><span>{t("Wave Business Transaction")}</span></span>
             </Link>
 
             <Link
@@ -1195,7 +1174,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               onClick={onToggleMobileSidebar}
             >
               <Smartphone className="mr-3 h-5 w-5 flex-shrink-0" />
-              MoMo Pay
+              <span>MoMo Pay</span>
             </Link>
           </nav>
 
@@ -1206,7 +1185,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               onClick={handleLogout}
             >
               <LogOut className="mr-3 h-5 w-5" />
-              {t("nav.logout")}
+              <span>{t("nav.logout")}</span>
             </Button>
           </div>
         </div>

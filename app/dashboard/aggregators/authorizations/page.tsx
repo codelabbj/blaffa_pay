@@ -1,188 +1,290 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useAggregatorApi, UserAuthorization } from "@/lib/aggregator-api"
+import { useState, useEffect } from "react"
+import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
-} from "@/components/ui/table"
-import {
-    Plus,
-    Loader,
-    RefreshCw,
-    Edit,
-    ShieldCheck,
-    ShieldAlert,
-    Search,
-    Filter
-} from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { CreateAuthorizationModal } from "@/components/aggregator/create-authorization-modal"
+import { Search, Loader, Plus, Edit2, Eye, ShieldCheck, User, Share2, ToggleLeft, ToggleRight, Check, X, Filter, MoreHorizontal, Trash2 } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { AggregatorAuthorization } from "@/lib/aggregator-api"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
+import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "@/hooks/use-toast"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function AggregatorAuthorizationsPage() {
-    const { t } = useLanguage()
-    const { listAuthorizations } = useAggregatorApi()
-    const { toast } = useToast()
-
-    const [authorizations, setAuthorizations] = useState<UserAuthorization[]>([])
+    const [authorizations, setAuthorizations] = useState<AggregatorAuthorization[]>([])
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
-    const [searchTerm, setSearchTerm] = useState("")
-    const [modalOpen, setModalOpen] = useState(false)
-    const [editingAuth, setEditingAuth] = useState<UserAuthorization | null>(null)
+    const [error, setError] = useState("")
+    const [users, setUsers] = useState<any[]>([])
+    const [networks, setNetworks] = useState<any[]>([])
+    const [page, setPage] = useState(1)
 
-    const fetchAuthorizations = useCallback(async () => {
+
+    // Modal states
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+    const [selectedAuth, setSelectedAuth] = useState<AggregatorAuthorization | null>(null)
+
+    const [formLoading, setFormLoading] = useState(false)
+
+    const [formData, setFormData] = useState({
+        user: "",
+        network: "",
+        user_payin_fee_percent: 1.5,
+        user_payout_fee_percent: 1.9,
+        is_active: true
+    })
+
+    const apiFetch = useApi()
+    const { t } = useLanguage()
+    const [filterUser, setFilterUser] = useState("all")
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+
+    const fetchData = async () => {
         setLoading(true)
-        setError(null)
+        setError("")
+        const queryParams = new URLSearchParams()
+        if (filterUser && filterUser !== "all") queryParams.append("user", filterUser)
+
         try {
-            const data = await listAuthorizations()
-            setAuthorizations(data.results || data || [])
+            const [authData, userData, networkData] = await Promise.all([
+                apiFetch(`${baseUrl}api/aggregator/admin/user-authorizations/?${queryParams.toString()}`),
+                apiFetch(`${baseUrl}api/auth/admin/users/aggregators/`),
+                apiFetch(`${baseUrl}api/payments/networks/`)
+            ])
+            setAuthorizations(authData.results || [])
+            setUsers(userData.aggregators || [])
+            setNetworks(networkData.results || [])
         } catch (err: any) {
-            setError(err.message || "Failed to load authorizations")
+            setError(extractErrorMessages(err) || t("aggregators.noAuthorizationsFound"))
         } finally {
             setLoading(false)
         }
-    }, [listAuthorizations])
+    }
 
     useEffect(() => {
-        fetchAuthorizations()
-    }, [fetchAuthorizations])
+        fetchData()
+    }, [apiFetch, filterUser])
 
-    const handleEdit = (auth: UserAuthorization) => {
-        setEditingAuth(auth)
-        setModalOpen(true)
+    const handleCreate = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setFormLoading(true)
+        try {
+            await apiFetch(`${baseUrl}api/aggregator/admin/user-authorizations/`, {
+                method: 'POST',
+                body: JSON.stringify(formData)
+            })
+            setIsCreateModalOpen(false)
+            fetchData()
+            toast({ title: t("common.success"), description: t("aggregators.authorizationCreated") })
+        } catch (err: any) {
+            toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
+        } finally {
+            setFormLoading(false)
+        }
     }
 
-    const handleCreate = () => {
-        setEditingAuth(null)
-        setModalOpen(true)
+    const handleUpdate = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!selectedAuth) return
+        setFormLoading(true)
+        try {
+            await apiFetch(`${baseUrl}api/aggregator/admin/user-authorizations/${selectedAuth.uid}/`, {
+                method: 'PATCH',
+                body: JSON.stringify(formData)
+            })
+            setIsEditModalOpen(false)
+            fetchData()
+            toast({ title: t("common.success"), description: t("aggregators.authorizationUpdated") })
+        } catch (err: any) {
+            toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
+        } finally {
+            setFormLoading(false)
+        }
     }
 
-    const filteredAuthorizations = authorizations.filter(auth =>
-        (auth.user_name || auth.user).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (auth.network_name || auth.network).toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const openEdit = (auth: AggregatorAuthorization) => {
+        setSelectedAuth(auth)
+        setFormData({
+            user: auth.user,
+            network: auth.network,
+            user_payin_fee_percent: parseFloat(auth.user_payin_fee_percent),
+            user_payout_fee_percent: parseFloat(auth.user_payout_fee_percent),
+            is_active: auth.is_active
+        })
+        setIsEditModalOpen(true)
+    }
+
+    const handleDelete = async (uid: string) => {
+        if (!confirm(t("aggregators.confirmRevoke"))) return
+
+        try {
+            await apiFetch(`${baseUrl}api/aggregator/admin/user-authorizations/${uid}/`, {
+                method: 'DELETE'
+            })
+            toast({
+                title: t("common.success"),
+                description: t("aggregators.revokeSuccess")
+            })
+            fetchData()
+        } catch (err: any) {
+            toast({
+                title: t("common.error"),
+                description: extractErrorMessages(err) || t("aggregators.revokeFailed"),
+                variant: "destructive"
+            })
+        }
+    }
+
+    const openDetails = (auth: AggregatorAuthorization) => {
+        setSelectedAuth(auth)
+        setIsDetailModalOpen(true)
+    }
+
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in duration-500">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+        <div className="space-y-6 px-4 py-8 max-w-7xl mx-auto">
+            <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                        {t("nav.aggregatorAuthorizations")}
-                    </h1>
-                    <p className="text-gray-600 dark:text-gray-300 mt-1">
-                        {t("aggregator.configureAccess")}
-                    </p>
+                    <h1 className="text-3xl font-bold tracking-tight mb-1">{t("aggregators.authorizationsTitle")}</h1>
+                    <p className="text-muted-foreground text-slate-500">{t("aggregators.authorizationsSub")}</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Button onClick={fetchAuthorizations} variant="outline" className="border-orange-200">
-                        <RefreshCw className={cn("mr-2 h-4 w-4", loading && "animate-spin")} />
-                        {t("common.refresh")}
-                    </Button>
-                    <Button onClick={handleCreate} className="bg-orange-500 hover:bg-orange-600 shadow-md transition-all hover:shadow-lg">
-                        <Plus className="mr-2 h-4 w-4" /> {t("aggregator.grantNew")}
-                    </Button>
-                </div>
+                <Button onClick={() => {
+                    setFormData({
+                        user: filterUser || "",
+                        network: "",
+                        user_payin_fee_percent: 1.5,
+                        user_payout_fee_percent: 1.9,
+                        is_active: true
+                    })
+                    setIsCreateModalOpen(true)
+                }} className="flex gap-2">
+                    <Plus size={18} /> {t("aggregators.newAuthorization")}
+                </Button>
             </div>
 
-            {/* Filters */}
-            <Card className="border-0 shadow-md">
-                <CardContent className="p-4">
-                    <div className="relative max-w-sm">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                            placeholder={t("aggregator.searchUserNetwork")}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 bg-gray-50 dark:bg-gray-800"
-                        />
+            {/* Filter Card */}
+            <Card>
+                <CardContent className="pt-6">
+                    <div className="flex flex-col md:flex-row gap-4 items-end">
+                        <div className="flex-1 space-y-2">
+                            <label className="text-sm font-medium text-slate-500">{t("aggregators.filterByAggregator")}</label>
+                            <Select value={filterUser} onValueChange={setFilterUser}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder={t("aggregators.allAggregators")} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t("aggregators.allAggregators")}</SelectItem>
+                                    {users.map(u => (
+                                        <SelectItem key={u.uid} value={u.uid}>{u.display_name} ({u.email})</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Button variant="outline" onClick={() => setFilterUser("all")} className="flex gap-2">
+
+                            <X size={16} /> {t("common.clear")}
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Authorizations Table */}
-            <Card className="border-0 shadow-lg overflow-hidden">
-                <CardHeader className="border-b bg-gray-50/50 dark:bg-gray-900/50">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5 text-orange-500" />
-                        {t("aggregator.networkAccessRules")}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                    {loading && authorizations.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20">
-                            <Loader className="animate-spin h-8 w-8 text-orange-500 mb-2" />
-                            <span className="text-gray-500">{t("aggregator.loadingAuthorizations")}</span>
+            {/* List Table */}
+            <Card>
+                <CardContent className="pt-6">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <Loader className="animate-spin mr-2 h-8 w-8 text-blue-600" />
+                            <span className="text-lg font-semibold">{t("common.loading")}</span>
                         </div>
                     ) : error ? (
-                        <div className="py-20 text-center text-red-500">{error}</div>
-                    ) : filteredAuthorizations.length === 0 ? (
-                        <div className="py-20 text-center text-gray-500">{t("aggregator.noAuthorizationsFound")}</div>
+                        <ErrorDisplay error={error} onRetry={fetchData} />
                     ) : (
-                        <div className="overflow-x-auto">
+                        <div className="rounded-md border">
                             <Table>
-                                <TableHeader className="bg-gray-50/50 dark:bg-gray-900/50">
+                                <TableHeader className="bg-slate-50">
                                     <TableRow>
-                                        <TableHead>{t("aggregator.aggregatorUser")}</TableHead>
-                                        <TableHead>{t("aggregator.paymentNetwork")}</TableHead>
-                                        <TableHead>{t("aggregator.payinFee")}</TableHead>
-                                        <TableHead>{t("aggregator.payoutFee")}</TableHead>
-                                        <TableHead>{t("aggregator.status")}</TableHead>
-                                        <TableHead className="text-right">{t("common.actions")}</TableHead>
+                                        <TableHead>{t("aggregators.aggregatorUser")}</TableHead>
+                                        <TableHead>{t("common.network")}</TableHead>
+                                        <TableHead className="text-center">{t("common.payinFee")}</TableHead>
+                                        <TableHead className="text-center">{t("common.payoutFee")}</TableHead>
+                                        <TableHead>{t("common.status")}</TableHead>
+                                        <TableHead>{t("common.updatedAt")}</TableHead>
+                                        <TableHead className="w-[100px]"></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {filteredAuthorizations.map((auth: any) => (
-                                        <TableRow key={auth.uid} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors border-b">
-                                            <TableCell>
-                                                <div className="font-semibold text-gray-900 dark:text-gray-100">{auth.user_name || auth.user}</div>
-                                                <div className="text-xs text-gray-500 font-mono italic">{auth.uid}</div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300">
-                                                    {auth.network_name || auth.network}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="font-mono">
-                                                <span className="font-bold text-orange-600 dark:text-orange-400">{auth.user_payin_fee_percent}%</span>
-                                            </TableCell>
-                                            <TableCell className="font-mono">
-                                                <span className="font-bold text-green-600 dark:text-green-400">{auth.user_payout_fee_percent}%</span>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center">
-                                                    {auth.is_active ? (
-                                                        <ShieldCheck className="h-4 w-4 text-green-500 mr-2" />
-                                                    ) : (
-                                                        <ShieldAlert className="h-4 w-4 text-red-500 mr-2" />
-                                                    )}
-                                                    <Badge variant={auth.is_active ? "success" : "destructive"} className="px-2 py-0">
-                                                        {auth.is_active ? t("common.active") : t("aggregator.locked")}
-                                                    </Badge>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleEdit(auth)}
-                                                    className="hover:bg-orange-50 hover:text-orange-600"
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
+                                    {authorizations.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="text-center py-12 text-slate-400">
+                                                {t("aggregators.noAuthorizationsFound")}
                                             </TableCell>
                                         </TableRow>
-                                    ))}
+                                    ) : (
+                                        authorizations.map((auth) => (
+                                            <TableRow key={auth.uid}>
+                                                <TableCell>
+                                                    <div className="font-medium">{auth.user_display_name}</div>
+                                                    <div className="text-xs text-slate-500">{auth.user_email}</div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-2">
+                                                        <Share2 size={14} className="text-slate-400" />
+                                                        <span className="font-semibold">{auth.network_name}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <Badge variant="outline" className="text-green-600 border-green-200">{auth.user_payin_fee_percent}%</Badge>
+                                                </TableCell>
+                                                <TableCell className="text-center">
+                                                    <Badge variant="outline" className="text-blue-600 border-blue-200">{auth.user_payout_fee_percent}%</Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={auth.is_active ? "success" : "secondary"}>
+                                                        {auth.is_active ? t("common.active") : t("common.inactive")}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-xs text-slate-400">
+                                                    {formatApiDateTime(auth.updated_at)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end">
+                                                            <DropdownMenuLabel>{t("common.actions")}</DropdownMenuLabel>
+                                                            <DropdownMenuItem onClick={() => openDetails(auth)}>
+                                                                <Eye size={14} className="mr-2" /> {t("common.viewDetails")}
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => openEdit(auth)}>
+                                                                <Edit2 size={14} className="mr-2" /> {t("common.edit")}
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator />
+                                                            <DropdownMenuItem
+                                                                className="text-red-600"
+                                                                onClick={() => handleDelete(auth.uid)}
+                                                            >
+                                                                <Trash2 size={14} className="mr-2" /> {t("aggregators.revokeAccess")}
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                </TableCell>
+
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>
@@ -190,16 +292,123 @@ export default function AggregatorAuthorizationsPage() {
                 </CardContent>
             </Card>
 
-            <CreateAuthorizationModal
-                open={modalOpen}
-                onOpenChange={setModalOpen}
-                onSuccess={fetchAuthorizations}
-                editingAuth={editingAuth}
-            />
+            {/* Create/Edit Modal */}
+            <Dialog open={isCreateModalOpen || isEditModalOpen} onOpenChange={(v) => v ? null : (setIsCreateModalOpen(false) || setIsEditModalOpen(false))}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{isCreateModalOpen ? t("aggregators.newAuthorization") : t("aggregators.editAuthorization")}</DialogTitle>
+                        <DialogDescription>{t("aggregators.assignLabel")}</DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={isCreateModalOpen ? handleCreate : handleUpdate} className="space-y-6 py-4">
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">{t("aggregators.aggregatorUser")}</label>
+                                <Select disabled={isEditModalOpen} value={formData.user} onValueChange={(v) => setFormData({ ...formData, user: v })}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t("aggregators.selectAggregator")} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {users.map(u => (
+                                            <SelectItem key={u.uid} value={u.uid}>{u.display_name} ({u.email})</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">{t("common.network")}</label>
+                                <Select disabled={isEditModalOpen} value={formData.network} onValueChange={(v) => setFormData({ ...formData, network: v })}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t("aggregators.selectNetwork")} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {networks.map(n => (
+                                            <SelectItem key={n.uid} value={n.uid}>{n.nom}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+
+                                </Select>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-green-700">{t("aggregators.payinFeePercent")}</label>
+                                    <Input type="number" step="0.01" value={formData.user_payin_fee_percent} onChange={(e) => setFormData({ ...formData, user_payin_fee_percent: parseFloat(e.target.value) })} />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-blue-700">{t("aggregators.payoutFeePercent")}</label>
+                                    <Input type="number" step="0.01" value={formData.user_payout_fee_percent} onChange={(e) => setFormData({ ...formData, user_payout_fee_percent: parseFloat(e.target.value) })} />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 pt-2">
+                                <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} />
+                                <span className="text-sm font-medium">{t("aggregators.accessEnabled")}</span>
+                            </div>
+                        </div>
+
+                        <DialogFooter>
+                            <Button type="button" variant="ghost" onClick={() => (setIsCreateModalOpen(false) || setIsEditModalOpen(false))}>{t("common.cancel")}</Button>
+                            <Button type="submit" disabled={formLoading} className="bg-blue-600 hover:bg-blue-700">
+                                {formLoading && <Loader className="animate-spin mr-2 h-4 w-4" />}
+                                {isCreateModalOpen ? t("aggregators.grantAccess") : t("aggregators.updateAuthorization")}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Detail View Modal */}
+            <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>{t("aggregators.authorizationDetails")}</DialogTitle>
+                    </DialogHeader>
+                    {selectedAuth && (
+                        <div className="space-y-4 py-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{t("common.user")}</p>
+                                    <p className="font-semibold">{selectedAuth.user_display_name}</p>
+                                    <p className="text-sm text-slate-400">{selectedAuth.user_email}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{t("common.network")}</p>
+                                    <p className="font-semibold">{selectedAuth.network_name}</p>
+                                </div>
+                            </div>
+
+                            <div className="border-t pt-4 space-y-3">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-slate-500">Payin Fee %:</span>
+                                    <span className="font-medium">{selectedAuth.user_payin_fee_percent}%</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-slate-500">Payout Fee %:</span>
+                                    <span className="font-medium">{selectedAuth.user_payout_fee_percent}%</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-slate-500">{t("common.status")}:</span>
+                                    <Badge variant={selectedAuth.is_active ? "success" : "secondary"}>
+                                        {selectedAuth.is_active ? t("common.active") : t("common.inactive")}
+                                    </Badge>
+                                </div>
+                            </div>
+
+                            <div className="border-t pt-4">
+                                <p className="text-[10px] text-slate-400">UID: {selectedAuth.uid}</p>
+                                <p className="text-[10px] text-slate-400">Created: {formatApiDateTime(selectedAuth.created_at)}</p>
+                                <p className="text-[10px] text-slate-400">Updated: {formatApiDateTime(selectedAuth.updated_at)}</p>
+                            </div>
+                        </div>
+                    )}
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>{t("common.ok")}</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
 
-function cn(...classes: any[]) {
-    return classes.filter(Boolean).join(' ');
-}

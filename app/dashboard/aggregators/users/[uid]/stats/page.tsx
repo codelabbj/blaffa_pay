@@ -1,267 +1,218 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { useAggregatorApi, AggregatorDashboardStats, AggregatorTransaction } from "@/lib/aggregator-api"
+import { useState, useEffect } from "react"
+import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
-import { StatCard } from "@/components/aggregator/stat-card"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import {
-    Activity,
-    TrendingUp,
-    RefreshCw,
-    Loader,
-    BarChart3,
-    ArrowLeft,
-    User,
-    Wallet,
-    Calendar,
-    ArrowDownLeft,
-    ArrowUpRight
-} from "lucide-react"
-import {
-    ResponsiveContainer,
-    XAxis,
-    YAxis,
-    Tooltip,
-    BarChart,
-    Bar,
-    Cell
-} from "recharts"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
-} from "@/components/ui/table"
+import { Users, CreditCard, DollarSign, TrendingUp, Clock, Shield, Loader, ArrowLeft } from "lucide-react"
+import { useParams, useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { AggregatorIndividualStats } from "@/lib/aggregator-api"
 
-const CHART_COLORS = ['#FF6B35', '#00FF88', '#1E3A8A', '#EF4444', '#8B5CF6', '#EC4899']
-
-export default function AggregatorUserStatsPage({ params }: { params: { uid: string } }) {
+import { formatApiDateTime } from "@/lib/utils";
+export default function AggregatorUserStatsPage() {
+    const params = useParams()
+    const router = useRouter()
     const { uid } = params
-    const { t } = useLanguage()
-    const { getUserStats, listTransactions } = useAggregatorApi()
-
-    const [stats, setStats] = useState<any | null>(null)
-    const [transactions, setTransactions] = useState<AggregatorTransaction[]>([])
+    const [stats, setStats] = useState<AggregatorIndividualStats | null>(null)
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState("")
 
-    const fetchData = useCallback(async () => {
+    const apiFetch = useApi()
+    const { t } = useLanguage()
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+
+    const fetchStats = async () => {
+        if (!uid) return
         setLoading(true)
-        setError(null)
+        setError("")
         try {
-            const txParams = new URLSearchParams()
-            txParams.append("user", uid)
-            txParams.append("page_size", "5")
-
-            // Fetch stats and transactions independently so one failure doesn't block the other
-            const [statsResult, txResult] = await Promise.allSettled([
-                getUserStats(uid),
-                listTransactions(txParams)
-            ])
-
-            if (statsResult.status === "fulfilled") {
-                const data = statsResult.value
-                if (data instanceof Error) {
-                    setError(data.message)
-                    setStats(null)
-                } else if (data && data.error) {
-                    setError(data.error)
-                    setStats(null)
-                } else {
-                    setStats(data)
-                }
-            } else {
-                console.warn("Stats endpoint unavailable:", statsResult.reason)
-                setStats(null)
-                setError("Endpoint unavailable")
-            }
-
-            if (txResult.status === "fulfilled") {
-                const txData = txResult.value
-                if (!(txData instanceof Error)) {
-                    setTransactions(txData?.results || (Array.isArray(txData) ? txData : []))
-                }
-            }
-            // Removed the complex error setting block here to avoid potential double-setting of error
-            // Errors are now set immediately when a specific fetch fails.
+            const data = await apiFetch(`${baseUrl}api/auth/admin/users/aggregators/${uid}/stats/`)
+            setStats(data)
         } catch (err: any) {
-            setError(err.message || "Failed to load user statistics")
+            setError(extractErrorMessages(err) || t("common.failedToLoad"))
         } finally {
             setLoading(false)
         }
-    }, [getUserStats, listTransactions, uid])
+    }
 
     useEffect(() => {
-        fetchData()
-    }, [fetchData])
+        fetchStats()
+    }, [uid, apiFetch])
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader className="animate-spin h-8 w-8 text-orange-500" />
+            <div className="flex items-center justify-center h-96">
+                <Loader className="animate-spin mr-2 h-8 w-8 text-blue-600" />
+                <span className="text-lg font-semibold">{t("common.loading")}</span>
             </div>
         )
     }
 
-    if (error || !stats) {
-        const is404 = error?.includes("404") || error?.toLowerCase().includes("introuvable") || error?.toLowerCase().includes("not found")
-
+    if (error) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[70vh] p-6 text-center animate-in zoom-in-95 duration-300">
-                <div className="w-24 h-24 bg-red-50 dark:bg-red-900/10 rounded-full flex items-center justify-center mb-6">
-                    <Activity className="h-12 w-12 text-red-500" />
-                </div>
-                <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">
-                    {is404 ? "404" : "Error"}
-                </h1>
-                <h2 className="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
-                    {error || "We couldn't find the aggregator statistics you're looking for."}
-                </h2>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/dashboard/aggregators/users">
-                        <Button size="lg" className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-200 dark:shadow-none px-8">
-                            <ArrowLeft className="mr-2 h-5 w-5" /> <span>Back to Users</span>
-                        </Button>
-                    </Link>
-                    <Button onClick={() => window.location.reload()} variant="outline" size="lg" className="rounded-xl px-8 border-gray-200">
-                        <RefreshCw className="mr-2 h-5 w-5" /> <span>Refresh Page</span>
-                    </Button>
-                </div>
+            <div className="p-8">
+                <Button variant="ghost" onClick={() => router.back()} className="mb-4">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> {t("common.back")}
+                </Button>
+                <ErrorDisplay error={error} onRetry={fetchStats} variant="full" />
             </div>
         )
     }
+
+    if (!stats) return null
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-500">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                    <Button asChild variant="ghost" size="icon" className="rounded-full">
-                        <Link href="/dashboard/aggregators/users">
-                            <ArrowLeft className="h-5 w-5" />
-                        </Link>
+        <div className="space-y-8 px-4 py-8 max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <Button variant="ghost" onClick={() => router.back()} className="mb-2 p-0 hover:bg-transparent">
+                        <ArrowLeft className="mr-2 h-4 w-4" /> {t("aggregators.backToUsers")}
                     </Button>
-                    <div>
-                        <h1 className="text-3xl font-bold flex items-center gap-2">
-                            <User className="h-8 w-8 text-orange-500" />
-                            {stats.user_name || "Aggregator Details"}
-                        </h1>
-                        <p className="text-gray-500 font-mono text-sm">{uid}</p>
-                    </div>
+                    <h1 className="text-3xl font-bold tracking-tight mb-1">{stats.display_name}</h1>
+                    <p className="text-muted-foreground text-slate-500">{stats.email}</p>
                 </div>
-                <Button onClick={fetchData} variant="outline" className="border-orange-200">
-                    <RefreshCw className={loading ? "animate-spin mr-2 h-4 w-4" : "mr-2 h-4 w-4"} />
-                    <span>{t("dashboard.refresh") || "Refresh"}</span>
-                </Button>
+                <div className="flex gap-2">
+                    <Badge variant={stats.is_active ? "success" : "secondary"} className="h-fit">
+                        {stats.is_active ? t("aggregators.accountActive") : t("aggregators.accountInactive")}
+                    </Badge>
+                </div>
             </div>
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                    title="Current Balance"
-                    value={`${parseFloat(stats.balance || "0").toLocaleString()} FCFA`}
-                    icon={Wallet}
-                    className="bg-gradient-to-br from-orange-500 to-orange-600 text-white"
-                />
-                <StatCard
-                    title="Monthly Volume"
-                    value={`${parseFloat(stats.monthly_volume || "0").toLocaleString()} FCFA`}
-                    icon={TrendingUp}
-                    className="bg-gradient-to-br from-green-500 to-green-600 text-white"
-                />
-                <StatCard
-                    title="Success Rate"
-                    value={`${(stats.success_rate || 0).toFixed(1)}%`}
-                    icon={Activity}
-                    className="bg-gradient-to-br from-blue-500 to-blue-600 text-white"
-                />
-                <StatCard
-                    title="Total Transactions"
-                    value={stats.total_transactions || 0}
-                    icon={Calendar}
-                    className="bg-gradient-to-br from-purple-500 to-purple-600 text-white"
-                />
-            </div>
+            {/* Account Info Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-slate-500">{t("aggregators.accountBalance")}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-blue-600">
+                            {stats.account_info.balance.toLocaleString()} {stats.account_info.currency}
+                        </div>
+                        <div className="mt-2">
+                            <Badge variant={stats.account_info.is_frozen ? "destructive" : "outline"}>
+                                {stats.account_info.is_frozen ? t("aggregators.frozen") : t("aggregators.liquid")}
+                            </Badge>
+                        </div>
+                    </CardContent>
+                </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Network Performance (User Specific) */}
-                <Card className="lg:col-span-2 border-0 shadow-lg">
-                    <CardHeader className="border-b">
-                        <CardTitle className="flex items-center gap-2">
-                            <BarChart3 className="h-5 w-5 text-orange-500" />
-                            Volume by Network
+                <Card className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                            <TrendingUp size={16} /> {t("aggregators.totalPayins")}
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
-                        <div className="h-80">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={stats.network_performance || []}>
-                                    <XAxis dataKey="network" axisLine={false} tickLine={false} />
-                                    <YAxis hide />
-                                    <Tooltip
-                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-                                        cursor={{ fill: 'rgba(0,0,0,0.05)' }}
-                                    />
-                                    <Bar dataKey="volume" radius={[8, 8, 0, 0]}>
-                                        {(stats.network_performance || []).map((entry: any, index: number) => (
-                                            <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.payin_stats.total_count}</div>
+                        <div className="text-sm text-slate-500 mt-1">
+                            {t("common.amount")}: {stats.payin_stats.total_amount.toLocaleString()} {stats.account_info.currency}
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Recent Activity */}
-                <Card className="border-0 shadow-lg">
-                    <CardHeader className="border-b">
-                        <CardTitle className="text-lg">Recent Transactions</CardTitle>
+                <Card className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                            <TrendingUp size={16} /> {t("aggregators.totalPayouts")}
+                        </CardTitle>
                     </CardHeader>
-                    <CardContent className="p-0">
-                        <div className="divide-y">
-                            {transactions.length === 0 ? (
-                                <div className="p-8 text-center text-gray-500">No recent activity</div>
-                            ) : (
-                                transactions.map((tx) => (
-                                    <div key={tx.uid} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                        <div className="flex justify-between items-start mb-1">
-                                            <div className="flex items-center gap-2">
-                                                {tx.type === "payin" ? (
-                                                    <ArrowDownLeft className="h-4 w-4 text-green-500" />
-                                                ) : (
-                                                    <ArrowUpRight className="h-4 w-4 text-orange-500" />
-                                                )}
-                                                <span className="font-semibold text-sm">{tx.network}</span>
-                                            </div>
-                                            <span className="font-bold text-sm">{parseFloat(tx.amount || "0").toLocaleString()} FCFA</span>
-                                        </div>
-                                        <div className="flex justify-between items-center text-[10px] text-gray-500">
-                                            <span>{new Date(tx.created_at).toLocaleString()}</span>
-                                            <Badge variant="outline" className="text-[8px] h-4 py-0">
-                                                <span>{tx.status}</span>
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                        <div className="p-4 border-t">
-                            <Button asChild variant="ghost" className="w-full text-blue-600 hover:text-blue-700">
-                                <Link href={`/dashboard/aggregators/transactions?user=${uid}`}>
-                                    View Full Transactions
-                                </Link>
-                            </Button>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.payout_stats.total_count}</div>
+                        <div className="text-sm text-slate-500 mt-1">
+                            {t("common.amount")}: {stats.payout_stats.total_amount.toLocaleString()} {stats.account_info.currency}
                         </div>
                     </CardContent>
                 </Card>
+
+                <Card className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
+                            <Shield size={16} /> {t("aggregators.securityStats")}
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{stats.security_stats.total_reset_attempts}</div>
+                        <div className="text-sm text-slate-500 mt-1">
+                            {stats.security_stats.pending_reset_codes} {t("aggregators.pendingResetCodes")}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Detailed Stats */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Payin Stats */}
+                <Card>
+                    <CardHeader className="bg-slate-50 border-b">
+                        <CardTitle className="text-lg flex items-center gap-2"><TrendingUp size={18} className="text-green-600" /> {t("aggregators.payinPerformance")}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-4">
+                        <div className="flex justify-between p-3 rounded-lg bg-slate-50">
+                            <span className="text-slate-600">{t("aggregators.successfulTransactions")}</span>
+                            <span className="font-bold text-green-600">{stats.payin_stats.success_count}</span>
+                        </div>
+                        <div className="flex justify-between p-3 rounded-lg bg-slate-50">
+                            <span className="text-slate-600">{t("aggregators.failedTransactions")}</span>
+                            <span className="font-bold text-red-600">{stats.payin_stats.failed_count}</span>
+                        </div>
+                        <div className="flex justify-between p-3 rounded-lg bg-slate-50">
+                            <span className="text-slate-600">{t("aggregators.totalFees")}</span>
+                            <span className="font-bold">{stats.payin_stats.total_fees.toLocaleString()} {stats.account_info.currency}</span>
+                        </div>
+                        <div className="flex justify-between p-3 rounded-lg bg-blue-50">
+                            <span className="text-blue-700">{t("aggregators.lastTransactionAt")}</span>
+                            <span className="text-blue-700 font-medium">
+                                {stats.payin_stats.last_transaction_at ? formatApiDateTime(stats.payin_stats.last_transaction_at) : t("aggregators.never")}
+                            </span>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Payout Stats */}
+                <Card>
+                    <CardHeader className="bg-slate-50 border-b">
+                        <CardTitle className="text-lg flex items-center gap-2"><TrendingUp size={18} className="text-blue-600" /> {t("aggregators.payoutPerformance")}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-4">
+                        <div className="flex justify-between p-3 rounded-lg bg-slate-50">
+                            <span className="text-slate-600">{t("aggregators.successfulTransactions")}</span>
+                            <span className="font-bold text-green-600">{stats.payout_stats.success_count}</span>
+                        </div>
+                        <div className="flex justify-between p-3 rounded-lg bg-slate-50">
+                            <span className="text-slate-600">{t("aggregators.failedTransactions")}</span>
+                            <span className="font-bold text-red-600">{stats.payout_stats.failed_count}</span>
+                        </div>
+                        <div className="flex justify-between p-3 rounded-lg bg-slate-50">
+                            <span className="text-slate-600">{t("aggregators.totalFees")}</span>
+                            <span className="font-bold">{stats.payout_stats.total_fees.toLocaleString()} {stats.account_info.currency}</span>
+                        </div>
+                        <div className="flex justify-between p-3 rounded-lg bg-blue-50">
+                            <span className="text-blue-700">{t("aggregators.lastTransactionAt")}</span>
+                            <span className="text-blue-700 font-medium">
+                                {stats.payout_stats.last_transaction_at ? formatApiDateTime(stats.payout_stats.last_transaction_at) : t("aggregators.never")}
+                            </span>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Network Authorizations Placeholder */}
+            {stats.network_authorizations.length > 0 && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-xl">{t("aggregators.networkAuthorizations")}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-slate-400 italic">Authorization details coming soon...</div>
+                    </CardContent>
+                </Card>
+            )}
+
+            <div className="text-xs text-slate-400 text-right">
+                {t("aggregators.statsGeneratedAt")}: {formatApiDateTime(stats.meta.generated_at)}
             </div>
         </div>
     )

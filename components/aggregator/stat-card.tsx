@@ -32,8 +32,8 @@ export function StatCard({
             <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium opacity-80 mb-1">{title}</p>
-                        <p className="text-3xl font-bold">{value}</p>
+                        <p className="text-sm font-medium opacity-80 mb-1"><span>{title}</span></p>
+                        <p className="text-3xl font-bold"><span>{value}</span></p>
                         {trend && (
                             <div className="flex items-center mt-2">
                                 <span
@@ -42,15 +42,15 @@ export function StatCard({
                                         trend.isPositive ? "text-green-100" : "text-red-100"
                                     )}
                                 >
-                                    {trend.value}
+                                    <span>{trend.value}</span>
                                 </span>
                                 {description && (
-                                    <span className="text-xs ml-2 opacity-70">{description}</span>
+                                    <span className="text-xs ml-2 opacity-70"><span>{description}</span></span>
                                 )}
                             </div>
                         )}
                         {!trend && description && (
-                            <p className="text-xs mt-2 opacity-70">{description}</p>
+                            <p className="text-xs mt-2 opacity-70"><span>{description}</span></p>
                         )}
                     </div>
                     <div className={cn("rounded-full p-3 bg-white/20", iconClassName)}>

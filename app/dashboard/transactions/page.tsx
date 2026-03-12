@@ -614,10 +614,10 @@ export default function TransactionsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                {t("transactions.title")}
+                <span>{t("transactions.title")}</span>
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Surveiller et gérer les transactions de paiement
+                <span>Surveiller et gérer les transactions de paiement</span>
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -625,7 +625,7 @@ export default function TransactionsPage() {
                 <div className="flex items-center space-x-2">
                   <CreditCard className="h-5 w-5 text-orange-500" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {totalCount} transactions
+                    <span>{totalCount}</span> <span>transactions</span>
                   </span>
                 </div>
               </div>
@@ -734,7 +734,7 @@ export default function TransactionsPage() {
               <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
                 <CreditCard className="h-5 w-5 text-green-600 dark:text-green-300" />
               </div>
-              <span>Liste des transactions</span>
+              <span><span>Liste des transactions</span></span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -742,7 +742,7 @@ export default function TransactionsPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Chargement des transactions...</span>
+                  <span className="text-gray-600 dark:text-gray-300"><span>Chargement des transactions...</span></span>
                 </div>
               </div>
             ) : error ? (
@@ -754,15 +754,15 @@ export default function TransactionsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold">ID Transaction</TableHead>
-                      <TableHead className="font-semibold">Destinataire</TableHead>
-                      <TableHead className="font-semibold">Type</TableHead>
-                      <TableHead className="font-semibold">Montant</TableHead>
-                      <TableHead className="font-semibold">Réseau</TableHead>
-                      <TableHead className="font-semibold">Créé par</TableHead>
-                      <TableHead className="font-semibold">Statut</TableHead>
-                      <TableHead className="font-semibold">Date</TableHead>
-                      <TableHead className="font-semibold text-right">Actions</TableHead>
+                      <TableHead className="font-semibold"><span>ID Transaction</span></TableHead>
+                      <TableHead className="font-semibold"><span>Destinataire</span></TableHead>
+                      <TableHead className="font-semibold"><span>Type</span></TableHead>
+                      <TableHead className="font-semibold"><span>Montant</span></TableHead>
+                      <TableHead className="font-semibold"><span>Réseau</span></TableHead>
+                      <TableHead className="font-semibold"><span>Créé par</span></TableHead>
+                      <TableHead className="font-semibold"><span>Statut</span></TableHead>
+                      <TableHead className="font-semibold"><span>Date</span></TableHead>
+                      <TableHead className="font-semibold text-right"><span>Actions</span></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -782,10 +782,10 @@ export default function TransactionsPage() {
                             </div> */}
                             <div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                {transaction.recipient_phone || 'Utilisateur inconnu'}
+                                <span>{transaction.recipient_phone || 'Utilisateur inconnu'}</span>
                               </div>
                               <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {transaction.recipient_name}
+                                <span>{transaction.recipient_name}</span>
                               </div>
                             </div>
                           </div>
@@ -798,22 +798,22 @@ export default function TransactionsPage() {
                                 : "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300"
                             }
                           >
-                            {transaction.type === 'deposit' ? 'Dépôt' : 'Retrait'}
+                            <span>{transaction.type === 'deposit' ? 'Dépôt' : 'Retrait'}</span>
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {parseFloat(transaction.amount || 0).toFixed(2)} FCFA
+                            <span>{parseFloat(transaction.amount || 0).toFixed(2)}</span> <span>FCFA</span>
                           </div>
                           {transaction.fees && (
                             <div className="text-xs text-gray-500 dark:text-gray-400">
-                              Frais: ${parseFloat(transaction.fees).toFixed(2)}
+                              <span>Frais:</span> <span>${parseFloat(transaction.fees).toFixed(2)}</span>
                             </div>
                           )}
                         </TableCell>
                         <TableCell>
                           <span className="text-sm text-gray-900 dark:text-gray-100">
-                            {transaction.network_name || transaction.network || 'N/A'}
+                            <span>{transaction.network_name || transaction.network || 'N/A'}</span>
                           </span>
                         </TableCell>
                         <TableCell>
@@ -823,10 +823,10 @@ export default function TransactionsPage() {
                             </div> */}
                             <div>
                               <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                {transaction.created_by_name}
+                                <span>{transaction.created_by_name}</span>
                               </div>
                               <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {transaction.created_by_email}
+                                <span>{transaction.created_by_email}</span>
                               </div>
                             </div>
                           </div>
@@ -848,7 +848,7 @@ export default function TransactionsPage() {
                               {transaction.status === 'pending' && <Clock className="h-3 w-3" />}
                               {transaction.status === 'failed' && <XCircle className="h-3 w-3" />}
                               {transaction.status === 'processing' && <AlertCircle className="h-3 w-3" />}
-                              <span>{transaction.status}</span>
+                              <span><span>{transaction.status}</span></span>
                             </div>
                           </Badge>
                         </TableCell>
@@ -857,10 +857,10 @@ export default function TransactionsPage() {
                             <Calendar className="h-4 w-4 text-gray-400" />
                             <div className="flex flex-col">
                               <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                                {new Date(transaction.created_at).toLocaleDateString()}
+                                <span>{new Date(transaction.created_at).toLocaleDateString()}</span>
                               </span>
                               <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {new Date(transaction.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <span>{new Date(transaction.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                               </span>
                             </div>
                           </div>
@@ -920,7 +920,7 @@ export default function TransactionsPage() {
         {Math.ceil(totalCount / itemsPerPage) > 1 && (
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Affichage de {((currentPage - 1) * itemsPerPage) + 1} à {Math.min(currentPage * itemsPerPage, totalCount)} sur {totalCount} résultats
+              <span>Affichage de</span> <span>{((currentPage - 1) * itemsPerPage) + 1}</span> <span>à</span> <span>{Math.min(currentPage * itemsPerPage, totalCount)}</span> <span>sur</span> <span>{totalCount}</span> <span>résultats</span>
             </div>
             <div className="flex items-center space-x-2">
               <Button

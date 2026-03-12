@@ -6,6 +6,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
     DialogFooter
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -21,7 +22,10 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { useAggregatorApi, NetworkMapping } from "@/lib/aggregator-api"
 import { useToast } from "@/hooks/use-toast"
-import { Loader, Save, Globe } from "lucide-react"
+import { useLanguage } from "@/components/providers/language-provider"
+import { Loader, Save, Globe, Zap, AlertTriangle } from "lucide-react"
+import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { AsyncCombobox } from "@/components/ui/async-combobox"
 
 interface CreateNetworkMappingModalProps {
     open: boolean
@@ -36,9 +40,12 @@ export function CreateNetworkMappingModal({
     onSuccess,
     editingMapping,
 }: CreateNetworkMappingModalProps) {
-    const { createNetworkMapping } = useAggregatorApi()
+    const { createNetworkMapping, updateNetworkMapping, getNetworks } = useAggregatorApi()
     const { toast } = useToast()
+    const { t } = useLanguage()
     const [loading, setLoading] = useState(false)
+    const [networks, setNetworks] = useState<any[]>([])
+    const [error, setError] = useState<string | null>(null)
 
     const [formData, setFormData] = useState<Partial<NetworkMapping>>({
         network: "",
@@ -50,6 +57,21 @@ export function CreateNetworkMappingModal({
         min_amount: "100",
         max_amount: "1000000",
     })
+
+    const fetchNetworksData = async (search: string) => {
+        const params = new URLSearchParams()
+        if (search) params.append("search", search)
+        const data = await getNetworks(params)
+        const networksList = data?.results || data || []
+
+        // Cache networks for finding the name later
+        setNetworks(networksList)
+
+        return networksList.map((network: any) => ({
+            value: network.uid || network.id,
+            label: `${network.nom} (${network.code})`
+        }))
+    }
 
     useEffect(() => {
         if (open) {
@@ -76,21 +98,41 @@ export function CreateNetworkMappingModal({
                     max_amount: "1000000",
                 })
             }
+            setError(null)
         }
     }, [open, editingMapping])
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target
+        setFormData(prev => ({ ...prev, [id]: value }))
+    }
+
+    const handleSelectChange = (id: string, value: string) => {
+        setFormData(prev => ({ ...prev, [id]: value }))
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
+        setError(null)
         try {
-            await createNetworkMapping(formData)
-            toast({ title: "Mapping Saved", description: "The network mapping has been saved successfully." })
-            onSuccess()
+            if (editingMapping) {
+                await updateNetworkMapping(editingMapping.uid, formData)
+            } else {
+                await createNetworkMapping(formData)
+            }
+            onSuccess?.()
+            toast({
+                title: t("aggregator.mappingSaved"),
+                description: `${formData.network_name || formData.network} configuration updated.`,
+            })
             onOpenChange(false)
         } catch (err: any) {
+            const errorMessage = extractErrorMessages(err)
+            setError(errorMessage)
             toast({
-                title: "Error",
-                description: err.message || "Failed to save network mapping.",
+                title: t("common.error"),
+                description: errorMessage,
                 variant: "destructive",
             })
         } finally {
@@ -100,117 +142,170 @@ export function CreateNetworkMappingModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <Globe className="h-5 w-5 text-orange-500" />
-                        {editingMapping ? "Edit Network Mapping" : "Create New Network Mapping"}
-                    </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="network">Network Code (e.g. OM_SN)</Label>
-                            <Input
-                                id="network"
-                                value={formData.network}
-                                onChange={(e) => setFormData(prev => ({ ...prev, network: e.target.value }))}
-                                placeholder="OM_SN"
-                                disabled={!!editingMapping}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="network_name">Display Name</Label>
-                            <Input
-                                id="network_name"
-                                value={formData.network_name}
-                                onChange={(e) => setFormData(prev => ({ ...prev, network_name: e.target.value }))}
-                                placeholder="Orange Money Senegal"
-                            />
-                        </div>
-                    </div>
+            <DialogContent className="sm:max-w-[650px] p-0 overflow-hidden border-0 shadow-2xl">
+                <div className="bg-gradient-to-r from-orange-500 to-green-600 p-6 text-white">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                            <Zap className="h-6 w-6" />
+                            {editingMapping ? <span>{t("aggregator.editMapping")}</span> : <span>{t("aggregator.createMapping")}</span>}
+                        </DialogTitle>
+                        <DialogDescription className="text-orange-100">
+                            <span>{t("aggregator.configureInfrastructure")}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+                </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="processor">Processor</Label>
-                            <Select
-                                value={formData.payin_processor}
-                                onValueChange={(val) => setFormData(prev => ({ ...prev, payin_processor: val }))}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select processor" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="orange_money">Orange Money</SelectItem>
-                                    <SelectItem value="moov">Moov</SelectItem>
-                                    <SelectItem value="mtn">MTN</SelectItem>
-                                    <SelectItem value="wave">Wave</SelectItem>
-                                    <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="base_fee">Base Network Fee (%)</Label>
-                            <Input
-                                id="base_fee"
-                                type="number"
-                                step="0.01"
-                                value={formData.network_payin_fee_percent}
-                                onChange={(e) => setFormData(prev => ({ ...prev, network_payin_fee_percent: e.target.value }))}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="url">Gateway URL</Label>
-                        <Input
-                            id="url"
-                            value={formData.payin_url}
-                            onChange={(e) => setFormData(prev => ({ ...prev, payin_url: e.target.value }))}
-                            placeholder="https://api.provider.com/process"
+                <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                    {error && (
+                        <ErrorDisplay
+                            error={error}
+                            onDismiss={() => setError(null)}
+                            variant="inline"
                         />
-                    </div>
+                    )}
+                    <form id="network-mapping-form" onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="network">
+                                    <span>{t("aggregator.network")}</span>
+                                </Label>
+                                <AsyncCombobox
+                                    value={formData.network || ""}
+                                    onValueChange={(v) => {
+                                        const selected = networks.find(n => (n.uid || n.id) === v)
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            network: v,
+                                            network_name: selected ? selected.nom : prev.network_name
+                                        }))
+                                    }}
+                                    fetchOptions={fetchNetworksData}
+                                    placeholder={t("aggregator.selectNetwork")}
+                                    searchPlaceholder={t("common.searchPlaceholder")}
+                                    noResultsMessage={t("common.noResults")}
+                                    disabled={!!editingMapping}
+                                />
+                            </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="network_name">
+                                    <span>{t("aggregator.displayName")}</span>
+                                </Label>
+                                <Input
+                                    id="network_name"
+                                    value={formData.network_name}
+                                    onChange={handleChange}
+                                    placeholder="ex: MTN Côte d'Ivoire"
+                                    className="bg-gray-50 dark:bg-gray-800 border-gray-200"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    <span>{t("aggregator.processor")}</span>
+                                </Label>
+                                <Select value={formData.payin_processor} onValueChange={(v) => handleSelectChange("payin_processor", v)}>
+                                    <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-200">
+                                        <SelectValue placeholder={t("aggregator.selectNetwork")} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="ORANGE_MONEY">Orange Money</SelectItem>
+                                        <SelectItem value="MOOV">Moov</SelectItem>
+                                        <SelectItem value="MTN">MTN</SelectItem>
+                                        <SelectItem value="WAVE">Wave</SelectItem>
+                                        <SelectItem value="OTHER">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="network_payin_fee_percent">
+                                    <span>{t("aggregator.baseFee")} (%)</span>
+                                </Label>
+                                <Input
+                                    id="network_payin_fee_percent"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.network_payin_fee_percent}
+                                    onChange={handleChange}
+                                    className="bg-gray-50 dark:bg-gray-800 border-gray-200"
+                                />
+                            </div>
+                        </div>
+
                         <div className="space-y-2">
-                            <Label htmlFor="min_amount">Min Amount</Label>
+                            <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="payin_url">
+                                <span>{t("aggregator.gatewayUrl")}</span>
+                            </Label>
                             <Input
-                                id="min_amount"
-                                type="number"
-                                value={formData.min_amount}
-                                onChange={(e) => setFormData(prev => ({ ...prev, min_amount: e.target.value }))}
+                                id="payin_url"
+                                value={formData.payin_url}
+                                onChange={handleChange}
+                                placeholder="https://api.processor.com/v1"
+                                className="bg-gray-50 dark:bg-gray-800 border-gray-200"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="max_amount">Max Amount</Label>
-                            <Input
-                                id="max_amount"
-                                type="number"
-                                value={formData.max_amount}
-                                onChange={(e) => setFormData(prev => ({ ...prev, max_amount: e.target.value }))}
-                            />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="min_amount">
+                                    <span>{t("aggregator.minAmount")}</span>
+                                </Label>
+                                <Input
+                                    id="min_amount"
+                                    type="number"
+                                    value={formData.min_amount}
+                                    onChange={handleChange}
+                                    className="bg-gray-50 dark:bg-gray-800 border-gray-200"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="max_amount">
+                                    <span>{t("aggregator.maxAmount")}</span>
+                                </Label>
+                                <Input
+                                    id="max_amount"
+                                    type="number"
+                                    value={formData.max_amount}
+                                    onChange={handleChange}
+                                    className="bg-gray-50 dark:bg-gray-800 border-gray-200"
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <Label htmlFor="enable" className="font-semibold">Enable Payin</Label>
-                        <Switch
-                            id="enable"
-                            checked={formData.enable_payin}
-                            onCheckedChange={(checked) => setFormData(prev => ({ ...prev, enable_payin: checked }))}
-                        />
-                    </div>
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                                <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100 cursor-pointer" htmlFor="enable_payin">
+                                    <span>{t("aggregator.enablePayin")}</span>
+                                </Label>
+                                <Switch
+                                    id="enable_payin"
+                                    checked={formData.enable_payin}
+                                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, enable_payin: checked }))}
+                                    className="data-[state=checked]:bg-orange-500"
+                                />
+                            </div>
+                        </div>
+                    </form>
+                </div>
 
-                    <DialogFooter className="pt-4">
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading} className="bg-orange-500 hover:bg-orange-600">
-                            {loading ? <Loader className="animate-spin h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                            {editingMapping ? "Update Mapping" : "Create Mapping"}
-                        </Button>
-                    </DialogFooter>
-                </form>
+                <DialogFooter className="bg-gray-50 dark:bg-gray-900/50 p-6 border-t dark:border-gray-800 flex items-center justify-end gap-3">
+                    <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <span>{t("common.cancel")}</span>
+                    </Button>
+                    <Button
+                        form="network-mapping-form"
+                        type="submit"
+                        disabled={loading}
+                        className="bg-orange-600 hover:bg-orange-700 text-white shadow-md hover:shadow-lg transition-all px-8"
+                    >
+                        {loading && <Loader className="animate-spin mr-2 h-4 w-4" />}
+                        <span>{t("common.save")}</span>
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     )

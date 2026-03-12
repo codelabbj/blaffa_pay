@@ -178,7 +178,7 @@ export default function ProfilePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
           <div className="flex flex-col items-center space-y-4">
             <XCircle className="h-12 w-12 text-red-500" />
-            <p className="text-lg text-gray-600 dark:text-gray-300">Échec du chargement du profil. Veuillez réessayer plus tard.</p>
+            <p className="text-lg text-gray-600 dark:text-gray-300"><span>Échec du chargement du profil. Veuillez réessayer plus tard.</span></p>
           </div>
         </div>
       </div>
@@ -200,10 +200,10 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Mon profil
+                <span>Mon profil</span>
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Gérez vos informations de compte et paramètres
+                <span>Gérez vos informations de compte et paramètres</span>
               </p>
             </div>
             {!editing ? (
@@ -223,7 +223,7 @@ export default function ProfilePage() {
                   disabled={loading}
                 >
                   <X className="h-4 w-4 mr-2" />
-                  Annuler
+                  <span>Annuler</span>
                 </Button>
                 <Button
                   onClick={handleSubmit}
@@ -231,7 +231,7 @@ export default function ProfilePage() {
                   className="bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                 >
                   {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                  Sauvegarder
+                  <span>Sauvegarder</span>
                 </Button>
               </div>
             )}
@@ -248,9 +248,9 @@ export default function ProfilePage() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{profile.display_name}</div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-gray-100"><span>{profile.display_name}</span></div>
                 <div className="text-gray-600 dark:text-gray-400 mt-1">
-                  Membre depuis {new Date(profile.created_at).toLocaleDateString()}
+                  <span>Membre depuis</span> <span>{new Date(profile.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </CardTitle>
@@ -276,7 +276,7 @@ export default function ProfilePage() {
                         onChange={handleInputChange}
                       />
                     ) : (
-                      <div className="text-gray-900 dark:text-gray-100 font-medium">{profile.first_name}</div>
+                      <div className="text-gray-900 dark:text-gray-100 font-medium"><span>{profile.first_name}</span></div>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -289,7 +289,7 @@ export default function ProfilePage() {
                         onChange={handleInputChange}
                       />
                     ) : (
-                      <div className="text-gray-900 dark:text-gray-100 font-medium">{profile.last_name}</div>
+                      <div className="text-gray-900 dark:text-gray-100 font-medium"><span>{profile.last_name}</span></div>
                     )}
                   </div>
                 </div>
@@ -307,15 +307,15 @@ export default function ProfilePage() {
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Adresse e-mail</div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">{profile.email}</span>
-                      {profile.email_verified && <Badge className="bg-green-100 text-green-800">Vérifié</Badge>}
+                      <span className="text-gray-900 dark:text-gray-100 font-medium"><span>{profile.email}</span></span>
+                      {profile.email_verified && <Badge className="bg-green-100 text-green-800"><span>Vérifié</span></Badge>}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Numéro de téléphone</div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">{profile.phone}</span>
-                      {profile.phone_verified && <Badge className="bg-green-100 text-green-800">Vérifié</Badge>}
+                      <span className="text-gray-900 dark:text-gray-100 font-medium"><span>{profile.phone}</span></span>
+                      {profile.phone_verified && <Badge className="bg-green-100 text-green-800"><span>Vérifié</span></Badge>}
                     </div>
                   </div>
                 </div>
@@ -333,14 +333,14 @@ export default function ProfilePage() {
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">ID utilisateur</div>
                     <div className="flex items-center space-x-2 font-mono text-sm bg-gray-50 dark:bg-gray-900 p-2 rounded border border-gray-200 dark:border-gray-700">
-                      <span className="truncate">{profile.uid}</span>
+                      <span className="truncate"><span>{profile.uid}</span></span>
                       <CopyButton value={profile.uid} className="h-6 w-6" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Dernière mise à jour</div>
                     <div className="text-gray-900 dark:text-gray-100 p-2">
-                      {new Date(profile.updated_at).toLocaleDateString()}
+                      <span>{new Date(profile.updated_at).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export default function ProfilePage() {
               <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
                 <Lock className="h-4 w-4 text-red-600 dark:text-red-300" />
               </div>
-              <span>Sécurité</span>
+              <span><span>Sécurité</span></span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -401,7 +401,7 @@ export default function ProfilePage() {
 
               {passwordError && (
                 <div className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-200 dark:border-red-800">
-                  {passwordError}
+                  <span>{passwordError}</span>
                 </div>
               )}
 
@@ -413,10 +413,10 @@ export default function ProfilePage() {
                 {passwordLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Mise à jour...
+                    <span>Mise à jour...</span>
                   </>
                 ) : (
-                  'Mettre à jour le mot de passe'
+                  <span>Mettre à jour le mot de passe</span>
                 )}
               </Button>
             </form>

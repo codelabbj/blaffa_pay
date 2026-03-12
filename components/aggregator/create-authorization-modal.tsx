@@ -6,11 +6,13 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogDescription,
     DialogFooter
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
 import {
     Select,
     SelectContent,
@@ -18,9 +20,13 @@ import {
     SelectTrigger,
     SelectValue
 } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
 import { useAggregatorApi, UserAuthorization, NetworkMapping, AggregatorUser } from "@/lib/aggregator-api"
 import { useToast } from "@/hooks/use-toast"
-import { Loader, Save, X } from "lucide-react"
+import { useLanguage } from "@/components/providers/language-provider"
+import { Loader, Save, X, Shield, AlertTriangle } from "lucide-react"
+import { AsyncCombobox } from "@/components/ui/async-combobox"
+import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
 interface CreateAuthorizationModalProps {
     open: boolean
@@ -37,9 +43,9 @@ export function CreateAuthorizationModal({
 }: CreateAuthorizationModalProps) {
     const { grantAuthorization, updateAuthorization, listNetworkMappings, getAggregatorUsers } = useAggregatorApi()
     const { toast } = useToast()
+    const { t } = useLanguage()
     const [loading, setLoading] = useState(false)
-    const [networks, setNetworks] = useState<NetworkMapping[]>([])
-    const [users, setUsers] = useState<AggregatorUser[]>([])
+    const [error, setError] = useState<string | null>(null)
 
     const [formData, setFormData] = useState<Partial<UserAuthorization>>({
         user: "",
@@ -51,7 +57,6 @@ export function CreateAuthorizationModal({
 
     useEffect(() => {
         if (open) {
-            fetchInitialData()
             if (editingAuth) {
                 setFormData({
                     user: editingAuth.user,
@@ -69,39 +74,63 @@ export function CreateAuthorizationModal({
                     is_active: true,
                 })
             }
+            setError(null)
         }
     }, [open, editingAuth])
 
-    const fetchInitialData = async () => {
-        try {
-            const [networksData, usersData] = await Promise.all([
-                listNetworkMappings(),
-                getAggregatorUsers()
-            ])
-            setNetworks(networksData.results || networksData || [])
-            setUsers(usersData.results || usersData || [])
-        } catch (err) {
-            console.error("Failed to fetch initial data", err)
-        }
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target
+        setFormData(prev => ({ ...prev, [id]: value }))
+    }
+
+    const handleSelectChange = (id: string, value: string) => {
+        setFormData(prev => ({ ...prev, [id]: value }))
+    }
+
+    const fetchUsersData = async (search: string) => {
+        const params = new URLSearchParams()
+        if (search) params.append("search", search)
+        const data = await getAggregatorUsers(params)
+        const usersList = data?.results || data?.users || (Array.isArray(data) ? data : [])
+        return usersList.map((user: AggregatorUser) => ({
+            value: user.uid,
+            label: `${user.display_name} (${user.email})`
+        }))
+    }
+
+    const fetchNetworksData = async (search: string) => {
+        const params = new URLSearchParams()
+        if (search) params.append("search", search)
+        const data = await listNetworkMappings(params)
+        const networksList = data?.results || data?.networks || (Array.isArray(data) ? data : [])
+        return networksList.map((network: NetworkMapping) => ({
+            value: network.uid,
+            label: `${network.network_name || network.network} (${network.network})`
+        }))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
+        setError(null)
         try {
             if (editingAuth) {
                 await updateAuthorization(editingAuth.uid, formData)
-                toast({ title: "Authorization Updated", description: "The authorization has been updated successfully." })
             } else {
                 await grantAuthorization(formData)
-                toast({ title: "Authorization Granted", description: "The authorization has been granted successfully." })
             }
-            onSuccess()
+            onSuccess?.()
+            toast({
+                title: t(editingAuth ? "aggregator.authorizationUpdated" : "aggregator.authorizationGranted"),
+                description: `${formData.user} access to ${formData.network} configured.`,
+            })
             onOpenChange(false)
         } catch (err: any) {
+            const errorMessage = extractErrorMessages(err)
+            setError(errorMessage)
             toast({
-                title: "Error",
-                description: err.message || "Failed to save authorization.",
+                title: t("common.error"),
+                description: errorMessage,
                 variant: "destructive",
             })
         } finally {
@@ -111,82 +140,135 @@ export function CreateAuthorizationModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>{editingAuth ? "Edit Authorization" : "Grant New Authorization"}</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 py-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="user">Aggregator User</Label>
-                        <Select
-                            value={formData.user}
-                            onValueChange={(val) => setFormData(prev => ({ ...prev, user: val }))}
-                            disabled={!!editingAuth}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select an aggregator" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {users.map(u => (
-                                    <SelectItem key={u.uid} value={u.uid}>{u.display_name} ({u.email})</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+            <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-0 shadow-2xl">
+                <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6 text-white">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                            <Shield className="h-6 w-6" />
+                            {editingAuth ? <span>{t("aggregator.editAuthorization")}</span> : <span>{t("aggregator.grantAuthorization")}</span>}
+                        </DialogTitle>
+                        <DialogDescription className="text-orange-100">
+                            <span>{t("aggregator.configureAccess")}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+                </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="network">Payment Network</Label>
-                        <Select
-                            value={formData.network}
-                            onValueChange={(val) => setFormData(prev => ({ ...prev, network: val }))}
-                            disabled={!!editingAuth}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a network" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {networks.map(n => (
-                                    <SelectItem key={n.uid} value={n.uid}>{n.network_name || n.network}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                    {error && (
+                        <ErrorDisplay
+                            error={error}
+                            onDismiss={() => setError(null)}
+                            variant="inline"
+                        />
+                    )}
+                    <form id="authorization-form" onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    <span>{t("aggregator.aggregatorUser")}</span>
+                                </Label>
+                                {editingAuth ? (
+                                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 font-medium text-gray-900 dark:text-gray-100 italic">
+                                        {editingAuth.user_name || editingAuth.user}
+                                    </div>
+                                ) : (
+                                    <AsyncCombobox
+                                        onSearch={fetchUsersData}
+                                        value={formData.user}
+                                        onValueChange={(v) => handleSelectChange("user", v)}
+                                        placeholder={t("aggregator.selectAggregator")}
+                                        searchPlaceholder={t("common.searchPlaceholder") || "Search user..."}
+                                        emptyMessage={t("common.noResults") || "No user found."}
+                                        className="bg-gray-50 dark:bg-gray-800 border-gray-200"
+                                    />
+                                )}
+                            </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="payin_fee">Payin Fee (%)</Label>
-                            <Input
-                                id="payin_fee"
-                                type="number"
-                                step="0.01"
-                                value={formData.user_payin_fee_percent}
-                                onChange={(e) => setFormData(prev => ({ ...prev, user_payin_fee_percent: parseFloat(e.target.value) }))}
-                                placeholder="0.00"
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    <span>{t("aggregator.paymentNetwork")}</span>
+                                </Label>
+                                {editingAuth ? (
+                                    <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 font-medium text-gray-900 dark:text-gray-100 italic">
+                                        {editingAuth.network_name || editingAuth.network}
+                                    </div>
+                                ) : (
+                                    <AsyncCombobox
+                                        onSearch={fetchNetworksData}
+                                        value={formData.network}
+                                        onValueChange={(v) => handleSelectChange("network", v)}
+                                        placeholder={t("aggregator.selectNetwork")}
+                                        searchPlaceholder={t("common.searchPlaceholder") || "Search network..."}
+                                        emptyMessage={t("common.noResults") || "No network found."}
+                                        className="bg-gray-50 dark:bg-gray-800 border-gray-200"
+                                    />
+                                )}
+                            </div>
+                        </div>
+
+                        <Separator className="bg-gray-100 dark:bg-gray-700" />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="user_payin_fee_percent">
+                                    <span>{t("aggregator.payinFee")} (%)</span>
+                                </Label>
+                                <Input
+                                    id="user_payin_fee_percent"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.user_payin_fee_percent}
+                                    onChange={handleChange}
+                                    placeholder="0.00"
+                                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 focus:ring-orange-500"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="user_payout_fee_percent">
+                                    <span>{t("aggregator.payoutFee")} (%)</span>
+                                </Label>
+                                <Input
+                                    id="user_payout_fee_percent"
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.user_payout_fee_percent}
+                                    onChange={handleChange}
+                                    placeholder="0.00"
+                                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 focus:ring-green-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <div className="space-y-0.5">
+                                <Label className="text-sm font-semibold text-gray-900 dark:text-gray-100"><span>{t("aggregator.status")}</span></Label>
+                                <div className="text-xs text-gray-500">{formData.is_active ? <span>{t("common.active")}</span> : <span>{t("aggregator.locked")}</span>}</div>
+                            </div>
+                            <Switch
+                                checked={formData.is_active}
+                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+                                className="data-[state=checked]:bg-orange-500"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="payout_fee">Payout Fee (%)</Label>
-                            <Input
-                                id="payout_fee"
-                                type="number"
-                                step="0.01"
-                                value={formData.user_payout_fee_percent}
-                                onChange={(e) => setFormData(prev => ({ ...prev, user_payout_fee_percent: parseFloat(e.target.value) }))}
-                                placeholder="0.00"
-                            />
-                        </div>
-                    </div>
+                    </form>
+                </div>
 
-                    <DialogFooter className="pt-4">
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading} className="bg-orange-500 hover:bg-orange-600">
-                            {loading ? <Loader className="animate-spin h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
-                            {editingAuth ? "Update" : "Grant"}
-                        </Button>
-                    </DialogFooter>
-                </form>
+                <DialogFooter className="bg-gray-50 dark:bg-gray-900/50 p-6 border-t dark:border-gray-800 flex items-center justify-end gap-3">
+                    <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={loading} className="hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <span>{t("common.cancel")}</span>
+                    </Button>
+                    <Button
+                        form="authorization-form"
+                        type="submit"
+                        disabled={loading}
+                        className="bg-orange-500 hover:bg-orange-600 shadow-md transition-all hover:shadow-lg px-8"
+                    >
+                        {loading && <Loader className="animate-spin mr-2 h-4 w-4" />}
+                        <Save className="mr-2 h-4 w-4" />
+                        <span>{t("common.save")}</span>
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     )

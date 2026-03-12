@@ -41,17 +41,17 @@ export function Header({ onMobileMenuClick }: HeaderProps) {
         <div className="flex h-16 justify-between items-center">
           <div className="flex items-center">
             {/* Mobile hamburger menu button */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="lg:hidden mr-3 hover:bg-gray-100 dark:hover:bg-gray-700"
               onClick={onMobileMenuClick}
             >
               <Menu className="h-5 w-5" />
             </Button>
-            
+
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-              {t(pageTitle)}
+              <span>{t(pageTitle)}</span>
             </h1>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
@@ -60,15 +60,15 @@ export function Header({ onMobileMenuClick }: HeaderProps) {
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
             </button>
-            
+
             {/* Theme Toggle */}
             <ThemeToggle />
-            
+
             {/* Language Switcher - hidden on mobile */}
             <div className="hidden sm:block">
               <LanguageSwitcher />
             </div>
-            
+
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -88,21 +88,21 @@ export function Header({ onMobileMenuClick }: HeaderProps) {
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">John Doe</p>
-                    <p className="text-xs leading-none text-muted-foreground">john@example.com</p>
+                    <p className="text-sm font-medium leading-none"><span>John Doe</span></p>
+                    <p className="text-xs leading-none text-muted-foreground"><span>john@example.com</span></p>
                   </div>
                 </div>
                 <DropdownMenuItem>
                   <User className="mr-2 h-4 w-4" />
-                  <a href="/dashboard/profile">Profile</a>
+                  <a href="/dashboard/profile"><span>Profile</span></a>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
-                  Settings
+                  <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-red-600 dark:text-red-400">
                   <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                  <span>Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

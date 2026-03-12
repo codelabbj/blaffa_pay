@@ -25,9 +25,9 @@ export function Toaster() {
                   <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
                 )}
                 <div className="flex-1">
-                  {title && <ToastTitle>{title}</ToastTitle>}
+                  {title && <ToastTitle><span>{title}</span></ToastTitle>}
                   {description && (
-                    <ToastDescription>{description}</ToastDescription>
+                    <ToastDescription><span>{description}</span></ToastDescription>
                   )}
                 </div>
               </div>

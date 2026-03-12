@@ -328,10 +328,10 @@ export default function WaveBusinessPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                Transactions Wave Business
+                <span>Transactions Wave Business</span>
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-2 text-lg">
-                Gérer et surveiller les transactions Wave Business
+                <span>Gérer et surveiller les transactions Wave Business</span>
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -339,7 +339,7 @@ export default function WaveBusinessPage() {
                 <div className="flex items-center space-x-2">
                   <DollarSign className="h-5 w-5 text-green-600" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {totalCount} transactions
+                    <span>{totalCount} transactions</span>
                   </span>
                 </div>
               </div>
@@ -431,7 +431,7 @@ export default function WaveBusinessPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Chargement des transactions...</span>
+                  <span className="text-gray-600 dark:text-gray-300"><span>Chargement des transactions...</span></span>
                 </div>
               </div>
             ) : error ? (
@@ -583,7 +583,7 @@ export default function WaveBusinessPage() {
                 className="border-gray-200 dark:border-gray-600"
               >
                 <ChevronLeft className="h-4 w-4" />
-                Précédent
+                <span>Précédent</span>
               </Button>
               <div className="flex items-center space-x-1">
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -608,7 +608,7 @@ export default function WaveBusinessPage() {
                 disabled={currentPage === totalPages}
                 className="border-gray-200 dark:border-gray-600"
               >
-                Suivant
+                <span>Suivant</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -630,7 +630,7 @@ export default function WaveBusinessPage() {
               <div className="flex items-center justify-center py-12">
                 <div className="flex flex-col items-center space-y-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                  <span className="text-gray-600 dark:text-gray-300">Chargement des détails...</span>
+                  <span className="text-gray-600 dark:text-gray-300"><span>Chargement des détails...</span></span>
                 </div>
               </div>
             ) : detailError ? (
@@ -749,7 +749,7 @@ export default function WaveBusinessPage() {
             ) : null}
             <DialogClose asChild>
               <Button className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white">
-                Fermer
+                <span>Fermer</span>
               </Button>
             </DialogClose>
           </DialogContent>

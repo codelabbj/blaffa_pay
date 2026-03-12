@@ -10,7 +10,7 @@ import { Search, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useApi } from "@/lib/api"
+import { useApi } from "@/lib/useApi"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog"
 
 function getAccessTokenFromCookie() {

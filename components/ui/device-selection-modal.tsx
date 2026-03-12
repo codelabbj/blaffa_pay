@@ -60,7 +60,7 @@ export function DeviceSelectionModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>{t("deviceAuthorizations.selectDevice")}</DialogTitle>
+                    <DialogTitle><span>{t("deviceAuthorizations.selectDevice")}</span></DialogTitle>
                 </DialogHeader>
                 <div className="py-4">
                     <Command shouldFilter={false}>
@@ -75,7 +75,7 @@ export function DeviceSelectionModal({
                                         <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
                                     </div>
                                 ) : (
-                                    t("common.noData")
+                                    <span>{t("common.noData")}</span>
                                 )}
                             </CommandEmpty>
                             <CommandGroup>
@@ -94,7 +94,7 @@ export function DeviceSelectionModal({
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Badge variant={device.is_online ? 'success' : 'secondary'} className="text-[10px]">
-                                                {device.is_online ? t('common.online') : t('common.offline')}
+                                                {device.is_online ? <span>{t('common.online')}</span> : <span>{t('common.offline')}</span>}
                                             </Badge>
                                             {selectedDeviceUid === device.uid && (
                                                 <Check className="h-4 w-4 text-orange-500" />
@@ -108,7 +108,7 @@ export function DeviceSelectionModal({
                 </div>
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="outline">{t("common.cancel")}</Button>
+                        <Button variant="outline"><span>{t("common.cancel")}</span></Button>
                     </DialogClose>
                 </DialogFooter>
             </DialogContent>

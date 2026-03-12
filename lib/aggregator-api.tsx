@@ -4,15 +4,74 @@ import { useApi } from "./useApi"
 import { useCallback } from "react"
 
 export interface AggregatorDashboardStats {
-    total_aggregators: number
-    active_aggregators: number
-    total_volume: number
-    success_rate: number
-    network_performance: {
-        network: string
+    users: {
+        total_aggregators: number
+        active_aggregators: number
+        inactive_aggregators: number
+        active_today: number
+        active_last_7_days: number
+    }
+    transactions: {
+        total_count: number
+        pending_count: number
+        processing_count: number
+        success_count: number
+        failed_count: number
+        cancelled_count: number
         success_rate: number
-        volume: number
+    }
+    payin: {
+        total_count: number
+        success_count: number
+        total_amount: number
+        total_user_fees: number
+        total_network_fees: number
+        total_platform_profit: number
+    }
+    payout: {
+        total_count: number
+        success_count: number
+        total_amount: number
+        total_user_fees: number
+        total_network_fees: number
+        total_platform_profit: number
+    }
+    today: {
+        total_count: number
+        success_count: number
+        total_amount: number
+        total_platform_profit: number
+    }
+    last_7_days: {
+        total_count: number
+        success_count: number
+        total_amount: number
+        total_platform_profit: number
+    }
+    last_30_days: {
+        total_count: number
+        success_count: number
+        total_amount: number
+        total_platform_profit: number
+    }
+    top_aggregators: {
+        user__uid: string
+        user__email: string
+        user__phone: string | null
+        user__first_name: string
+        user__last_name: string
+        tx_count: number
+        total_amount: number
     }[]
+    network_stats: {
+        network__nom: string
+        tx_count: number
+        total_amount: number
+        total_platform_profit: number
+    }[]
+    meta: {
+        generated_at: string
+    }
 }
 
 export interface AggregatorUser {
@@ -82,7 +141,16 @@ export function useAggregatorApi() {
     }, [apiFetch, baseUrl])
 
     const getUserStats = useCallback(async (uid: string) => {
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/aggregators/${uid}/stats/`)
+        try {
+            return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/aggregators/${uid}/stats/`)
+        } catch (err: any) {
+            console.warn("getUserStats failed:", err)
+            if (err && err.error) {
+                return new Error(err.error)
+            }
+            if (err instanceof Error) return err
+            return new Error("Failed to fetch user stats")
+        }
     }, [apiFetch, baseUrl])
 
     const listAuthorizations = useCallback(async (uid?: string) => {
@@ -104,13 +172,26 @@ export function useAggregatorApi() {
         })
     }, [apiFetch, baseUrl])
 
-    const listNetworkMappings = useCallback(async () => {
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/network-mappings/`)
+    const listNetworkMappings = useCallback(async (params?: URLSearchParams) => {
+        const queryString = params ? `?${params.toString()}` : ""
+        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/network-mappings/${queryString}`)
+    }, [apiFetch, baseUrl])
+
+    const getNetworks = useCallback(async (params?: URLSearchParams) => {
+        const queryString = params ? `?${params.toString()}` : ""
+        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/${queryString}`)
     }, [apiFetch, baseUrl])
 
     const createNetworkMapping = useCallback(async (payload: Partial<NetworkMapping>) => {
         return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/network-mappings/`, {
             method: "POST",
+            body: JSON.stringify(payload),
+        })
+    }, [apiFetch, baseUrl])
+
+    const updateNetworkMapping = useCallback(async (uid: string, payload: Partial<NetworkMapping>) => {
+        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/network-mappings/${uid}/`, {
+            method: "PATCH",
             body: JSON.stringify(payload),
         })
     }, [apiFetch, baseUrl])
@@ -128,7 +209,9 @@ export function useAggregatorApi() {
         grantAuthorization,
         updateAuthorization,
         listNetworkMappings,
+        getNetworks,
         createNetworkMapping,
+        updateNetworkMapping,
         listTransactions,
     }
 }

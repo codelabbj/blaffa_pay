@@ -34,6 +34,7 @@ export default function NetworkCreatePage() {
   const [code, setCode] = useState("")
   const [country, setCountry] = useState("")
   const [ussdBaseCode, setUssdBaseCode] = useState("")
+  const [image, setImage] = useState<File | null>(null)
   const [isActive, setIsActive] = useState(true)
   const [sentDepositToModule, setSentDepositToModule] = useState(false)
   const [sentWithdrawalToModule, setSentWithdrawalToModule] = useState(false)
@@ -72,10 +73,22 @@ export default function NetworkCreatePage() {
     setLoading(true)
     setError("")
     try {
-      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
+      let body: any;
+      let headers: Record<string, string> = {};
+      
+      if (image) {
+        const formData = new FormData();
+        formData.append("nom", nom);
+        formData.append("code", code);
+        formData.append("country", country);
+        if (ussdBaseCode) formData.append("ussd_base_code", ussdBaseCode);
+        formData.append("is_active", String(isActive));
+        formData.append("sent_deposit_to_module", String(sentDepositToModule));
+        formData.append("sent_withdrawal_to_module", String(sentWithdrawalToModule));
+        formData.append("image", image);
+        body = formData;
+      } else {
+        body = JSON.stringify({ 
           nom, 
           code, 
           country, 
@@ -83,7 +96,14 @@ export default function NetworkCreatePage() {
           is_active: isActive,
           sent_deposit_to_module: sentDepositToModule,
           sent_withdrawal_to_module: sentWithdrawalToModule
-        })
+        });
+        headers["Content-Type"] = "application/json";
+      }
+
+      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`, {
+        method: "POST",
+        headers: headers,
+        body: body
       })
       toast({
         title: t("network.created"),
@@ -197,6 +217,34 @@ export default function NetworkCreatePage() {
                     onChange={(e) => setUssdBaseCode(e.target.value)}
                     placeholder="ex: *123#"
                     className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  />
+            </div>
+            <div>
+                  <Label htmlFor="image" className="block mb-2">{t("network.image") || "Image / Logo"}</Label>
+                  
+                  {image && (
+                    <div className="mb-3">
+                      <div className="relative h-24 w-24 overflow-hidden rounded-lg border-2 border-orange-100 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center shadow-md p-1 group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={URL.createObjectURL(image)} 
+                          alt="Network logo preview" 
+                          className="object-contain h-full w-full rounded"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <Input
+                    id="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        setImage(e.target.files[0]);
+                      }
+                    }}
+                    className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 cursor-pointer"
                   />
             </div>
               </div>

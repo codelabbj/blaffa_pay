@@ -290,8 +290,28 @@ export default function NetworkListPage() {
                       <TableRow key={network.id || network.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                         <TableCell>
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
-                              {network.nom?.charAt(0)?.toUpperCase() || 'N'}
+                            <div className="w-12 h-12 overflow-hidden rounded-lg border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm">
+                              {network.image ? (
+                                <img 
+                                  src={network.image.startsWith('http') ? network.image : `${baseUrl.replace(/\/$/, "")}/${network.image.replace(/^\//, "")}`} 
+                                  alt={network.nom}
+                                  className="object-contain w-full h-full p-1 transition-opacity duration-300"
+                                  onLoad={(e) => (e.target as any).style.opacity = '1'}
+                                  onError={(e) => {
+                                    console.warn(`Failed to load network image: ${network.image} for ${network.nom}`);
+                                    (e.target as any).style.display = 'none';
+                                    const parent = (e.target as any).parentElement;
+                                    if (parent) {
+                                      parent.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-orange-500 to-green-600 flex items-center justify-center text-white font-semibold">${network.nom?.charAt(0)?.toUpperCase() || 'N'}</div>`;
+                                    }
+                                  }}
+                                  style={{ opacity: 0 }}
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-orange-500 to-green-600 flex items-center justify-center text-white font-semibold text-lg">
+                                  {network.nom?.charAt(0)?.toUpperCase() || 'N'}
+                                </div>
+                              )}
                             </div>
                             <div>
                               <div className="font-medium text-gray-900 dark:text-gray-100">

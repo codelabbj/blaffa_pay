@@ -58,6 +58,7 @@ interface PlatformForm {
   max_withdrawal_amount: string;
   description: string;
   is_active: boolean;
+  logo: File | null;
 }
 
 export default function EditPlatformPage() {
@@ -72,6 +73,7 @@ export default function EditPlatformPage() {
     max_withdrawal_amount: "",
     description: "",
     is_active: true,
+    logo: null,
   })
   
   const [platform, setPlatform] = useState<Platform | null>(null)
@@ -106,6 +108,7 @@ export default function EditPlatformPage() {
           max_withdrawal_amount: data.max_withdrawal_amount || "",
           description: data.description || "",
           is_active: data.is_active ?? true,
+          logo: null,
         })
         
       } catch (err: any) {
@@ -119,7 +122,7 @@ export default function EditPlatformPage() {
     fetchPlatform()
   }, [platformId, baseUrl, apiFetch, toast])
 
-  const handleInputChange = (field: keyof PlatformForm, value: string | boolean) => {
+  const handleInputChange = (field: keyof PlatformForm, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
@@ -129,21 +132,39 @@ export default function EditPlatformPage() {
     setError("")
 
     try {
-      const payload = {
-        name: form.name,
-        min_deposit_amount: parseFloat(form.min_deposit_amount).toFixed(2),
-        max_deposit_amount: parseFloat(form.max_deposit_amount).toFixed(2),
-        min_withdrawal_amount: parseFloat(form.min_withdrawal_amount).toFixed(2),
-        max_withdrawal_amount: parseFloat(form.max_withdrawal_amount).toFixed(2),
-        description: form.description,
-        is_active: form.is_active,
+      let body: any;
+      let headers: Record<string, string> = {};
+
+      if (form.logo) {
+        const formData = new FormData();
+        formData.append("name", form.name);
+        formData.append("min_deposit_amount", parseFloat(form.min_deposit_amount).toFixed(2));
+        formData.append("max_deposit_amount", parseFloat(form.max_deposit_amount).toFixed(2));
+        formData.append("min_withdrawal_amount", parseFloat(form.min_withdrawal_amount).toFixed(2));
+        formData.append("max_withdrawal_amount", parseFloat(form.max_withdrawal_amount).toFixed(2));
+        formData.append("description", form.description);
+        formData.append("is_active", String(form.is_active));
+        formData.append("logo", form.logo);
+        body = formData;
+      } else {
+        const payload = {
+          name: form.name,
+          min_deposit_amount: parseFloat(form.min_deposit_amount).toFixed(2),
+          max_deposit_amount: parseFloat(form.max_deposit_amount).toFixed(2),
+          min_withdrawal_amount: parseFloat(form.min_withdrawal_amount).toFixed(2),
+          max_withdrawal_amount: parseFloat(form.max_withdrawal_amount).toFixed(2),
+          description: form.description,
+          is_active: form.is_active,
+        }
+        body = JSON.stringify(payload);
+        headers["Content-Type"] = "application/json";
       }
 
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformId}/`
       const data = await apiFetch(endpoint, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: headers,
+        body: body,
       })
 
       toast({ 
@@ -171,6 +192,7 @@ export default function EditPlatformPage() {
         max_withdrawal_amount: platform.max_withdrawal_amount || "",
         description: platform.description || "",
         is_active: platform.is_active ?? true,
+        logo: null,
       })
     }
     setError("")
@@ -268,8 +290,20 @@ export default function EditPlatformPage() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-green-600 rounded-lg flex items-center justify-center text-white font-semibold">
-                      {platform.name?.charAt(0)?.toUpperCase() || 'P'}
+                    <div className="w-16 h-16 overflow-hidden bg-gradient-to-br from-orange-500 to-green-600 rounded-lg flex items-center justify-center text-white font-semibold shadow-md">
+                      {platform.logo ? (
+                        <img 
+                          src={platform.logo.startsWith('http') ? platform.logo : `${baseUrl.replace(/\/$/, "")}/${platform.logo.replace(/^\//, "")}`} 
+                          alt={platform.name}
+                          className="object-contain w-full h-full p-1"
+                          onError={(e) => {
+                            (e.target as any).style.display = 'none';
+                            (e.target as any).parentElement.innerHTML = `<span>${platform.name?.charAt(0)?.toUpperCase() || 'P'}</span>`;
+                          }}
+                        />
+                      ) : (
+                        <span className="text-xl">{platform.name?.charAt(0)?.toUpperCase() || 'P'}</span>
+                      )}
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100">
@@ -360,6 +394,44 @@ export default function EditPlatformPage() {
                       required
                       className="mt-1"
                     />
+                  </div>
+
+                  {/* Logo Upload */}
+                  <div className="space-y-2">
+                    <Label htmlFor="logo">Logo de la plateforme</Label>
+                    
+                    {(platform.logo || form.logo) && (
+                      <div className="mb-3 flex items-center space-x-4">
+                        <div className="space-y-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Aperçu</p>
+                          <div className="relative h-24 w-24 overflow-hidden rounded-lg border-2 border-orange-100 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center shadow-md p-1">
+                            <img 
+                              src={form.logo ? URL.createObjectURL(form.logo) : (platform.logo?.startsWith('http') ? platform.logo : `${baseUrl.replace(/\/$/, "")}/${platform.logo?.replace(/^\//, "")}`)} 
+                              alt="Logo preview" 
+                              className="object-contain h-full w-full rounded"
+                              onError={(e) => {
+                                (e.target as any).src = "https://placehold.co/100x100?text=Logo";
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <Input
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          handleInputChange("logo", e.target.files[0]);
+                        }
+                      }}
+                      className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 cursor-pointer"
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Laissez vide pour conserver le logo actuel
+                    </p>
                   </div>
 
                   {/* Deposit Limits */}

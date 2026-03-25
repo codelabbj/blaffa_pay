@@ -408,8 +408,29 @@ export default function PlatformsListPage() {
                       <TableRow key={platform.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
                         <TableCell>
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
-                              {platform.name?.charAt(0)?.toUpperCase() || 'P'}
+                            <div className="w-12 h-12 overflow-hidden rounded-lg border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center shadow-sm">
+                              {platform.logo ? (
+                                <img 
+                                  src={platform.logo.startsWith('http') ? platform.logo : `${baseUrl.replace(/\/$/, "")}/${platform.logo.replace(/^\//, "")}`} 
+                                  alt={platform.name}
+                                  className="object-contain w-full h-full p-1 transition-opacity duration-300"
+                                  onLoad={(e) => (e.target as any).style.opacity = '1'}
+                                  onError={(e) => {
+                                    console.warn(`Failed to load platform logo: ${platform.logo} for ${platform.name}`);
+                                    (e.target as any).style.display = 'none';
+                                    const parent = (e.target as any).parentElement;
+                                    if (parent) {
+                                      parent.innerHTML = `<span class="text-white font-semibold">${platform.name?.charAt(0)?.toUpperCase() || 'P'}</span>`;
+                                      parent.className = "w-full h-full bg-gradient-to-br from-orange-500 to-green-600 flex items-center justify-center rounded-lg shadow-sm";
+                                    }
+                                  }}
+                                  style={{ opacity: 0 }}
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-orange-500 to-green-600 flex items-center justify-center text-white font-semibold text-lg">
+                                  {platform.name?.charAt(0)?.toUpperCase() || 'P'}
+                                </div>
+                              )}
                             </div>
                             <div>
                               <div className="flex items-center space-x-2">

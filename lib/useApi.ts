@@ -78,9 +78,18 @@ export function useApi() {
     // Extract showSuccessToast option and remove it from init
     const { showSuccessToast = true, successMessage, ...fetchInit } = init;
 
+    // Determine if we should attach the access token
+    // We don't want to send tokens for auth-related public endpoints (login, password reset)
+    // as an invalid/expired token might cause the backend to reject the request
+    const urlString = typeof input === 'string' ? input : (input instanceof Request ? input.url : '');
+    const isPublicAuthEndpoint = urlString.includes('/api/auth/login/') || 
+                                  urlString.includes('/api/auth/password-reset/');
+
     // Attach access token if available
     const headers = new Headers(fetchInit.headers || {});
-    if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
+    if (accessToken && !isPublicAuthEndpoint) {
+      headers.set('Authorization', `Bearer ${accessToken}`);
+    }
 
     // Automatically set Content-Type for JSON requests if body is present
     if (fetchInit.body && !headers.has('Content-Type')) {

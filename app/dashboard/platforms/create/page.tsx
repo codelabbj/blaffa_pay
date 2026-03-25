@@ -62,6 +62,7 @@ interface PlatformForm {
   max_withdrawal_amount: string;
   description: string;
   is_active: boolean;
+  logo: File | null;
 }
 
 export default function CreatePlatformPage() {
@@ -74,6 +75,7 @@ export default function CreatePlatformPage() {
     max_withdrawal_amount: "",
     description: "",
     is_active: true,
+    logo: null,
   })
   
   const [externalPlatforms, setExternalPlatforms] = useState<ExternalPlatform[]>([])
@@ -111,7 +113,7 @@ export default function CreatePlatformPage() {
     fetchExternalPlatforms()
   }, [toast])
 
-  const handleInputChange = (field: keyof PlatformForm, value: string | boolean) => {
+  const handleInputChange = (field: keyof PlatformForm, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
@@ -135,22 +137,41 @@ export default function CreatePlatformPage() {
     setError("")
 
     try {
-      const payload = {
-        name: form.name,
-        external_id: form.external_id,
-        min_deposit_amount: parseFloat(form.min_deposit_amount).toFixed(2),
-        max_deposit_amount: parseFloat(form.max_deposit_amount).toFixed(2),
-        min_withdrawal_amount: parseFloat(form.min_withdrawal_amount).toFixed(2),
-        max_withdrawal_amount: parseFloat(form.max_withdrawal_amount).toFixed(2),
-        description: form.description,
-        is_active: form.is_active,
+      let body: any;
+      let headers: Record<string, string> = {};
+
+      if (form.logo) {
+        const formData = new FormData();
+        formData.append("name", form.name);
+        formData.append("external_id", form.external_id);
+        formData.append("min_deposit_amount", parseFloat(form.min_deposit_amount).toFixed(2));
+        formData.append("max_deposit_amount", parseFloat(form.max_deposit_amount).toFixed(2));
+        formData.append("min_withdrawal_amount", parseFloat(form.min_withdrawal_amount).toFixed(2));
+        formData.append("max_withdrawal_amount", parseFloat(form.max_withdrawal_amount).toFixed(2));
+        formData.append("description", form.description);
+        formData.append("is_active", String(form.is_active));
+        formData.append("logo", form.logo);
+        body = formData;
+      } else {
+        const payload = {
+          name: form.name,
+          external_id: form.external_id,
+          min_deposit_amount: parseFloat(form.min_deposit_amount).toFixed(2),
+          max_deposit_amount: parseFloat(form.max_deposit_amount).toFixed(2),
+          min_withdrawal_amount: parseFloat(form.min_withdrawal_amount).toFixed(2),
+          max_withdrawal_amount: parseFloat(form.max_withdrawal_amount).toFixed(2),
+          description: form.description,
+          is_active: form.is_active,
+        }
+        body = JSON.stringify(payload);
+        headers["Content-Type"] = "application/json";
       }
 
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/`
       const data = await apiFetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: headers,
+        body: body,
       })
 
       toast({ 
@@ -178,6 +199,7 @@ export default function CreatePlatformPage() {
       max_withdrawal_amount: "",
       description: "",
       is_active: true,
+      logo: null,
     })
     setSelectedExternalPlatform(null)
     setError("")
@@ -338,6 +360,33 @@ export default function CreatePlatformPage() {
                       rows={3}
                       required
                       className="mt-1"
+                    />
+                  </div>
+
+                  {/* Logo Upload */}
+                  <div className="space-y-2">
+                    <Label htmlFor="logo">Logo de la plateforme</Label>
+                    {form.logo && (
+                      <div className="mb-3">
+                        <div className="relative h-24 w-24 overflow-hidden rounded-lg border-2 border-orange-100 dark:border-gray-700 bg-white dark:bg-gray-800 flex items-center justify-center shadow-md p-1">
+                          <img 
+                            src={URL.createObjectURL(form.logo)} 
+                            alt="Logo preview" 
+                            className="object-contain h-full w-full rounded"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    <Input
+                      id="logo"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          handleInputChange("logo", e.target.files[0]);
+                        }
+                      }}
+                      className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 cursor-pointer"
                     />
                   </div>
 

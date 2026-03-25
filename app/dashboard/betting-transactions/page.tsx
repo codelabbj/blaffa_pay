@@ -62,8 +62,6 @@ export default function BettingTransactionsPage() {
   const [detailTransaction, setDetailTransaction] = useState<any | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState("")
-  const [cancellationModalOpen, setCancellationModalOpen] = useState(false)
-  const [cancellationForm, setCancellationForm] = useState({ admin_notes: "" })
   const [cancellationLoading, setCancellationLoading] = useState(false)
   const [cancellationError, setCancellationError] = useState("")
   const [stats, setStats] = useState<any | null>(null)
@@ -87,6 +85,13 @@ export default function BettingTransactionsPage() {
   const [failedLoading, setFailedLoading] = useState(false)
   const [failedError, setFailedError] = useState("")
   const [failedTransaction, setFailedTransaction] = useState<any | null>(null)
+
+  // Process Cancellation Request state
+  const [processCancellationModalOpen, setProcessCancellationModalOpen] = useState(false)
+  const [processCancellationTransaction, setProcessCancellationTransaction] = useState<any | null>(null)
+  const [processCancellationNotes, setProcessCancellationNotes] = useState("")
+  const [processCancellationLoading, setProcessCancellationLoading] = useState(false)
+  const [processCancellationError, setProcessCancellationError] = useState("")
 
   // Fetch transactions from API
   useEffect(() => {
@@ -215,8 +220,8 @@ export default function BettingTransactionsPage() {
     setCancellationError("")
     try {
       const payload = {
-        reason: (refundReason || cancellationForm.admin_notes || "Autre raison").trim(),
-        admin_notes: (cancellationForm.admin_notes || refundReason || "Aucune note fournie").trim(),
+        reason: (refundReason || "Autre raison").trim(),
+        admin_notes: (refundReason || "Aucune note fournie").trim(),
       }
 
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${targetTransaction.uid}/refund-partner/`
@@ -227,9 +232,7 @@ export default function BettingTransactionsPage() {
         successMessage: "Remboursement effectué avec succès"
       })
 
-      setCancellationModalOpen(false)
       setRefundModalOpen(false)
-      setCancellationForm({ admin_notes: "" })
       setRefundReason("")
 
       // Refresh data
@@ -324,6 +327,44 @@ export default function BettingTransactionsPage() {
       toast({ title: "Erreur", description: errMsg, variant: "destructive" })
     } finally {
       setFailedLoading(false)
+    }
+  }
+
+  // Handle Process Cancellation Request (Approve/Reject)
+  const handleProcessCancellationRequest = async (approve: boolean) => {
+    const targetTransaction = processCancellationTransaction || detailTransaction
+    if (!targetTransaction) return
+
+    setProcessCancellationLoading(true)
+    setProcessCancellationError("")
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${targetTransaction.uid}/process_cancellation/`
+      const payload = {
+        success: approve,
+        admin_notes: processCancellationNotes || (approve ? "Cancellation approved" : "Cancellation rejected")
+      }
+
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        successMessage: approve ? "Demande d'annulation approuvée" : "Demande d'annulation rejetée"
+      })
+
+      setProcessCancellationModalOpen(false)
+      setProcessCancellationTransaction(null)
+      setProcessCancellationNotes("")
+      setDetailModalOpen(false)
+      
+      // Refresh data
+      setCurrentPage(1)
+      router.refresh()
+    } catch (err: any) {
+      const errMsg = extractErrorMessages(err)
+      setProcessCancellationError(errMsg)
+      toast({ title: "Erreur", description: errMsg, variant: "destructive" })
+    } finally {
+      setProcessCancellationLoading(false)
     }
   }
 
@@ -713,6 +754,17 @@ export default function BettingTransactionsPage() {
                                   <RefreshCw className="h-4 w-4 mr-2 text-orange-600" />
                                   <span>Rembourser</span>
                                 </DropdownMenuItem>
+
+                                {transaction.status === "cancellation_requested" && (
+                                  <DropdownMenuItem onClick={() => {
+                                    setProcessCancellationTransaction(transaction);
+                                    setProcessCancellationNotes("");
+                                    setProcessCancellationModalOpen(true);
+                                  }}>
+                                    <AlertTriangle className="h-4 w-4 mr-2 text-yellow-600" />
+                                    <span>Traiter l'annulation</span>
+                                  </DropdownMenuItem>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
@@ -995,7 +1047,11 @@ export default function BettingTransactionsPage() {
                         </div>
                         <div className="pt-4">
                           <Button
-                            onClick={() => setCancellationModalOpen(true)}
+                            onClick={() => {
+                              setProcessCancellationTransaction(detailTransaction);
+                              setProcessCancellationNotes("");
+                              setProcessCancellationModalOpen(true);
+                            }}
                             className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
                           >
                             <AlertTriangle className="h-4 w-4 mr-2" />
@@ -1039,73 +1095,6 @@ export default function BettingTransactionsPage() {
           </DialogContent>
         </Dialog>
 
-        {/* Cancellation Modal */}
-        <Dialog open={cancellationModalOpen} onOpenChange={setCancellationModalOpen}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center space-x-2">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
-                <span>Traiter la demande d'annulation</span>
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleProcessCancellation} className="space-y-6">
-              {cancellationError && (
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg">
-                  <ErrorDisplay error={cancellationError} />
-                </div>
-              )}
-
-              <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg">
-                <h3 className="font-medium text-orange-800 dark:text-orange-300 mb-2">
-                  Transaction: {detailTransaction?.reference}
-                </h3>
-                <p className="text-sm text-orange-700 dark:text-orange-400">
-                  Cette action va approuver la demande d'annulation et rembourser le partenaire.
-                </p>
-              </div>
-
-              <div>
-                <Label htmlFor="admin_notes">Notes Administrateur</Label>
-                <Textarea
-                  id="admin_notes"
-                  placeholder="Ajouter des notes pour cette annulation..."
-                  value={cancellationForm.admin_notes}
-                  onChange={(e) => setCancellationForm(prev => ({ ...prev, admin_notes: e.target.value }))}
-                  className="mt-1"
-                  rows={3}
-                />
-              </div>
-
-              <div className="flex items-center space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <Button
-                  type="submit"
-                  disabled={cancellationLoading}
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white"
-                >
-                  {cancellationLoading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Traitement...
-                    </>
-                  ) : (
-                    <>
-                      <AlertTriangle className="h-4 w-4 mr-2" />
-                      Approuver l'annulation
-                    </>
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setCancellationModalOpen(false)}
-                  disabled={cancellationLoading}
-                >
-                  Annuler
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
 
         {/* Mark as Success Modal */}
         <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
@@ -1257,6 +1246,68 @@ export default function BettingTransactionsPage() {
                 </Button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Process Cancellation Request Modal */}
+        <Dialog open={processCancellationModalOpen} onOpenChange={setProcessCancellationModalOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2 text-orange-600">
+                <AlertTriangle className="h-5 w-5" />
+                <span>Traiter la demande d'annulation</span>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {processCancellationError && <ErrorDisplay error={processCancellationError} />}
+              <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                <p className="text-sm text-orange-800 dark:text-orange-300">
+                  Transaction: <span className="font-mono font-bold">{(processCancellationTransaction || detailTransaction)?.reference}</span>
+                </p>
+                <p className="text-xs text-orange-700 dark:text-orange-400 mt-1">
+                  Approuver ou rejeter la demande d'annulation pour cette transaction.
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="process_notes">Notes d'administration</Label>
+                <Textarea
+                  id="process_notes"
+                  placeholder="Notes sur la décision..."
+                  value={processCancellationNotes}
+                  onChange={(e) => setProcessCancellationNotes(e.target.value)}
+                  className="mt-1"
+                  rows={3}
+                />
+              </div>
+              <div className="flex flex-col space-y-2 pt-2">
+                <div className="flex space-x-2 justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setProcessCancellationModalOpen(false)}
+                    disabled={processCancellationLoading}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => handleProcessCancellationRequest(false)}
+                    disabled={processCancellationLoading}
+                  >
+                    {processCancellationLoading ? "Chargement..." : "Rejeter"}
+                  </Button>
+                  <Button
+                    type="button"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => handleProcessCancellationRequest(true)}
+                    disabled={processCancellationLoading}
+                  >
+                    {processCancellationLoading ? "Chargement..." : "Approuver"}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
 

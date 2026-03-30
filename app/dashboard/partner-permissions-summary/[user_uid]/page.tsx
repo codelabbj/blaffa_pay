@@ -10,7 +10,7 @@ import { ArrowLeft, Users, DollarSign, Calendar, CheckCircle, XCircle, Clock, Al
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 
 interface Partner {
   success: boolean;
@@ -96,8 +96,9 @@ interface Partner {
   }>;
 }
 
-export default function PartnerDetailsPage({ params }: { params: { user_uid: string } }) {
-  const userUid = params.user_uid;
+export default function PartnerDetailsPage() {
+  const params = useParams();
+  const userUid = params.user_uid as string;
   const [partner, setPartner] = useState<Partner | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

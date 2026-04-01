@@ -537,6 +537,7 @@ export default function BettingTransactionsPage() {
                   <SelectItem value="success">Succès</SelectItem>
                   <SelectItem value="failed">Échec</SelectItem>
                   <SelectItem value="pending">En attente</SelectItem>
+                  <SelectItem value="processing">En cours</SelectItem>
                   <SelectItem value="cancellation_requested">Annulation demandée</SelectItem>
                   <SelectItem value="cancelled">Annulé</SelectItem>
                 </SelectContent>

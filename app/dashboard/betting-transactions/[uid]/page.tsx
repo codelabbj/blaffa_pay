@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -29,8 +29,9 @@ const COLORS = {
   indigo: '#6366F1'
 };
 
-export default function BettingTransactionDetailsPage({ params }: { params: { uid: string } }) {
-  const transactionUid = params.uid;
+export default function BettingTransactionDetailsPage() {
+  const params = useParams();
+  const transactionUid = params?.uid as string;
   const [transaction, setTransaction] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -44,6 +45,8 @@ export default function BettingTransactionDetailsPage({ params }: { params: { ui
 
   useEffect(() => {
     const fetchTransaction = async () => {
+      if (!transactionUid) return;
+      
       setLoading(true);
       setError("");
       try {

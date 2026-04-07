@@ -156,6 +156,7 @@ GET    /api/payments/betting/admin/commissions/partner_commission_stats/?partner
   partner_uid: string;
   transaction_ids: string[] | null; // null = pay all unpaid
   admin_notes: string;
+  amount: number | null;
 }
 ```
 

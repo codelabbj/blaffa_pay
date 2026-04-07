@@ -67,6 +67,7 @@ const [partnerAccountInfo, setPartnerAccountInfo] = useState<any | null>(null)
 const [bettingCommissionPaymentModalOpen, setBettingCommissionPaymentModalOpen] = useState(false)
 const [bettingCommissionPaymentForm, setBettingCommissionPaymentForm] = useState({
   admin_notes: "",
+  amount: "",
 })
 const [bettingCommissionPaymentLoading, setBettingCommissionPaymentLoading] = useState(false)
 const [bettingCommissionPaymentError, setBettingCommissionPaymentError] = useState("")
@@ -214,6 +215,7 @@ const handlePayBettingCommission = async (e: React.FormEvent) => {
       partner_uid: bettingCommissionPartner.uid,
       transaction_ids: null, // null = pay all unpaid commissions
       admin_notes: bettingCommissionPaymentForm.admin_notes,
+      amount: bettingCommissionPaymentForm.amount ? parseFloat(bettingCommissionPaymentForm.amount) : null,
     }
 
     const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/pay_commissions/`
@@ -338,6 +340,7 @@ POST /api/payments/betting/admin/commissions/pay_commissions/
   partner_uid: string
   transaction_ids: string[] | null // null = pay all unpaid
   admin_notes: string
+  amount: number | null
 }
 ```
 
@@ -776,9 +779,21 @@ The payment modal is a separate dialog that can be opened from the commission mo
 
 **Form**:
 ```typescript
+<Input
+  id="amount"
+  type="number"
+  step="0.01"
+  placeholder="Laisser vide pour tout payer"
+  value={bettingCommissionPaymentForm.amount}
+  onChange={(e) => setBettingCommissionPaymentForm(prev => ({ 
+    ...prev, 
+    amount: e.target.value 
+  }))}
+/>
+
 <Textarea
   id="admin_notes"
-  placeholder="Ajouter des notes pour ce paiement de commission..."
+  placeholder="Ajouter des notes pour ce paiement..."
   value={bettingCommissionPaymentForm.admin_notes}
   onChange={(e) => setBettingCommissionPaymentForm(prev => ({ 
     ...prev, 

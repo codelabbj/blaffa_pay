@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect, useCallback } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -22,6 +23,9 @@ import { DateRangeFilter } from "@/components/ui/date-range-filter"
 import { CopyButton } from "@/components/ui/copy-button"
 
 
+
+
+
 // Colors for consistent theming - using logo colors
 const COLORS = {
   primary: '#FF6B35', // Orange (primary from logo)
@@ -36,19 +40,23 @@ const COLORS = {
   indigo: '#6366F1'
 };
 
-export default function UsersPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [currentPage, setCurrentPage] = useState(1)
+function UsersPageContent() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [users, setUsers] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [sortField, setSortField] = useState<"display_name" | "email" | "created_at" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
+  const [sortField, setSortField] = useState<"display_name" | "email" | "created_at" | null>((searchParams.get("sort_field") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
+  const [startDate, setStartDate] = useState<string | null>(searchParams.get("start_date"))
+  const [endDate, setEndDate] = useState<string | null>(searchParams.get("end_date"))
   const { t } = useLanguage()
   const itemsPerPage = 10
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
@@ -84,93 +92,135 @@ export default function UsersPage() {
   const [confirmActionUser, setConfirmActionUser] = useState<any | null>(null);
   const [confirmActionType, setConfirmActionType] = useState<"activate" | "deactivate" | null>(null);
 
-  // Fetch users from API
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        let endpoint = "";
-        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField) {
-          const params = new URLSearchParams({
-            page: currentPage.toString(),
-            page_size: itemsPerPage.toString(),
-          });
-          if (searchTerm.trim() !== "") {
-            params.append("search", searchTerm);
-          }
-          if (statusFilter !== "all") {
-            params.append("status", statusFilter);
-          }
-          if (startDate) {
-            params.append("created_at__gte", startDate);
-          }
-          if (endDate) {
-            params.append("created_at__lte", endDate);
-          }
-          const orderingParam = sortField
-            ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${(sortField === "display_name" ? "display_name" : sortField)}`
-            : "";
-          endpoint =
-            viewType === "pending"
-              ? `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/pending/?${params.toString()}${orderingParam}`
-              : `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/?${params.toString()}${orderingParam}`;
-        } else {
-          const params = new URLSearchParams({
-            page: currentPage.toString(),
-            page_size: itemsPerPage.toString(),
-          });
-          endpoint =
-            viewType === "pending"
-              ? `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/pending/?${params.toString()}`
-              : `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/?${params.toString()}`;
-        }
-        console.log("User API endpoint:", endpoint);
-        const data = await apiFetch(endpoint);
-        console.log("API response data:", data);
-
-        // Handle the actual API response structure
-        const rawUsers = data.users || data.results || [];
-        const users = rawUsers.map((u: any) => ({
-          ...u,
-          can_process_momo: u.can_process_momo ?? true,
-          can_process_mobcash: u.can_process_mobcash ?? true,
-          can_process_bulk_payment: u.can_process_bulk_payment ?? true,
-        }));
-        const totalCount = data.pagination?.total_count || data.count || 0;
-        const totalPages = data.pagination?.total_pages || Math.ceil(totalCount / itemsPerPage);
-
-        setUsers(users);
-        setTotalCount(totalCount);
-        setTotalPages(totalPages);
-      } catch (err: any) {
-        const errorMessage = extractErrorMessages(err) || "Échec du chargement des utilisateurs";
-        setError(errorMessage);
-        setUsers([]);
-        toast({
-          title: "Échec du chargement des utilisateurs",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        console.error('Users fetch error:', err);
-      } finally {
-        setLoading(false);
+  // Centralized URL update function
+  const updateUrl = useCallback((newParams: Record<string, string | number | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all" || (key === "page" && value === 1)) {
+        params.delete(key)
+      } else {
+        params.set(key, value.toString())
       }
-    };
+    })
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [searchParams, pathname, router])
+
+  // Custom state setters that also update the URL
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateUrl({ page })
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1)
+    updateUrl({ search: value, page: 1 })
+  }
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+    setCurrentPage(1)
+    updateUrl({ status: value, page: 1 })
+  }
+
+  const handleDateChange = (start: string | null, end: string | null) => {
+    setStartDate(start)
+    setEndDate(end)
+    setCurrentPage(1)
+    updateUrl({ start_date: start, end_date: end, page: 1 })
+  }
+
+  const handleSortChange = (field: "display_name" | "email" | "created_at") => {
+    const newDir = sortField === field ? (sortDirection === "desc" ? "asc" : "desc") : "desc"
+    setSortField(field)
+    setSortDirection(newDir)
+    setCurrentPage(1)
+    updateUrl({ sort_field: field, sort_dir: newDir, page: 1 })
+  }
+
+  // Fetch users from API
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      let endpoint = "";
+      if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField) {
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          page_size: itemsPerPage.toString(),
+        });
+        if (searchTerm.trim() !== "") {
+          params.append("search", searchTerm);
+        }
+        if (statusFilter !== "all") {
+          params.append("status", statusFilter);
+        }
+        if (startDate) {
+          params.append("created_at__gte", startDate);
+        }
+        if (endDate) {
+          params.append("created_at__lte", endDate);
+        }
+        const orderingParam = sortField
+          ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${(sortField === "display_name" ? "display_name" : sortField)}`
+          : "";
+        endpoint =
+          viewType === "pending"
+            ? `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/pending/?${params.toString()}${orderingParam}`
+            : `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/?${params.toString()}${orderingParam}`;
+      } else {
+        const params = new URLSearchParams({
+          page: currentPage.toString(),
+          page_size: itemsPerPage.toString(),
+        });
+        endpoint =
+          viewType === "pending"
+            ? `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/pending/?${params.toString()}`
+            : `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/?${params.toString()}`;
+      }
+      console.log("User API endpoint:", endpoint);
+      const data = await apiFetch(endpoint);
+      console.log("API response data:", data);
+
+      // Handle the actual API response structure
+      const rawUsers = data.users || data.results || [];
+      const users = rawUsers.map((u: any) => ({
+        ...u,
+        can_process_momo: u.can_process_momo ?? true,
+        can_process_mobcash: u.can_process_mobcash ?? true,
+        can_process_bulk_payment: u.can_process_bulk_payment ?? true,
+      }));
+      const totalCount = data.pagination?.total_count || data.count || 0;
+      const totalPages = data.pagination?.total_pages || Math.ceil(totalCount / itemsPerPage);
+
+      setUsers(users);
+      setTotalCount(totalCount);
+      setTotalPages(totalPages);
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err) || "Échec du chargement des utilisateurs";
+      setError(errorMessage);
+      setUsers([]);
+      toast({
+        title: "Échec du chargement des utilisateurs",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      console.error('Users fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchTerm, statusFilter, currentPage, sortField, sortDirection, viewType, startDate, endDate, apiFetch, baseUrl, itemsPerPage, toast]);
+
+  useEffect(() => {
     fetchUsers();
-  }, [searchTerm, statusFilter, currentPage, sortField, sortDirection, viewType, startDate, endDate]);
+  }, [fetchUsers]);
 
   const filteredUsers = users // Filtering is now handled by the API
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedUsers = filteredUsers // Already paginated by API
 
   const handleSort = (field: "display_name" | "email" | "created_at") => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("desc")
-    }
+    handleSortChange(field)
   }
 
   const getStatusBadge = (status: string) => {
@@ -241,7 +291,7 @@ export default function UsersPage() {
       })
       setUsers((prev) => prev.map((u) => selectedUids.includes(u.uid) ? { ...u, ...data.user } : u))
       setSelectedUids([])
-      setCurrentPage(1)
+      await fetchUsers()
     } catch (err: any) {
       toast({ title: "Échec de l'action en lot", description: extractErrorMessages(err) || "Impossible d'effectuer l'action en lot", variant: "destructive" })
     } finally {
@@ -486,13 +536,13 @@ export default function UsersPage() {
                 <Input
                   placeholder="Rechercher des utilisateurs..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                 />
               </div>
 
               {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={handleStatusChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Filtrer par statut" />
                 </SelectTrigger>
@@ -519,12 +569,9 @@ export default function UsersPage() {
               <DateRangeFilter
                 startDate={startDate}
                 endDate={endDate}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-                onClear={() => {
-                  setStartDate(null)
-                  setEndDate(null)
-                }}
+                onStartDateChange={(start) => handleDateChange(start, endDate)}
+                onEndDateChange={(end) => handleDateChange(startDate, end)}
+                onClear={() => handleDateChange(null, null)}
                 placeholder="Filtrer par date"
               />
 
@@ -738,32 +785,45 @@ export default function UsersPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
                 Précédent
               </Button>
               <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-blue-600 text-white" : ""}
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
+                {(() => {
+                  const pages = [];
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+                      pages.push(i);
+                    } else if (pages[pages.length - 1] !== '...') {
+                      pages.push('...');
+                    }
+                  }
+                  
+                  return pages.map((page, index) => {
+                    if (page === '...') {
+                      return <span key={`ellipsis-${index}`} className="px-2 text-gray-500 text-sm">...</span>;
+                    }
+                    return (
+                      <Button
+                        key={`page-${page}`}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page as number)}
+                        className={currentPage === page ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "border-gray-200 dark:border-gray-600"}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  });
+                })()}
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
                 Suivant
@@ -1160,5 +1220,16 @@ export default function UsersPage() {
         </Dialog>
       </div>
     </div >
+  )
+}
+
+
+import { Suspense } from 'react'
+
+export default function UsersPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>}>
+      <UsersPageContent />
+    </Suspense>
   )
 }

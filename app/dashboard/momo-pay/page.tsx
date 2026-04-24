@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -62,21 +63,25 @@ interface ApiResponse {
 
 
 export default function MomoPayPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [phoneFilter, setPhoneFilter] = useState("")
-  const [paymentTypeFilter, setPaymentTypeFilter] = useState("all")
-  const [includeExpired, setIncludeExpired] = useState(false)
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [phoneFilter, setPhoneFilter] = useState(searchParams.get("phone") || "")
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState(searchParams.get("payment_type") || "all")
+  const [includeExpired, setIncludeExpired] = useState(searchParams.get("include_expired") === "true")
+  const [startDate, setStartDate] = useState<string | null>(searchParams.get("start_date"))
+  const [endDate, setEndDate] = useState<string | null>(searchParams.get("end_date"))
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [transactions, setTransactions] = useState<MomoPayTransaction[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [sortField, setSortField] = useState<"amount" | "phone" | "created_at" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const [sortField, setSortField] = useState<"amount" | "phone" | "created_at" | null>((searchParams.get("sort_field") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
   const apiFetch = useApi()
@@ -96,84 +101,144 @@ export default function MomoPayPage() {
   const [selectedTransactionForFailed, setSelectedTransactionForFailed] = useState<MomoPayTransaction | null>(null)
   const [failedLoading, setFailedLoading] = useState(false)
 
+  // Centralized URL update function
+  const updateUrl = useCallback((newParams: Record<string, string | number | boolean | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all" || (key === "page" && value === 1)) {
+        params.delete(key)
+      } else {
+        params.set(key, value.toString())
+      }
+    })
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [searchParams, pathname, router])
+
+  // Custom state setters that also update the URL
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateUrl({ page })
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1)
+    updateUrl({ search: value, page: 1 })
+  }
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+    setCurrentPage(1)
+    updateUrl({ status: value, page: 1 })
+  }
+
+  const handlePhoneChange = (value: string) => {
+    setPhoneFilter(value)
+    setCurrentPage(1)
+    updateUrl({ phone: value, page: 1 })
+  }
+
+  const handlePaymentTypeChange = (value: string) => {
+    setPaymentTypeFilter(value)
+    setCurrentPage(1)
+    updateUrl({ payment_type: value, page: 1 })
+  }
+
+  const handleIncludeExpiredChange = (value: boolean) => {
+    setIncludeExpired(value)
+    setCurrentPage(1)
+    updateUrl({ include_expired: value, page: 1 })
+  }
+
+  const handleDateChange = (start: string | null, end: string | null) => {
+    setStartDate(start)
+    setEndDate(end)
+    setCurrentPage(1)
+    updateUrl({ start_date: start, end_date: end, page: 1 })
+  }
+
+  const handleSortChange = (field: "amount" | "phone" | "created_at") => {
+    const newDir = sortField === field ? (sortDirection === "desc" ? "asc" : "desc") : "desc"
+    setSortField(field)
+    setSortDirection(newDir)
+    setCurrentPage(1)
+    updateUrl({ sort_field: field, sort_dir: newDir, page: 1 })
+  }
+
   const itemsPerPage = 20
 
 
   // Fetch transactions from API
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      setLoading(true)
-      setError("")
-      try {
-        const params = new URLSearchParams({
-          page: currentPage.toString(),
-          page_size: itemsPerPage.toString(),
-        })
+  const fetchTransactions = useCallback(async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        page_size: itemsPerPage.toString(),
+      })
 
-        if (searchTerm.trim() !== "") {
-          params.append("reference", searchTerm)
-        }
-        if (statusFilter !== "all") {
-          params.append("status", statusFilter)
-        }
-        if (phoneFilter.trim() !== "") {
-          params.append("phone", phoneFilter)
-        }
-        if (paymentTypeFilter !== "all") {
-          params.append("payment_type", paymentTypeFilter)
-        }
-        if (includeExpired) {
-          params.append("include_expired", "true")
-        }
-        if (startDate) {
-          params.append("created_at__gte", startDate)
-        }
-        if (endDate) {
-          params.append("created_at__lte", endDate)
-        }
-
-        const orderingParam = sortField
-          ? `&ordering=${(sortDirection === "asc" ? "" : "-")}${sortField}`
-          : ""
-
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/?${params.toString()}${orderingParam}`
-        const data: ApiResponse = await apiFetch(endpoint)
-
-        setTransactions(data.results || [])
-        setTotalCount(data.count || 0)
-        setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-
-        toast({
-          title: "Succès",
-          description: "<span>Transactions MoMo Pay chargées avec succès</span>"
-        })
-      } catch (err: any) {
-        const errorMessage = extractErrorMessages(err)
-        setError(errorMessage)
-        setTransactions([])
-        setTotalCount(0)
-        setTotalPages(1)
-        toast({
-          title: "Erreur de chargement",
-          description: errorMessage,
-          variant: "destructive"
-        })
-      } finally {
-        setLoading(false)
+      if (searchTerm.trim() !== "") {
+        params.append("reference", searchTerm)
       }
+      if (statusFilter !== "all") {
+        params.append("status", statusFilter)
+      }
+      if (phoneFilter.trim() !== "") {
+        params.append("phone", phoneFilter)
+      }
+      if (paymentTypeFilter !== "all") {
+        params.append("payment_type", paymentTypeFilter)
+      }
+      if (includeExpired) {
+        params.append("include_expired", "true")
+      }
+      if (startDate) {
+        params.append("created_at__gte", startDate)
+      }
+      if (endDate) {
+        params.append("created_at__lte", endDate)
+      }
+
+      const orderingParam = sortField
+        ? `&ordering=${(sortDirection === "asc" ? "" : "-")}${sortField}`
+        : ""
+
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/?${params.toString()}${orderingParam}`
+      const data: ApiResponse = await apiFetch(endpoint)
+
+      setTransactions(data.results || [])
+      setTotalCount(data.count || 0)
+      setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
+
+      toast({
+        title: "Succès",
+        description: "<span>Transactions MoMo Pay chargées avec succès</span>"
+      })
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      setError(errorMessage)
+      setTransactions([])
+      setTotalCount(0)
+      setTotalPages(1)
+      toast({
+        title: "Erreur de chargement",
+        description: errorMessage,
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
     }
-    fetchTransactions()
   }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, paymentTypeFilter, includeExpired, sortField, sortDirection, startDate, endDate, toast, apiFetch])
+
+  useEffect(() => {
+    fetchTransactions()
+  }, [fetchTransactions])
 
   const startIndex = (currentPage - 1) * itemsPerPage
 
   const handleSort = (field: "amount" | "phone" | "created_at") => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("desc")
-    }
+    handleSortChange(field)
   }
 
   const getStatusBadge = (status: string, isExpired: boolean) => {
@@ -314,7 +379,7 @@ export default function MomoPayPage() {
       })
 
       // Refresh the list
-      setCurrentPage(1)
+      await fetchTransactions()
       setDetailModalOpen(false)
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
@@ -351,10 +416,8 @@ export default function MomoPayPage() {
       setSuccessReason("")
       setSelectedTransactionForSuccess(null)
 
-      // Refresh the list - simply changing searchTerm or page would trigger the useEffect
-      // but if we want to be sure, we can set search term to itself or just trigger a refresh
-      // Here I'll just reset current page to 1 to force reload
-      setCurrentPage(1)
+      // Refresh the list
+      await fetchTransactions()
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
       toast({
@@ -390,7 +453,7 @@ export default function MomoPayPage() {
       setFailedReason("")
       setSelectedTransactionForFailed(null)
 
-      setCurrentPage(1)
+      await fetchTransactions()
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
       toast({
@@ -446,7 +509,7 @@ export default function MomoPayPage() {
                 <Input
                   placeholder="Rechercher par référence..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                 />
               </div>
@@ -457,13 +520,13 @@ export default function MomoPayPage() {
                 <Input
                   placeholder="Filtrer par téléphone..."
                   value={phoneFilter}
-                  onChange={(e) => setPhoneFilter(e.target.value)}
+                  onChange={(e) => handlePhoneChange(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                 />
               </div>
 
               {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={handleStatusChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Tous les statuts" />
                 </SelectTrigger>
@@ -478,7 +541,7 @@ export default function MomoPayPage() {
               </Select>
 
               {/* Payment Type Filter */}
-              <Select value={paymentTypeFilter} onValueChange={setPaymentTypeFilter}>
+              <Select value={paymentTypeFilter} onValueChange={handlePaymentTypeChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Type de paiement" />
                 </SelectTrigger>
@@ -495,7 +558,7 @@ export default function MomoPayPage() {
                 <Switch
                   id="include-expired"
                   checked={includeExpired}
-                  onCheckedChange={setIncludeExpired}
+                  onCheckedChange={handleIncludeExpiredChange}
                 />
                 <label htmlFor="include-expired" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Inclure les expirés
@@ -506,12 +569,9 @@ export default function MomoPayPage() {
               <DateRangeFilter
                 startDate={startDate}
                 endDate={endDate}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-                onClear={() => {
-                  setStartDate(null)
-                  setEndDate(null)
-                }}
+                onStartDateChange={(start) => handleDateChange(start, endDate)}
+                onEndDateChange={(end) => handleDateChange(startDate, end)}
+                onClear={() => handleDateChange(null, null)}
                 placeholder="Filtrer par date"
                 className="col-span-1"
               />
@@ -687,7 +747,7 @@ export default function MomoPayPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 className="border-gray-200 dark:border-gray-600"
               >
@@ -695,25 +755,38 @@ export default function MomoPayPage() {
                 <span>Précédent</span>
               </Button>
               <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-orange-500 text-white" : "border-gray-200 dark:border-gray-600"}
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
+                {(() => {
+                  const pages = [];
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+                      pages.push(i);
+                    } else if (pages[pages.length - 1] !== '...') {
+                      pages.push('...');
+                    }
+                  }
+                  
+                  return pages.map((page, index) => {
+                    if (page === '...') {
+                      return <span key={`ellipsis-${index}`} className="px-2 text-gray-500 text-sm">...</span>;
+                    }
+                    return (
+                      <Button
+                        key={`page-${page}`}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page as number)}
+                        className={currentPage === page ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "border-gray-200 dark:border-gray-600"}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  });
+                })()}
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 className="border-gray-200 dark:border-gray-600"
               >

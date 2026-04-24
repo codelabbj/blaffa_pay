@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 // import { useWebSocket } from "@/components/providers/websocket-provider"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { useCallback } from "react"
 import {
   DropdownMenu,
@@ -64,16 +64,20 @@ const COLORS = {
 };
 
 export default function TransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [networkFilter, setNetworkFilter] = useState("all")
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [typeFilter, setTypeFilter] = useState(searchParams.get("type") || "all")
+  const [networkFilter, setNetworkFilter] = useState(searchParams.get("network") || "all")
   const [networks, setNetworks] = useState<any[]>([])
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [sortField, setSortField] = useState<"amount" | "date" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const [startDate, setStartDate] = useState<string | null>(searchParams.get("start_date"))
+  const [endDate, setEndDate] = useState<string | null>(searchParams.get("end_date"))
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
+  const [sortField, setSortField] = useState<"amount" | "date" | null>((searchParams.get("sort_field") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
   const [transactions, setTransactions] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -88,9 +92,66 @@ export default function TransactionsPage() {
   const [editTransaction, setEditTransaction] = useState<any | null>(null)
   const [deleteUid, setDeleteUid] = useState<string | null>(null)
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const router = useRouter()
   const [showEditConfirm, setShowEditConfirm] = useState(false)
   const [pendingEditPayload, setPendingEditPayload] = useState<any | null>(null)
+
+  // Centralized URL update function
+  const updateUrl = useCallback((newParams: Record<string, string | number | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all" || (key === "page" && value === 1)) {
+        params.delete(key)
+      } else {
+        params.set(key, value.toString())
+      }
+    })
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [searchParams, pathname, router])
+
+  // Custom state setters that also update the URL
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateUrl({ page })
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1)
+    updateUrl({ search: value, page: 1 })
+  }
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+    setCurrentPage(1)
+    updateUrl({ status: value, page: 1 })
+  }
+
+  const handleTypeChange = (value: string) => {
+    setTypeFilter(value)
+    setCurrentPage(1)
+    updateUrl({ type: value, page: 1 })
+  }
+
+  const handleNetworkChange = (value: string) => {
+    setNetworkFilter(value)
+    setCurrentPage(1)
+    updateUrl({ network: value, page: 1 })
+  }
+
+  const handleDateChange = (start: string | null, end: string | null) => {
+    setStartDate(start)
+    setEndDate(end)
+    setCurrentPage(1)
+    updateUrl({ start_date: start, end_date: end, page: 1 })
+  }
+
+  const handleSortChange = (field: "amount" | "date") => {
+    const newDir = sortField === field ? (sortDirection === "desc" ? "asc" : "desc") : "desc"
+    setSortField(field)
+    setSortDirection(newDir)
+    setCurrentPage(1)
+    updateUrl({ sort_field: field, sort_dir: newDir, page: 1 })
+  }
 
   // Edit form state
   const [editForm, setEditForm] = useState({
@@ -187,10 +248,7 @@ export default function TransactionsPage() {
   const paginatedTransactions = filteredAndSortedTransactions
 
   const handleSort = (field: "amount" | "date") => {
-    setCurrentPage(1)
-    // Toggle direction if clicking the same field, else reset to desc
-    setSortDirection((prevDir) => (sortField === field ? (prevDir === "desc" ? "asc" : "desc") : "desc"))
-    setSortField(field)
+    handleSortChange(field)
   }
 
 
@@ -293,7 +351,6 @@ export default function TransactionsPage() {
         completed_at: "",
         error_message: "",
       })
-      setCurrentPage(1)
       router.refresh()
       await fetchTransactions()
     } catch (err: any) {
@@ -317,7 +374,7 @@ export default function TransactionsPage() {
       })
       setDeleteUid(null)
       // Refetch transactions
-      setCurrentPage(1)
+      await fetchTransactions()
     } catch (err: any) {
       const backendError = err?.message || t("transactions.failedToDelete")
       setError(backendError)
@@ -434,7 +491,6 @@ export default function TransactionsPage() {
         successMessage: t("transactions.assignedSuccessfully") || "Transaction assignée avec succès"
       })
       // Refresh list
-      setCurrentPage(1)
       router.refresh()
       await fetchTransactions()
     } catch (err: any) {
@@ -472,7 +528,6 @@ export default function TransactionsPage() {
       setRetryTransaction(null)
       setRetryReason("")
       // Refresh list
-      setCurrentPage(1)
       router.refresh()
       await fetchTransactions()
     } catch (err: any) {
@@ -506,7 +561,6 @@ export default function TransactionsPage() {
       setCancelModalOpen(false)
       setCancelTransaction(null)
       setCancelReason("")
-      setCurrentPage(1)
       router.refresh()
       await fetchTransactions()
     } catch (err: any) {
@@ -540,7 +594,6 @@ export default function TransactionsPage() {
       setSuccessModalOpen(false)
       setSuccessTransaction(null)
       setSuccessReason("")
-      setCurrentPage(1)
       router.refresh()
       await fetchTransactions()
     } catch (err: any) {
@@ -574,7 +627,6 @@ export default function TransactionsPage() {
       setFailedModalOpen(false)
       setFailedTransaction(null)
       setFailedReason("Tentative de relance après timeout")
-      setCurrentPage(1)
       router.refresh()
       await fetchTransactions()
     } catch (err: any) {
@@ -650,13 +702,13 @@ export default function TransactionsPage() {
                 <Input
                   placeholder={t("transactions.searchPlaceholder")}
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                 />
               </div>
 
               {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={handleStatusChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder={t("transactions.filterByStatus")} />
                 </SelectTrigger>
@@ -670,7 +722,7 @@ export default function TransactionsPage() {
               </Select>
 
               {/* Type Filter */}
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <Select value={typeFilter} onValueChange={handleTypeChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder={t("transactions.filterByType")} />
                 </SelectTrigger>
@@ -682,7 +734,7 @@ export default function TransactionsPage() {
               </Select>
 
               {/* Network Filter */}
-              <Select value={networkFilter} onValueChange={setNetworkFilter}>
+              <Select value={networkFilter} onValueChange={handleNetworkChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Réseau" />
                 </SelectTrigger>
@@ -699,7 +751,7 @@ export default function TransactionsPage() {
               {/* Sort */}
               <Select
                 value={sortField || ""}
-                onValueChange={(value) => setSortField(value as "amount" | "date" | null)}
+                onValueChange={(value) => handleSortChange(value as "amount" | "date")}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Trier par" />
@@ -714,12 +766,9 @@ export default function TransactionsPage() {
               <DateRangeFilter
                 startDate={startDate}
                 endDate={endDate}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-                onClear={() => {
-                  setStartDate(null)
-                  setEndDate(null)
-                }}
+                onStartDateChange={(start) => handleDateChange(start, endDate)}
+                onEndDateChange={(end) => handleDateChange(startDate, end)}
+                onClear={() => handleDateChange(null, null)}
                 placeholder="Filtrer par date"
                 className="col-span-1"
               />
@@ -926,32 +975,46 @@ export default function TransactionsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
                 Précédent
               </Button>
               <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(5, Math.ceil(totalCount / itemsPerPage)) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-blue-600 text-white" : ""}
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
+                {(() => {
+                  const totalPages = Math.ceil(totalCount / itemsPerPage);
+                  const pages = [];
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+                      pages.push(i);
+                    } else if (pages[pages.length - 1] !== '...') {
+                      pages.push('...');
+                    }
+                  }
+                  
+                  return pages.map((page, index) => {
+                    if (page === '...') {
+                      return <span key={`ellipsis-${index}`} className="px-2 text-gray-500 text-sm">...</span>;
+                    }
+                    return (
+                      <Button
+                        key={`page-${page}`}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page as number)}
+                        className={currentPage === page ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "border-gray-200 dark:border-gray-600"}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  });
+                })()}
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.min(Math.ceil(totalCount / itemsPerPage), currentPage + 1))}
+                onClick={() => handlePageChange(Math.min(Math.ceil(totalCount / itemsPerPage), currentPage + 1))}
                 disabled={currentPage === Math.ceil(totalCount / itemsPerPage)}
               >
                 Suivant

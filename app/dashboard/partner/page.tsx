@@ -1,7 +1,7 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useLanguage } from "@/components/providers/language-provider"
 import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Users, Filter, CheckCircle, XCircle, Mail, Calendar, UserCheck, DollarSign, ArrowUpDown as ArrowUpDownIcon, Clock, Settings, TrendingUp, CreditCard, Shield, Eye, Wallet, MoreHorizontal, History } from "lucide-react"
 import Link from "next/link"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
@@ -22,6 +23,9 @@ import { CopyButton } from "@/components/ui/copy-button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+
+
+
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -37,22 +41,26 @@ const COLORS = {
 	indigo: '#6366F1'
 };
 
-export default function PartnerPage() {
-	const [searchTerm, setSearchTerm] = useState("")
-	const [statusFilter, setStatusFilter] = useState("all")
-	const [startDate, setStartDate] = useState<string | null>(null)
-	const [endDate, setEndDate] = useState<string | null>(null)
-	const [currentPage, setCurrentPage] = useState(1)
+function PartnerPageContent() {
+	const router = useRouter()
+	const pathname = usePathname()
+	const searchParams = useSearchParams()
+
+	const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+	const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+	const [startDate, setStartDate] = useState<string | null>(searchParams.get("start_date"))
+	const [endDate, setEndDate] = useState<string | null>(searchParams.get("end_date"))
+	const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
 	const [partners, setPartners] = useState<any[]>([])
 	const [totalCount, setTotalCount] = useState(0)
 	const [totalPages, setTotalPages] = useState(1)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState("")
-	const [sortField, setSortField] = useState<"display_name" | "email" | "created_at" | null>(null)
-	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
-	const [momoFilter, setMomoFilter] = useState("all")
-	const [mobcashFilter, setMobcashFilter] = useState("all")
-	const [bulkFilter, setBulkFilter] = useState("all")
+	const [sortField, setSortField] = useState<"display_name" | "email" | "created_at" | null>((searchParams.get("sort_field") as any) || null)
+	const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
+	const [momoFilter, setMomoFilter] = useState(searchParams.get("momo") || "all")
+	const [mobcashFilter, setMobcashFilter] = useState(searchParams.get("mobcash") || "all")
+	const [bulkFilter, setBulkFilter] = useState(searchParams.get("bulk") || "all")
 	const { t } = useLanguage()
 	const itemsPerPage = 20
 	const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
@@ -111,68 +119,128 @@ export default function PartnerPage() {
 	const [accountTransactionsNext, setAccountTransactionsNext] = useState<string | null>(null)
 	const [accountTransactionsPrevious, setAccountTransactionsPrevious] = useState<string | null>(null)
 
-	// Fetch partners from API (authenticated)
-	useEffect(() => {
-		const fetchPartners = async () => {
-			setLoading(true)
-			setError("")
-			try {
-				const params = new URLSearchParams({
-					page: currentPage.toString(),
-					page_size: itemsPerPage.toString(),
-				})
-				if (searchTerm.trim() !== "") {
-					params.append("search", searchTerm)
-				}
-				if (statusFilter !== "all") {
-					params.append("is_active", statusFilter === "active" ? "true" : "false")
-				}
-				if (startDate) {
-					params.append("created_at__gte", startDate)
-				}
-				if (endDate) {
-					params.append("created_at__lte", endDate)
-				}
-				if (momoFilter !== "all") {
-					params.append("can_process_momo", momoFilter === "yes" ? "true" : "false")
-				}
-				if (mobcashFilter !== "all") {
-					params.append("can_process_mobcash", mobcashFilter === "yes" ? "true" : "false")
-				}
-				if (bulkFilter !== "all") {
-					params.append("can_process_bulk_payment", bulkFilter === "yes" ? "true" : "false")
-				}
-				const orderingParam = sortField
-					? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
-					: ""
-				const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}${orderingParam}`
-				const data = await apiFetch(endpoint)
-				setPartners(data.partners || [])
-				setTotalCount(data.pagination?.total_count || 0)
-				setTotalPages(data.pagination?.total_pages || 1)
-			} catch (err: any) {
-				const errorMessage = extractErrorMessages(err)
-				setError(errorMessage)
-				setPartners([])
-				setTotalCount(0)
-				setTotalPages(1)
-				toast({ title: t("partners.failedToLoad"), description: errorMessage, variant: "destructive" })
-			} finally {
-				setLoading(false)
+	// Centralized URL update function
+	const updateUrl = useCallback((newParams: Record<string, string | number | null>) => {
+		const params = new URLSearchParams(searchParams.toString())
+		Object.entries(newParams).forEach(([key, value]) => {
+			if (value === null || value === "" || value === "all" || (key === "page" && value === 1)) {
+				params.delete(key)
+			} else {
+				params.set(key, value.toString())
 			}
+		})
+		router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+	}, [searchParams, pathname, router])
+
+	// Custom state setters that also update the URL
+	const handlePageChange = (page: number) => {
+		setCurrentPage(page)
+		updateUrl({ page })
+	}
+
+	const handleSearchChange = (value: string) => {
+		setSearchTerm(value)
+		setCurrentPage(1)
+		updateUrl({ search: value, page: 1 })
+	}
+
+	const handleStatusChange = (value: string) => {
+		setStatusFilter(value)
+		setCurrentPage(1)
+		updateUrl({ status: value, page: 1 })
+	}
+
+	const handleMomoChange = (value: string) => {
+		setMomoFilter(value)
+		setCurrentPage(1)
+		updateUrl({ momo: value, page: 1 })
+	}
+
+	const handleMobcashChange = (value: string) => {
+		setMobcashFilter(value)
+		setCurrentPage(1)
+		updateUrl({ mobcash: value, page: 1 })
+	}
+
+	const handleBulkChange = (value: string) => {
+		setBulkFilter(value)
+		setCurrentPage(1)
+		updateUrl({ bulk: value, page: 1 })
+	}
+
+	const handleDateChange = (start: string | null, end: string | null) => {
+		setStartDate(start)
+		setEndDate(end)
+		setCurrentPage(1)
+		updateUrl({ start_date: start, end_date: end, page: 1 })
+	}
+
+	const handleSortChange = (field: "display_name" | "email" | "created_at") => {
+		const newDir = sortField === field ? (sortDirection === "desc" ? "asc" : "desc") : "desc"
+		setSortField(field)
+		setSortDirection(newDir)
+		setCurrentPage(1)
+		updateUrl({ sort_field: field, sort_dir: newDir, page: 1 })
+	}
+
+	// Fetch partners from API (authenticated)
+	const fetchPartners = useCallback(async () => {
+		setLoading(true)
+		setError("")
+		try {
+			const params = new URLSearchParams({
+				page: currentPage.toString(),
+				page_size: itemsPerPage.toString(),
+			})
+			if (searchTerm.trim() !== "") {
+				params.append("search", searchTerm)
+			}
+			if (statusFilter !== "all") {
+				params.append("is_active", statusFilter === "active" ? "true" : "false")
+			}
+			if (startDate) {
+				params.append("created_at__gte", startDate)
+			}
+			if (endDate) {
+				params.append("created_at__lte", endDate)
+			}
+			if (momoFilter !== "all") {
+				params.append("can_process_momo", momoFilter === "yes" ? "true" : "false")
+			}
+			if (mobcashFilter !== "all") {
+				params.append("can_process_mobcash", mobcashFilter === "yes" ? "true" : "false")
+			}
+			if (bulkFilter !== "all") {
+				params.append("can_process_bulk_payment", bulkFilter === "yes" ? "true" : "false")
+			}
+			const orderingParam = sortField
+				? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
+				: ""
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}${orderingParam}`
+			const data = await apiFetch(endpoint)
+			setPartners(data.partners || [])
+			setTotalCount(data.pagination?.total_count || 0)
+			setTotalPages(data.pagination?.total_pages || 1)
+		} catch (err: any) {
+			const errorMessage = extractErrorMessages(err)
+			setError(errorMessage)
+			setPartners([])
+			setTotalCount(0)
+			setTotalPages(1)
+			toast({ title: t("partners.failedToLoad"), description: errorMessage, variant: "destructive" })
+		} finally {
+			setLoading(false)
 		}
-		fetchPartners()
 	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, sortField, sortDirection, startDate, endDate, momoFilter, mobcashFilter, bulkFilter, t, toast, apiFetch])
+
+	useEffect(() => {
+		fetchPartners()
+	}, [fetchPartners])
 
 	const startIndex = (currentPage - 1) * itemsPerPage
 
 	const handleSort = (field: "display_name" | "email" | "created_at") => {
-		if (sortField === field) {
-			setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-		} else {
-			setSortField(field)
-			setSortDirection("desc")
-		}
+		handleSortChange(field)
 	}
 
 	// Fetch partner details (authenticated)
@@ -419,37 +487,7 @@ export default function PartnerPage() {
 			setGrantPermissionForm({ uid: "", permission_type: "ussd_transaction", notes: "" })
 
 			// Refresh partners list
-			const params = new URLSearchParams({
-				page: currentPage.toString(),
-				page_size: itemsPerPage.toString(),
-			})
-			if (searchTerm.trim() !== "") {
-				params.append("search", searchTerm)
-			}
-			if (statusFilter !== "all") {
-				params.append("is_active", statusFilter === "active" ? "true" : "false")
-			}
-			if (startDate) {
-				params.append("created_at__gte", startDate)
-			}
-			if (endDate) {
-				params.append("created_at__lte", endDate)
-			}
-			if (momoFilter !== "all") {
-				params.append("can_process_momo", momoFilter === "yes" ? "true" : "false")
-			}
-			if (mobcashFilter !== "all") {
-				params.append("can_process_mobcash", mobcashFilter === "yes" ? "true" : "false")
-			}
-			if (bulkFilter !== "all") {
-				params.append("can_process_bulk_payment", bulkFilter === "yes" ? "true" : "false")
-			}
-			const orderingParam = sortField
-				? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
-				: ""
-			const refreshEndpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}${orderingParam}`
-			const refreshData = await apiFetch(refreshEndpoint)
-			setPartners(refreshData.partners || [])
+			await fetchPartners()
 		} catch (err: any) {
 			setGrantPermissionError(extractErrorMessages(err))
 			toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
@@ -535,13 +573,13 @@ export default function PartnerPage() {
 								<Input
 									placeholder="Rechercher des partenaires..."
 									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
+									onChange={(e) => handleSearchChange(e.target.value)}
 									className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
 								/>
 							</div>
 
 							{/* Status Filter */}
-							<Select value={statusFilter} onValueChange={setStatusFilter}>
+							<Select value={statusFilter} onValueChange={handleStatusChange}>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
 									<SelectValue placeholder="Filtrer par statut" />
 								</SelectTrigger>
@@ -555,7 +593,7 @@ export default function PartnerPage() {
 							{/* Sort */}
 							<Select
 								value={sortField || ""}
-								onValueChange={(value) => setSortField(value as "display_name" | "email" | "created_at" | null)}
+								onValueChange={(value) => handleSortChange(value as "display_name" | "email" | "created_at")}
 							>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
 									<SelectValue placeholder="Trier par" />
@@ -571,18 +609,15 @@ export default function PartnerPage() {
 							<DateRangeFilter
 								startDate={startDate}
 								endDate={endDate}
-								onStartDateChange={setStartDate}
-								onEndDateChange={setEndDate}
-								onClear={() => {
-									setStartDate(null)
-									setEndDate(null)
-								}}
+								onStartDateChange={(start) => handleDateChange(start, endDate)}
+								onEndDateChange={(end) => handleDateChange(startDate, end)}
+								onClear={() => handleDateChange(null, null)}
 								placeholder="Filtrer par date"
 								className="col-span-1"
 							/>
 
 							{/* MoMo Filter */}
-							<Select value={momoFilter} onValueChange={setMomoFilter}>
+							<Select value={momoFilter} onValueChange={handleMomoChange}>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
 									<SelectValue placeholder="MoMo" />
 								</SelectTrigger>
@@ -594,7 +629,7 @@ export default function PartnerPage() {
 							</Select>
 							
 							{/* Mobcash Filter */}
-							<Select value={mobcashFilter} onValueChange={setMobcashFilter}>
+							<Select value={mobcashFilter} onValueChange={handleMobcashChange}>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
 									<SelectValue placeholder="Mobcash" />
 								</SelectTrigger>
@@ -606,7 +641,7 @@ export default function PartnerPage() {
 							</Select>
 							
 							{/* Bulk Filter */}
-							<Select value={bulkFilter} onValueChange={setBulkFilter}>
+							<Select value={bulkFilter} onValueChange={handleBulkChange}>
 								<SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
 									<SelectValue placeholder="Paiement en masse" />
 								</SelectTrigger>
@@ -817,32 +852,45 @@ export default function PartnerPage() {
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+								onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
 								disabled={currentPage === 1}
 							>
 								<ChevronLeft className="h-4 w-4" />
 								Précédent
 							</Button>
 							<div className="flex items-center space-x-1">
-								{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-									const page = i + 1;
-									return (
-										<Button
-											key={page}
-											variant={currentPage === page ? "default" : "outline"}
-											size="sm"
-											onClick={() => setCurrentPage(page)}
-											className={currentPage === page ? "bg-orange-500 text-white" : ""}
-										>
-											{page}
-										</Button>
-									);
-								})}
+								{(() => {
+                  const pages = [];
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+                      pages.push(i);
+                    } else if (pages[pages.length - 1] !== '...') {
+                      pages.push('...');
+                    }
+                  }
+                  
+                  return pages.map((page, index) => {
+                    if (page === '...') {
+                      return <span key={`ellipsis-${index}`} className="px-2 text-gray-500 text-sm">...</span>;
+                    }
+                    return (
+                      <Button
+                        key={`page-${page}`}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page as number)}
+                        className={currentPage === page ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "border-gray-200 dark:border-gray-600"}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  });
+                })()}
 							</div>
 							<Button
 								variant="outline"
 								size="sm"
-								onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+								onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
 								disabled={currentPage === totalPages}
 							>
 								Suivant
@@ -1701,4 +1749,15 @@ export default function PartnerPage() {
 			</div>
 		</div>
 	)
+}
+
+
+import { Suspense } from 'react'
+
+export default function PartnerPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>}>
+      <PartnerPageContent />
+    </Suspense>
+  )
 }

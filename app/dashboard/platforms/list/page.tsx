@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect , useCallback} from "react"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,7 +17,10 @@ import { DateRangeFilter } from "@/components/ui/date-range-filter"
 import { CopyButton } from "@/components/ui/copy-button"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
+
+
+
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -53,12 +56,34 @@ interface Platform {
 }
 
 
-export default function PlatformsListPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
+function PlatformsListPageContent() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Centralized URL update function
+  const updateUrl = useCallback((newParams: Record<string, string | number | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all" || (key === "page" && value === 1)) {
+        params.delete(key)
+      } else {
+        params.set(key, value.toString())
+      }
+    })
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [searchParams, pathname, router])
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateUrl({ page })
+  }
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [platforms, setPlatforms] = useState<Platform[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
@@ -71,7 +96,7 @@ export default function PlatformsListPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
   const apiFetch = useApi();
-  const router = useRouter()
+  
   const [toggleLoading, setToggleLoading] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -550,32 +575,45 @@ export default function PlatformsListPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
                 Précédent
               </Button>
               <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-orange-500 text-white" : ""}
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
+                {(() => {
+                  const pages = [];
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+                      pages.push(i);
+                    } else if (pages[pages.length - 1] !== '...') {
+                      pages.push('...');
+                    }
+                  }
+                  
+                  return pages.map((page, index) => {
+                    if (page === '...') {
+                      return <span key={`ellipsis-${index}`} className="px-2 text-gray-500 text-sm">...</span>;
+                    }
+                    return (
+                      <Button
+                        key={`page-${page}`}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page as number)}
+                        className={currentPage === page ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "border-gray-200 dark:border-gray-600"}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  });
+                })()}
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
                 Suivant
@@ -661,5 +699,16 @@ export default function PlatformsListPage() {
 
       </div>
     </div>
+  )
+}
+
+
+import { Suspense } from 'react'
+
+export default function PlatformsListPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>}>
+      <PlatformsListPageContent />
+    </Suspense>
   )
 }

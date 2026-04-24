@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -15,7 +15,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -35,36 +35,109 @@ interface BettingTransaction {
 }
 
 export default function BettingTransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [platformFilter, setPlatformFilter] = useState("all")
-  const [commissionFilter, setCommissionFilter] = useState("all")
-  const [networkFilter, setNetworkFilter] = useState("all")
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [typeFilter, setTypeFilter] = useState(searchParams.get("type") || "all")
+  const [platformFilter, setPlatformFilter] = useState(searchParams.get("platform") || "all")
+  const [commissionFilter, setCommissionFilter] = useState(searchParams.get("commission") || "all")
+  const [networkFilter, setNetworkFilter] = useState(searchParams.get("network") || "all")
   const [networks, setNetworks] = useState<any[]>([])
-  const [startDate, setStartDate] = useState<string | null>(null)
-  const [endDate, setEndDate] = useState<string | null>(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [transactions, setTransactions] = useState<BettingTransaction[]>([])
-  const [totalCount, setTotalCount] = useState(0)
-  const [totalPages, setTotalPages] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [sortField, setSortField] = useState<"created_at" | "amount" | "status" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const [startDate, setStartDate] = useState<string | null>(searchParams.get("start_date"))
+  const [endDate, setEndDate] = useState<string | null>(searchParams.get("end_date"))
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
+  const [sortField, setSortField] = useState<"created_at" | "amount" | "status" | null>((searchParams.get("sort_field") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
   const { t } = useLanguage()
   const itemsPerPage = 20
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
   const apiFetch = useApi();
-  const router = useRouter()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [detailTransaction, setDetailTransaction] = useState<any | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState("")
   const [cancellationLoading, setCancellationLoading] = useState(false)
   const [cancellationError, setCancellationError] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [transactions, setTransactions] = useState<any[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
   const [stats, setStats] = useState<any | null>(null)
+
+  // Centralized URL update function
+  const updateUrl = useCallback((newParams: Record<string, string | number | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all" || (key === "page" && value === 1)) {
+        params.delete(key)
+      } else {
+        params.set(key, value.toString())
+      }
+    })
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [searchParams, pathname, router])
+
+  // Custom state setters that also update the URL
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateUrl({ page })
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1)
+    updateUrl({ search: value, page: 1 })
+  }
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+    setCurrentPage(1)
+    updateUrl({ status: value, page: 1 })
+  }
+
+  const handleTypeChange = (value: string) => {
+    setTypeFilter(value)
+    setCurrentPage(1)
+    updateUrl({ type: value, page: 1 })
+  }
+
+  const handlePlatformChange = (value: string) => {
+    setPlatformFilter(value)
+    setCurrentPage(1)
+    updateUrl({ platform: value, page: 1 })
+  }
+
+  const handleCommissionChange = (value: string) => {
+    setCommissionFilter(value)
+    setCurrentPage(1)
+    updateUrl({ commission: value, page: 1 })
+  }
+
+  const handleNetworkChange = (value: string) => {
+    setNetworkFilter(value)
+    setCurrentPage(1)
+    updateUrl({ network: value, page: 1 })
+  }
+
+  const handleDateChange = (start: string | null, end: string | null) => {
+    setStartDate(start)
+    setEndDate(end)
+    setCurrentPage(1)
+    updateUrl({ start_date: start, end_date: end, page: 1 })
+  }
+
+  const handleSortChange = (field: "created_at" | "amount" | "status") => {
+    const newDir = sortField === field ? (sortDirection === "desc" ? "asc" : "desc") : "desc"
+    setSortField(field)
+    setSortDirection(newDir)
+    setCurrentPage(1)
+    updateUrl({ sort_field: field, sort_dir: newDir, page: 1 })
+  }
 
   // Success modal state
   const [successModalOpen, setSuccessModalOpen] = useState(false)
@@ -94,60 +167,61 @@ export default function BettingTransactionsPage() {
   const [processCancellationError, setProcessCancellationError] = useState("")
 
   // Fetch transactions from API
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      setLoading(true)
-      setError("")
-      try {
-        const params = new URLSearchParams({
-          page: currentPage.toString(),
-          page_size: itemsPerPage.toString(),
-        })
-        if (searchTerm.trim() !== "") {
-          params.append("search", searchTerm)
-        }
-        if (statusFilter !== "all") {
-          params.append("status", statusFilter)
-        }
-        if (typeFilter !== "all") {
-          params.append("transaction_type", typeFilter)
-        }
-        if (platformFilter !== "all") {
-          params.append("platform", platformFilter)
-        }
-        if (commissionFilter !== "all") {
-          params.append("commission_paid", commissionFilter === "paid" ? "true" : "false")
-        }
-        if (networkFilter !== "all") {
-          params.append("network", networkFilter)
-        }
-        if (startDate) {
-          params.append("created_at__gte", startDate)
-        }
-        if (endDate) {
-          params.append("created_at__lt", endDate)
-        }
-        const orderingParam = sortField
-          ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
-          : "&ordering=-created_at"
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/?${params.toString()}${orderingParam}`
-        const data = await apiFetch(endpoint)
-        setTransactions(data.results || [])
-        setTotalCount(data.count || 0)
-        setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-      } catch (err: any) {
-        const errorMessage = extractErrorMessages(err)
-        setError(errorMessage)
-        setTransactions([])
-        setTotalCount(0)
-        setTotalPages(1)
-        toast({ title: "Erreur", description: errorMessage, variant: "destructive" })
-      } finally {
-        setLoading(false)
+  const fetchTransactions = useCallback(async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        page_size: itemsPerPage.toString(),
+      })
+      if (searchTerm.trim() !== "") {
+        params.append("search", searchTerm)
       }
+      if (statusFilter !== "all") {
+        params.append("status", statusFilter)
+      }
+      if (typeFilter !== "all") {
+        params.append("transaction_type", typeFilter)
+      }
+      if (platformFilter !== "all") {
+        params.append("platform", platformFilter)
+      }
+      if (commissionFilter !== "all") {
+        params.append("commission_paid", commissionFilter === "paid" ? "true" : "false")
+      }
+      if (networkFilter !== "all") {
+        params.append("network", networkFilter)
+      }
+      if (startDate) {
+        params.append("created_at__gte", startDate)
+      }
+      if (endDate) {
+        params.append("created_at__lt", endDate)
+      }
+      const orderingParam = sortField
+        ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
+        : "&ordering=-created_at"
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/?${params.toString()}${orderingParam}`
+      const data = await apiFetch(endpoint)
+      setTransactions(data.results || [])
+      setTotalCount(data.count || 0)
+      setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      setError(errorMessage)
+      setTransactions([])
+      setTotalCount(0)
+      setTotalPages(1)
+      toast({ title: "Erreur", description: errorMessage, variant: "destructive" })
+    } finally {
+      setLoading(false)
     }
-    fetchTransactions()
   }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, typeFilter, platformFilter, commissionFilter, networkFilter, sortField, sortDirection, startDate, endDate, t, toast, apiFetch])
+
+  useEffect(() => {
+    fetchTransactions()
+  }, [fetchTransactions])
 
   // Fetch networks
   useEffect(() => {
@@ -182,12 +256,7 @@ export default function BettingTransactionsPage() {
   const startIndex = (currentPage - 1) * itemsPerPage
 
   const handleSort = (field: "created_at" | "amount" | "status") => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("desc")
-    }
+    handleSortChange(field)
   }
 
   // Fetch transaction details
@@ -236,8 +305,8 @@ export default function BettingTransactionsPage() {
       setRefundReason("")
 
       // Refresh data
-      setCurrentPage(1)
       router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const errMsg = extractErrorMessages(err)
       setCancellationError(errMsg)
@@ -274,8 +343,8 @@ export default function BettingTransactionsPage() {
       setSuccessModalOpen(false)
       setSuccessTransaction(null)
       setSuccessReason("")
-      setCurrentPage(1)
       router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const errMsg = extractErrorMessages(err)
       setSuccessError(errMsg)
@@ -319,8 +388,8 @@ export default function BettingTransactionsPage() {
       setFailedModalOpen(false)
       setFailedTransaction(null)
       setFailedReason("Tentative de relance après timeout")
-      setCurrentPage(1)
       router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const errMsg = extractErrorMessages(err)
       setFailedError(errMsg)
@@ -357,8 +426,8 @@ export default function BettingTransactionsPage() {
       setDetailModalOpen(false)
       
       // Refresh data
-      setCurrentPage(1)
       router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const errMsg = extractErrorMessages(err)
       setProcessCancellationError(errMsg)
@@ -522,13 +591,13 @@ export default function BettingTransactionsPage() {
                 <Input
                   placeholder="Rechercher des transactions..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                 />
               </div>
 
               {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={handleStatusChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Filtrer par statut" />
                 </SelectTrigger>
@@ -544,7 +613,7 @@ export default function BettingTransactionsPage() {
               </Select>
 
               {/* Type Filter */}
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <Select value={typeFilter} onValueChange={handleTypeChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Filtrer par type" />
                 </SelectTrigger>
@@ -556,7 +625,7 @@ export default function BettingTransactionsPage() {
               </Select>
 
               {/* Commission Filter */}
-              <Select value={commissionFilter} onValueChange={setCommissionFilter}>
+              <Select value={commissionFilter} onValueChange={handleCommissionChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Filtrer par commission" />
                 </SelectTrigger>
@@ -568,7 +637,7 @@ export default function BettingTransactionsPage() {
               </Select>
 
               {/* Network Filter */}
-              <Select value={networkFilter} onValueChange={setNetworkFilter}>
+              <Select value={networkFilter} onValueChange={handleNetworkChange}>
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Réseau" />
                 </SelectTrigger>
@@ -586,12 +655,9 @@ export default function BettingTransactionsPage() {
               <DateRangeFilter
                 startDate={startDate}
                 endDate={endDate}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-                onClear={() => {
-                  setStartDate(null)
-                  setEndDate(null)
-                }}
+                onStartDateChange={(start) => handleDateChange(start, endDate)}
+                onEndDateChange={(end) => handleDateChange(startDate, end)}
+                onClear={() => handleDateChange(null, null)}
                 placeholder="Filtrer par date"
                 className="col-span-2"
               />
@@ -789,32 +855,45 @@ export default function BettingTransactionsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4" />
                 Précédent
               </Button>
               <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-orange-500 text-white" : ""}
-                    >
-                      {page}
-                    </Button>
-                  );
-                })}
+                {(() => {
+                  const pages = [];
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+                      pages.push(i);
+                    } else if (pages[pages.length - 1] !== '...') {
+                      pages.push('...');
+                    }
+                  }
+                  
+                  return pages.map((page, index) => {
+                    if (page === '...') {
+                      return <span key={`ellipsis-${index}`} className="px-2 text-gray-500 text-sm">...</span>;
+                    }
+                    return (
+                      <Button
+                        key={`page-${page}`}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page as number)}
+                        className={currentPage === page ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "border-gray-200 dark:border-gray-600"}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  });
+                })()}
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
                 Suivant

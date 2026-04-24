@@ -1,5 +1,6 @@
 "use client"
-import { useEffect, useState, useMemo } from "react"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
+import { useEffect, useState, useMemo , useCallback} from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -13,6 +14,9 @@ import { ArrowUpDown } from "lucide-react"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Badge } from "@/components/ui/badge"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+
+
+
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -37,7 +41,29 @@ interface PaginationInfo {
   results: any[]
 }
 
-export default function SmsLogsListPage() {
+function SmsLogsListPageContent() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  // Centralized URL update function
+  const updateUrl = useCallback((newParams: Record<string, string | number | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all" || (key === "page" && value === 1)) {
+        params.delete(key)
+      } else {
+        params.set(key, value.toString())
+      }
+    })
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [searchParams, pathname, router])
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateUrl({ page })
+  }
+
   const [paginationData, setPaginationData] = useState<PaginationInfo>({
     count: 0,
     next: null,
@@ -47,11 +73,11 @@ export default function SmsLogsListPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [copied, setCopied] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [typeFilter, setTypeFilter] = useState("all")
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [typeFilter, setTypeFilter] = useState(searchParams.get("sms_type") || "all")
   const [sortField, setSortField] = useState<"received_at" | "sender" | null>(null)
   const [sortDirection, setSortDirection] = useState<"+" | "-">("-")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [pageSize, setPageSize] = useState(100)
   const [startDate, setStartDate] = useState<string | null>(null)
   const [endDate, setEndDate] = useState<string | null>(null)
@@ -383,32 +409,45 @@ export default function SmsLogsListPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                   >
                 <ChevronLeft className="h-4 w-4" />
                 Précédent
               </Button>
               <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
-                  return (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page)}
-                      className={currentPage === page ? "bg-orange-500 text-white" : ""}
-                    >
-                      {page}
-                  </Button>
-                  );
-                })}
+                {(() => {
+                  const pages = [];
+                  for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+                      pages.push(i);
+                    } else if (pages[pages.length - 1] !== '...') {
+                      pages.push('...');
+                    }
+                  }
+                  
+                  return pages.map((page, index) => {
+                    if (page === '...') {
+                      return <span key={`ellipsis-${index}`} className="px-2 text-gray-500 text-sm">...</span>;
+                    }
+                    return (
+                      <Button
+                        key={`page-${page}`}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => handlePageChange(page as number)}
+                        className={currentPage === page ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" : "border-gray-200 dark:border-gray-600"}
+                      >
+                        {page}
+                      </Button>
+                    );
+                  });
+                })()}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages}
                   >
                 Suivant
@@ -435,5 +474,15 @@ export default function SmsLogsListPage() {
 
       </div>
     </div>
+  )
+}
+
+import { Suspense } from 'react'
+
+export default function SmsLogsListPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div></div>}>
+      <SmsLogsListPageContent />
+    </Suspense>
   )
 }

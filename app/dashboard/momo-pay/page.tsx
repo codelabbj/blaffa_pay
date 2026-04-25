@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, Suspense } from "react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -62,7 +62,7 @@ interface ApiResponse {
 }
 
 
-export default function MomoPayPage() {
+function MomoPayPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -1074,5 +1074,20 @@ export default function MomoPayPage() {
         </Dialog>
       </div>
     </div>
+  )
+}
+
+export default function MomoPayPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+          <span className="text-gray-500">Chargement...</span>
+        </div>
+      </div>
+    }>
+      <MomoPayPageContent />
+    </Suspense>
   )
 }

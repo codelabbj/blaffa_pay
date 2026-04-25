@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, Suspense } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -63,7 +63,7 @@ const COLORS = {
   indigo: '#6366F1'
 };
 
-export default function TransactionsPage() {
+function TransactionsPageContent() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -1494,5 +1494,20 @@ export default function TransactionsPage() {
 
       </div>
     </div>
+  )
+}
+
+export default function TransactionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+          <span className="text-gray-500">Chargement...</span>
+        </div>
+      </div>
+    }>
+      <TransactionsPageContent />
+    </Suspense>
   )
 }

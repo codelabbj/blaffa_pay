@@ -291,6 +291,7 @@ export default function AggregatorTransactionsPage() {
                                         <TableHead className="text-xs">UID</TableHead>
                                         <TableHead>{t("common.reference")}</TableHead>
                                         <TableHead>{t("common.user") + " / " + t("common.network")}</TableHead>
+                                        <TableHead>{t("common.recipient")}</TableHead>
                                         <TableHead>Processor</TableHead>
                                         <TableHead>{t("common.type")}</TableHead>
                                         <TableHead>{t("common.amount")}</TableHead>
@@ -304,7 +305,7 @@ export default function AggregatorTransactionsPage() {
                                 <TableBody>
                                     {transactions.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={11} className="text-center py-12 text-slate-400">
+                                            <TableCell colSpan={12} className="text-center py-12 text-slate-400">
                                                 {t("aggregators.noTransactionsMatch")}
                                             </TableCell>
                                         </TableRow>
@@ -321,6 +322,9 @@ export default function AggregatorTransactionsPage() {
                                                     <div className="font-medium text-sm"><span>{tx.user_display_name || tx.user_name}</span></div>
                                                     <div className="text-xs text-slate-400"><span>{tx.user_email}</span></div>
                                                     <div className="text-[10px] text-slate-300"><span>{tx.network_name || tx.network}</span></div>
+                                                </TableCell>
+                                                <TableCell className="text-xs font-mono text-slate-600">
+                                                    <span>{tx.recipient_phone || "—"}</span>
                                                 </TableCell>
                                                 <TableCell className="text-xs text-slate-600">
                                                     <span>{tx.processor_type || "—"}</span>

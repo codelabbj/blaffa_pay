@@ -260,7 +260,9 @@ function TransactionsPageContent() {
     success: { label: "Succès", color: "#20c997" },          // turquoise
     failed: { label: "Échec", color: "#dc3545" },           // rouge
     cancelled: { label: "Annulé", color: "#6c757d" },          // gris
-    timeout: { label: "Expiré", color: "#6f42c1" },          // violet
+    timeout: { label: "Délai dépassé", color: "#6f42c1" },          // violet
+    confirmed: { label: "Confirmé", color: "#007bff" },         // bleu
+    expired: { label: "Expiré", color: "#343a40" },           // gris foncé
   };
 
   const getStatusBadge = (status: string) => {
@@ -714,10 +716,16 @@ function TransactionsPageContent() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("transactions.allStatuses")}</SelectItem>
-                  <SelectItem value="completed">{t("transactions.completed")}</SelectItem>
                   <SelectItem value="pending">{t("transactions.pending")}</SelectItem>
-                  <SelectItem value="failed">{t("transactions.failed")}</SelectItem>
+                  <SelectItem value="sent_to_user">{t("transactions.sent_to_user")}</SelectItem>
                   <SelectItem value="processing">{t("transactions.processing")}</SelectItem>
+                  <SelectItem value="completed">{t("transactions.completed")}</SelectItem>
+                  <SelectItem value="success">{t("transactions.success")}</SelectItem>
+                  <SelectItem value="failed">{t("transactions.failed")}</SelectItem>
+                  <SelectItem value="cancelled">{t("transactions.cancelled")}</SelectItem>
+                  <SelectItem value="timeout">{t("transactions.timeout")}</SelectItem>
+                  <SelectItem value="confirmed">{t("transactions.confirmed")}</SelectItem>
+                  <SelectItem value="expired">{t("transactions.expired")}</SelectItem>
                 </SelectContent>
               </Select>
 

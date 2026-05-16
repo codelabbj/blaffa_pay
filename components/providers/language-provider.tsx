@@ -306,7 +306,12 @@ const translations = {
     "transactions.pending": "Pending",
     "transactions.processing": "Processing",
     "transactions.failed": "Failed",
-    "transactions.sentToUser": "Sent to User",
+    "transactions.success": "Success",
+    "transactions.sent_to_user": "Sent to User",
+    "transactions.cancelled": "Cancelled",
+    "transactions.timeout": "Timeout",
+    "transactions.confirmed": "Confirmed",
+    "transactions.expired": "Expired",
     "transactions.actions": "Actions",
     "transactions.searchByUser": "Search by user...",
     "transactions.allStatuses": "All Statuses",
@@ -399,12 +404,10 @@ const translations = {
     "transactions.createWithdrawal": "Create Withdrawal",
     "transactions.withdrawalCreatedTitle": "Withdrawal created",
     "transactions.failedToCreateWithdrawal": "Failed to create withdrawal",
-    "transactions.success": "Success",
     "transactions.reviewAndConfirm": "Review and Confirm",
     "transactions.confirmDepositTitle": "Confirm Deposit",
     "transactions.confirmWithdrawalTitle": "Confirm Withdrawal",
     "transactionLogs.empty": "No transaction logs found.",
-    "transactions.cancelled": "Cancelled",
 
 
     // Partner List
@@ -1298,7 +1301,12 @@ const translations = {
     "transactions.pending": "En attente",
     "transactions.processing": "En cours",
     "transactions.failed": "Échoué",
-    "transactions.sentToUser": "Envoyé à l'utilisateur",
+    "transactions.success": "Succès",
+    "transactions.sent_to_user": "Envoyé à l'utilisateur",
+    "transactions.cancelled": "Annulé",
+    "transactions.timeout": "Délai dépassé",
+    "transactions.confirmed": "Confirmé",
+    "transactions.expired": "Expiré",
     "transactions.actions": "Actions",
     "transactions.searchByUser": "Rechercher par utilisateur...",
     "transactions.allStatuses": "Tous les statuts",
@@ -1391,12 +1399,10 @@ const translations = {
     "transactions.createWithdrawal": "Créer un retrait",
     "transactions.withdrawalCreatedTitle": "Retrait créé",
     "transactions.failedToCreateWithdrawal": "Échec de la création du retrait",
-    "transactions.success": "Succès",
     "transactions.reviewAndConfirm": "Vérifier et confirmer",
     "transactions.confirmDepositTitle": "Confirmer le dépôt",
     "transactions.confirmWithdrawalTitle": "Confirmer le retrait",
     "transactionLogs.empty": "Aucun journal de transaction trouvé.",
-    "transactions.cancelled": "Annulé",
 
 
     // Partner List

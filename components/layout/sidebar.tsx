@@ -57,6 +57,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
   const isDevicesActive = pathname.startsWith("/dashboard/devices")
   const isDevicesListActive = pathname === "/dashboard/devices/list"
+  const isFlashPayDevicesActive = pathname.startsWith("/dashboard/devices/flashpay")
 
   const isNetworkConfigActive = pathname.startsWith("/dashboard/network-config")
   const isNetworkConfigListActive = pathname === "/dashboard/network-config/list"
@@ -416,9 +417,15 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <div
                 className={cn(
                   "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
-                  devicesDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                  devicesDropdownOpen ? "max-h-40 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
+                <Link href="/dashboard/devices/flashpay" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isFlashPayDevicesActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>FlashPay (config)</Link>
                 <Link href="/dashboard/devices/list" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isDevicesListActive
@@ -961,9 +968,15 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <div
                 className={cn(
                   "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
-                  devicesDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
+                  devicesDropdownOpen ? "max-h-40 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
+                <Link href="/dashboard/devices/flashpay" className={cn(
+                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  isFlashPayDevicesActive
+                    ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}>FlashPay (config)</Link>
                 <Link href="/dashboard/devices/list" className={cn(
                   "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
                   isDevicesListActive

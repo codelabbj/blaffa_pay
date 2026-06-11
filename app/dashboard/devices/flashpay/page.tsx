@@ -1,0 +1,323 @@
+"use client"
+
+import { useCallback, useEffect, useMemo, useState } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import {
+  Copy,
+  MoreHorizontal,
+  Pause,
+  Play,
+  Plus,
+  Radio,
+  RefreshCw,
+  Search,
+  Smartphone,
+  Sparkles,
+} from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useApi } from "@/lib/useApi"
+import { useToast } from "@/hooks/use-toast"
+import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { DevicePickerDrawer } from "@/components/flashpay-devices/device-picker-drawer"
+import {
+  fetchStaffDevices,
+  pushDeviceConfig,
+  toggleDevicePause,
+} from "@/lib/flashpay-device-api"
+import type { DeviceKpiFilter, PaymentDevice } from "@/lib/types/flashpay-device"
+import {
+  depositStepCount,
+  filterDevicesByKpi,
+  formatRelativeTime,
+  isDeviceConfigured,
+  networkChipClass,
+  networkInitials,
+} from "@/lib/flashpay-device-utils"
+
+function StatusDot({ device }: { device: PaymentDevice }) {
+  if (device.is_paused) {
+    return <span className="inline-flex items-center gap-1 text-orange-600 text-xs font-medium">⏸ Pause</span>
+  }
+  if (device.is_online) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-green-600 text-xs font-medium">
+        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" /> En ligne
+      </span>
+    )
+  }
+  return <span className="inline-flex items-center gap-1 text-slate-400 text-xs">○ Hors ligne</span>
+}
+
+export default function FlashPayDevicesPage() {
+  const apiFetch = useApi()
+  const router = useRouter()
+  const { toast } = useToast()
+  const [devices, setDevices] = useState<PaymentDevice[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [search, setSearch] = useState("")
+  const [kpiFilter, setKpiFilter] = useState<DeviceKpiFilter>("all")
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const data = await fetchStaffDevices(apiFetch)
+      setDevices(data)
+    } catch (e: any) {
+      setError(extractErrorMessages(e) || "Impossible de charger les devices")
+      setDevices([])
+    } finally {
+      setLoading(false)
+    }
+  }, [apiFetch])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  const filtered = useMemo(() => {
+    let list = filterDevicesByKpi(devices, kpiFilter)
+    const q = search.trim().toLowerCase()
+    if (q) {
+      list = list.filter(
+        (d) =>
+          d.device_id.toLowerCase().includes(q) ||
+          (d.device_name || "").toLowerCase().includes(q) ||
+          (d.user_name || "").toLowerCase().includes(q) ||
+          (d.network_name || "").toLowerCase().includes(q),
+      )
+    }
+    return list
+  }, [devices, kpiFilter, search])
+
+  const kpis = useMemo(
+    () => ({
+      total: devices.length,
+      online: devices.filter((d) => d.is_online).length,
+      paused: devices.filter((d) => d.is_paused).length,
+      unconfigured: devices.filter((d) => !isDeviceConfigured(d)).length,
+    }),
+    [devices],
+  )
+
+  const handlePush = async (device: PaymentDevice) => {
+    try {
+      await pushDeviceConfig(apiFetch, device.device_id)
+    } catch (e: any) {
+      toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
+    }
+  }
+
+  const handlePauseToggle = async (device: PaymentDevice) => {
+    try {
+      await toggleDevicePause(apiFetch, device, !device.is_paused)
+      toast({ title: device.is_paused ? "Device repris" : "Device en pause" })
+      load()
+    } catch (e: any) {
+      toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-[#0B2545]">Appareils FlashPay</h1>
+            <p className="text-sm text-slate-500 mt-1">
+              Gérez les téléphones agents et leurs configs MoMo
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" className="border-[#0B2545] text-[#0B2545]" onClick={() => setPickerOpen(true)}>
+              <Copy className="h-4 w-4 mr-2" /> Depuis modèle
+            </Button>
+            <Button className="bg-[#D4A24C] text-[#0B2545] hover:bg-[#c9972e]" asChild>
+              <Link href="/dashboard/devices/flashpay/new">
+                <Plus className="h-4 w-4 mr-2" /> Nouveau
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {(
+            [
+              ["all", "Total", kpis.total],
+              ["online", "En ligne", kpis.online],
+              ["paused", "En pause", kpis.paused],
+              ["unconfigured", "Non configuré", kpis.unconfigured],
+            ] as const
+          ).map(([key, label, value]) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setKpiFilter(key)}
+              className={`rounded-xl border p-4 text-left transition shadow-sm bg-white ${
+                kpiFilter === key ? "border-[#D4A24C] ring-2 ring-[#D4A24C]/30" : "border-slate-200"
+              }`}
+            >
+              <p className="text-2xl font-bold text-[#0B2545]">{value}</p>
+              <p className="text-sm text-slate-500">{label}</p>
+            </button>
+          ))}
+        </div>
+
+        <Card className="rounded-xl border-slate-200 shadow-sm">
+          <CardContent className="p-4 flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                className="pl-9"
+                placeholder="Rechercher device_id, nom, agent, réseau…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" onClick={load}>
+              <RefreshCw className="h-4 w-4 mr-2" /> Actualiser
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden">
+          <CardHeader className="border-b bg-white">
+            <CardTitle className="text-[#0B2545] flex items-center gap-2">
+              <Smartphone className="h-5 w-5" /> Liste ({filtered.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {loading ? (
+              <div className="p-6 space-y-3">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : error ? (
+              <div className="p-6">
+                <ErrorDisplay error={error} onRetry={load} />
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="p-12 text-center">
+                <Sparkles className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-600 font-medium">Aucun appareil</p>
+                <Button className="mt-4 bg-[#D4A24C] text-[#0B2545]" asChild>
+                  <Link href="/dashboard/devices/flashpay/new">Créer le premier</Link>
+                </Button>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Device</TableHead>
+                    <TableHead>Agent</TableHead>
+                    <TableHead>Réseau</TableHead>
+                    <TableHead>Config</TableHead>
+                    <TableHead>Activité</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((device) => (
+                    <TableRow
+                      key={device.uid}
+                      className="cursor-pointer hover:bg-slate-50"
+                      onClick={() => router.push(`/dashboard/devices/flashpay/${device.uid}`)}
+                    >
+                      <TableCell>
+                        <StatusDot device={device} />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-full bg-[#0B2545] text-white text-xs font-bold flex items-center justify-center">
+                            {networkInitials(device.network_name, device.custom_settings?.flashpay?.network_code)}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#0B2545]">{device.device_name || "—"}</p>
+                            <p className="font-mono text-xs text-slate-500">{device.device_id}</p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm">{device.user_name || "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={networkChipClass(device.custom_settings?.flashpay?.network_code)}>
+                          {device.network_name || "—"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {isDeviceConfigured(device) ? (
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                            Configuré · {depositStepCount(device)} étapes
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="border-amber-300 text-amber-800">Incomplet</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm text-slate-500">{formatRelativeTime(device.last_seen)}</TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => router.push(`/dashboard/devices/flashpay/${device.uid}`)}>
+                              Ouvrir
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/dashboard/devices/flashpay/new?from=${device.uid}`)}>
+                              Dupliquer
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePush(device)}>
+                              <Radio className="h-4 w-4 mr-2" /> Pousser config
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePauseToggle(device)}>
+                              {device.is_paused ? (
+                                <><Play className="h-4 w-4 mr-2" /> Reprendre</>
+                              ) : (
+                                <><Pause className="h-4 w-4 mr-2" /> Mettre en pause</>
+                              )}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <DevicePickerDrawer
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        devices={devices}
+        onSelect={(d) => router.push(`/dashboard/devices/flashpay/new?from=${d.uid}`)}
+      />
+    </div>
+  )
+}

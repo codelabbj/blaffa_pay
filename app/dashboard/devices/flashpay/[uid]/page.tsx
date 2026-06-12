@@ -16,6 +16,7 @@ import type { DeviceFormValues } from "@/lib/types/flashpay-device"
 import {
   buildStatusPatchPayload,
   deviceToFormValues,
+  flashpayTheme,
   formatRelativeTime,
   validateUpdateForm,
 } from "@/lib/flashpay-device-utils"
@@ -100,15 +101,15 @@ export default function FlashPayDeviceEditPage() {
   if (loading || !form) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#0B2545]" />
+        <Loader2 className={`h-8 w-8 animate-spin ${flashpayTheme.spinner}`} />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-8">
+    <div className={flashpayTheme.page}>
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sticky top-0 z-10 bg-[#F8FAFC]/95 backdrop-blur py-2">
+        <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${flashpayTheme.stickyHeader}`}>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" asChild>
               <Link href="/dashboard/devices/flashpay">
@@ -116,15 +117,15 @@ export default function FlashPayDeviceEditPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-xl font-semibold text-[#0B2545]">{form.device_name || form.device_id}</h1>
-              <p className="font-mono text-xs text-slate-500">
+              <h1 className={flashpayTheme.titleSm}>{form.device_name || form.device_id}</h1>
+              <p className={`font-mono ${flashpayTheme.mutedXs}`}>
                 {form.device_id} · {form.is_online ? "En ligne" : "Hors ligne"} · {formatRelativeTime(form.last_seen)}
               </p>
-              {dirty && <p className="text-xs text-amber-700 mt-1">Modifications non enregistrées</p>}
+              {dirty && <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">Modifications non enregistrées</p>}
             </div>
           </div>
           <div className="flex gap-2">
-            <Button className="bg-[#D4A24C] text-[#0B2545]" onClick={handleSave} disabled={saving}>
+            <Button className={flashpayTheme.accentBtn} onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
               Enregistrer
             </Button>

@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2, Circle, Copy, Radio } from "lucide-react"
 import type { DeviceFormValues, OperationTab } from "@/lib/types/flashpay-device"
-import { computeCompletion, isDeviceConfigured, stepVisualClass } from "@/lib/flashpay-device-utils"
+import {
+  computeCompletion,
+  flashpayTheme,
+  isDeviceConfigured,
+  stepVisualClass,
+} from "@/lib/flashpay-device-utils"
 import { useToast } from "@/hooks/use-toast"
 
 interface DevicePreviewPanelProps {
@@ -40,37 +45,37 @@ export function DevicePreviewPanel({
     { ok: !!fp?.momo_pin?.trim(), label: "PIN MoMo" },
   ]
 
+  const cardTitle = "text-base text-[#0B2545] dark:text-gray-100"
+
   return (
     <div className="space-y-4 lg:sticky lg:top-24">
-      <Card className="border-slate-200 shadow-sm rounded-xl">
+      <Card className={flashpayTheme.panelCard}>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base text-[#0B2545]">Aperçu mobile</CardTitle>
+          <CardTitle className={cardTitle}>Aperçu mobile</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <p className="font-semibold">
+          <p className="font-semibold text-gray-900 dark:text-gray-100">
             FlashPay — {fp?.network_label || networkName || "Réseau"} · SIM {fp?.sim_slot ?? 0}
           </p>
-          <p className="text-slate-600">
+          <p className="text-slate-600 dark:text-gray-400">
             Dépôt: {(fp?.deposit?.ussd_steps?.length ?? 0)} étapes · {fp?.deposit?.session_type ?? "multi"}
           </p>
-          <p className="text-slate-600">Retrait: {(fp?.withdraw?.ussd_steps?.length ?? 0)} étapes</p>
-          <p className="text-slate-600">PIN: {fp?.momo_pin ? "••••" : "—"}</p>
-          <Badge variant="outline" className="mt-2">
+          <p className="text-slate-600 dark:text-gray-400">Retrait: {(fp?.withdraw?.ussd_steps?.length ?? 0)} étapes</p>
+          <p className="text-slate-600 dark:text-gray-400">PIN: {fp?.momo_pin ? "••••" : "—"}</p>
+          <Badge variant="outline" className="mt-2 dark:border-gray-600">
             Complétion {percent}%
           </Badge>
         </CardContent>
       </Card>
 
-      <Card className="border-slate-200 shadow-sm rounded-xl">
+      <Card className={flashpayTheme.panelCard}>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base text-[#0B2545]">
-            Timeline USSD ({activeTab})
-          </CardTitle>
+          <CardTitle className={cardTitle}>Timeline USSD ({activeTab})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-1.5">
             {steps.map((step, i) => (
-              <span key={i} className="text-xs text-slate-400">{i > 0 ? "→" : ""}</span>
+              <span key={i} className="text-xs text-slate-400 dark:text-gray-500">{i > 0 ? "→" : ""}</span>
             ))}
             {steps.map((step, i) => (
               <span
@@ -80,28 +85,30 @@ export function DevicePreviewPanel({
                 {step || "?"}
               </span>
             ))}
-            {steps.length === 0 && <span className="text-sm text-slate-500">—</span>}
+            {steps.length === 0 && <span className={`text-sm ${flashpayTheme.muted}`}>—</span>}
           </div>
         </CardContent>
       </Card>
 
-      <Card className="border-slate-200 shadow-sm rounded-xl">
+      <Card className={flashpayTheme.panelCard}>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base text-[#0B2545]">Checklist déploiement</CardTitle>
+          <CardTitle className={cardTitle}>Checklist déploiement</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {checklist.map((item) => (
             <div key={item.label} className="flex items-center gap-2 text-sm">
               {item.ok ? (
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
               ) : (
-                <Circle className="h-4 w-4 text-slate-300" />
+                <Circle className="h-4 w-4 text-slate-300 dark:text-gray-600" />
               )}
-              <span className={item.ok ? "text-slate-700" : "text-slate-400"}>{item.label}</span>
+              <span className={item.ok ? "text-slate-700 dark:text-gray-200" : "text-slate-400 dark:text-gray-500"}>
+                {item.label}
+              </span>
             </div>
           ))}
           {missing.length > 0 && (
-            <p className="text-xs text-amber-700 mt-2">Manquant : {missing.join(", ")}</p>
+            <p className="text-xs text-amber-700 dark:text-amber-400 mt-2">Manquant : {missing.join(", ")}</p>
           )}
         </CardContent>
       </Card>
@@ -111,7 +118,7 @@ export function DevicePreviewPanel({
           <Button
             type="button"
             variant="outline"
-            className="border-[#0B2545] text-[#0B2545]"
+            className={flashpayTheme.navyOutline}
             onClick={onPushConfig}
             disabled={pushing}
           >

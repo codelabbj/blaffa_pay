@@ -47,6 +47,7 @@ import type { DeviceKpiFilter, PaymentDevice } from "@/lib/types/flashpay-device
 import {
   depositStepCount,
   filterDevicesByKpi,
+  flashpayTheme,
   formatRelativeTime,
   isDeviceConfigured,
   networkChipClass,
@@ -55,16 +56,20 @@ import {
 
 function StatusDot({ device }: { device: PaymentDevice }) {
   if (device.is_paused) {
-    return <span className="inline-flex items-center gap-1 text-orange-600 text-xs font-medium">⏸ Pause</span>
+    return (
+      <span className="inline-flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs font-medium">
+        ⏸ Pause
+      </span>
+    )
   }
   if (device.is_online) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-green-600 text-xs font-medium">
+      <span className="inline-flex items-center gap-1.5 text-green-600 dark:text-green-400 text-xs font-medium">
         <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" /> En ligne
       </span>
     )
   }
-  return <span className="inline-flex items-center gap-1 text-slate-400 text-xs">○ Hors ligne</span>
+  return <span className="inline-flex items-center gap-1 text-slate-400 dark:text-gray-500 text-xs">○ Hors ligne</span>
 }
 
 export default function FlashPayDevicesPage() {
@@ -140,20 +145,20 @@ export default function FlashPayDevicesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-8">
+    <div className={flashpayTheme.page}>
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-[#0B2545]">Appareils FlashPay</h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <h1 className={flashpayTheme.title}>Appareils FlashPay</h1>
+            <p className={`${flashpayTheme.muted} mt-1`}>
               Gérez les téléphones agents et leurs configs MoMo
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="border-[#0B2545] text-[#0B2545]" onClick={() => setPickerOpen(true)}>
+            <Button variant="outline" className={flashpayTheme.navyOutline} onClick={() => setPickerOpen(true)}>
               <Copy className="h-4 w-4 mr-2" /> Depuis modèle
             </Button>
-            <Button className="bg-[#D4A24C] text-[#0B2545] hover:bg-[#c9972e]" asChild>
+            <Button className={flashpayTheme.accentBtn} asChild>
               <Link href="/dashboard/devices/flashpay/new">
                 <Plus className="h-4 w-4 mr-2" /> Nouveau
               </Link>
@@ -174,22 +179,20 @@ export default function FlashPayDevicesPage() {
               key={key}
               type="button"
               onClick={() => setKpiFilter(key)}
-              className={`rounded-xl border p-4 text-left transition shadow-sm bg-white ${
-                kpiFilter === key ? "border-[#D4A24C] ring-2 ring-[#D4A24C]/30" : "border-slate-200"
-              }`}
+              className={flashpayTheme.kpiCard(kpiFilter === key)}
             >
-              <p className="text-2xl font-bold text-[#0B2545]">{value}</p>
-              <p className="text-sm text-slate-500">{label}</p>
+              <p className="text-2xl font-bold text-[#0B2545] dark:text-gray-100">{value}</p>
+              <p className={flashpayTheme.muted}>{label}</p>
             </button>
           ))}
         </div>
 
-        <Card className="rounded-xl border-slate-200 shadow-sm">
+        <Card className={flashpayTheme.card}>
           <CardContent className="p-4 flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-gray-500" />
               <Input
-                className="pl-9"
+                className="pl-9 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
                 placeholder="Rechercher device_id, nom, agent, réseau…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -201,9 +204,9 @@ export default function FlashPayDevicesPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-xl border-slate-200 shadow-sm overflow-hidden">
-          <CardHeader className="border-b bg-white">
-            <CardTitle className="text-[#0B2545] flex items-center gap-2">
+        <Card className={`${flashpayTheme.card} overflow-hidden`}>
+          <CardHeader className={flashpayTheme.cardHeader}>
+            <CardTitle className="text-[#0B2545] dark:text-gray-100 flex items-center gap-2">
               <Smartphone className="h-5 w-5" /> Liste ({filtered.length})
             </CardTitle>
           </CardHeader>
@@ -220,9 +223,9 @@ export default function FlashPayDevicesPage() {
               </div>
             ) : filtered.length === 0 ? (
               <div className="p-12 text-center">
-                <Sparkles className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-600 font-medium">Aucun appareil</p>
-                <Button className="mt-4 bg-[#D4A24C] text-[#0B2545]" asChild>
+                <Sparkles className="h-10 w-10 text-slate-300 dark:text-gray-600 mx-auto mb-3" />
+                <p className="text-slate-600 dark:text-gray-300 font-medium">Aucun appareil</p>
+                <Button className={`mt-4 ${flashpayTheme.accentBtn}`} asChild>
                   <Link href="/dashboard/devices/flashpay/new">Créer le premier</Link>
                 </Button>
               </div>
@@ -243,7 +246,7 @@ export default function FlashPayDevicesPage() {
                   {filtered.map((device) => (
                     <TableRow
                       key={device.uid}
-                      className="cursor-pointer hover:bg-slate-50"
+                      className={flashpayTheme.tableRowHover}
                       onClick={() => router.push(`/dashboard/devices/flashpay/${device.uid}`)}
                     >
                       <TableCell>
@@ -255,12 +258,12 @@ export default function FlashPayDevicesPage() {
                             {networkInitials(device.network_name, device.custom_settings?.flashpay?.network_code)}
                           </div>
                           <div>
-                            <p className="font-semibold text-[#0B2545]">{device.device_name || "—"}</p>
-                            <p className="font-mono text-xs text-slate-500">{device.device_id}</p>
+                            <p className="font-semibold text-[#0B2545] dark:text-gray-100">{device.device_name || "—"}</p>
+                            <p className="font-mono text-xs text-slate-500 dark:text-gray-400">{device.device_id}</p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm">{device.user_name || "—"}</TableCell>
+                      <TableCell className="text-sm text-gray-900 dark:text-gray-200">{device.user_name || "—"}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className={networkChipClass(device.custom_settings?.flashpay?.network_code)}>
                           {device.network_name || "—"}
@@ -268,14 +271,16 @@ export default function FlashPayDevicesPage() {
                       </TableCell>
                       <TableCell>
                         {isDeviceConfigured(device) ? (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/30">
                             Configuré · {depositStepCount(device)} étapes
                           </Badge>
                         ) : (
-                          <Badge variant="outline" className="border-amber-300 text-amber-800">Incomplet</Badge>
+                          <Badge variant="outline" className="border-amber-300 text-amber-800 dark:border-amber-700 dark:text-amber-300">
+                            Incomplet
+                          </Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-sm text-slate-500">{formatRelativeTime(device.last_seen)}</TableCell>
+                      <TableCell className={`text-sm ${flashpayTheme.muted}`}>{formatRelativeTime(device.last_seen)}</TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

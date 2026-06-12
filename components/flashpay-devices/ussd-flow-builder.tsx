@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { GripVertical, Plus, Trash2 } from "lucide-react"
-import { stepVisualClass } from "@/lib/flashpay-device-utils"
+import { flashpayTheme, stepVisualClass } from "@/lib/flashpay-device-utils"
 
 const SHORTCUTS = ["NUM", "AMOUNT", "PIN", "OPKEY"] as const
 
@@ -37,7 +37,7 @@ export function UssdFlowBuilder({ steps, onChange, label }: UssdFlowBuilderProps
 
   return (
     <div className="space-y-3">
-      {label && <p className="text-sm font-semibold text-[#0B2545]">{label}</p>}
+      {label && <p className="text-sm font-semibold text-[#0B2545] dark:text-gray-100">{label}</p>}
 
       <div className="flex flex-wrap gap-2">
         {SHORTCUTS.map((token) => (
@@ -46,7 +46,7 @@ export function UssdFlowBuilder({ steps, onChange, label }: UssdFlowBuilderProps
             type="button"
             size="sm"
             variant="outline"
-            className="h-7 border-[#D4A24C] text-[#0B2545] text-xs"
+            className={`h-7 border-[#D4A24C] text-[#0B2545] dark:text-amber-100 dark:border-amber-700 text-xs`}
             onClick={() => insertShortcut(token)}
           >
             + {token}
@@ -78,12 +78,12 @@ export function UssdFlowBuilder({ steps, onChange, label }: UssdFlowBuilderProps
           </div>
         ))}
         {steps.length === 0 && (
-          <p className="text-sm text-slate-500 py-4">Aucune étape — ajoutez le pipeline USSD</p>
+          <p className={`text-sm ${flashpayTheme.muted} py-4`}>Aucune étape — ajoutez le pipeline USSD</p>
         )}
       </div>
 
-      <details className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-        <summary className="cursor-pointer text-sm font-medium text-slate-600">Vue liste (édition bulk)</summary>
+      <details className="rounded-lg border border-slate-200 dark:border-gray-600 bg-slate-50 dark:bg-gray-800/50 p-3">
+        <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-gray-400">Vue liste (édition bulk)</summary>
         <Textarea
           className="mt-2 font-mono text-sm"
           rows={5}

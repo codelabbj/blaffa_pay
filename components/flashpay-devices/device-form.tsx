@@ -29,6 +29,7 @@ import { DEVICE_PRESETS, YAPSON_LEGACY_MOOV_BJ_JSON } from "@/lib/flashpay-devic
 import { migrateYapsonToFlashpay } from "@/lib/yapson-config-migrate"
 import {
   computeCompletion,
+  flashpayTheme,
   formatRelativeTime,
   isSampleForm,
   networkChipClass,
@@ -159,22 +160,22 @@ export function DeviceForm({
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
       <div className="xl:col-span-2 space-y-4">
         {sample && mode === "create" && (
-          <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 flex items-start gap-3">
-            <Sparkles className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-900">
+          <div className={`${flashpayTheme.sampleBanner} flex items-start gap-3`}>
+            <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-amber-900 dark:text-amber-100">
               Modèle d&apos;exemple chargé — personnalisez <strong>device_id</strong>, l&apos;agent et le PIN avant enregistrement.
             </p>
           </div>
         )}
         {clonedFrom && (
-          <Badge variant="outline" className="border-blue-300 text-blue-800">
+          <Badge variant="outline" className="border-blue-300 text-blue-800 dark:border-blue-700 dark:text-blue-300">
             Cloné depuis {clonedFrom}
           </Badge>
         )}
 
         <Accordion type="multiple" defaultValue={["identity", "state", "flashpay"]} className="space-y-2">
-          <AccordionItem value="identity" className="border rounded-xl px-4 bg-white shadow-sm">
-            <AccordionTrigger className="text-[#0B2545] font-semibold">Identité & rattachement</AccordionTrigger>
+          <AccordionItem value="identity" className={flashpayTheme.accordionItem}>
+            <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Identité & rattachement</AccordionTrigger>
             <AccordionContent className="space-y-4 pb-4">
               <div>
                 <Label>device_id</Label>
@@ -214,11 +215,11 @@ export function DeviceForm({
                       onClick={() => patch({ user: u.uid })}
                       className={cn(
                         "text-left rounded-lg border p-2 text-sm transition",
-                        form.user === u.uid ? "border-[#D4A24C] bg-amber-50" : "border-slate-200 hover:border-slate-300",
+                        form.user === u.uid ? flashpayTheme.selectedTile : flashpayTheme.unselectedTile,
                       )}
                     >
                       <span className="font-medium">{u.display_name || u.email}</span>
-                      <span className="block text-xs text-slate-500">{u.email}</span>
+                      <span className={`block ${flashpayTheme.mutedXs}`}>{u.email}</span>
                     </button>
                   ))}
                 </div>
@@ -240,14 +241,14 @@ export function DeviceForm({
                       }}
                       className={cn(
                         "rounded-xl border p-3 text-left text-sm transition",
-                        form.network === n.uid ? "border-[#0B2545] bg-slate-50 ring-2 ring-[#D4A24C]" : "border-slate-200",
+                        form.network === n.uid ? flashpayTheme.networkSelected : flashpayTheme.unselectedTile,
                       )}
                     >
                       <span className={cn("inline-block px-2 py-0.5 rounded text-xs border mb-1", networkChipClass(n.code))}>
                         {n.code}
                       </span>
                       <p className="font-medium">{n.nom}</p>
-                      <p className="text-xs text-slate-500">{n.country_name}</p>
+                      <p className={flashpayTheme.mutedXs}>{n.country_name}</p>
                     </button>
                   ))}
                 </div>
@@ -271,15 +272,15 @@ export function DeviceForm({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="state" className="border rounded-xl px-4 bg-white shadow-sm">
-            <AccordionTrigger className="text-[#0B2545] font-semibold">État & connectivité</AccordionTrigger>
+          <AccordionItem value="state" className={flashpayTheme.accordionItem}>
+            <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">État & connectivité</AccordionTrigger>
             <AccordionContent className="space-y-4 pb-4">
-              <div className="flex items-center justify-between rounded-xl border p-4">
+              <div className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-gray-600 p-4">
                 <div className="flex items-center gap-3">
                   {form.is_paused ? <Pause className="text-orange-500" /> : <Play className="text-green-600" />}
                   <div>
                     <p className="font-medium">Pause device</p>
-                    <p className="text-xs text-slate-500">L&apos;app n&apos;exécutera pas de transactions</p>
+                    <p className={flashpayTheme.mutedXs}>L&apos;app n&apos;exécutera pas de transactions</p>
                   </div>
                 </div>
                 <Switch checked={form.is_paused} onCheckedChange={(v) => patch({ is_paused: v })} />
@@ -293,7 +294,7 @@ export function DeviceForm({
                       type="button"
                       size="sm"
                       variant={form.mode === m ? "default" : "outline"}
-                      className={form.mode === m ? "bg-[#D4A24C] text-[#0B2545]" : ""}
+                      className={form.mode === m ? flashpayTheme.accentBtn : ""}
                       onClick={() => patch({ mode: m })}
                     >
                       {m === "deposit" ? "Dépôt" : m === "withdrawal" ? "Retrait" : "Les deux"}
@@ -301,7 +302,7 @@ export function DeviceForm({
                   ))}
                 </div>
               </div>
-              <div className="rounded-xl border p-4 flex items-center gap-3">
+              <div className="rounded-xl border border-slate-200 dark:border-gray-600 p-4 flex items-center gap-3">
                 {form.is_online ? (
                   <Wifi className="h-8 w-8 text-green-600" />
                 ) : (
@@ -309,18 +310,18 @@ export function DeviceForm({
                 )}
                 <div>
                   <p className="font-medium">{form.is_online ? "En ligne" : "Hors ligne"}</p>
-                  <p className="text-xs text-slate-500">Dernière activité : {formatRelativeTime(form.last_seen)}</p>
+                  <p className={flashpayTheme.mutedXs}>Dernière activité : {formatRelativeTime(form.last_seen)}</p>
                 </div>
               </div>
               <details>
-                <summary className="cursor-pointer text-sm text-slate-600">FCM token</summary>
+                <summary className="cursor-pointer text-sm text-slate-600 dark:text-gray-400">FCM token</summary>
                 <Textarea className="mt-2 font-mono text-xs" rows={2} value={form.fcm_token} readOnly />
               </details>
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="flashpay" className="border rounded-xl px-4 bg-white shadow-sm">
-            <AccordionTrigger className="text-[#0B2545] font-semibold">Config FlashPay</AccordionTrigger>
+          <AccordionItem value="flashpay" className={flashpayTheme.accordionItem}>
+            <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Config FlashPay</AccordionTrigger>
             <AccordionContent className="space-y-4 pb-4">
               <div className="flex flex-wrap gap-2">
                 {DEVICE_PRESETS.map((p) => (
@@ -329,7 +330,7 @@ export function DeviceForm({
                     type="button"
                     size="sm"
                     variant={p.id === "moov-bj-yapson" ? "default" : "outline"}
-                    className={p.id === "moov-bj-yapson" ? "bg-[#D4A24C] text-[#0B2545]" : ""}
+                    className={p.id === "moov-bj-yapson" ? flashpayTheme.accentBtn : ""}
                     onClick={() => {
                       setPresetId(p.id)
                       setShowPresetConfirm(true)
@@ -339,7 +340,7 @@ export function DeviceForm({
                   </Button>
                 ))}
               </div>
-              <p className="text-xs text-slate-500">
+              <p className={flashpayTheme.mutedXs}>
                 Le template <strong>Moov Bénin (yapson)</strong> reprend l&apos;exemple ManualConfigPage migré (Moov BJ §5.3).
               </p>
               <div className="grid grid-cols-2 gap-3">
@@ -401,8 +402,8 @@ export function DeviceForm({
                     onChange={(steps) => patchOperation(activeTab, steps)}
                   />
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center justify-between rounded-lg border p-3">
-                      <span className="text-sm">Session multi</span>
+                    <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-gray-600 p-3">
+                      <span className="text-sm text-gray-900 dark:text-gray-200">Session multi</span>
                       <Switch
                         checked={fp[activeTab]?.session_type === "multi"}
                         onCheckedChange={(v) =>
@@ -416,8 +417,8 @@ export function DeviceForm({
                       />
                     </div>
                     {activeTab === "deposit" && (
-                      <div className="flex items-center justify-between rounded-lg border p-3">
-                        <span className="text-sm">Auto-transfer</span>
+                      <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-gray-600 p-3">
+                        <span className="text-sm text-gray-900 dark:text-gray-200">Auto-transfer</span>
                         <Switch
                           checked={fp.deposit.auto_transfer_enabled}
                           onCheckedChange={(v) =>
@@ -461,8 +462,8 @@ export function DeviceForm({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="advanced" className="border rounded-xl px-4 bg-white shadow-sm">
-            <AccordionTrigger className="text-[#0B2545] font-semibold">Avancé</AccordionTrigger>
+          <AccordionItem value="advanced" className={flashpayTheme.accordionItem}>
+            <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Avancé</AccordionTrigger>
             <AccordionContent className="pb-4 space-y-4">
               <div>
                 <Label>Import config yapson (ManualConfigPage)</Label>
@@ -494,9 +495,9 @@ export function DeviceForm({
           </AccordionItem>
         </Accordion>
 
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+        <div className={`flex items-center gap-2 text-sm ${flashpayTheme.muted}`}>
           <span>Complétion {completion.percent}%</span>
-          <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div className={flashpayTheme.progressTrack}>
             <div
               className="h-full bg-[#D4A24C] transition-all"
               style={{ width: `${completion.percent}%` }}

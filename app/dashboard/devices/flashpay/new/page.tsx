@@ -11,6 +11,7 @@ import type { DeviceFormValues } from "@/lib/types/flashpay-device"
 import {
   buildCreatePayload,
   cloneDeviceAsNew,
+  flashpayTheme,
   resetToSample,
   validateCreateForm,
 } from "@/lib/flashpay-device-utils"
@@ -71,15 +72,15 @@ function FlashPayDeviceNewContent() {
   if (loadingClone) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-[#0B2545]" />
+        <Loader2 className={`h-8 w-8 animate-spin ${flashpayTheme.spinner}`} />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-8">
+    <div className={flashpayTheme.page}>
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sticky top-0 z-10 bg-[#F8FAFC]/95 backdrop-blur py-2">
+        <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${flashpayTheme.stickyHeader}`}>
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" asChild>
               <Link href="/dashboard/devices/flashpay">
@@ -87,17 +88,17 @@ function FlashPayDeviceNewContent() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-xl font-semibold text-[#0B2545]">
+              <h1 className={flashpayTheme.titleSm}>
                 {clonedFrom ? `Nouveau — basé sur ${clonedFrom}` : "Nouveau device FlashPay"}
               </h1>
-              <p className="text-xs text-slate-500">Admin › Appareils › Nouveau</p>
+              <p className={flashpayTheme.mutedXs}>Admin › Appareils › Nouveau</p>
             </div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setForm(resetToSample())}>
               Réinitialiser l&apos;exemple
             </Button>
-            <Button className="bg-[#D4A24C] text-[#0B2545]" onClick={handleSave} disabled={saving}>
+            <Button className={flashpayTheme.accentBtn} onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
               Enregistrer
             </Button>
@@ -115,7 +116,7 @@ export default function FlashPayDeviceNewPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-[#0B2545]" />
+          <Loader2 className={`h-8 w-8 animate-spin ${flashpayTheme.spinner}`} />
         </div>
       }
     >

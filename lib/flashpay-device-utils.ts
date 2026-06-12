@@ -5,6 +5,41 @@ import type {
   DeviceKpiFilter,
 } from "@/lib/types/flashpay-device"
 import { DEVICE_CREATE_SAMPLE, SAMPLE_DEVICE_ID_VALUE } from "@/lib/flashpay-device-sample"
+import { cn } from "@/lib/utils"
+
+/** Classes Tailwind partagées — pages FlashPay (light / dark). */
+export const flashpayTheme = {
+  page: "min-h-screen bg-gradient-to-br from-orange-50/50 via-[#F8FAFC] to-slate-100 p-6 lg:p-8 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800",
+  stickyHeader:
+    "sticky top-0 z-10 bg-[#F8FAFC]/95 dark:bg-gray-900/95 backdrop-blur py-2",
+  title: "text-2xl font-semibold text-[#0B2545] dark:text-gray-100",
+  titleSm: "text-xl font-semibold text-[#0B2545] dark:text-gray-100",
+  muted: "text-sm text-slate-500 dark:text-gray-400",
+  mutedXs: "text-xs text-slate-500 dark:text-gray-400",
+  accentBtn: "bg-[#D4A24C] text-[#0B2545] hover:bg-[#c9972e] dark:hover:bg-[#c9972e]",
+  navyOutline:
+    "border-[#0B2545] text-[#0B2545] dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-800",
+  card: "rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800",
+  cardHeader: "border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800",
+  tableRowHover: "cursor-pointer hover:bg-slate-50 dark:hover:bg-gray-800/60",
+  accordionItem:
+    "border rounded-xl px-4 bg-white dark:bg-gray-800 shadow-sm border-slate-200 dark:border-gray-700",
+  panelCard: "border-slate-200 dark:border-gray-700 shadow-sm rounded-xl bg-white dark:bg-gray-800",
+  spinner: "text-[#0B2545] dark:text-gray-100",
+  kpiCard: (active: boolean) =>
+    cn(
+      "rounded-xl border p-4 text-left transition shadow-sm bg-white dark:bg-gray-800",
+      active
+        ? "border-[#D4A24C] ring-2 ring-[#D4A24C]/30"
+        : "border-slate-200 dark:border-gray-700 hover:border-slate-300 dark:hover:border-gray-600",
+    ),
+  selectedTile: "border-[#D4A24C] bg-amber-50 dark:bg-amber-900/20",
+  unselectedTile: "border-slate-200 dark:border-gray-600 hover:border-slate-300 dark:hover:border-gray-500",
+  networkSelected: "border-[#0B2545] dark:border-[#D4A24C] bg-slate-50 dark:bg-gray-700/50 ring-2 ring-[#D4A24C]",
+  sampleBanner:
+    "rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3",
+  progressTrack: "flex-1 h-2 bg-slate-100 dark:bg-gray-700 rounded-full overflow-hidden",
+}
 
 export function getFlashpayConfig(device: PaymentDevice | DeviceFormValues): FlashPayDeviceConfig | null {
   return device.custom_settings?.flashpay ?? null
@@ -35,10 +70,13 @@ export function formatRelativeTime(iso?: string | null): string {
 
 export function networkChipClass(code?: string): string {
   const c = (code || "").toUpperCase()
-  if (c.includes("MTN")) return "bg-yellow-100 text-yellow-900 border-yellow-200"
-  if (c.includes("MOOV")) return "bg-blue-100 text-blue-900 border-blue-200"
-  if (c.includes("ORANGE")) return "bg-orange-100 text-orange-900 border-orange-200"
-  return "bg-slate-100 text-slate-800 border-slate-200"
+  if (c.includes("MTN"))
+    return "bg-yellow-100 text-yellow-900 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-200 dark:border-yellow-800"
+  if (c.includes("MOOV"))
+    return "bg-blue-100 text-blue-900 border-blue-200 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-800"
+  if (c.includes("ORANGE"))
+    return "bg-orange-100 text-orange-900 border-orange-200 dark:bg-orange-900/30 dark:text-orange-200 dark:border-orange-800"
+  return "bg-slate-100 text-slate-800 border-slate-200 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
 }
 
 export function networkInitials(label?: string, code?: string): string {
@@ -190,7 +228,9 @@ export function resetToSample(): DeviceFormValues {
 
 export function stepVisualClass(step: string): string {
   const u = step.toUpperCase()
-  if (["NUM", "AMOUNT", "PIN", "OPKEY"].includes(u)) return "border-[#D4A24C] bg-amber-50 text-[#0B2545]"
-  if (step.startsWith("*") || step.startsWith("#")) return "border-[#0B2545] bg-slate-50 text-[#0B2545]"
-  return "border-slate-200 bg-white text-slate-700"
+  if (["NUM", "AMOUNT", "PIN", "OPKEY"].includes(u))
+    return "border-[#D4A24C] bg-amber-50 text-[#0B2545] dark:bg-amber-900/30 dark:text-amber-100"
+  if (step.startsWith("*") || step.startsWith("#"))
+    return "border-[#0B2545] bg-slate-50 text-[#0B2545] dark:border-gray-500 dark:bg-gray-700 dark:text-gray-100"
+  return "border-slate-200 bg-white text-slate-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
 }

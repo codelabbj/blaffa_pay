@@ -6,7 +6,13 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { PaymentDevice } from "@/lib/types/flashpay-device"
-import { depositStepCount, formatRelativeTime, isDeviceConfigured, networkChipClass } from "@/lib/flashpay-device-utils"
+import {
+  depositStepCount,
+  flashpayTheme,
+  formatRelativeTime,
+  isDeviceConfigured,
+  networkChipClass,
+} from "@/lib/flashpay-device-utils"
 
 interface DevicePickerDrawerProps {
   open: boolean
@@ -40,12 +46,13 @@ export function DevicePickerDrawer({ open, onOpenChange, devices, onSelect }: De
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto bg-white dark:bg-gray-900 border-slate-200 dark:border-gray-700">
         <SheetHeader>
-          <SheetTitle className="text-[#0B2545]">Choisir un modèle</SheetTitle>
+          <SheetTitle className="text-[#0B2545] dark:text-gray-100">Choisir un modèle</SheetTitle>
         </SheetHeader>
         <div className="mt-4 space-y-3">
           <Input
+            className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
             placeholder="Rechercher…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -54,7 +61,7 @@ export function DevicePickerDrawer({ open, onOpenChange, devices, onSelect }: De
             <Button
               size="sm"
               variant={networkFilter === "all" ? "default" : "outline"}
-              className={networkFilter === "all" ? "bg-[#D4A24C] text-[#0B2545]" : ""}
+              className={networkFilter === "all" ? flashpayTheme.accentBtn : ""}
               onClick={() => setNetworkFilter("all")}
             >
               Tous
@@ -75,7 +82,7 @@ export function DevicePickerDrawer({ open, onOpenChange, devices, onSelect }: De
               <button
                 key={device.uid}
                 type="button"
-                className="w-full text-left rounded-xl border border-slate-200 p-4 hover:border-[#D4A24C] hover:shadow-sm transition"
+                className="w-full text-left rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-4 hover:border-[#D4A24C] hover:shadow-sm transition"
                 onClick={() => {
                   onSelect(device)
                   onOpenChange(false)
@@ -83,21 +90,21 @@ export function DevicePickerDrawer({ open, onOpenChange, devices, onSelect }: De
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <p className="font-semibold text-[#0B2545]">{device.device_name || device.device_id}</p>
-                    <p className="font-mono text-xs text-slate-500 mt-1">{device.device_id}</p>
+                    <p className="font-semibold text-[#0B2545] dark:text-gray-100">{device.device_name || device.device_id}</p>
+                    <p className={`font-mono ${flashpayTheme.mutedXs} mt-1`}>{device.device_id}</p>
                   </div>
                   <Badge className={networkChipClass(device.custom_settings?.flashpay?.network_code)}>
                     {device.network_name || "—"}
                   </Badge>
                 </div>
-                <p className="text-xs text-slate-500 mt-2">
+                <p className={`${flashpayTheme.mutedXs} mt-2`}>
                   {depositStepCount(device)} étapes dépôt · {formatRelativeTime(device.last_seen)}
                   {device.is_online ? " · en ligne" : ""}
                 </p>
               </button>
             ))}
             {filtered.length === 0 && (
-              <p className="text-sm text-slate-500 py-8 text-center">Aucun device configuré trouvé</p>
+              <p className={`text-sm ${flashpayTheme.muted} py-8 text-center`}>Aucun device configuré trouvé</p>
             )}
           </div>
         </div>

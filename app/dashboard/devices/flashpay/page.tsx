@@ -294,11 +294,14 @@ export default function FlashPayDevicesPage() {
                               <Radio className="h-4 w-4 mr-2" /> Pousser config
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handlePauseToggle(device)}>
-                              {device.is_paused ? (
-                                <><Play className="h-4 w-4 mr-2" /> Reprendre</>
-                              ) : (
-                                <><Pause className="h-4 w-4 mr-2" /> Mettre en pause</>
-                              )}
+                              <span className="inline-flex items-center">
+                                {device.is_paused ? (
+                                  <Play className="h-4 w-4 mr-2" />
+                                ) : (
+                                  <Pause className="h-4 w-4 mr-2" />
+                                )}
+                                {device.is_paused ? "Reprendre" : "Mettre en pause"}
+                              </span>
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -82,7 +82,7 @@ export function DevicePickerDrawer({ open, onOpenChange, devices, onSelect }: De
               <button
                 key={device.uid}
                 type="button"
-                className="w-full text-left rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-4 hover:border-[#D4A24C] hover:shadow-sm transition"
+                className="w-full text-left rounded-xl border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-4 transition hover:border-[#D4A24C] hover:shadow-sm hover:bg-orange-50/40 dark:hover:!bg-gray-700/90"
                 onClick={() => {
                   onSelect(device)
                   onOpenChange(false)

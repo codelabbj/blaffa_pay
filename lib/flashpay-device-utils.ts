@@ -21,7 +21,8 @@ export const flashpayTheme = {
     "border-[#0B2545] text-[#0B2545] dark:border-gray-500 dark:text-gray-200 dark:hover:bg-gray-800",
   card: "rounded-xl border border-slate-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800",
   cardHeader: "border-b border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800",
-  tableRowHover: "cursor-pointer hover:bg-slate-50 dark:hover:bg-gray-800/60",
+  tableRowHover:
+    "cursor-pointer hover:bg-orange-50/50 dark:hover:!bg-gray-700/90 dark:hover:!text-gray-100",
   accordionItem:
     "border rounded-xl px-4 bg-white dark:bg-gray-800 shadow-sm border-slate-200 dark:border-gray-700",
   panelCard: "border-slate-200 dark:border-gray-700 shadow-sm rounded-xl bg-white dark:bg-gray-800",
@@ -34,7 +35,8 @@ export const flashpayTheme = {
         : "border-slate-200 dark:border-gray-700 hover:border-slate-300 dark:hover:border-gray-600",
     ),
   selectedTile: "border-[#D4A24C] bg-amber-50 dark:bg-amber-900/20",
-  unselectedTile: "border-slate-200 dark:border-gray-600 hover:border-slate-300 dark:hover:border-gray-500",
+  unselectedTile:
+    "border-slate-200 dark:border-gray-600 hover:border-slate-300 dark:hover:border-gray-500 hover:bg-orange-50/30 dark:hover:!bg-gray-700/80",
   networkSelected: "border-[#0B2545] dark:border-[#D4A24C] bg-slate-50 dark:bg-gray-700/50 ring-2 ring-[#D4A24C]",
   sampleBanner:
     "rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3",

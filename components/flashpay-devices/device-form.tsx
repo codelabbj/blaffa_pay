@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -23,12 +23,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Sparkles, Wifi, WifiOff, Pause, Play } from "lucide-react"
+import { ClipboardCopy, Download, Sparkles, Upload, Wifi, WifiOff, Pause, Play } from "lucide-react"
 import type { DeviceFormValues, OperationTab } from "@/lib/types/flashpay-device"
-import { DEVICE_PRESETS, YAPSON_LEGACY_MOOV_BJ_JSON } from "@/lib/flashpay-device-sample"
-import { migrateYapsonToFlashpay } from "@/lib/yapson-config-migrate"
+import { DEVICE_PRESETS } from "@/lib/flashpay-device-sample"
 import {
+  applyFlashpayConfigImport,
+  buildFlashpayExportJson,
   computeCompletion,
+  downloadFlashpayConfigJson,
   flashpayTheme,
   formatRelativeTime,
   isSampleForm,
@@ -39,6 +41,7 @@ import { DevicePreviewPanel } from "@/components/flashpay-devices/device-preview
 import { useApi } from "@/lib/useApi"
 import { fetchAdminUsers, fetchNetworks } from "@/lib/flashpay-device-api"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
 
 interface DeviceFormProps {
   form: DeviceFormValues
@@ -58,6 +61,7 @@ export function DeviceForm({
   pushing,
 }: DeviceFormProps) {
   const apiFetch = useApi()
+  const { toast } = useToast()
   const [activeTab, setActiveTab] = useState<OperationTab>("deposit")
   const [users, setUsers] = useState<any[]>([])
   const [networks, setNetworks] = useState<any[]>([])
@@ -132,28 +136,52 @@ export function DeviceForm({
     setShowPresetConfirm(false)
   }
 
-  const [yapsonImport, setYapsonImport] = useState(YAPSON_LEGACY_MOOV_BJ_JSON)
+  const [configJsonImport, setConfigJsonImport] = useState("")
+  const configFileInputRef = useRef<HTMLInputElement>(null)
 
-  const importYapsonJson = () => {
-    try {
-      const legacy = JSON.parse(yapsonImport) as Record<string, unknown>
-      const pin = form.custom_settings.flashpay?.momo_pin || ""
-      const { flashpay, meta } = migrateYapsonToFlashpay(legacy, {
-        momoPin: pin,
-        simSlot: form.custom_settings.flashpay?.sim_slot ?? 0,
-      })
-      onChange({
-        ...form,
-        custom_settings: {
-          ...form.custom_settings,
-          flashpay,
-          flashpay_meta: { ...meta, is_sample: false },
-          flashpay_updated_at: new Date().toISOString(),
-        },
-      })
-    } catch {
-      /* invalid JSON — ignore */
+  const handleImportConfigJson = () => {
+    const { form: next, error } = applyFlashpayConfigImport(configJsonImport, form)
+    if (error) {
+      toast({ title: "Import échoué", description: error, variant: "destructive" })
+      return
     }
+    onChange(next)
+    toast({ title: "Config importée", description: "Le formulaire a été rempli depuis le JSON." })
+  }
+
+  const handleExportConfigJson = () => {
+    if (!form.custom_settings.flashpay) {
+      toast({ title: "Rien à exporter", description: "Initialisez d'abord la config FlashPay.", variant: "destructive" })
+      return
+    }
+    downloadFlashpayConfigJson(form)
+    toast({ title: "Export téléchargé" })
+  }
+
+  const handleCopyConfigJson = async () => {
+    if (!form.custom_settings.flashpay) {
+      toast({ title: "Rien à copier", variant: "destructive" })
+      return
+    }
+    await navigator.clipboard.writeText(buildFlashpayExportJson(form))
+    toast({ title: "JSON copié dans le presse-papiers" })
+  }
+
+  const handleConfigFileUpload = (file: File | null) => {
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const text = String(reader.result ?? "")
+      setConfigJsonImport(text)
+      const { form: next, error } = applyFlashpayConfigImport(text, form)
+      if (error) {
+        toast({ title: "Fichier non importé", description: error, variant: "destructive" })
+        return
+      }
+      onChange(next)
+      toast({ title: "Fichier importé", description: file.name })
+    }
+    reader.readAsText(file)
   }
 
   return (
@@ -218,7 +246,7 @@ export function DeviceForm({
                         form.user === u.uid ? flashpayTheme.selectedTile : flashpayTheme.unselectedTile,
                       )}
                     >
-                      <span className="font-medium">{u.display_name || u.email}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{u.display_name || u.email}</span>
                       <span className={`block ${flashpayTheme.mutedXs}`}>{u.email}</span>
                     </button>
                   ))}
@@ -240,14 +268,14 @@ export function DeviceForm({
                         })
                       }}
                       className={cn(
-                        "rounded-xl border p-3 text-left text-sm transition",
+                        flashpayTheme.networkTile,
                         form.network === n.uid ? flashpayTheme.networkSelected : flashpayTheme.unselectedTile,
                       )}
                     >
-                      <span className={cn("inline-block px-2 py-0.5 rounded text-xs border mb-1", networkChipClass(n.code))}>
+                      <span className={cn("inline-block px-2 py-0.5 rounded text-xs border mb-1 font-semibold", networkChipClass(n.code))}>
                         {n.code}
                       </span>
-                      <p className="font-medium">{n.nom}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{n.nom}</p>
                       <p className={flashpayTheme.mutedXs}>{n.country_name}</p>
                     </button>
                   ))}
@@ -261,7 +289,7 @@ export function DeviceForm({
                       key={slot}
                       type="button"
                       variant={fp?.sim_slot === slot ? "default" : "outline"}
-                      className={fp?.sim_slot === slot ? "bg-[#0B2545]" : ""}
+                      className={fp?.sim_slot === slot ? flashpayTheme.simActive : ""}
                       onClick={() => patchFlashpay({ sim_slot: slot })}
                     >
                       SIM {slot + 1}
@@ -279,7 +307,7 @@ export function DeviceForm({
                 <div className="flex items-center gap-3">
                   {form.is_paused ? <Pause className="text-orange-500" /> : <Play className="text-green-600" />}
                   <div>
-                    <p className="font-medium">Pause device</p>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">Pause device</p>
                     <p className={flashpayTheme.mutedXs}>L&apos;app n&apos;exécutera pas de transactions</p>
                   </div>
                 </div>
@@ -309,7 +337,7 @@ export function DeviceForm({
                   <WifiOff className="h-8 w-8 text-slate-400" />
                 )}
                 <div>
-                  <p className="font-medium">{form.is_online ? "En ligne" : "Hors ligne"}</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{form.is_online ? "En ligne" : "Hors ligne"}</p>
                   <p className={flashpayTheme.mutedXs}>Dernière activité : {formatRelativeTime(form.last_seen)}</p>
                 </div>
               </div>
@@ -323,6 +351,47 @@ export function DeviceForm({
           <AccordionItem value="flashpay" className={flashpayTheme.accordionItem}>
             <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Config FlashPay</AccordionTrigger>
             <AccordionContent className="space-y-4 pb-4">
+              <div className="rounded-xl border border-slate-200 dark:border-gray-600 bg-slate-50/80 dark:bg-gray-900/40 p-4 space-y-3">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Import / Export JSON</p>
+                <p className={flashpayTheme.mutedXs}>
+                  Collez une config <code className="text-xs">flashpay</code>, un export complet{" "}
+                  <code className="text-xs">{`{ flashpay, flashpay_meta }`}</code>, ou un JSON yapson (ManualConfigPage).
+                </p>
+                <Textarea
+                  className="font-mono text-xs bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
+                  rows={6}
+                  placeholder='{"flashpay": { ... }}'
+                  value={configJsonImport}
+                  onChange={(e) => setConfigJsonImport(e.target.value)}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" size="sm" variant="outline" onClick={handleImportConfigJson}>
+                    <Upload className="h-4 w-4 mr-2" /> Importer dans le formulaire
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" onClick={handleExportConfigJson}>
+                    <Download className="h-4 w-4 mr-2" /> Exporter .json
+                  </Button>
+                  <Button type="button" size="sm" variant="outline" onClick={handleCopyConfigJson}>
+                    <ClipboardCopy className="h-4 w-4 mr-2" /> Copier JSON
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => configFileInputRef.current?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" /> Fichier .json
+                  </Button>
+                  <input
+                    ref={configFileInputRef}
+                    type="file"
+                    accept="application/json,.json"
+                    className="hidden"
+                    onChange={(e) => handleConfigFileUpload(e.target.files?.[0] ?? null)}
+                  />
+                </div>
+              </div>
+
               <div className="flex flex-wrap gap-2">
                 {DEVICE_PRESETS.map((p) => (
                   <Button
@@ -369,7 +438,7 @@ export function DeviceForm({
                     type="button"
                     size="sm"
                     variant={activeTab === tab ? "default" : "outline"}
-                    className={activeTab === tab ? "bg-[#0B2545]" : ""}
+                    className={activeTab === tab ? flashpayTheme.tabActive : ""}
                     onClick={() => setActiveTab(tab)}
                   >
                     {tab === "deposit" ? "Dépôt" : tab === "withdraw" ? "Retrait" : "Solde"}
@@ -465,18 +534,9 @@ export function DeviceForm({
           <AccordionItem value="advanced" className={flashpayTheme.accordionItem}>
             <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Avancé</AccordionTrigger>
             <AccordionContent className="pb-4 space-y-4">
-              <div>
-                <Label>Import config yapson (ManualConfigPage)</Label>
-                <Textarea
-                  className="mt-2 font-mono text-xs"
-                  rows={8}
-                  value={yapsonImport}
-                  onChange={(e) => setYapsonImport(e.target.value)}
-                />
-                <Button type="button" variant="outline" size="sm" className="mt-2" onClick={importYapsonJson}>
-                  Convertir yapson → FlashPay
-                </Button>
-              </div>
+              <p className={flashpayTheme.mutedXs}>
+                Édition brute de <code className="text-xs">custom_settings</code> (inclut flashpay). Préférez Import/Export dans Config FlashPay.
+              </p>
               <Label>JSON custom_settings</Label>
               <Textarea
                 className="mt-2 font-mono text-xs"

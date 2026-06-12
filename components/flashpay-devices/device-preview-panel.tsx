@@ -5,12 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2, Circle, Copy, Radio } from "lucide-react"
 import type { DeviceFormValues, OperationTab } from "@/lib/types/flashpay-device"
-import {
-  computeCompletion,
-  flashpayTheme,
-  isDeviceConfigured,
-  stepVisualClass,
-} from "@/lib/flashpay-device-utils"
+import { UssdTimeline } from "@/components/flashpay-devices/ussd-timeline"
+import { computeCompletion, flashpayTheme, isDeviceConfigured } from "@/lib/flashpay-device-utils"
 import { useToast } from "@/hooks/use-toast"
 
 interface DevicePreviewPanelProps {
@@ -73,20 +69,7 @@ export function DevicePreviewPanel({
           <CardTitle className={cardTitle}>Timeline USSD ({activeTab})</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-1.5">
-            {steps.map((step, i) => (
-              <span key={i} className="text-xs text-slate-400 dark:text-gray-500">{i > 0 ? "→" : ""}</span>
-            ))}
-            {steps.map((step, i) => (
-              <span
-                key={`s-${i}`}
-                className={`inline-flex items-center rounded-md border px-2 py-0.5 font-mono text-xs ${stepVisualClass(step)}`}
-              >
-                {step || "?"}
-              </span>
-            ))}
-            {steps.length === 0 && <span className={`text-sm ${flashpayTheme.muted}`}>—</span>}
-          </div>
+          <UssdTimeline steps={steps} />
         </CardContent>
       </Card>
 

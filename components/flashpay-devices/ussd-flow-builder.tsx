@@ -73,7 +73,7 @@ export function UssdFlowBuilder({ steps, onChange, label }: UssdFlowBuilderProps
             <Input
               value={step}
               onChange={(e) => updateStep(index, e.target.value)}
-              className="h-7 mt-1 font-mono text-xs border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
+              className="h-7 mt-1 font-mono text-xs font-medium border-0 bg-transparent p-0 shadow-none focus-visible:ring-0 text-inherit placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
         ))}

@@ -44,7 +44,10 @@ export const flashpayTheme = {
   networkSelected:
     "border-[#0B2545] dark:border-[#D4A24C] bg-slate-50 dark:bg-gray-700/70 ring-2 ring-[#D4A24C]/80",
   tabActive: "bg-[#0B2545] text-white dark:bg-[#D4A24C] dark:text-[#0B2545]",
-  simActive: "bg-[#0B2545] text-white dark:bg-[#D4A24C] dark:text-[#0B2545]",
+  simActive:
+    "border-[#0B2545] bg-[#0B2545] text-white hover:bg-[#0B2545] hover:text-white dark:border-[#D4A24C] dark:bg-[#D4A24C] dark:text-[#0B2545] dark:hover:bg-[#D4A24C] ring-2 ring-[#D4A24C]/80 shadow-sm",
+  simInactive:
+    "border-2 border-slate-200 bg-white text-gray-700 hover:bg-orange-50/40 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700/80",
   sampleBanner:
     "rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3",
   progressTrack: "flex-1 h-2 bg-slate-100 dark:bg-gray-700 rounded-full overflow-hidden",

@@ -390,17 +390,23 @@ export function DeviceForm({
               <div>
                 <Label>Slot SIM</Label>
                 <div className="flex gap-2 mt-2">
-                  {([0, 1] as const).map((slot) => (
-                    <Button
-                      key={slot}
-                      type="button"
-                      variant={fp?.sim_slot === slot ? "default" : "outline"}
-                      className={fp?.sim_slot === slot ? flashpayTheme.simActive : ""}
-                      onClick={() => patchFlashpay({ sim_slot: slot })}
-                    >
-                      SIM {slot + 1}
-                    </Button>
-                  ))}
+                  {([0, 1] as const).map((slot) => {
+                    const selected = (fp?.sim_slot ?? 0) === slot
+                    return (
+                      <Button
+                        key={slot}
+                        type="button"
+                        variant="outline"
+                        className={cn(
+                          "min-w-[5.5rem] font-semibold",
+                          selected ? flashpayTheme.simActive : flashpayTheme.simInactive,
+                        )}
+                        onClick={() => patchFlashpay({ sim_slot: slot })}
+                      >
+                        SIM {slot + 1}
+                      </Button>
+                    )
+                  })}
                 </div>
               </div>
             </AccordionContent>

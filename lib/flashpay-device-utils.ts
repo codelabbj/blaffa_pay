@@ -230,10 +230,19 @@ export function isSampleForm(form: DeviceFormValues): boolean {
   )
 }
 
+/** En ligne si le backend le dit et que last_seen est récent (≤ 2 min). */
+export function isDeviceEffectivelyOnline(device: PaymentDevice): boolean {
+  if (!device.is_online) return false
+  if (!device.last_seen) return true
+  const seen = new Date(device.last_seen).getTime()
+  if (Number.isNaN(seen)) return device.is_online
+  return Date.now() - seen < 120_000
+}
+
 export function filterDevicesByKpi(devices: PaymentDevice[], filter: DeviceKpiFilter): PaymentDevice[] {
   switch (filter) {
     case "online":
-      return devices.filter((d) => d.is_online)
+      return devices.filter((d) => isDeviceEffectivelyOnline(d))
     case "paused":
       return devices.filter((d) => d.is_paused)
     case "unconfigured":

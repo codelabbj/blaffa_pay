@@ -50,6 +50,7 @@ import {
   flashpayTheme,
   formatRelativeTime,
   isDeviceConfigured,
+  isDeviceEffectivelyOnline,
   networkChipClass,
   networkInitials,
 } from "@/lib/flashpay-device-utils"
@@ -62,10 +63,10 @@ function StatusDot({ device }: { device: PaymentDevice }) {
       </span>
     )
   }
-  if (device.is_online) {
+  if (isDeviceEffectivelyOnline(device)) {
     return (
       <span className="inline-flex items-center gap-1.5 text-green-600 dark:text-green-400 text-xs font-medium">
-        <span className="h-2 w-2 rounded-full bg-green-500" /> En ligne
+        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" /> En ligne
       </span>
     )
   }
@@ -89,8 +90,10 @@ export default function FlashPayDevicesPage() {
     return () => clearTimeout(t)
   }, [search])
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) {
+      setLoading(true)
+    }
     setError("")
     try {
       const params: Record<string, string> = {}
@@ -98,10 +101,14 @@ export default function FlashPayDevicesPage() {
       const data = await fetchStaffDevices(apiFetch, params)
       setDevices(data)
     } catch (e: any) {
-      setError(extractErrorMessages(e) || "Impossible de charger les devices")
-      setDevices([])
+      if (!opts?.silent) {
+        setError(extractErrorMessages(e) || "Impossible de charger les devices")
+        setDevices([])
+      }
     } finally {
-      setLoading(false)
+      if (!opts?.silent) {
+        setLoading(false)
+      }
     }
   }, [apiFetch, debouncedSearch])
 
@@ -109,12 +116,22 @@ export default function FlashPayDevicesPage() {
     load()
   }, [load])
 
+  /** Rafraîchissement léger du statut en ligne (sans spinner). */
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        load({ silent: true })
+      }
+    }, 30_000)
+    return () => clearInterval(id)
+  }, [load])
+
   const filtered = useMemo(() => filterDevicesByKpi(devices, kpiFilter), [devices, kpiFilter])
 
   const kpis = useMemo(
     () => ({
       total: devices.length,
-      online: devices.filter((d) => d.is_online).length,
+      online: devices.filter((d) => isDeviceEffectivelyOnline(d)).length,
       paused: devices.filter((d) => d.is_paused).length,
       unconfigured: devices.filter((d) => !isDeviceConfigured(d)).length,
     }),

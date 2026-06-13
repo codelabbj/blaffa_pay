@@ -190,7 +190,13 @@ export function DeviceForm({
       return
     }
     onChange(next)
-    toast({ title: "Config importée", description: "Le formulaire a été rempli depuis le JSON." })
+    const importedPin = next.custom_settings.flashpay?.momo_pin?.trim()
+    toast({
+      title: "Config importée",
+      description: importedPin
+        ? "Le formulaire a été rempli depuis le JSON."
+        : "PIN non importé — saisissez votre code PIN MoMo avant d'enregistrer.",
+    })
   }
 
   const handleExportConfigJson = () => {
@@ -199,7 +205,7 @@ export function DeviceForm({
       return
     }
     downloadFlashpayConfigJson(form)
-    toast({ title: "Export téléchargé" })
+    toast({ title: "Export téléchargé", description: "Le PIN n'est pas inclus — le destinataire devra le saisir." })
   }
 
   const handleCopyConfigJson = async () => {
@@ -208,7 +214,7 @@ export function DeviceForm({
       return
     }
     await navigator.clipboard.writeText(buildFlashpayExportJson(form))
-    toast({ title: "JSON copié dans le presse-papiers" })
+    toast({ title: "JSON copié", description: "Sans PIN — le destinataire devra le saisir avant enregistrement." })
   }
 
   const handleConfigFileUpload = (file: File | null) => {
@@ -223,7 +229,13 @@ export function DeviceForm({
         return
       }
       onChange(next)
-      toast({ title: "Fichier importé", description: file.name })
+      const importedPin = next.custom_settings.flashpay?.momo_pin?.trim()
+      toast({
+        title: "Fichier importé",
+        description: importedPin
+          ? file.name
+          : `${file.name} — saisissez votre PIN MoMo avant d'enregistrer.`,
+      })
     }
     reader.readAsText(file)
   }

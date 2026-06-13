@@ -389,7 +389,10 @@ function isFlashpayConfigShape(obj: Record<string, unknown>): obj is FlashPayDev
 }
 
 export function buildFlashpayExportJson(form: DeviceFormValues): string {
-  return JSON.stringify({ flashpay: form.custom_settings.flashpay ?? null }, null, 2)
+  const fp = form.custom_settings.flashpay
+  if (!fp) return JSON.stringify({ flashpay: null }, null, 2)
+  const { momo_pin: _pin, ...shared } = fp
+  return JSON.stringify({ flashpay: shared }, null, 2)
 }
 
 export function applyFlashpayConfigImport(
@@ -441,7 +444,10 @@ export function applyFlashpayConfigImport(
         ...form,
         custom_settings: compactCustomSettings({
           ...form.custom_settings,
-          flashpay: structuredClone(flashpayPayload),
+          flashpay: {
+            ...structuredClone(flashpayPayload),
+            momo_pin: form.custom_settings.flashpay?.momo_pin ?? "",
+          },
           flashpay_meta: meta ?? compactFlashpayMeta(form.custom_settings.flashpay_meta),
           flashpay_updated_at: now,
         }),

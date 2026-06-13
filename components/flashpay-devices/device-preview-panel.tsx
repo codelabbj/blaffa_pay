@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,7 +18,7 @@ interface DevicePreviewPanelProps {
   pushing?: boolean
 }
 
-export function DevicePreviewPanel({
+export const DevicePreviewPanel = memo(function DevicePreviewPanel({
   form,
   activeTab,
   networkName,
@@ -44,7 +45,7 @@ export function DevicePreviewPanel({
   const cardTitle = "text-base text-[#0B2545] dark:text-gray-100"
 
   return (
-    <div className="space-y-4 lg:sticky lg:top-24">
+    <div className="space-y-4 lg:static">
       <Card className={flashpayTheme.panelCard}>
         <CardHeader className="pb-2">
           <CardTitle className={cardTitle}>Aperçu mobile</CardTitle>
@@ -117,4 +118,4 @@ export function DevicePreviewPanel({
       </div>
     </div>
   )
-}
+})

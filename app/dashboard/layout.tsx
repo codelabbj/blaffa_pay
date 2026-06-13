@@ -35,7 +35,7 @@ export default function DashboardLayout({
           <Header 
             onMobileMenuClick={toggleMobileSidebar}
           />
-          <main className="min-h-screen">
+          <main className="min-h-screen [contain:layout]">
             {children}
           </main>
         </div>

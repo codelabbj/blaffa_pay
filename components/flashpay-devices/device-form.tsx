@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -38,7 +38,7 @@ import {
 } from "@/lib/flashpay-device-utils"
 import { UssdFlowBuilder } from "@/components/flashpay-devices/ussd-flow-builder"
 import { DevicePreviewPanel } from "@/components/flashpay-devices/device-preview-panel"
-import { useApi } from "@/lib/useApi"
+import { AdvancedSettingsEditor } from "@/components/flashpay-devices/advanced-settings-editor"
 import { fetchAdminUsers, fetchNetworks } from "@/lib/flashpay-device-api"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
@@ -47,6 +47,7 @@ interface DeviceFormProps {
   form: DeviceFormValues
   onChange: (form: DeviceFormValues) => void
   mode: "create" | "edit"
+  apiFetch: ReturnType<typeof import("@/lib/useApi").useApi>
   clonedFrom?: string
   onPushConfig?: () => void
   pushing?: boolean
@@ -56,12 +57,13 @@ export function DeviceForm({
   form,
   onChange,
   mode,
+  apiFetch,
   clonedFrom,
   onPushConfig,
   pushing,
 }: DeviceFormProps) {
-  const apiFetch = useApi()
   const { toast } = useToast()
+  const [openAccordions, setOpenAccordions] = useState<string[]>(["identity"])
   const [activeTab, setActiveTab] = useState<OperationTab>("deposit")
   const [users, setUsers] = useState<any[]>([])
   const [networks, setNetworks] = useState<any[]>([])
@@ -74,15 +76,17 @@ export function DeviceForm({
   const sample = isSampleForm(form)
 
   useEffect(() => {
+    if (!openAccordions.includes("identity")) return
     fetchNetworks(apiFetch).then(setNetworks).catch(() => setNetworks([]))
-  }, [apiFetch])
+  }, [apiFetch, openAccordions])
 
   useEffect(() => {
+    if (!openAccordions.includes("identity")) return
     const t = setTimeout(() => {
       fetchAdminUsers(apiFetch, userSearch).then(setUsers).catch(() => setUsers([]))
     }, 300)
     return () => clearTimeout(t)
-  }, [apiFetch, userSearch])
+  }, [apiFetch, userSearch, openAccordions])
 
   const selectedNetwork = useMemo(
     () => networks.find((n) => n.uid === form.network),
@@ -102,19 +106,25 @@ export function DeviceForm({
     })
   }
 
-  const patchOperation = (tab: OperationTab, steps: string[]) => {
-    if (!fp) return
-    onChange({
-      ...form,
-      custom_settings: {
-        ...form.custom_settings,
-        flashpay: {
-          ...fp,
-          [tab]: { ...fp[tab], ussd_steps: steps },
+  const patchOperation = useCallback(
+    (tab: OperationTab, steps: string[]) => {
+      if (!fp) return
+      onChange({
+        ...form,
+        custom_settings: {
+          ...form.custom_settings,
+          flashpay: {
+            ...fp,
+            [tab]: { ...fp[tab], ussd_steps: steps },
+          },
         },
-      },
-    })
-  }
+      })
+    },
+    [form, fp, onChange],
+  )
+
+  const flashpayOpen = openAccordions.includes("flashpay")
+  const advancedOpen = openAccordions.includes("advanced")
 
   const applyPreset = (presetId: string) => {
     const preset = DEVICE_PRESETS.find((p) => p.id === presetId)
@@ -201,7 +211,12 @@ export function DeviceForm({
           </Badge>
         )}
 
-        <Accordion type="multiple" defaultValue={["identity", "state", "flashpay"]} className="space-y-2">
+        <Accordion
+          type="multiple"
+          value={openAccordions}
+          onValueChange={setOpenAccordions}
+          className="space-y-2"
+        >
           <AccordionItem value="identity" className={flashpayTheme.accordionItem}>
             <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Identité & rattachement</AccordionTrigger>
             <AccordionContent className="space-y-4 pb-4">
@@ -464,7 +479,7 @@ export function DeviceForm({
                 >
                   Initialiser config FlashPay (Moov BJ)
                 </Button>
-              ) : (
+              ) : flashpayOpen ? (
                 <>
                   <UssdFlowBuilder
                     steps={fp[activeTab]?.ussd_steps ?? []}
@@ -527,6 +542,8 @@ export function DeviceForm({
                     </div>
                   )}
                 </>
+              ) : (
+                <p className={flashpayTheme.muted}>Ouvrez cette section pour éditer les étapes USSD.</p>
               )}
             </AccordionContent>
           </AccordionItem>
@@ -534,23 +551,14 @@ export function DeviceForm({
           <AccordionItem value="advanced" className={flashpayTheme.accordionItem}>
             <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Avancé</AccordionTrigger>
             <AccordionContent className="pb-4 space-y-4">
-              <p className={flashpayTheme.mutedXs}>
-                Édition brute de <code className="text-xs">custom_settings</code> (inclut flashpay). Préférez Import/Export dans Config FlashPay.
-              </p>
-              <Label>JSON custom_settings</Label>
-              <Textarea
-                className="mt-2 font-mono text-xs"
-                rows={12}
-                value={JSON.stringify(form.custom_settings, null, 2)}
-                onChange={(e) => {
-                  try {
-                    const parsed = JSON.parse(e.target.value)
-                    patch({ custom_settings: parsed })
-                  } catch {
-                    /* ignore invalid json while typing */
-                  }
-                }}
-              />
+              {advancedOpen ? (
+                <AdvancedSettingsEditor
+                  settings={form.custom_settings}
+                  onApply={(settings) => patch({ custom_settings: settings })}
+                />
+              ) : (
+                <p className={flashpayTheme.mutedXs}>Ouvrez pour l&apos;éditeur JSON brut.</p>
+              )}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -559,14 +567,14 @@ export function DeviceForm({
           <span>Complétion {completion.percent}%</span>
           <div className={flashpayTheme.progressTrack}>
             <div
-              className="h-full bg-[#D4A24C] transition-all"
+              className="h-full bg-[#D4A24C] transition-[width] duration-200"
               style={{ width: `${completion.percent}%` }}
             />
           </div>
         </div>
       </div>
 
-      <div className="xl:col-span-1">
+      <div className="space-y-4 xl:col-span-1">
         <DevicePreviewPanel
           form={form}
           activeTab={activeTab}

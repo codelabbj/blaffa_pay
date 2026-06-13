@@ -149,6 +149,7 @@ export default function FlashPayDeviceEditPage() {
           form={form}
           onChange={handleChange}
           mode="edit"
+          apiFetch={apiFetch}
           onPushConfig={handlePush}
           pushing={pushing}
         />

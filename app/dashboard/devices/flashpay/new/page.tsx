@@ -105,7 +105,7 @@ function FlashPayDeviceNewContent() {
           </div>
         </div>
 
-        <DeviceForm form={form} onChange={setForm} mode="create" clonedFrom={clonedFrom} />
+        <DeviceForm form={form} onChange={setForm} mode="create" apiFetch={apiFetch} clonedFrom={clonedFrom} />
       </div>
     </div>
   )

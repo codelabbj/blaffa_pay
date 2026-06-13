@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils"
 
 /** Classes Tailwind partagées — pages FlashPay (light / dark). */
 export const flashpayTheme = {
-  page: "min-h-screen bg-gradient-to-br from-orange-50/50 via-[#F8FAFC] to-slate-100 p-6 lg:p-8 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800",
+  page: "p-6 lg:p-8",
   stickyHeader:
-    "sticky top-0 z-10 bg-[#F8FAFC]/95 dark:bg-gray-900/95 backdrop-blur py-2",
+    "sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-transparent py-2 -mx-6 px-6 lg:-mx-8 lg:px-8 mb-2",
   title: "text-2xl font-semibold text-[#0B2545] dark:text-gray-100",
   titleSm: "text-xl font-semibold text-[#0B2545] dark:text-gray-100",
   muted: "text-sm text-slate-500 dark:text-gray-400",

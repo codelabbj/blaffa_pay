@@ -65,7 +65,7 @@ function StatusDot({ device }: { device: PaymentDevice }) {
   if (device.is_online) {
     return (
       <span className="inline-flex items-center gap-1.5 text-green-600 dark:text-green-400 text-xs font-medium">
-        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" /> En ligne
+        <span className="h-2 w-2 rounded-full bg-green-500" /> En ligne
       </span>
     )
   }

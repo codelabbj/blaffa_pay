@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -14,7 +15,8 @@ interface UssdFlowBuilderProps {
   label?: string
 }
 
-export function UssdFlowBuilder({ steps, onChange, label }: UssdFlowBuilderProps) {
+export const UssdFlowBuilder = memo(function UssdFlowBuilder({ steps, onChange, label }: UssdFlowBuilderProps) {
+  const bulkValue = useMemo(() => steps.join("\n"), [steps])
   const updateStep = (index: number, value: string) => {
     const next = [...steps]
     next[index] = value
@@ -32,8 +34,6 @@ export function UssdFlowBuilder({ steps, onChange, label }: UssdFlowBuilderProps
   const insertShortcut = (token: string) => {
     onChange([...steps, token])
   }
-
-  const bulkValue = steps.join("\n")
 
   return (
     <div className="space-y-3">
@@ -94,4 +94,4 @@ export function UssdFlowBuilder({ steps, onChange, label }: UssdFlowBuilderProps
       </details>
     </div>
   )
-}
+})

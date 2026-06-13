@@ -29,15 +29,15 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-gray-200 bg-white/95 backdrop-blur-md text-gray-900 dark:border-gray-700 dark:bg-gray-800/95 dark:text-gray-100",
+        default: "border-gray-200 bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100",
         destructive:
-          "border-red-200 bg-red-50/95 backdrop-blur-md text-red-900 dark:border-red-800 dark:bg-red-900/20 dark:text-red-100",
+          "border-red-200 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-900/20 dark:text-red-100",
         success:
-          "border-green-500 bg-green-100/95 backdrop-blur-md text-green-900 dark:border-green-500 dark:bg-green-900/40 dark:text-green-50 shadow-lg shadow-green-500/20",
+          "border-green-500 bg-green-100 text-green-900 dark:border-green-500 dark:bg-green-900/40 dark:text-green-50",
         warning:
-          "border-orange-200 bg-orange-50/95 backdrop-blur-md text-orange-900 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-100",
+          "border-orange-200 bg-orange-50 text-orange-900 dark:border-orange-800 dark:bg-orange-900/20 dark:text-orange-100",
         info:
-          "border-blue-200 bg-blue-50/95 backdrop-blur-md text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-100",
+          "border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-100",
       },
     },
     defaultVariants: {

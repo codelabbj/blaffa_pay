@@ -92,8 +92,8 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
     <>
       {/* Mobile sidebar */}
       <div className={cn("fixed inset-0 z-50 lg:hidden", mobileSidebarOpen ? "block" : "hidden")}>
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onToggleMobileSidebar} />
-        <div className="fixed inset-y-0 left-0 flex w-72 flex-col bg-gradient-to-b from-white via-orange-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 h-full min-h-0 shadow-2xl">
+        <div className="fixed inset-0 bg-black/50" onClick={onToggleMobileSidebar} />
+        <div className="fixed inset-y-0 left-0 flex w-72 flex-col bg-white dark:bg-gray-900 h-full min-h-0 border-r border-gray-200/50 dark:border-gray-700/50">
           <div className="flex h-20 items-center justify-between px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="relative">
@@ -121,10 +121,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 pathname === "/dashboard"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
               onClick={onToggleMobileSidebar}
             >
@@ -136,10 +136,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isUsersActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setUsersDropdownOpen((open) => !open)}
                 aria-expanded={usersDropdownOpen}
@@ -154,14 +154,14 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   usersDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link
                   href="/dashboard/users/register"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     isRegisterActive
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -173,7 +173,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/users/list"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     isListActive
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -188,10 +188,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/transactions"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 pathname === "/dashboard/transactions"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
               onClick={onToggleMobileSidebar}
             >
@@ -202,10 +202,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/bulk-deposit-networks"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isBulkDepositNetworksActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
               onClick={onToggleMobileSidebar}
             >
@@ -216,10 +216,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/device-authorizations"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isDeviceAuthorizationsActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
               onClick={onToggleMobileSidebar}
             >
@@ -231,10 +231,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isAggregatorsActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setAggregatorsDropdownOpen((open) => !open)}
                 aria-expanded={aggregatorsDropdownOpen}
@@ -249,7 +249,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   aggregatorsDropdownOpen ? "max-h-[22rem] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
@@ -257,7 +257,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/aggregators/users"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     pathname.startsWith("/dashboard/aggregators/users")
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -269,7 +269,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/aggregators/authorizations"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     pathname === "/dashboard/aggregators/authorizations"
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -281,7 +281,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/aggregators/network-mappings"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     pathname === "/dashboard/aggregators/network-mappings"
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -293,7 +293,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/aggregators/transactions"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     pathname === "/dashboard/aggregators/transactions"
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -308,10 +308,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isCountryActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setCountryDropdownOpen((open) => !open)}
                 aria-expanded={countryDropdownOpen}
@@ -326,18 +326,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   countryDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/country/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isCountryListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}><span><span>{t("nav.countryList")}</span></span></Link>
                 <Link href="/dashboard/country/create" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isCountryCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -348,10 +348,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isNetworkActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setNetworkDropdownOpen((open) => !open)}
                 aria-expanded={networkDropdownOpen}
@@ -366,18 +366,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   networkDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/network/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isNetworkListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}><span>{t("nav.networkList")}</span></Link>
                 <Link href="/dashboard/network/create" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isNetworkCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -386,10 +386,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             </div>
 
             <Link href="/dashboard/phone-number/list" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/phone-number/list"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <Phone className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.phoneNumbers")}</span>
@@ -398,10 +398,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isDevicesActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setDevicesDropdownOpen((open) => !open)}
                 aria-expanded={devicesDropdownOpen}
@@ -416,18 +416,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   devicesDropdownOpen ? "max-h-40 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/devices/flashpay" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isFlashPayDevicesActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}>FlashPay (config)</Link>
                 <Link href="/dashboard/devices/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isDevicesListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -436,40 +436,40 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             </div>
 
             <Link href="/dashboard/sms-logs/list" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/sms-logs/list"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <MessageCircle className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.smsLogs")}</span>
             </Link>
 
             <Link href="/dashboard/fcm-logs/list" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/fcm-logs/list"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <Bell className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.fcmLogs")}</span>
             </Link>
 
             <Link href="/dashboard/partner" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/partner"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.partner")}</span>
             </Link>
 
             <Link href="/dashboard/partner-transfers" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/partner-transfers"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>Transferts Partenaires</span>
@@ -478,10 +478,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isPlatformsActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setPlatformsDropdownOpen((open) => !open)}
                 aria-expanded={platformsDropdownOpen}
@@ -496,18 +496,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   platformsDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/platforms/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isPlatformsListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}><span>Liste des Plateformes</span></Link>
                 <Link href="/dashboard/platforms/create" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isPlatformsCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -518,10 +518,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isPermissionsActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setPermissionsDropdownOpen((open) => !open)}
                 aria-expanded={permissionsDropdownOpen}
@@ -536,18 +536,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   permissionsDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/permissions/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isPermissionsListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}><span>Liste des Permissions</span></Link>
                 <Link href="/dashboard/permissions/create" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isPermissionsCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -557,10 +557,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
             <div>
               <Link href="/dashboard/betting-transactions" className={cn(
-                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isBettingTransactionsActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
               )}>
                 <Receipt className="mr-3 h-5 w-5 flex-shrink-0" />
                 Transactions de Paris
@@ -569,10 +569,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
             <div>
               <Link href="/dashboard/api-config" className={cn(
-                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isApiConfigActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
               )}>
                 <Settings className="mr-3 h-5 w-5 flex-shrink-0" />
                 Configuration API
@@ -581,10 +581,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
             <div>
               <Link href="/dashboard/partner-permissions-summary" className={cn(
-                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isPartnerPermissionsSummaryActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
               )}>
                 <Users className="mr-3 h-5 w-5 flex-shrink-0" />
                 Résumé Permissions
@@ -592,20 +592,20 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             </div>
 
             <Link href="/dashboard/topup" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/topup"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("topup.title")}</span>
             </Link>
 
             <Link href="/dashboard/earning-management" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/earning-management"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("earning.title")}</span>
@@ -614,10 +614,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/wave-business-transaction"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 pathname === "/dashboard/wave-business-transaction"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
               onClick={onToggleMobileSidebar}
             >
@@ -628,10 +628,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/momo-pay"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 pathname === "/dashboard/momo-pay"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
               onClick={onToggleMobileSidebar}
             >
@@ -643,7 +643,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
           <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
             <Button
               variant="ghost"
-              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200"
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-colors duration-150"
               onClick={handleLogout}
             >
               <LogOut className="mr-3 h-5 w-5" />
@@ -655,7 +655,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:flex-col lg:w-72">
-        <div className="flex flex-col flex-grow bg-gradient-to-b from-white via-orange-50 to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-r border-gray-200/50 dark:border-gray-700/50 h-full min-h-0 shadow-xl">
+        <div className="flex flex-col flex-grow bg-white dark:bg-gray-900 border-r border-gray-200/50 dark:border-gray-700/50 h-full min-h-0">
           {/* Make sidebar scrollable if content overflows */}
           <div className="flex h-20 items-center px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
@@ -682,10 +682,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 pathname === "/dashboard"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
             >
               <Home className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -696,10 +696,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isUsersActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setUsersDropdownOpen((open) => !open)}
                 aria-expanded={usersDropdownOpen}
@@ -714,14 +714,14 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   usersDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link
                   href="/dashboard/users/register"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     isRegisterActive
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -732,7 +732,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/users/list"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     isListActive
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -746,10 +746,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/transactions"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 pathname === "/dashboard/transactions"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
             >
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -759,10 +759,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/bulk-deposit-networks"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isBulkDepositNetworksActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
             >
               <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -772,10 +772,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/device-authorizations"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isDeviceAuthorizationsActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
             >
               <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
@@ -786,10 +786,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isAggregatorsActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setAggregatorsDropdownOpen((open) => !open)}
                 aria-expanded={aggregatorsDropdownOpen}
@@ -804,7 +804,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   aggregatorsDropdownOpen ? "max-h-[22rem] opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
@@ -812,7 +812,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/aggregators/users"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     pathname.startsWith("/dashboard/aggregators/users")
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -823,7 +823,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/aggregators/authorizations"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     pathname === "/dashboard/aggregators/authorizations"
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -834,7 +834,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/aggregators/network-mappings"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     pathname === "/dashboard/aggregators/network-mappings"
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -845,7 +845,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Link
                   href="/dashboard/aggregators/transactions"
                   className={cn(
-                    "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                    "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                     pathname === "/dashboard/aggregators/transactions"
                       ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -859,10 +859,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isCountryActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setCountryDropdownOpen((open) => !open)}
                 aria-expanded={countryDropdownOpen}
@@ -877,18 +877,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   countryDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/country/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isCountryListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}><span><span>{t("nav.countryList")}</span></span></Link>
                 <Link href="/dashboard/country/create" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isCountryCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -899,10 +899,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isNetworkActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setNetworkDropdownOpen((open) => !open)}
                 aria-expanded={networkDropdownOpen}
@@ -917,18 +917,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   networkDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/network/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isNetworkListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}><span>{t("nav.networkList")}</span></Link>
                 <Link href="/dashboard/network/create" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isNetworkCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -937,10 +937,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             </div>
 
             <Link href="/dashboard/phone-number/list" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/phone-number/list"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <Phone className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.phoneNumbers")}</span>
@@ -949,10 +949,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isDevicesActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setDevicesDropdownOpen((open) => !open)}
                 aria-expanded={devicesDropdownOpen}
@@ -967,18 +967,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   devicesDropdownOpen ? "max-h-40 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/devices/flashpay" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isFlashPayDevicesActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}>FlashPay (config)</Link>
                 <Link href="/dashboard/devices/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isDevicesListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -987,40 +987,40 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             </div>
 
             <Link href="/dashboard/sms-logs/list" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/sms-logs/list"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <MessageCircle className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.smsLogs")}</span>
             </Link>
 
             <Link href="/dashboard/fcm-logs/list" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/fcm-logs/list"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <Bell className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.fcmLogs")}</span>
             </Link>
 
             <Link href="/dashboard/partner" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/partner"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.partner")}</span>
             </Link>
 
             <Link href="/dashboard/partner-transfers" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/partner-transfers"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
               Transferts Partenaires
@@ -1029,10 +1029,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isPlatformsActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setPlatformsDropdownOpen((open) => !open)}
                 aria-expanded={platformsDropdownOpen}
@@ -1047,18 +1047,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   platformsDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/platforms/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isPlatformsListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}><span>Liste des Plateformes</span></Link>
                 <Link href="/dashboard/platforms/create" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isPlatformsCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -1069,10 +1069,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <div>
               <button
                 className={cn(
-                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                  "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                   isPermissionsActive
-                    ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                    ? "bg-orange-500 text-white"
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 )}
                 onClick={() => setPermissionsDropdownOpen((open) => !open)}
                 aria-expanded={permissionsDropdownOpen}
@@ -1087,18 +1087,18 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </button>
               <div
                 className={cn(
-                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-[max-height,opacity] duration-200",
                   permissionsDropdownOpen ? "max-h-32 opacity-100 mt-2" : "max-h-0 opacity-0 pointer-events-none"
                 )}
               >
                 <Link href="/dashboard/permissions/list" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isPermissionsListActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}><span>Liste des Permissions</span></Link>
                 <Link href="/dashboard/permissions/create" className={cn(
-                  "block px-4 py-2 text-sm rounded-lg transition-all duration-200",
+                  "block px-4 py-2 text-sm rounded-lg transition-colors duration-150",
                   isPermissionsCreateActive
                     ? "bg-orange-100 text-orange-900 dark:bg-orange-900/20 dark:text-orange-300 shadow-sm"
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -1108,10 +1108,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
             <div>
               <Link href="/dashboard/betting-transactions" className={cn(
-                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isBettingTransactionsActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
               )}>
                 <Receipt className="mr-3 h-5 w-5 flex-shrink-0" />
                 <span>Transactions de Paris</span>
@@ -1120,10 +1120,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
             <div>
               <Link href="/dashboard/api-config" className={cn(
-                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isApiConfigActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
               )}>
                 <Settings className="mr-3 h-5 w-5 flex-shrink-0" />
                 <span>Configuration API</span>
@@ -1132,10 +1132,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
             <div>
               <Link href="/dashboard/partner-permissions-summary" className={cn(
-                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isPartnerPermissionsSummaryActive
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md"
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
               )}>
                 <Users className="mr-3 h-5 w-5 flex-shrink-0" />
                 <span>Résumé Permissions</span>
@@ -1143,20 +1143,20 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             </div>
 
             <Link href="/dashboard/topup" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/topup"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("topup.title")}</span></span>
             </Link>
 
             <Link href="/dashboard/earning-management" className={cn(
-              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+              "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/earning-management"
-                ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                ? "bg-orange-500 text-white"
+                : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
             )}>
               <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("earning.title")}</span></span>
@@ -1165,10 +1165,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/wave-business-transaction"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 pathname === "/dashboard/wave-business-transaction"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
               onClick={onToggleMobileSidebar}
             >
@@ -1179,10 +1179,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             <Link
               href="/dashboard/momo-pay"
               className={cn(
-                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200",
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 pathname === "/dashboard/momo-pay"
-                  ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg"
-                  : "text-gray-700 hover:bg-white/80 dark:text-gray-300 dark:hover:bg-gray-800/80 hover:shadow-md",
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
               )}
               onClick={onToggleMobileSidebar}
             >
@@ -1194,7 +1194,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
           <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
             <Button
               variant="ghost"
-              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200"
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-xl transition-colors duration-150"
               onClick={handleLogout}
             >
               <LogOut className="mr-3 h-5 w-5" />

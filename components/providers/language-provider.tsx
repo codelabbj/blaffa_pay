@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useCallback, useContext, useMemo, useState } from "react"
 
 type Language = "en" | "fr"
 
@@ -2106,7 +2106,7 @@ const LanguageProviderContext = createContext<LanguageProviderState>(initialStat
 export function LanguageProvider({ children }: LanguageProviderProps) {
   const [language, setLanguage] = useState<Language>("fr")
 
-  const t = (key: string, params?: Record<string, any>): string => {
+  const t = useCallback((key: string, params?: Record<string, any>): string => {
     let text = translations[language][key as keyof (typeof translations)["en"]] || key
     if (params) {
       Object.entries(params).forEach(([param, value]) => {
@@ -2114,13 +2114,16 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
       })
     }
     return text
-  }
+  }, [language])
 
-  const value = {
-    language,
-    setLanguage,
-    t,
-  }
+  const value = useMemo(
+    () => ({
+      language,
+      setLanguage,
+      t,
+    }),
+    [language, t],
+  )
 
   return <LanguageProviderContext.Provider value={value}>{children}</LanguageProviderContext.Provider>
 }

@@ -72,7 +72,7 @@ export function Header({ onMobileMenuClick }: HeaderProps) {
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-orange-500 dark:hover:ring-orange-400 transition-all">
+                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-gray-200 dark:ring-gray-700 hover:ring-orange-500 dark:hover:ring-orange-400 transition-colors">
                   <AvatarImage src="/placeholder-user.jpg" alt="User" />
                   <AvatarFallback className="bg-gradient-to-br from-orange-500 to-orange-600 text-white font-semibold">
                     JD

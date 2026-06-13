@@ -10,6 +10,41 @@ import { DEVICE_CREATE_SAMPLE, SAMPLE_DEVICE_ID_VALUE } from "@/lib/flashpay-dev
 import { migrateYapsonToFlashpay } from "@/lib/yapson-config-migrate"
 import { cn } from "@/lib/utils"
 
+/** Config FlashPay minimale — permet Identité (SIM, réseau) sans ouvrir Config FlashPay avant. */
+export function createEmptyFlashpayConfig(
+  overrides?: Partial<FlashPayDeviceConfig>,
+): FlashPayDeviceConfig {
+  return {
+    country_code: "CI",
+    network_code: "",
+    network_label: "",
+    sim_slot: 0,
+    momo_pin: "",
+    deposit: {
+      ussd_steps: [],
+      session_type: "multi",
+      check_balance_before: false,
+      check_balance_after: false,
+      op_key_enabled: true,
+      auto_transfer_enabled: false,
+      auto_transfer_to: "",
+      auto_transfer_min_balance: 0,
+    },
+    withdraw: {
+      ussd_steps: [],
+      session_type: "multi",
+      check_balance_before: false,
+      check_balance_after: false,
+    },
+    balance: {
+      ussd_steps: [],
+      session_type: "single",
+    },
+    updated_by: "admin",
+    ...overrides,
+  }
+}
+
 /** Classes Tailwind partagées — pages FlashPay (light / dark). */
 export const flashpayTheme = {
   page: "p-6 lg:p-8",

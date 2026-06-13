@@ -24,13 +24,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { ClipboardCopy, Download, Sparkles, Upload, Wifi, WifiOff, Pause, Play, Check, ChevronsUpDown, Loader2 } from "lucide-react"
-import type { DeviceFormValues, OperationTab } from "@/lib/types/flashpay-device"
+import type { DeviceFormValues, FlashPayDeviceConfig, OperationTab } from "@/lib/types/flashpay-device"
 import { DEVICE_PRESETS } from "@/lib/flashpay-device-sample"
 import {
   applyFlashpayConfigImport,
   buildFlashpayExportJson,
   computeCompletion,
   compactCustomSettings,
+  createEmptyFlashpayConfig,
   downloadFlashpayConfigJson,
   flashpayTheme,
   formatRelativeTime,
@@ -131,14 +132,14 @@ export function DeviceForm({
 
   const patch = (partial: Partial<DeviceFormValues>) => onChange({ ...form, ...partial })
 
-  const patchFlashpay = (partial: Partial<NonNullable<typeof fp>>) => {
-    if (!fp) return
+  const patchFlashpay = (partial: Partial<FlashPayDeviceConfig>) => {
+    const base = fp ?? createEmptyFlashpayConfig()
     onChange({
       ...form,
-      custom_settings: {
+      custom_settings: compactCustomSettings({
         ...form.custom_settings,
-        flashpay: { ...fp, ...partial },
-      },
+        flashpay: { ...base, ...partial },
+      }),
     })
   }
 

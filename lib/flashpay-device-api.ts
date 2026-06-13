@@ -8,15 +8,38 @@ export async function fetchStaffDevices(
   apiFetch: ApiFetch,
   params?: Record<string, string>,
 ): Promise<PaymentDevice[]> {
-  const qs = new URLSearchParams({ page_size: "200", ...params })
-  const data = await apiFetch(`${baseUrl()}/api/payments/devices/?${qs}`)
-  if (Array.isArray(data)) return data
-  return (data as PaginatedResponse<PaymentDevice>).results ?? []
+  const all: PaymentDevice[] = []
+  let page = 1
+  let hasNext = true
+
+  while (hasNext) {
+    const qs = new URLSearchParams({
+      page_size: "100",
+      page: String(page),
+      ...params,
+    })
+    const data = await apiFetch(`${baseUrl()}/api/payments/devices/?${qs}`)
+    if (Array.isArray(data)) return data
+
+    const batch = (data as PaginatedResponse<PaymentDevice>).results ?? []
+    all.push(...batch)
+    hasNext = Boolean((data as PaginatedResponse<PaymentDevice>).next)
+    page += 1
+    if (page > 100) break
+  }
+
+  return all
 }
 
 export async function fetchDeviceByUid(apiFetch: ApiFetch, uid: string): Promise<PaymentDevice | null> {
-  const devices = await fetchStaffDevices(apiFetch)
-  return devices.find((d) => d.uid === uid) ?? null
+  try {
+    const data = await apiFetch(`${baseUrl()}/api/payments/devices/?search=${encodeURIComponent(uid)}&page_size=20`)
+    const list = Array.isArray(data) ? data : data.results ?? []
+    return list.find((d: PaymentDevice) => d.uid === uid) ?? list[0] ?? null
+  } catch {
+    const devices = await fetchStaffDevices(apiFetch)
+    return devices.find((d) => d.uid === uid) ?? null
+  }
 }
 
 export async function updateDeviceStatus(

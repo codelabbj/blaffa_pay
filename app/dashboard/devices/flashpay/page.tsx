@@ -80,14 +80,22 @@ export default function FlashPayDevicesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
   const [kpiFilter, setKpiFilter] = useState<DeviceKpiFilter>("all")
   const [pickerOpen, setPickerOpen] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 350)
+    return () => clearTimeout(t)
+  }, [search])
 
   const load = useCallback(async () => {
     setLoading(true)
     setError("")
     try {
-      const data = await fetchStaffDevices(apiFetch)
+      const params: Record<string, string> = {}
+      if (debouncedSearch) params.search = debouncedSearch
+      const data = await fetchStaffDevices(apiFetch, params)
       setDevices(data)
     } catch (e: any) {
       setError(extractErrorMessages(e) || "Impossible de charger les devices")
@@ -95,26 +103,13 @@ export default function FlashPayDevicesPage() {
     } finally {
       setLoading(false)
     }
-  }, [apiFetch])
+  }, [apiFetch, debouncedSearch])
 
   useEffect(() => {
     load()
   }, [load])
 
-  const filtered = useMemo(() => {
-    let list = filterDevicesByKpi(devices, kpiFilter)
-    const q = search.trim().toLowerCase()
-    if (q) {
-      list = list.filter(
-        (d) =>
-          d.device_id.toLowerCase().includes(q) ||
-          (d.device_name || "").toLowerCase().includes(q) ||
-          (d.user_name || "").toLowerCase().includes(q) ||
-          (d.network_name || "").toLowerCase().includes(q),
-      )
-    }
-    return list
-  }, [devices, kpiFilter, search])
+  const filtered = useMemo(() => filterDevicesByKpi(devices, kpiFilter), [devices, kpiFilter])
 
   const kpis = useMemo(
     () => ({
@@ -193,7 +188,7 @@ export default function FlashPayDevicesPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-gray-500" />
               <Input
                 className="pl-9 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-                placeholder="Rechercher device_id, nom, agent, réseau…"
+                placeholder="Rechercher device_id, nom, agent, email, téléphone, réseau…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />

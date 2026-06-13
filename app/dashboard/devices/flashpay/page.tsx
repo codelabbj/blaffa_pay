@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
   Copy,
+  Filter,
   MoreHorizontal,
   Pause,
   Play,
@@ -14,11 +18,20 @@ import {
   Search,
   Smartphone,
   Sparkles,
+  X,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -39,14 +52,30 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DevicePickerDrawer } from "@/components/flashpay-devices/device-picker-drawer"
 import {
+  bulkPushDeviceConfig,
+  bulkToggleDevicePause,
+  fetchNetworks,
   fetchStaffDevices,
   pushDeviceConfig,
   toggleDevicePause,
 } from "@/lib/flashpay-device-api"
-import type { DeviceKpiFilter, PaymentDevice } from "@/lib/types/flashpay-device"
+import type { PaymentDevice } from "@/lib/types/flashpay-device"
+import {
+  activeKpiFromFilters,
+  applyClientConfigFilter,
+  buildDeviceListApiParams,
+  DEFAULT_DEVICE_LIST_FILTERS,
+  DEFAULT_DEVICE_SORT,
+  DEVICE_SORT_COLUMNS,
+  filtersFromKpi,
+  hasActiveFilters,
+  toggleSort,
+  type DeviceListFilters,
+  type DeviceSortField,
+  type DeviceSortState,
+} from "@/lib/flashpay-device-list"
 import {
   computeCompletion,
-  filterDevicesByKpi,
   flashpayTheme,
   formatDeviceMode,
   formatRelativeTime,
@@ -75,70 +104,140 @@ function StatusDot({ device }: { device: PaymentDevice }) {
   return <span className="inline-flex items-center gap-1 text-slate-400 dark:text-gray-500 text-xs">○ Hors ligne</span>
 }
 
+function SortableHead({
+  label,
+  field,
+  sort,
+  onSort,
+  className,
+}: {
+  label: string
+  field: DeviceSortField
+  sort: DeviceSortState
+  onSort: (field: DeviceSortField) => void
+  className?: string
+}) {
+  const active = sort.field === field
+  const Icon = active ? (sort.dir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown
+  return (
+    <TableHead className={className}>
+      <button
+        type="button"
+        onClick={() => onSort(field)}
+        className="inline-flex items-center gap-1 font-medium hover:text-[#0B2545] dark:hover:text-gray-100 transition-colors"
+      >
+        {label}
+        <Icon className={`h-3.5 w-3.5 ${active ? "text-[#D4A24C]" : "text-slate-400"}`} />
+      </button>
+    </TableHead>
+  )
+}
+
 export default function FlashPayDevicesPage() {
   const apiFetch = useApi()
   const router = useRouter()
   const { toast } = useToast()
   const [devices, setDevices] = useState<PaymentDevice[]>([])
+  const [networks, setNetworks] = useState<{ uid: string; nom: string }[]>([])
   const [loading, setLoading] = useState(true)
+  const [bulkLoading, setBulkLoading] = useState(false)
   const [error, setError] = useState("")
-  const [search, setSearch] = useState("")
+  const [filters, setFilters] = useState<DeviceListFilters>(DEFAULT_DEVICE_LIST_FILTERS)
   const [debouncedSearch, setDebouncedSearch] = useState("")
-  const [kpiFilter, setKpiFilter] = useState<DeviceKpiFilter>("all")
+  const [sort, setSort] = useState<DeviceSortState>(DEFAULT_DEVICE_SORT)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
   const [pickerOpen, setPickerOpen] = useState(false)
 
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search.trim()), 350)
-    return () => clearTimeout(t)
-  }, [search])
+  const kpiFilter = activeKpiFromFilters(filters)
 
-  const load = useCallback(async (opts?: { silent?: boolean }) => {
-    if (!opts?.silent) {
-      setLoading(true)
-    }
-    setError("")
-    try {
-      const params: Record<string, string> = {}
-      if (debouncedSearch) params.search = debouncedSearch
-      const data = await fetchStaffDevices(apiFetch, params)
-      setDevices(data)
-    } catch (e: any) {
-      if (!opts?.silent) {
-        setError(extractErrorMessages(e) || "Impossible de charger les devices")
-        setDevices([])
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(filters.search.trim())
+    }, 350)
+    return () => clearTimeout(t)
+  }, [filters.search])
+
+  useEffect(() => {
+    fetchNetworks(apiFetch).then(setNetworks).catch(() => setNetworks([]))
+  }, [apiFetch])
+
+  const load = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (!opts?.silent) setLoading(true)
+      setError("")
+      try {
+        const apiFilters = { ...filters, search: debouncedSearch }
+        const params = buildDeviceListApiParams(apiFilters, sort)
+        const data = await fetchStaffDevices(apiFetch, params)
+        setDevices(data)
+        setSelected(new Set())
+      } catch (e: any) {
+        if (!opts?.silent) {
+          setError(extractErrorMessages(e) || "Impossible de charger les devices")
+          setDevices([])
+        }
+      } finally {
+        if (!opts?.silent) setLoading(false)
       }
-    } finally {
-      if (!opts?.silent) {
-        setLoading(false)
-      }
-    }
-  }, [apiFetch, debouncedSearch])
+    },
+    [apiFetch, debouncedSearch, filters, sort],
+  )
 
   useEffect(() => {
     load()
   }, [load])
 
-  /** Rafraîchissement léger du statut en ligne (sans spinner). */
   useEffect(() => {
     const id = setInterval(() => {
-      if (document.visibilityState === "visible") {
-        load({ silent: true })
-      }
+      if (document.visibilityState === "visible") load({ silent: true })
     }, 30_000)
     return () => clearInterval(id)
   }, [load])
 
-  const filtered = useMemo(() => filterDevicesByKpi(devices, kpiFilter), [devices, kpiFilter])
+  const displayed = useMemo(
+    () => applyClientConfigFilter(devices, filters.config),
+    [devices, filters.config],
+  )
+
+  const selectedDevices = useMemo(
+    () => displayed.filter((d) => selected.has(d.uid)),
+    [displayed, selected],
+  )
+
+  const allSelected = displayed.length > 0 && displayed.every((d) => selected.has(d.uid))
+  const someSelected = displayed.some((d) => selected.has(d.uid))
 
   const kpis = useMemo(
     () => ({
-      total: devices.length,
-      online: devices.filter((d) => isDeviceEffectivelyOnline(d)).length,
-      paused: devices.filter((d) => d.is_paused).length,
-      unconfigured: devices.filter((d) => !isDeviceConfigured(d)).length,
+      total: displayed.length,
+      online: displayed.filter((d) => isDeviceEffectivelyOnline(d)).length,
+      paused: displayed.filter((d) => d.is_paused).length,
+      unconfigured: displayed.filter((d) => !isDeviceConfigured(d)).length,
     }),
-    [devices],
+    [displayed],
   )
+
+  const patchFilters = (partial: Partial<DeviceListFilters>) => {
+    setFilters((prev) => ({ ...prev, ...partial }))
+  }
+
+  const handleSort = (field: DeviceSortField) => {
+    setSort((prev) => toggleSort(prev, field))
+  }
+
+  const toggleRow = (uid: string, checked: boolean) => {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (checked) next.add(uid)
+      else next.delete(uid)
+      return next
+    })
+  }
+
+  const toggleAll = (checked: boolean) => {
+    if (checked) setSelected(new Set(displayed.map((d) => d.uid)))
+    else setSelected(new Set())
+  }
 
   const handlePush = async (device: PaymentDevice) => {
     try {
@@ -155,6 +254,38 @@ export default function FlashPayDevicesPage() {
       load()
     } catch (e: any) {
       toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
+    }
+  }
+
+  const runBulk = async (
+    action: "pause" | "resume" | "push",
+    targets: PaymentDevice[],
+  ) => {
+    if (!targets.length) return
+    setBulkLoading(true)
+    try {
+      if (action === "push") {
+        const { ok, failed } = await bulkPushDeviceConfig(apiFetch, targets)
+        toast({
+          title: "Config poussée",
+          description: `${ok} envoyé(s)${failed ? `, ${failed} échec(s)` : ""}`,
+          variant: failed ? "destructive" : "default",
+        })
+      } else {
+        const pause = action === "pause"
+        const { ok, failed } = await bulkToggleDevicePause(apiFetch, targets, pause)
+        toast({
+          title: pause ? "Pause groupée" : "Reprise groupée",
+          description: `${ok} mis à jour${failed ? `, ${failed} échec(s)` : ""}`,
+          variant: failed ? "destructive" : "default",
+        })
+        load()
+      }
+      setSelected(new Set())
+    } catch (e: any) {
+      toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
+    } finally {
+      setBulkLoading(false)
     }
   }
 
@@ -192,7 +323,7 @@ export default function FlashPayDevicesPage() {
             <button
               key={key}
               type="button"
-              onClick={() => setKpiFilter(key)}
+              onClick={() => setFilters((prev) => filtersFromKpi(key, prev))}
               className={flashpayTheme.kpiCard(kpiFilter === key)}
             >
               <p className="text-2xl font-bold text-[#0B2545] dark:text-gray-100">{value}</p>
@@ -202,26 +333,163 @@ export default function FlashPayDevicesPage() {
         </div>
 
         <Card className={flashpayTheme.card}>
-          <CardContent className="p-4 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-gray-500" />
-              <Input
-                className="pl-9 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-                placeholder="Rechercher device_id, nom, agent, email, téléphone, réseau…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+          <CardContent className="p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-gray-500" />
+                <Input
+                  className="pl-9 bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  placeholder="Rechercher device_id, nom, agent, email, téléphone, réseau…"
+                  value={filters.search}
+                  onChange={(e) => patchFilters({ search: e.target.value })}
+                />
+              </div>
+              <Button variant="outline" onClick={() => load()}>
+                <RefreshCw className="h-4 w-4 mr-2" /> Actualiser
+              </Button>
             </div>
-            <Button variant="outline" onClick={load}>
-              <RefreshCw className="h-4 w-4 mr-2" /> Actualiser
-            </Button>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <Filter className="h-4 w-4 text-slate-500 shrink-0" />
+              <Select value={filters.status} onValueChange={(v) => patchFilters({ status: v as DeviceListFilters["status"] })}>
+                <SelectTrigger className="w-[130px] h-9 bg-gray-50 dark:bg-gray-700">
+                  <SelectValue placeholder="Statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous statuts</SelectItem>
+                  <SelectItem value="online">En ligne</SelectItem>
+                  <SelectItem value="offline">Hors ligne</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.pause} onValueChange={(v) => patchFilters({ pause: v as DeviceListFilters["pause"] })}>
+                <SelectTrigger className="w-[130px] h-9 bg-gray-50 dark:bg-gray-700">
+                  <SelectValue placeholder="Pause" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Pause / actif</SelectItem>
+                  <SelectItem value="paused">En pause</SelectItem>
+                  <SelectItem value="active">Actifs</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.mode} onValueChange={(v) => patchFilters({ mode: v as DeviceListFilters["mode"] })}>
+                <SelectTrigger className="w-[120px] h-9 bg-gray-50 dark:bg-gray-700">
+                  <SelectValue placeholder="Mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous modes</SelectItem>
+                  <SelectItem value="deposit">Dépôt</SelectItem>
+                  <SelectItem value="withdrawal">Retrait</SelectItem>
+                  <SelectItem value="both">Les deux</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.network} onValueChange={(v) => patchFilters({ network: v })}>
+                <SelectTrigger className="w-[160px] h-9 bg-gray-50 dark:bg-gray-700">
+                  <SelectValue placeholder="Réseau" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous réseaux</SelectItem>
+                  {networks.map((n) => (
+                    <SelectItem key={n.uid} value={n.uid}>
+                      {n.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={filters.config} onValueChange={(v) => patchFilters({ config: v as DeviceListFilters["config"] })}>
+                <SelectTrigger className="w-[150px] h-9 bg-gray-50 dark:bg-gray-700">
+                  <SelectValue placeholder="Config" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Toute config</SelectItem>
+                  <SelectItem value="configured">Configurés</SelectItem>
+                  <SelectItem value="unconfigured">Incomplets</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={`${sort.field}:${sort.dir}`}
+                onValueChange={(v) => {
+                  const [field, dir] = v.split(":") as [DeviceSortField, "asc" | "desc"]
+                  setSort({ field, dir })
+                }}
+              >
+                <SelectTrigger className="w-[180px] h-9 bg-gray-50 dark:bg-gray-700">
+                  <SelectValue placeholder="Tri" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEVICE_SORT_COLUMNS.flatMap((col) => [
+                    <SelectItem key={`${col.field}:desc`} value={`${col.field}:desc`}>
+                      {col.label} ↓
+                    </SelectItem>,
+                    <SelectItem key={`${col.field}:asc`} value={`${col.field}:asc`}>
+                      {col.label} ↑
+                    </SelectItem>,
+                  ])}
+                </SelectContent>
+              </Select>
+
+              {hasActiveFilters(filters) && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-slate-600"
+                  onClick={() => setFilters({ ...DEFAULT_DEVICE_LIST_FILTERS, search: filters.search })}
+                >
+                  <X className="h-4 w-4 mr-1" /> Effacer filtres
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
+
+        {selected.size > 0 && (
+          <Card className="border-[#D4A24C] bg-amber-50/80 dark:bg-amber-900/20">
+            <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <p className="text-sm font-medium text-[#0B2545] dark:text-gray-100">
+                {selected.size} device{selected.size > 1 ? "s" : ""} sélectionné{selected.size > 1 ? "s" : ""}
+              </p>
+              <div className="flex flex-wrap gap-2 sm:ml-auto">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={bulkLoading}
+                  onClick={() => runBulk("pause", selectedDevices)}
+                >
+                  <Pause className="h-4 w-4 mr-1" /> Mettre en pause
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={bulkLoading}
+                  onClick={() => runBulk("resume", selectedDevices)}
+                >
+                  <Play className="h-4 w-4 mr-1" /> Reprendre
+                </Button>
+                <Button
+                  size="sm"
+                  className={flashpayTheme.accentBtn}
+                  disabled={bulkLoading}
+                  onClick={() => runBulk("push", selectedDevices)}
+                >
+                  <Radio className="h-4 w-4 mr-1" /> Pousser config
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                  Annuler
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className={`${flashpayTheme.card} overflow-hidden`}>
           <CardHeader className={flashpayTheme.cardHeader}>
             <CardTitle className="text-[#0B2545] dark:text-gray-100 flex items-center gap-2">
-              <Smartphone className="h-5 w-5" /> Liste ({filtered.length})
+              <Smartphone className="h-5 w-5" /> Liste ({displayed.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -235,34 +503,60 @@ export default function FlashPayDevicesPage() {
               <div className="p-6">
                 <ErrorDisplay error={error} onRetry={load} />
               </div>
-            ) : filtered.length === 0 ? (
+            ) : displayed.length === 0 ? (
               <div className="p-12 text-center">
                 <Sparkles className="h-10 w-10 text-slate-300 dark:text-gray-600 mx-auto mb-3" />
                 <p className="text-slate-600 dark:text-gray-300 font-medium">Aucun appareil</p>
-                <Button className={`mt-4 ${flashpayTheme.accentBtn}`} asChild>
-                  <Link href="/dashboard/devices/flashpay/new">Créer le premier</Link>
-                </Button>
+                {hasActiveFilters(filters) || debouncedSearch ? (
+                  <Button
+                    className="mt-4"
+                    variant="outline"
+                    onClick={() => setFilters(DEFAULT_DEVICE_LIST_FILTERS)}
+                  >
+                    Réinitialiser les filtres
+                  </Button>
+                ) : (
+                  <Button className={`mt-4 ${flashpayTheme.accentBtn}`} asChild>
+                    <Link href="/dashboard/devices/flashpay/new">Créer le premier</Link>
+                  </Button>
+                )}
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Statut</TableHead>
-                    <TableHead>Device</TableHead>
+                    <TableHead className="w-10">
+                      <Checkbox
+                        checked={allSelected ? true : someSelected ? "indeterminate" : false}
+                        onCheckedChange={(v) => toggleAll(v === true)}
+                        aria-label="Tout sélectionner"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </TableHead>
+                    <SortableHead label="Statut" field="is_online" sort={sort} onSort={handleSort} />
+                    <SortableHead label="Device" field="device_name" sort={sort} onSort={handleSort} />
                     <TableHead>Agent</TableHead>
                     <TableHead>Réseau</TableHead>
-                    <TableHead>Config</TableHead>
-                    <TableHead>Activité</TableHead>
+                    <SortableHead label="Config" field="mode" sort={sort} onSort={handleSort} />
+                    <SortableHead label="Activité" field="last_seen" sort={sort} onSort={handleSort} />
                     <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.map((device) => (
+                  {displayed.map((device) => (
                     <TableRow
                       key={device.uid}
                       className={flashpayTheme.tableRowHover}
+                      data-state={selected.has(device.uid) ? "selected" : undefined}
                       onClick={() => router.push(`/dashboard/devices/flashpay/${device.uid}`)}
                     >
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selected.has(device.uid)}
+                          onCheckedChange={(v) => toggleRow(device.uid, v === true)}
+                          aria-label={`Sélectionner ${device.device_id}`}
+                        />
+                      </TableCell>
                       <TableCell>
                         <StatusDot device={device} />
                       </TableCell>

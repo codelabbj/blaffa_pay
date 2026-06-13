@@ -86,6 +86,39 @@ export async function toggleDevicePause(
   await updateDeviceStatus(apiFetch, device.uid, { is_paused: pause })
 }
 
+export async function bulkToggleDevicePause(
+  apiFetch: ApiFetch,
+  devices: PaymentDevice[],
+  pause: boolean,
+): Promise<{ ok: number; failed: number }> {
+  const results = await Promise.allSettled(
+    devices.map((d) => updateDeviceStatus(apiFetch, d.uid, { is_paused: pause })),
+  )
+  const ok = results.filter((r) => r.status === "fulfilled").length
+  return { ok, failed: results.length - ok }
+}
+
+export async function bulkPushDeviceConfig(
+  apiFetch: ApiFetch,
+  devices: PaymentDevice[],
+): Promise<{ ok: number; failed: number }> {
+  const results = await Promise.allSettled(
+    devices.map((d) =>
+      apiFetch(`${baseUrl()}/api/payments/remote-command/`, {
+        method: "POST",
+        body: JSON.stringify({
+          command: "update_config",
+          device_id: d.device_id,
+          parameters: {},
+          priority: 1,
+        }),
+      }),
+    ),
+  )
+  const ok = results.filter((r) => r.status === "fulfilled").length
+  return { ok, failed: results.length - ok }
+}
+
 export async function fetchNetworks(apiFetch: ApiFetch, search?: string) {
   const qs = new URLSearchParams({ page_size: "100", is_active: "true" })
   if (search) qs.set("search", search)

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, Copy, Loader2, MoreHorizontal, Save } from "lucide-react"
@@ -15,8 +15,10 @@ import { DeviceForm } from "@/components/flashpay-devices/device-form"
 import type { DeviceFormValues } from "@/lib/types/flashpay-device"
 import {
   buildStatusPatchPayload,
+  computeCompletion,
   deviceToFormValues,
   flashpayTheme,
+  formatDeviceMode,
   formatRelativeTime,
   validateUpdateForm,
 } from "@/lib/flashpay-device-utils"
@@ -39,6 +41,8 @@ export default function FlashPayDeviceEditPage() {
   const [saving, setSaving] = useState(false)
   const [pushing, setPushing] = useState(false)
   const [dirty, setDirty] = useState(false)
+
+  const completion = useMemo(() => (form ? computeCompletion(form) : null), [form])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -125,6 +129,19 @@ export default function FlashPayDeviceEditPage() {
               <p className={`font-mono ${flashpayTheme.mutedXs}`}>
                 {form.device_id} · {form.is_online ? "En ligne" : "Hors ligne"} · {formatRelativeTime(form.last_seen)}
               </p>
+              {completion && (
+                <div className="mt-2 flex items-center gap-2 max-w-md">
+                  <span className="text-xs text-slate-600 dark:text-gray-400 whitespace-nowrap">
+                    Config {completion.percent}% · {formatDeviceMode(completion.mode)}
+                  </span>
+                  <div className={`${flashpayTheme.progressTrack} max-w-[140px]`}>
+                    <div
+                      className="h-full bg-[#D4A24C] transition-[width] duration-200"
+                      style={{ width: `${completion.percent}%` }}
+                    />
+                  </div>
+                </div>
+              )}
               {dirty && <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">Modifications non enregistrées</p>}
             </div>
           </div>

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2, Circle, Copy, Radio } from "lucide-react"
 import type { DeviceFormValues, OperationTab } from "@/lib/types/flashpay-device"
 import { UssdTimeline } from "@/components/flashpay-devices/ussd-timeline"
-import { computeCompletion, flashpayTheme, isDeviceConfigured } from "@/lib/flashpay-device-utils"
+import { computeCompletion, flashpayTheme, formatDeviceMode, getRequiredUssdOperations, hasUssdSteps } from "@/lib/flashpay-device-utils"
 import { useToast } from "@/hooks/use-toast"
 
 interface DevicePreviewPanelProps {
@@ -28,7 +28,7 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
   const { toast } = useToast()
   const fp = form.custom_settings.flashpay
   const steps = fp?.[activeTab]?.ussd_steps ?? []
-  const { percent, missing } = computeCompletion(form)
+  const { percent, missing, mode, done, total } = computeCompletion(form)
 
   const copyId = () => {
     navigator.clipboard.writeText(form.device_id)
@@ -38,7 +38,11 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
   const checklist = [
     { ok: !!form.device_id.trim(), label: "device_id unique" },
     { ok: !!form.user, label: "Agent propriétaire" },
-    { ok: isDeviceConfigured(form), label: "USSD dépôt" },
+    { ok: !!form.network, label: "Réseau" },
+    ...getRequiredUssdOperations(mode).map((op) => ({
+      ok: hasUssdSteps(form, op),
+      label: op === "deposit" ? "USSD dépôt" : "USSD retrait",
+    })),
     { ok: !!fp?.momo_pin?.trim(), label: "PIN MoMo" },
   ]
 
@@ -55,12 +59,17 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
             FlashPay — {fp?.network_label || networkName || "Réseau"} · SIM {fp?.sim_slot ?? 0}
           </p>
           <p className="text-slate-600 dark:text-gray-400">
-            Dépôt: {(fp?.deposit?.ussd_steps?.length ?? 0)} étapes · {fp?.deposit?.session_type ?? "multi"}
+            Mode : {formatDeviceMode(mode)} · {done}/{total} critères
           </p>
-          <p className="text-slate-600 dark:text-gray-400">Retrait: {(fp?.withdraw?.ussd_steps?.length ?? 0)} étapes</p>
+          <p className="text-slate-600 dark:text-gray-400">
+            Dépôt: {(fp?.deposit?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes · {fp?.deposit?.session_type ?? "multi"}
+          </p>
+          <p className="text-slate-600 dark:text-gray-400">
+            Retrait: {(fp?.withdraw?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes
+          </p>
           <p className="text-slate-600 dark:text-gray-400">PIN: {fp?.momo_pin ? "••••" : "—"}</p>
           <Badge variant="outline" className="mt-2 dark:border-gray-600">
-            Complétion {percent}%
+            Complétion {percent}% · {formatDeviceMode(mode)}
           </Badge>
         </CardContent>
       </Card>

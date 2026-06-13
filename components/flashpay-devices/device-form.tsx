@@ -30,6 +30,8 @@ import {
   applyFlashpayConfigImport,
   buildFlashpayExportJson,
   computeCompletion,
+  formatDeviceMode,
+  getRequiredUssdOperations,
   compactCustomSettings,
   createEmptyFlashpayConfig,
   downloadFlashpayConfigJson,
@@ -656,8 +658,21 @@ export function DeviceForm({
           </AccordionItem>
         </Accordion>
 
-        <div className={`flex items-center gap-2 text-sm ${flashpayTheme.muted}`}>
-          <span>Complétion {completion.percent}%</span>
+        <div className={`flex flex-col gap-1 text-sm ${flashpayTheme.muted}`}>
+          <div className="flex items-center gap-2">
+            <span>
+              Complétion {completion.percent}% · Mode {formatDeviceMode(completion.mode)}
+            </span>
+            <span className="text-xs">
+              ({completion.done}/{completion.total})
+            </span>
+          </div>
+          <p className="text-xs">
+            USSD requis :{" "}
+            {getRequiredUssdOperations(completion.mode)
+              .map((op) => (op === "deposit" ? "dépôt" : "retrait"))
+              .join(" + ")}
+          </p>
           <div className={flashpayTheme.progressTrack}>
             <div
               className="h-full bg-[#D4A24C] transition-[width] duration-200"

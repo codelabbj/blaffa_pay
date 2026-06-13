@@ -45,14 +45,16 @@ import {
 } from "@/lib/flashpay-device-api"
 import type { DeviceKpiFilter, PaymentDevice } from "@/lib/types/flashpay-device"
 import {
-  depositStepCount,
+  computeCompletion,
   filterDevicesByKpi,
   flashpayTheme,
+  formatDeviceMode,
   formatRelativeTime,
   isDeviceConfigured,
   isDeviceEffectivelyOnline,
   networkChipClass,
   networkInitials,
+  ussdConfigSummary,
 } from "@/lib/flashpay-device-utils"
 
 function StatusDot({ device }: { device: PaymentDevice }) {
@@ -282,15 +284,18 @@ export default function FlashPayDevicesPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {isDeviceConfigured(device) ? (
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/30">
-                            Configuré · {depositStepCount(device)} étapes
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="border-amber-300 text-amber-800 dark:border-amber-700 dark:text-amber-300">
-                            Incomplet
-                          </Badge>
-                        )}
+                        {(() => {
+                          const progress = computeCompletion(device)
+                          return isDeviceConfigured(device) ? (
+                            <Badge className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/30">
+                              {progress.percent}% · {formatDeviceMode(device.mode)} · {ussdConfigSummary(device)}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="border-amber-300 text-amber-800 dark:border-amber-700 dark:text-amber-300">
+                              {progress.percent}% · {formatDeviceMode(device.mode)}
+                            </Badge>
+                          )
+                        })()}
                       </TableCell>
                       <TableCell className={`text-sm ${flashpayTheme.muted}`}>{formatRelativeTime(device.last_seen)}</TableCell>
                       <TableCell onClick={(e) => e.stopPropagation()}>

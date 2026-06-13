@@ -1,6 +1,7 @@
 import type {
   DeviceCustomSettings,
   DeviceFormValues,
+  DeviceMode,
   FlashPayDeviceConfig,
   FlashPayMeta,
   PaymentDevice,
@@ -111,13 +112,64 @@ export function compactCustomSettings(settings: DeviceCustomSettings): DeviceCus
   return next
 }
 
-export function isDeviceConfigured(device: PaymentDevice | DeviceFormValues): boolean {
-  const steps = getFlashpayConfig(device)?.deposit?.ussd_steps ?? []
+export function formatDeviceMode(mode: DeviceMode = "both"): string {
+  switch (mode) {
+    case "deposit":
+      return "Dépôt"
+    case "withdrawal":
+      return "Retrait"
+    default:
+      return "Les deux"
+  }
+}
+
+/** Opérations USSD requises selon le mode device. */
+export function getRequiredUssdOperations(mode: DeviceMode = "both"): ("deposit" | "withdraw")[] {
+  switch (mode) {
+    case "deposit":
+      return ["deposit"]
+    case "withdrawal":
+      return ["withdraw"]
+    default:
+      return ["deposit", "withdraw"]
+  }
+}
+
+export function hasUssdSteps(device: PaymentDevice | DeviceFormValues, operation: "deposit" | "withdraw"): boolean {
+  const key = operation === "deposit" ? "deposit" : "withdraw"
+  const steps = getFlashpayConfig(device)?.[key]?.ussd_steps ?? []
   return steps.filter((s) => s.trim()).length > 0
+}
+
+export function isDeviceConfigured(device: PaymentDevice | DeviceFormValues): boolean {
+  const mode = device.mode ?? "both"
+  return getRequiredUssdOperations(mode).every((op) => hasUssdSteps(device, op))
 }
 
 export function depositStepCount(device: PaymentDevice | DeviceFormValues): number {
   return (getFlashpayConfig(device)?.deposit?.ussd_steps ?? []).filter((s) => s.trim()).length
+}
+
+export function withdrawStepCount(device: PaymentDevice | DeviceFormValues): number {
+  return (getFlashpayConfig(device)?.withdraw?.ussd_steps ?? []).filter((s) => s.trim()).length
+}
+
+export function ussdConfigSummary(device: PaymentDevice | DeviceFormValues): string {
+  const mode = device.mode ?? "both"
+  const parts = getRequiredUssdOperations(mode).map((op) => {
+    const n = op === "deposit" ? depositStepCount(device) : withdrawStepCount(device)
+    return op === "deposit" ? `${n} ét. dépôt` : `${n} ét. retrait`
+  })
+  return parts.join(" · ")
+}
+
+function ussdValidationError(device: PaymentDevice | DeviceFormValues): string | null {
+  const missing = getRequiredUssdOperations(device.mode ?? "both").filter((op) => !hasUssdSteps(device, op))
+  if (missing.length === 0) return null
+  if (missing.length === 2) return "Ajoutez au moins une étape USSD dépôt et retrait"
+  return missing[0] === "deposit"
+    ? "Ajoutez au moins une étape USSD dépôt"
+    : "Ajoutez au moins une étape USSD retrait"
 }
 
 export function formatRelativeTime(iso?: string | null): string {
@@ -193,17 +245,36 @@ export function deviceToFormValues(device: PaymentDevice): DeviceFormValues {
   }
 }
 
-export function computeCompletion(form: DeviceFormValues): { percent: number; missing: string[] } {
-  const missing: string[] = []
-  if (!form.device_id.trim()) missing.push("device_id")
-  if (!form.user) missing.push("user")
-  if (!form.network) missing.push("network")
-  const pin = form.custom_settings.flashpay?.momo_pin?.trim()
-  if (!pin) missing.push("momo_pin")
-  if (!isDeviceConfigured(form)) missing.push("ussd_deposit")
-  const total = 5
-  const done = total - missing.length
-  return { percent: Math.round((done / total) * 100), missing }
+export function computeCompletion(device: DeviceFormValues | PaymentDevice): {
+  percent: number
+  missing: string[]
+  total: number
+  done: number
+  mode: DeviceMode
+} {
+  const mode = device.mode ?? "both"
+  const checks: { ok: boolean; label: string }[] = [
+    { ok: !!device.device_id?.trim(), label: "device_id" },
+    { ok: !!device.user, label: "user" },
+    { ok: !!device.network, label: "network" },
+    { ok: !!getFlashpayConfig(device)?.momo_pin?.trim(), label: "momo_pin" },
+  ]
+  for (const op of getRequiredUssdOperations(mode)) {
+    checks.push({
+      ok: hasUssdSteps(device, op),
+      label: op === "deposit" ? "ussd_deposit" : "ussd_withdraw",
+    })
+  }
+  const missing = checks.filter((c) => !c.ok).map((c) => c.label)
+  const done = checks.filter((c) => c.ok).length
+  const total = checks.length
+  return {
+    percent: total ? Math.round((done / total) * 100) : 0,
+    missing,
+    total,
+    done,
+    mode,
+  }
 }
 
 export function validateCreateForm(form: DeviceFormValues): string[] {
@@ -212,14 +283,16 @@ export function validateCreateForm(form: DeviceFormValues): string[] {
   if (form.device_id === SAMPLE_DEVICE_ID_VALUE) errors.push("Personnalisez le device_id (valeur d'exemple)")
   if (!form.user) errors.push("Sélectionnez le propriétaire (agent)")
   if (!form.network) errors.push("Sélectionnez un réseau")
-  if (!isDeviceConfigured(form)) errors.push("Ajoutez au moins une étape USSD dépôt")
+  const ussdErr = ussdValidationError(form)
+  if (ussdErr) errors.push(ussdErr)
   return errors
 }
 
 export function validateUpdateForm(form: DeviceFormValues): string[] {
   const errors: string[] = []
   if (!form.device_id.trim()) errors.push("Le device_id est requis")
-  if (!isDeviceConfigured(form)) errors.push("Ajoutez au moins une étape USSD dépôt")
+  const ussdErr = ussdValidationError(form)
+  if (ussdErr) errors.push(ussdErr)
   return errors
 }
 

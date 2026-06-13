@@ -74,5 +74,6 @@ export async function fetchAdminUsers(apiFetch: ApiFetch, search?: string) {
   const qs = new URLSearchParams({ page_size: "50" })
   if (search?.trim()) qs.set("search", search.trim())
   const data = await apiFetch(`${baseUrl()}/api/auth/admin/users/?${qs}`)
-  return Array.isArray(data) ? data : data.results ?? []
+  if (Array.isArray(data)) return data
+  return data.users ?? data.results ?? []
 }

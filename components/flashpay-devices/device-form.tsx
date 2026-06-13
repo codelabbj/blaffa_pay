@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { ClipboardCopy, Download, Sparkles, Upload, Wifi, WifiOff, Pause, Play } from "lucide-react"
+import { ClipboardCopy, Download, Sparkles, Upload, Wifi, WifiOff, Pause, Play, Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import type { DeviceFormValues, OperationTab } from "@/lib/types/flashpay-device"
 import { DEVICE_PRESETS } from "@/lib/flashpay-device-sample"
 import {
@@ -42,6 +42,15 @@ import { AdvancedSettingsEditor } from "@/components/flashpay-devices/advanced-s
 import { fetchAdminUsers, fetchNetworks } from "@/lib/flashpay-device-api"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
 
 interface DeviceFormProps {
   form: DeviceFormValues
@@ -49,6 +58,7 @@ interface DeviceFormProps {
   mode: "create" | "edit"
   apiFetch: ReturnType<typeof import("@/lib/useApi").useApi>
   clonedFrom?: string
+  ownerLabel?: string
   onPushConfig?: () => void
   pushing?: boolean
 }
@@ -59,6 +69,7 @@ export function DeviceForm({
   mode,
   apiFetch,
   clonedFrom,
+  ownerLabel,
   onPushConfig,
   pushing,
 }: DeviceFormProps) {
@@ -68,6 +79,9 @@ export function DeviceForm({
   const [users, setUsers] = useState<any[]>([])
   const [networks, setNetworks] = useState<any[]>([])
   const [userSearch, setUserSearch] = useState("")
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false)
+  const [loadingUsers, setLoadingUsers] = useState(false)
+  const [userSearchError, setUserSearchError] = useState("")
   const [presetId, setPresetId] = useState<string | null>(null)
   const [showPresetConfirm, setShowPresetConfirm] = useState(false)
 
@@ -82,11 +96,32 @@ export function DeviceForm({
 
   useEffect(() => {
     if (!openAccordions.includes("identity")) return
+    setLoadingUsers(true)
+    setUserSearchError("")
     const t = setTimeout(() => {
-      fetchAdminUsers(apiFetch, userSearch).then(setUsers).catch(() => setUsers([]))
+      fetchAdminUsers(apiFetch, userSearch)
+        .then(setUsers)
+        .catch(() => {
+          setUsers([])
+          setUserSearchError("Impossible de charger les utilisateurs.")
+        })
+        .finally(() => setLoadingUsers(false))
     }, 300)
     return () => clearTimeout(t)
   }, [apiFetch, userSearch, openAccordions])
+
+  const selectedUser = useMemo(
+    () => users.find((u) => u.uid === form.user),
+    [users, form.user],
+  )
+
+  const selectedUserLabel = useMemo(() => {
+    if (!form.user) return null
+    if (selectedUser) {
+      return selectedUser.display_name || selectedUser.email || selectedUser.phone || form.user
+    }
+    return ownerLabel || form.user
+  }, [form.user, selectedUser, ownerLabel])
 
   const selectedNetwork = useMemo(
     () => networks.find((n) => n.uid === form.network),
@@ -244,28 +279,84 @@ export function DeviceForm({
               </div>
               <div>
                 <Label>Propriétaire (agent)</Label>
-                <Input
-                  className="mt-1 mb-2"
-                  placeholder="Rechercher par email ou nom…"
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                />
-                <div className="grid gap-2 max-h-40 overflow-y-auto">
-                  {users.map((u) => (
-                    <button
-                      key={u.uid}
+                <p className={`${flashpayTheme.mutedXs} mt-1 mb-2`}>
+                  Compte utilisateur (UUID) qui se connectera sur le téléphone FlashPay — recherche par nom, email ou téléphone.
+                </p>
+                <Popover open={userDropdownOpen} onOpenChange={setUserDropdownOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
                       type="button"
-                      onClick={() => patch({ user: u.uid })}
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={userDropdownOpen}
                       className={cn(
-                        "text-left rounded-lg border p-2 text-sm transition",
-                        form.user === u.uid ? flashpayTheme.selectedTile : flashpayTheme.unselectedTile,
+                        "w-full justify-between font-normal mt-1",
+                        !form.user && "text-muted-foreground",
                       )}
                     >
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{u.display_name || u.email}</span>
-                      <span className={`block ${flashpayTheme.mutedXs}`}>{u.email}</span>
-                    </button>
-                  ))}
-                </div>
+                      <span className="truncate text-left">
+                        {selectedUserLabel || "Sélectionner un agent…"}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Rechercher par email, nom ou téléphone…"
+                        value={userSearch}
+                        onValueChange={setUserSearch}
+                      />
+                      <CommandList className="max-h-56 overflow-y-auto">
+                        <CommandEmpty>
+                          {loadingUsers ? (
+                            <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Recherche…
+                            </div>
+                          ) : userSearchError ? (
+                            userSearchError
+                          ) : (
+                            "Aucun utilisateur trouvé."
+                          )}
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {!loadingUsers &&
+                            users.map((u) => (
+                              <CommandItem
+                                key={u.uid}
+                                value={u.uid}
+                                onSelect={() => {
+                                  patch({ user: u.uid })
+                                  setUserDropdownOpen(false)
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    form.user === u.uid ? "opacity-100" : "opacity-0",
+                                  )}
+                                />
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-medium truncate">
+                                    {u.display_name || u.email || u.phone || u.uid}
+                                  </span>
+                                  {(u.email || u.phone) && (
+                                    <span className={`${flashpayTheme.mutedXs} truncate`}>
+                                      {[u.email, u.phone].filter(Boolean).join(" · ")}
+                                    </span>
+                                  )}
+                                </div>
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                {form.user && (
+                  <p className={`${flashpayTheme.mutedXs} mt-2 font-mono break-all`}>UUID : {form.user}</p>
+                )}
               </div>
               <div>
                 <Label>Réseau MoMo</Label>

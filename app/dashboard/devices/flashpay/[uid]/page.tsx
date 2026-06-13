@@ -34,6 +34,7 @@ export default function FlashPayDeviceEditPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [form, setForm] = useState<DeviceFormValues | null>(null)
+  const [ownerLabel, setOwnerLabel] = useState<string>()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [pushing, setPushing] = useState(false)
@@ -49,6 +50,9 @@ export default function FlashPayDeviceEditPage() {
         return
       }
       setForm(deviceToFormValues(device))
+      setOwnerLabel(
+        [device.user_name, device.user_email].filter(Boolean).join(" · ") || undefined,
+      )
       setDirty(false)
     } catch (e: any) {
       toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
@@ -150,6 +154,7 @@ export default function FlashPayDeviceEditPage() {
           onChange={handleChange}
           mode="edit"
           apiFetch={apiFetch}
+          ownerLabel={ownerLabel}
           onPushConfig={handlePush}
           pushing={pushing}
         />

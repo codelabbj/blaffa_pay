@@ -41,11 +41,6 @@ function parseSteps(raw?: string): string[] {
     })
 }
 
-function parseErrorKeywords(raw?: string): string[] {
-  if (!raw?.trim()) return []
-  return raw.split(",").map((s) => s.trim()).filter(Boolean)
-}
-
 function networkCodeFromLabel(network?: string): string {
   const n = (network || "").toLowerCase()
   if (n.includes("moov")) return "MOOV"
@@ -57,7 +52,7 @@ function networkCodeFromLabel(network?: string): string {
 export function migrateYapsonToFlashpay(
   legacy: Record<string, unknown>,
   options?: { momoPin?: string; simSlot?: 0 | 1 },
-): { flashpay: FlashPayDeviceConfig; meta: DeviceCustomSettings["flashpay_meta"] } {
+): FlashPayDeviceConfig {
   const collection = String(legacy.collection || legacy.merchantCollection || "")
   const disburment = String(legacy.disburment || legacy.merchantDisburment || "")
   const solde = String(legacy.solde || "")
@@ -95,27 +90,17 @@ export function migrateYapsonToFlashpay(
     updated_by: "import_yapson",
   }
 
-  const meta: DeviceCustomSettings["flashpay_meta"] = {
-    dial_code: String(legacy.dialCode || ""),
-    sms_sender_hint: String(legacy.smsSender || ""),
-    error_keywords: parseErrorKeywords(String(legacy.erroKeyWords || "")),
-    sms_templates: ["moov-bj-recu", "moov-bj-envoi"],
-    imported_from: String(legacy._exported_from || "ManualConfigPage_v1.0"),
-  }
-
-  return { flashpay, meta }
+  return flashpay
 }
 
 /** Config FlashPay issue de la migration yapson Moov BJ (référence §5.3) */
 export function moovBeninFromYapson(momoPin = ""): FlashPayDeviceConfig {
-  return migrateYapsonToFlashpay(YAPSON_LEGACY_MOOV_BJ, { momoPin }).flashpay
+  return migrateYapsonToFlashpay(YAPSON_LEGACY_MOOV_BJ, { momoPin })
 }
 
 export function moovBeninCustomSettings(momoPin = ""): DeviceCustomSettings {
-  const { flashpay, meta } = migrateYapsonToFlashpay(YAPSON_LEGACY_MOOV_BJ, { momoPin })
   return {
-    flashpay,
-    flashpay_meta: meta,
+    flashpay: migrateYapsonToFlashpay(YAPSON_LEGACY_MOOV_BJ, { momoPin }),
     flashpay_updated_at: new Date().toISOString(),
   }
 }

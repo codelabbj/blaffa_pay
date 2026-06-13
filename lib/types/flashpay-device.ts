@@ -38,11 +38,6 @@ export interface FlashPayDeviceConfig {
 }
 
 export interface FlashPayMeta {
-  dial_code?: string
-  sms_sender_hint?: string
-  error_keywords?: string[]
-  sms_templates?: string[]
-  imported_from?: string
   is_sample?: boolean
   cloned_from_device_id?: string
   cloned_at?: string

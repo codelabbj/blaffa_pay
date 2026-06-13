@@ -2,6 +2,7 @@ import type {
   DeviceCustomSettings,
   DeviceFormValues,
   FlashPayDeviceConfig,
+  FlashPayMeta,
   PaymentDevice,
   DeviceKpiFilter,
 } from "@/lib/types/flashpay-device"
@@ -57,6 +58,24 @@ export function getFlashpayConfig(device: PaymentDevice | DeviceFormValues): Fla
   return device.custom_settings?.flashpay ?? null
 }
 
+/** Ne conserve que les métadonnées admin utiles (exemple, clone). */
+export function compactFlashpayMeta(meta?: FlashPayMeta): FlashPayMeta | undefined {
+  if (!meta) return undefined
+  const out: FlashPayMeta = {}
+  if (meta.is_sample) out.is_sample = true
+  if (meta.cloned_from_device_id) out.cloned_from_device_id = meta.cloned_from_device_id
+  if (meta.cloned_at) out.cloned_at = meta.cloned_at
+  return Object.keys(out).length > 0 ? out : undefined
+}
+
+export function compactCustomSettings(settings: DeviceCustomSettings): DeviceCustomSettings {
+  const meta = compactFlashpayMeta(settings.flashpay_meta)
+  const next: DeviceCustomSettings = { ...settings }
+  if (meta) next.flashpay_meta = meta
+  else delete next.flashpay_meta
+  return next
+}
+
 export function isDeviceConfigured(device: PaymentDevice | DeviceFormValues): boolean {
   const steps = getFlashpayConfig(device)?.deposit?.ussd_steps ?? []
   return steps.filter((s) => s.trim()).length > 0
@@ -110,16 +129,14 @@ export function cloneDeviceAsNew(source: PaymentDevice): DeviceFormValues {
     fcm_token: "",
     app_version: "",
     os_version: "",
-    custom_settings: {
+    custom_settings: compactCustomSettings({
       ...structuredClone(source.custom_settings ?? {}),
       flashpay: fp ? structuredClone(fp) : undefined,
       flashpay_meta: {
-        ...source.custom_settings?.flashpay_meta,
         cloned_from_device_id: source.device_id,
         cloned_at: new Date().toISOString(),
-        is_sample: false,
       },
-    },
+    }),
   }
 }
 
@@ -137,7 +154,7 @@ export function deviceToFormValues(device: PaymentDevice): DeviceFormValues {
     fcm_token: device.fcm_token || "",
     app_version: device.app_version || "",
     os_version: device.os_version || "",
-    custom_settings: structuredClone(device.custom_settings ?? {}),
+    custom_settings: compactCustomSettings(structuredClone(device.custom_settings ?? {})),
   }
 }
 
@@ -198,13 +215,11 @@ export function buildStatusPatchPayload(form: DeviceFormValues) {
     device_name: form.device_name,
     is_paused: form.is_paused,
     mode: form.mode,
-    custom_settings: {
+    custom_settings: compactCustomSettings({
       ...form.custom_settings,
-      flashpay: flashpay
-        ? { ...flashpay, updated_by: "admin" as const }
-        : undefined,
+      flashpay: flashpay ? { ...flashpay, updated_by: "admin" as const } : undefined,
       flashpay_updated_at: now,
-    },
+    }),
   }
 }
 
@@ -222,15 +237,15 @@ export function buildCreatePayload(form: DeviceFormValues) {
     fcm_token: form.fcm_token || "",
     app_version: form.app_version || "",
     os_version: form.os_version || "",
-    custom_settings: {
+    custom_settings: compactCustomSettings({
       ...form.custom_settings,
       flashpay: flashpay ? { ...flashpay, updated_by: "admin" as const } : undefined,
       flashpay_updated_at: now,
-      flashpay_meta: {
+      flashpay_meta: compactFlashpayMeta({
         ...form.custom_settings.flashpay_meta,
         is_sample: false,
-      },
-    },
+      }),
+    }),
   }
 }
 
@@ -257,14 +272,7 @@ function isFlashpayConfigShape(obj: Record<string, unknown>): obj is FlashPayDev
 }
 
 export function buildFlashpayExportJson(form: DeviceFormValues): string {
-  return JSON.stringify(
-    {
-      flashpay: form.custom_settings.flashpay ?? null,
-      flashpay_meta: form.custom_settings.flashpay_meta ?? null,
-    },
-    null,
-    2,
-  )
+  return JSON.stringify({ flashpay: form.custom_settings.flashpay ?? null }, null, 2)
 }
 
 export function applyFlashpayConfigImport(
@@ -277,19 +285,18 @@ export function applyFlashpayConfigImport(
 
     if (isYapsonLegacyConfig(parsed)) {
       const pin = form.custom_settings.flashpay?.momo_pin || ""
-      const { flashpay, meta } = migrateYapsonToFlashpay(parsed, {
+      const flashpay = migrateYapsonToFlashpay(parsed, {
         momoPin: pin,
         simSlot: form.custom_settings.flashpay?.sim_slot ?? 0,
       })
       return {
         form: {
           ...form,
-          custom_settings: {
+          custom_settings: compactCustomSettings({
             ...form.custom_settings,
             flashpay,
-            flashpay_meta: { ...form.custom_settings.flashpay_meta, ...meta, is_sample: false },
             flashpay_updated_at: now,
-          },
+          }),
         },
       }
     }
@@ -308,19 +315,19 @@ export function applyFlashpayConfigImport(
       }
     }
 
-    const meta = parsed.flashpay_meta as DeviceCustomSettings["flashpay_meta"] | undefined
+    const meta = compactFlashpayMeta(
+      parsed.flashpay_meta as DeviceCustomSettings["flashpay_meta"] | undefined,
+    )
 
     return {
       form: {
         ...form,
-        custom_settings: {
+        custom_settings: compactCustomSettings({
           ...form.custom_settings,
           flashpay: structuredClone(flashpayPayload),
-          flashpay_meta: meta
-            ? { ...form.custom_settings.flashpay_meta, ...meta, is_sample: false }
-            : { ...form.custom_settings.flashpay_meta, is_sample: false },
+          flashpay_meta: meta ?? compactFlashpayMeta(form.custom_settings.flashpay_meta),
           flashpay_updated_at: now,
-        },
+        }),
       },
     }
   } catch {

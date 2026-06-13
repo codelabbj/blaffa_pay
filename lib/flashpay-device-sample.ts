@@ -6,9 +6,7 @@ const SAMPLE_DEVICE_ID = "sample-device-a1b2c3d4"
 /** Template principal — migration réelle yapson Moov Bénin (§5.3) */
 const migrated = migrateYapsonToFlashpay(YAPSON_LEGACY_MOOV_BJ, { momoPin: "0000" })
 
-export const MOOV_BJ_FLASHPAY: FlashPayDeviceConfig = migrated.flashpay
-
-export const MOOV_BJ_META = migrated.meta
+export const MOOV_BJ_FLASHPAY: FlashPayDeviceConfig = migrated
 
 export const MTN_CI_FLASHPAY: FlashPayDeviceConfig = {
   country_code: "CI",
@@ -74,7 +72,6 @@ export const DEVICE_PRESETS = [
     label: "Moov Bénin (yapson)",
     description: "Migration ManualConfigPage → FlashPay",
     config: MOOV_BJ_FLASHPAY,
-    meta: MOOV_BJ_META,
     legacy: YAPSON_LEGACY_MOOV_BJ,
   },
   { id: "mtn-ci", label: "MTN CI", description: "Template MTN Côte d'Ivoire", config: MTN_CI_FLASHPAY },
@@ -95,7 +92,6 @@ export const DEVICE_CREATE_SAMPLE: DeviceFormValues = {
   custom_settings: {
     flashpay: structuredClone(MOOV_BJ_FLASHPAY),
     flashpay_meta: {
-      ...structuredClone(MOOV_BJ_META),
       is_sample: true,
     },
   },

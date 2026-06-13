@@ -30,6 +30,7 @@ import {
   applyFlashpayConfigImport,
   buildFlashpayExportJson,
   computeCompletion,
+  compactCustomSettings,
   downloadFlashpayConfigJson,
   flashpayTheme,
   formatRelativeTime,
@@ -166,16 +167,11 @@ export function DeviceForm({
     if (!preset) return
     onChange({
       ...form,
-      custom_settings: {
+      custom_settings: compactCustomSettings({
         ...form.custom_settings,
         flashpay: structuredClone(preset.config),
-        flashpay_meta: {
-          ...("meta" in preset && preset.meta ? structuredClone(preset.meta) : {}),
-          ...form.custom_settings.flashpay_meta,
-          is_sample: false,
-        },
         flashpay_updated_at: new Date().toISOString(),
-      },
+      }),
     })
     setPresetId(null)
     setShowPresetConfirm(false)
@@ -466,8 +462,7 @@ export function DeviceForm({
               <div className="rounded-xl border border-slate-200 dark:border-gray-600 bg-slate-50/80 dark:bg-gray-900/40 p-4 space-y-3">
                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Import / Export JSON</p>
                 <p className={flashpayTheme.mutedXs}>
-                  Collez une config <code className="text-xs">flashpay</code>, un export complet{" "}
-                  <code className="text-xs">{`{ flashpay, flashpay_meta }`}</code>, ou un JSON yapson (ManualConfigPage).
+                  Collez une config <code className="text-xs">flashpay</code> ou un JSON yapson (ManualConfigPage).
                 </p>
                 <Textarea
                   className="font-mono text-xs bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"

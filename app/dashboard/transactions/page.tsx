@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash, CreditCard, TrendingUp, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Plus, Filter, MoreHorizontal, Eye, TrendingDown, Calendar } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash, CreditCard, TrendingUp, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Plus, Filter, MoreHorizontal, Eye, TrendingDown, Calendar, X } from "lucide-react"
 import {
   Dialog,
   DialogTrigger,
@@ -45,6 +45,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
 import { CopyButton } from "@/components/ui/copy-button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { BulkActionBar } from "@/components/data-table/bulk-action-bar"
+import { SortableHead } from "@/components/data-table/sortable-head"
+import { useTableSelection } from "@/hooks/use-table-selection"
+import {
+  bulkPaymentTransactionCancel,
+  bulkPaymentTransactionFailed,
+  bulkPaymentTransactionSuccess,
+  formatBulkToast,
+} from "@/lib/transaction-bulk-api"
 
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
@@ -76,8 +86,13 @@ function TransactionsPageContent() {
   const [startDate, setStartDate] = useState<string | null>(searchParams.get("start_date"))
   const [endDate, setEndDate] = useState<string | null>(searchParams.get("end_date"))
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
-  const [sortField, setSortField] = useState<"amount" | "date" | null>((searchParams.get("sort_field") as any) || null)
+  const [sortField, setSortField] = useState<"amount" | "created_at" | "status" | "type" | "recipient_phone" | null>(() => {
+    const f = searchParams.get("sort_field")
+    if (f === "date") return "created_at"
+    return (f as any) || "created_at"
+  })
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
+  const [bulkLoading, setBulkLoading] = useState(false)
   const [transactions, setTransactions] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -94,6 +109,35 @@ function TransactionsPageContent() {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [showEditConfirm, setShowEditConfirm] = useState(false)
   const [pendingEditPayload, setPendingEditPayload] = useState<any | null>(null)
+
+  const selection = useTableSelection(transactions)
+
+  const hasActiveFilters =
+    searchTerm.trim() !== "" ||
+    statusFilter !== "all" ||
+    typeFilter !== "all" ||
+    networkFilter !== "all" ||
+    startDate ||
+    endDate
+
+  const clearFilters = () => {
+    setSearchTerm("")
+    setStatusFilter("all")
+    setTypeFilter("all")
+    setNetworkFilter("all")
+    setStartDate(null)
+    setEndDate(null)
+    setCurrentPage(1)
+    updateUrl({
+      search: null,
+      status: null,
+      type: null,
+      network: null,
+      start_date: null,
+      end_date: null,
+      page: 1,
+    })
+  }
 
   // Centralized URL update function
   const updateUrl = useCallback((newParams: Record<string, string | number | null>) => {
@@ -145,7 +189,7 @@ function TransactionsPageContent() {
     updateUrl({ start_date: start, end_date: end, page: 1 })
   }
 
-  const handleSortChange = (field: "amount" | "date") => {
+  const handleSortChange = (field: "amount" | "created_at" | "status" | "type" | "recipient_phone") => {
     const newDir = sortField === field ? (sortDirection === "desc" ? "asc" : "desc") : "desc"
     setSortField(field)
     setSortDirection(newDir)
@@ -171,43 +215,21 @@ function TransactionsPageContent() {
     setLoading(true)
     setError("")
     try {
-      let endpoint = "";
-      if (searchTerm.trim() !== "" || statusFilter !== "all" || typeFilter !== "all" || networkFilter !== "all" || sortField || startDate || endDate) {
-        const params = new URLSearchParams({
-          page: currentPage.toString(),
-          page_size: itemsPerPage.toString(),
-        });
-        if (searchTerm.trim() !== "") {
-          params.append("search", searchTerm);
-        }
-        if (statusFilter !== "all") {
-          params.append("status", statusFilter);
-        }
-        if (typeFilter !== "all") {
-          params.append("type", typeFilter);
-        }
-        if (networkFilter !== "all") {
-          params.append("network", networkFilter);
-        }
-        if (sortField) {
-          params.append("ordering", `${sortDirection === "asc" ? "+" : "-"}${sortField}`);
-        }
-        if (startDate) {
-          params.append("created_at__gte", startDate);
-        }
-        if (endDate) {
-          params.append("created_at__lte", endDate);
-        }
-        endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/?${params.toString()}`;
-      } else {
-        const params = new URLSearchParams({
-          page: currentPage.toString(),
-          page_size: itemsPerPage.toString(),
-        });
-        endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/?${params.toString()}`;
-      }
-      console.log("Transaction API endpoint:", endpoint);
-      const data = await apiFetch(endpoint);
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        page_size: itemsPerPage.toString(),
+      })
+      if (searchTerm.trim() !== "") params.append("search", searchTerm)
+      if (statusFilter !== "all") params.append("status", statusFilter)
+      if (typeFilter !== "all") params.append("type", typeFilter)
+      if (networkFilter !== "all") params.append("network", networkFilter)
+      if (startDate) params.append("created_at__gte", startDate)
+      if (endDate) params.append("created_at__lte", endDate)
+      const orderField = sortField || "created_at"
+      params.append("ordering", sortDirection === "desc" ? `-${orderField}` : orderField)
+
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/?${params.toString()}`
+      const data = await apiFetch(endpoint)
       setTransactions(data.results || []);
       setTotalCount(data.count || 0);
     } catch (err: any) {
@@ -247,8 +269,29 @@ function TransactionsPageContent() {
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedTransactions = filteredAndSortedTransactions
 
-  const handleSort = (field: "amount" | "date") => {
+  const handleSort = (field: "amount" | "created_at" | "status" | "type" | "recipient_phone") => {
     handleSortChange(field)
+  }
+
+  const runBulk = async (action: "cancel" | "success" | "failed") => {
+    const uids = selection.selectedRows.map((t) => t.uid)
+    if (!uids.length) return
+    setBulkLoading(true)
+    try {
+      let result
+      if (action === "cancel") result = await bulkPaymentTransactionCancel(apiFetch, uids)
+      else if (action === "success") result = await bulkPaymentTransactionSuccess(apiFetch, uids)
+      else result = await bulkPaymentTransactionFailed(apiFetch, uids)
+      const labels = { cancel: "Annulation groupée", success: "Succès groupé", failed: "Échec groupé" }
+      const { title, description } = formatBulkToast(labels[action], result)
+      toast({ title, description, variant: result.failed ? "destructive" : "default" })
+      selection.clear()
+      await fetchTransactions()
+    } catch (err: any) {
+      toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+    } finally {
+      setBulkLoading(false)
+    }
   }
 
 
@@ -758,15 +801,29 @@ function TransactionsPageContent() {
 
               {/* Sort */}
               <Select
-                value={sortField || ""}
-                onValueChange={(value) => handleSortChange(value as "amount" | "date")}
+                value={`${sortField || "created_at"}:${sortDirection}`}
+                onValueChange={(value) => {
+                  const [field, dir] = value.split(":") as [
+                    "amount" | "created_at" | "status" | "type" | "recipient_phone",
+                    "asc" | "desc",
+                  ]
+                  setSortField(field)
+                  setSortDirection(dir)
+                  setCurrentPage(1)
+                  updateUrl({ sort_field: field, sort_dir: dir, page: 1 })
+                }}
               >
                 <SelectTrigger className="bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <SelectValue placeholder="Trier par" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="amount">Montant</SelectItem>
-                  <SelectItem value="date">Date</SelectItem>
+                  <SelectItem value="created_at:desc">Date ↓</SelectItem>
+                  <SelectItem value="created_at:asc">Date ↑</SelectItem>
+                  <SelectItem value="amount:desc">Montant ↓</SelectItem>
+                  <SelectItem value="amount:asc">Montant ↑</SelectItem>
+                  <SelectItem value="status:asc">Statut ↑</SelectItem>
+                  <SelectItem value="type:asc">Type ↑</SelectItem>
+                  <SelectItem value="recipient_phone:asc">Téléphone ↑</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -781,8 +838,27 @@ function TransactionsPageContent() {
                 className="col-span-1"
               />
             </div>
+            {hasActiveFilters && (
+              <div className="flex justify-end mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>
+                  <X className="h-4 w-4 mr-1" /> Effacer filtres
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        <BulkActionBar count={selection.count} onClear={selection.clear} loading={bulkLoading}>
+          <Button size="sm" variant="outline" disabled={bulkLoading} onClick={() => runBulk("cancel")}>
+            <XCircle className="h-4 w-4 mr-1" /> Annuler
+          </Button>
+          <Button size="sm" variant="outline" disabled={bulkLoading} onClick={() => runBulk("success")}>
+            <CheckCircle className="h-4 w-4 mr-1" /> Marquer succès
+          </Button>
+          <Button size="sm" variant="outline" disabled={bulkLoading} onClick={() => runBulk("failed")}>
+            <AlertCircle className="h-4 w-4 mr-1" /> Marquer échec
+          </Button>
+        </BulkActionBar>
 
         {/* Transactions Table */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
@@ -811,20 +887,34 @@ function TransactionsPageContent() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={selection.allSelected ? true : selection.someSelected ? "indeterminate" : false}
+                          onCheckedChange={(v) => selection.toggleAll(v === true)}
+                          aria-label="Tout sélectionner"
+                        />
+                      </TableHead>
                       <TableHead className="font-semibold"><span>ID Transaction</span></TableHead>
-                      <TableHead className="font-semibold"><span>Destinataire</span></TableHead>
-                      <TableHead className="font-semibold"><span>Type</span></TableHead>
-                      <TableHead className="font-semibold"><span>Montant</span></TableHead>
+                      <SortableHead label="Destinataire" field="recipient_phone" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                      <SortableHead label="Type" field="type" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                      <SortableHead label="Montant" field="amount" activeField={sortField} direction={sortDirection} onSort={handleSort} />
                       <TableHead className="font-semibold"><span>Réseau</span></TableHead>
                       <TableHead className="font-semibold"><span>Créé par</span></TableHead>
-                      <TableHead className="font-semibold"><span>Statut</span></TableHead>
-                      <TableHead className="font-semibold"><span>Date</span></TableHead>
+                      <SortableHead label="Statut" field="status" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                      <SortableHead label="Date" field="created_at" activeField={sortField} direction={sortDirection} onSort={handleSort} />
                       <TableHead className="font-semibold text-right"><span>Actions</span></TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {transactions.map((transaction) => (
                       <TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                        <TableCell>
+                          <Checkbox
+                            checked={selection.selected.has(transaction.uid)}
+                            onCheckedChange={(v) => selection.toggleRow(transaction.uid, v === true)}
+                            aria-label={`Sélectionner ${transaction.uid}`}
+                          />
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center space-x-2 font-mono text-sm text-gray-900 dark:text-gray-100">
                             <span>{transaction.uid}</span>

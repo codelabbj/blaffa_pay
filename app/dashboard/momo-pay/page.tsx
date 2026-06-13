@@ -9,8 +9,18 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye, DollarSign, Phone, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, Loader2, Smartphone, CreditCard, MoreHorizontal } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye, DollarSign, Phone, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, Loader2, Smartphone, CreditCard, MoreHorizontal, Filter, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { Checkbox } from "@/components/ui/checkbox"
+import { BulkActionBar } from "@/components/data-table/bulk-action-bar"
+import { SortableHead } from "@/components/data-table/sortable-head"
+import { useTableSelection } from "@/hooks/use-table-selection"
+import {
+  bulkMomoPayCancel,
+  bulkPaymentTransactionFailed,
+  bulkPaymentTransactionSuccess,
+  formatBulkToast,
+} from "@/lib/transaction-bulk-api"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import {
   DropdownMenu,
@@ -80,7 +90,7 @@ function MomoPayPageContent() {
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [sortField, setSortField] = useState<"amount" | "phone" | "created_at" | null>((searchParams.get("sort_field") as any) || null)
+  const [sortField, setSortField] = useState<"amount" | "recipient_phone" | "created_at" | "status" | "reference" | "payment_type" | null>((searchParams.get("sort_field") as any) || "created_at")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
@@ -100,6 +110,9 @@ function MomoPayPageContent() {
   const [failedReason, setFailedReason] = useState("")
   const [selectedTransactionForFailed, setSelectedTransactionForFailed] = useState<MomoPayTransaction | null>(null)
   const [failedLoading, setFailedLoading] = useState(false)
+  const [bulkLoading, setBulkLoading] = useState(false)
+
+  const selection = useTableSelection(transactions)
 
   // Centralized URL update function
   const updateUrl = useCallback((newParams: Record<string, string | number | boolean | null>) => {
@@ -157,13 +170,43 @@ function MomoPayPageContent() {
     updateUrl({ start_date: start, end_date: end, page: 1 })
   }
 
-  const handleSortChange = (field: "amount" | "phone" | "created_at") => {
+  const handleSortChange = (field: "amount" | "recipient_phone" | "created_at" | "status" | "reference" | "payment_type") => {
     const newDir = sortField === field ? (sortDirection === "desc" ? "asc" : "desc") : "desc"
     setSortField(field)
     setSortDirection(newDir)
     setCurrentPage(1)
     updateUrl({ sort_field: field, sort_dir: newDir, page: 1 })
   }
+
+  const clearFilters = () => {
+    setSearchTerm("")
+    setStatusFilter("all")
+    setPhoneFilter("")
+    setPaymentTypeFilter("all")
+    setIncludeExpired(false)
+    setStartDate(null)
+    setEndDate(null)
+    setCurrentPage(1)
+    updateUrl({
+      search: null,
+      status: null,
+      phone: null,
+      payment_type: null,
+      include_expired: null,
+      start_date: null,
+      end_date: null,
+      page: 1,
+    })
+  }
+
+  const hasActiveFilters =
+    searchTerm.trim() !== "" ||
+    statusFilter !== "all" ||
+    phoneFilter.trim() !== "" ||
+    paymentTypeFilter !== "all" ||
+    includeExpired ||
+    startDate ||
+    endDate
 
   const itemsPerPage = 20
 
@@ -199,22 +242,16 @@ function MomoPayPageContent() {
       if (endDate) {
         params.append("created_at__lte", endDate)
       }
+      if (sortField) {
+        params.append("ordering", sortDirection === "desc" ? `-${sortField}` : sortField)
+      }
 
-      const orderingParam = sortField
-        ? `&ordering=${(sortDirection === "asc" ? "" : "-")}${sortField}`
-        : ""
-
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/?${params.toString()}${orderingParam}`
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/?${params.toString()}`
       const data: ApiResponse = await apiFetch(endpoint)
 
       setTransactions(data.results || [])
       setTotalCount(data.count || 0)
       setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-
-      toast({
-        title: "Succès",
-        description: "<span>Transactions MoMo Pay chargées avec succès</span>"
-      })
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
       setError(errorMessage)
@@ -237,8 +274,29 @@ function MomoPayPageContent() {
 
   const startIndex = (currentPage - 1) * itemsPerPage
 
-  const handleSort = (field: "amount" | "phone" | "created_at") => {
+  const handleSort = (field: "amount" | "recipient_phone" | "created_at" | "status" | "reference" | "payment_type") => {
     handleSortChange(field)
+  }
+
+  const runBulk = async (action: "success" | "failed" | "cancel") => {
+    const uids = selection.selectedRows.map((t) => t.uid)
+    if (!uids.length) return
+    setBulkLoading(true)
+    try {
+      let result
+      if (action === "success") result = await bulkPaymentTransactionSuccess(apiFetch, uids)
+      else if (action === "failed") result = await bulkPaymentTransactionFailed(apiFetch, uids)
+      else result = await bulkMomoPayCancel(apiFetch, uids)
+      const labels = { success: "Succès groupé", failed: "Échec groupé", cancel: "Annulation groupée" }
+      const { title, description } = formatBulkToast(labels[action], result)
+      toast({ title, description, variant: result.failed ? "destructive" : "default" })
+      selection.clear()
+      await fetchTransactions()
+    } catch (err: any) {
+      toast({ title: "Erreur", description: extractErrorMessages(err), variant: "destructive" })
+    } finally {
+      setBulkLoading(false)
+    }
   }
 
   const getStatusBadge = (status: string, isExpired: boolean) => {
@@ -576,8 +634,52 @@ function MomoPayPageContent() {
                 className="col-span-1"
               />
             </div>
+            <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+              <Filter className="h-4 w-4 text-gray-500" />
+              <Select
+                value={`${sortField || "created_at"}:${sortDirection}`}
+                onValueChange={(v) => {
+                  const [field, dir] = v.split(":") as [typeof sortField & string, "asc" | "desc"]
+                  setSortField(field as any)
+                  setSortDirection(dir)
+                  setCurrentPage(1)
+                  updateUrl({ sort_field: field, sort_dir: dir, page: 1 })
+                }}
+              >
+                <SelectTrigger className="w-[200px] h-9 bg-gray-50 dark:bg-gray-700">
+                  <SelectValue placeholder="Tri" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="created_at:desc">Date ↓</SelectItem>
+                  <SelectItem value="created_at:asc">Date ↑</SelectItem>
+                  <SelectItem value="amount:desc">Montant ↓</SelectItem>
+                  <SelectItem value="amount:asc">Montant ↑</SelectItem>
+                  <SelectItem value="recipient_phone:asc">Téléphone ↑</SelectItem>
+                  <SelectItem value="status:asc">Statut ↑</SelectItem>
+                  <SelectItem value="payment_type:asc">Type ↑</SelectItem>
+                  <SelectItem value="reference:asc">Référence ↑</SelectItem>
+                </SelectContent>
+              </Select>
+              {hasActiveFilters && (
+                <Button type="button" variant="ghost" size="sm" onClick={clearFilters}>
+                  <X className="h-4 w-4 mr-1" /> Effacer filtres
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
+
+        <BulkActionBar count={selection.count} onClear={selection.clear} loading={bulkLoading}>
+          <Button size="sm" variant="outline" disabled={bulkLoading} onClick={() => runBulk("success")}>
+            <CheckCircle className="h-4 w-4 mr-1" /> Marquer succès
+          </Button>
+          <Button size="sm" variant="outline" disabled={bulkLoading} onClick={() => runBulk("failed")}>
+            <XCircle className="h-4 w-4 mr-1" /> Marquer échec
+          </Button>
+          <Button size="sm" variant="outline" disabled={bulkLoading} onClick={() => runBulk("cancel")}>
+            Annuler
+          </Button>
+        </BulkActionBar>
 
         {/* Transactions Table */}
         <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg">
@@ -614,27 +716,19 @@ function MomoPayPageContent() {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50 dark:bg-gray-900/50">
-                      <TableHead className="font-semibold"><span>Référence</span></TableHead>
-                      <TableHead className="font-semibold">
-                        <Button variant="ghost" onClick={() => handleSort("amount")} className="h-auto p-0 font-semibold">
-                          <span>Montant</span>
-                          <ArrowUpDown className="ml-2 h-4 w-4" />
-                        </Button>
+                      <TableHead className="w-10">
+                        <Checkbox
+                          checked={selection.allSelected ? true : selection.someSelected ? "indeterminate" : false}
+                          onCheckedChange={(v) => selection.toggleAll(v === true)}
+                          aria-label="Tout sélectionner"
+                        />
                       </TableHead>
-                      <TableHead className="font-semibold">
-                        <Button variant="ghost" onClick={() => handleSort("phone")} className="h-auto p-0 font-semibold">
-                          <span>Téléphone</span>
-                          <ArrowUpDown className="ml-2 h-4 w-4" />
-                        </Button>
-                      </TableHead>
-                      <TableHead className="font-semibold"><span>Type</span></TableHead>
-                      <TableHead className="font-semibold"><span>Statut</span></TableHead>
-                      <TableHead className="font-semibold">
-                        <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-auto p-0 font-semibold">
-                          <span>Date de création</span>
-                          <ArrowUpDown className="ml-2 h-4 w-4" />
-                        </Button>
-                      </TableHead>
+                      <SortableHead label="Référence" field="reference" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                      <SortableHead label="Montant" field="amount" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                      <SortableHead label="Téléphone" field="recipient_phone" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                      <SortableHead label="Type" field="payment_type" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                      <SortableHead label="Statut" field="status" activeField={sortField} direction={sortDirection} onSort={handleSort} />
+                      <SortableHead label="Date de création" field="created_at" activeField={sortField} direction={sortDirection} onSort={handleSort} />
                       <TableHead className="font-semibold"><span>Date d'expiration</span></TableHead>
                       <TableHead className="font-semibold text-right"><span>Actions</span></TableHead>
                     </TableRow>
@@ -642,6 +736,13 @@ function MomoPayPageContent() {
                   <TableBody>
                     {transactions.map((transaction) => (
                       <TableRow key={transaction.uid} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+                        <TableCell>
+                          <Checkbox
+                            checked={selection.selected.has(transaction.uid)}
+                            onCheckedChange={(v) => selection.toggleRow(transaction.uid, v === true)}
+                            aria-label={`Sélectionner ${transaction.reference}`}
+                          />
+                        </TableCell>
                         <TableCell className="font-mono text-sm">
                           <div className="flex items-center space-x-2">
                             <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-xs">

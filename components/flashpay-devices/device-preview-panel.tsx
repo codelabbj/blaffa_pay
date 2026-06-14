@@ -7,27 +7,36 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2, Circle, Copy, Radio } from "lucide-react"
 import type { DeviceFormValues, OperationTab } from "@/lib/types/flashpay-device"
 import { UssdTimeline } from "@/components/flashpay-devices/ussd-timeline"
-import { computeCompletion, flashpayTheme, formatDeviceMode, getRequiredUssdOperations, hasUssdSteps } from "@/lib/flashpay-device-utils"
+import {
+  computeCompletion,
+  flashpayTheme,
+  formatDeviceMode,
+  getRequiredUssdOperations,
+  hasUssdSteps,
+} from "@/lib/flashpay-device-utils"
 import { useToast } from "@/hooks/use-toast"
 
 interface DevicePreviewPanelProps {
   form: DeviceFormValues
-  activeTab: OperationTab
   networkName?: string
   onPushConfig?: () => void
   pushing?: boolean
 }
 
+const OPERATION_LABELS: Record<OperationTab, string> = {
+  deposit: "Dépôt",
+  withdraw: "Retrait",
+  balance: "Solde",
+}
+
 export const DevicePreviewPanel = memo(function DevicePreviewPanel({
   form,
-  activeTab,
   networkName,
   onPushConfig,
   pushing,
 }: DevicePreviewPanelProps) {
   const { toast } = useToast()
   const fp = form.custom_settings.flashpay
-  const steps = fp?.[activeTab]?.ussd_steps ?? []
   const { percent, missing, mode, done, total } = computeCompletion(form)
 
   const copyId = () => {
@@ -56,16 +65,19 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p className="font-semibold text-gray-900 dark:text-gray-100">
-            FlashPay — {fp?.network_label || networkName || "Réseau"} · SIM {fp?.sim_slot ?? 0}
+            FlashPay — {fp?.network_label || networkName || "Réseau"} · SIM {(fp?.sim_slot ?? 0) + 1}
           </p>
           <p className="text-slate-600 dark:text-gray-400">
-            Mode : {formatDeviceMode(mode)} · {done}/{total} critères
+            {form.device_name || form.device_id} · {done}/{total} critères
           </p>
           <p className="text-slate-600 dark:text-gray-400">
             Dépôt: {(fp?.deposit?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes · {fp?.deposit?.session_type ?? "multi"}
           </p>
           <p className="text-slate-600 dark:text-gray-400">
             Retrait: {(fp?.withdraw?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes
+          </p>
+          <p className="text-slate-600 dark:text-gray-400">
+            Solde: {(fp?.balance?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes
           </p>
           <p className="text-slate-600 dark:text-gray-400">PIN: {fp?.momo_pin ? "••••" : "—"}</p>
           <Badge variant="outline" className="mt-2 dark:border-gray-600">
@@ -76,10 +88,20 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
 
       <Card className={flashpayTheme.panelCard}>
         <CardHeader className="pb-2">
-          <CardTitle className={cardTitle}>Timeline USSD ({activeTab})</CardTitle>
+          <CardTitle className={cardTitle}>Timelines USSD</CardTitle>
         </CardHeader>
-        <CardContent>
-          <UssdTimeline steps={steps} />
+        <CardContent className="space-y-4">
+          {(["deposit", "withdraw", "balance"] as OperationTab[]).map((tab) => {
+            const steps = fp?.[tab]?.ussd_steps ?? []
+            return (
+              <div key={tab}>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-gray-400 mb-2">
+                  {OPERATION_LABELS[tab]}
+                </p>
+                <UssdTimeline steps={steps} />
+              </div>
+            )
+          })}
         </CardContent>
       </Card>
 

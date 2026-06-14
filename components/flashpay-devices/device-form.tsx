@@ -1,18 +1,11 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,20 +16,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { ClipboardCopy, Download, Sparkles, Upload, Wifi, WifiOff, Pause, Play, Check, ChevronsUpDown, Loader2 } from "lucide-react"
+import { Sparkles, Upload, Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import type { DeviceFormValues, FlashPayDeviceConfig, OperationTab } from "@/lib/types/flashpay-device"
 import { DEVICE_PRESETS } from "@/lib/flashpay-device-sample"
 import {
   applyFlashpayConfigImport,
-  buildFlashpayExportJson,
   computeCompletion,
   formatDeviceMode,
   getRequiredUssdOperations,
   compactCustomSettings,
   createEmptyFlashpayConfig,
-  downloadFlashpayConfigJson,
   flashpayTheme,
-  formatRelativeTime,
   isSampleForm,
   networkChipClass,
 } from "@/lib/flashpay-device-utils"
@@ -67,6 +57,32 @@ interface DeviceFormProps {
   pushing?: boolean
 }
 
+function FormSection({
+  title,
+  description,
+  children,
+}: {
+  title: string
+  description?: string
+  children: ReactNode
+}) {
+  return (
+    <section className={cn(flashpayTheme.card, "p-5 space-y-4")}>
+      <div>
+        <h2 className="text-lg font-semibold text-[#0B2545] dark:text-gray-100">{title}</h2>
+        {description && <p className={cn(flashpayTheme.mutedXs, "mt-1")}>{description}</p>}
+      </div>
+      {children}
+    </section>
+  )
+}
+
+const OPERATION_LABELS: Record<OperationTab, string> = {
+  deposit: "Dépôt",
+  withdraw: "Retrait",
+  balance: "Solde",
+}
+
 export function DeviceForm({
   form,
   onChange,
@@ -78,8 +94,6 @@ export function DeviceForm({
   pushing,
 }: DeviceFormProps) {
   const { toast } = useToast()
-  const [openAccordions, setOpenAccordions] = useState<string[]>(["identity"])
-  const [activeTab, setActiveTab] = useState<OperationTab>("deposit")
   const [users, setUsers] = useState<any[]>([])
   const [networks, setNetworks] = useState<any[]>([])
   const [userSearch, setUserSearch] = useState("")
@@ -94,12 +108,10 @@ export function DeviceForm({
   const sample = isSampleForm(form)
 
   useEffect(() => {
-    if (!openAccordions.includes("identity")) return
     fetchNetworks(apiFetch).then(setNetworks).catch(() => setNetworks([]))
-  }, [apiFetch, openAccordions])
+  }, [apiFetch])
 
   useEffect(() => {
-    if (!openAccordions.includes("identity")) return
     setLoadingUsers(true)
     setUserSearchError("")
     const t = setTimeout(() => {
@@ -112,7 +124,7 @@ export function DeviceForm({
         .finally(() => setLoadingUsers(false))
     }, 300)
     return () => clearTimeout(t)
-  }, [apiFetch, userSearch, openAccordions])
+  }, [apiFetch, userSearch])
 
   const selectedUser = useMemo(
     () => users.find((u) => u.uid === form.user),
@@ -162,9 +174,6 @@ export function DeviceForm({
     [form, fp, onChange],
   )
 
-  const flashpayOpen = openAccordions.includes("flashpay")
-  const advancedOpen = openAccordions.includes("advanced")
-
   const applyPreset = (presetId: string) => {
     const preset = DEVICE_PRESETS.find((p) => p.id === presetId)
     if (!preset) return
@@ -180,64 +189,111 @@ export function DeviceForm({
     setShowPresetConfirm(false)
   }
 
-  const [configJsonImport, setConfigJsonImport] = useState("")
   const configFileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleImportConfigJson = () => {
-    const { form: next, error } = applyFlashpayConfigImport(configJsonImport, form)
-    if (error) {
-      toast({ title: "Import échoué", description: error, variant: "destructive" })
-      return
-    }
-    onChange(next)
-    const importedPin = next.custom_settings.flashpay?.momo_pin?.trim()
-    toast({
-      title: "Config importée",
-      description: importedPin
-        ? "Le formulaire a été rempli depuis le JSON."
-        : "PIN non importé — saisissez votre code PIN MoMo avant d'enregistrer.",
-    })
-  }
-
-  const handleExportConfigJson = () => {
-    if (!form.custom_settings.flashpay) {
-      toast({ title: "Rien à exporter", description: "Initialisez d'abord la config FlashPay.", variant: "destructive" })
-      return
-    }
-    downloadFlashpayConfigJson(form)
-    toast({ title: "Export téléchargé", description: "Le PIN n'est pas inclus — le destinataire devra le saisir." })
-  }
-
-  const handleCopyConfigJson = async () => {
-    if (!form.custom_settings.flashpay) {
-      toast({ title: "Rien à copier", variant: "destructive" })
-      return
-    }
-    await navigator.clipboard.writeText(buildFlashpayExportJson(form))
-    toast({ title: "JSON copié", description: "Sans PIN — le destinataire devra le saisir avant enregistrement." })
-  }
 
   const handleConfigFileUpload = (file: File | null) => {
     if (!file) return
     const reader = new FileReader()
     reader.onload = () => {
       const text = String(reader.result ?? "")
-      setConfigJsonImport(text)
       const { form: next, error } = applyFlashpayConfigImport(text, form)
       if (error) {
-        toast({ title: "Fichier non importé", description: error, variant: "destructive" })
+        toast({ title: "Import échoué", description: error, variant: "destructive" })
         return
       }
       onChange(next)
       const importedPin = next.custom_settings.flashpay?.momo_pin?.trim()
       toast({
-        title: "Fichier importé",
+        title: "Config importée",
         description: importedPin
-          ? file.name
-          : `${file.name} — saisissez votre PIN MoMo avant d'enregistrer.`,
+          ? `${file.name} — formulaire rempli.`
+          : `${file.name} — PIN non importé, saisissez-le avant d'enregistrer.`,
       })
     }
     reader.readAsText(file)
+    if (configFileInputRef.current) configFileInputRef.current.value = ""
+  }
+
+  const renderOperationBlock = (tab: OperationTab) => {
+    if (!fp) return null
+    const steps = fp[tab]?.ussd_steps ?? []
+    const stepCount = steps.filter((s) => s.trim()).length
+
+    return (
+      <div
+        key={tab}
+        className="rounded-xl border border-slate-200 dark:border-gray-600 bg-slate-50/50 dark:bg-gray-900/30 p-4 space-y-4"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            {OPERATION_LABELS[tab]}
+          </h3>
+          <Badge variant="secondary" className="dark:bg-gray-700 dark:text-gray-200">
+            {stepCount} étape{stepCount > 1 ? "s" : ""}
+          </Badge>
+        </div>
+
+        <UssdFlowBuilder steps={steps} onChange={(next) => patchOperation(tab, next)} />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800/80 p-3">
+            <span className="text-sm text-gray-900 dark:text-gray-200">Session multi-écrans</span>
+            <Switch
+              checked={fp[tab]?.session_type === "multi"}
+              onCheckedChange={(v) =>
+                patchFlashpay({
+                  [tab]: {
+                    ...fp[tab],
+                    session_type: v ? "multi" : "single",
+                  },
+                } as Partial<FlashPayDeviceConfig>)
+              }
+            />
+          </div>
+          {tab === "deposit" && (
+            <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800/80 p-3">
+              <span className="text-sm text-gray-900 dark:text-gray-200">Auto-transfer</span>
+              <Switch
+                checked={fp.deposit.auto_transfer_enabled}
+                onCheckedChange={(v) =>
+                  patchFlashpay({
+                    deposit: { ...fp.deposit, auto_transfer_enabled: v },
+                  })
+                }
+              />
+            </div>
+          )}
+        </div>
+
+        {tab === "deposit" && fp.deposit.auto_transfer_enabled && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label>Destination auto-transfer</Label>
+              <Input
+                className="mt-1 bg-white dark:bg-gray-900"
+                value={fp.deposit.auto_transfer_to}
+                onChange={(e) =>
+                  patchFlashpay({ deposit: { ...fp.deposit, auto_transfer_to: e.target.value } })
+                }
+              />
+            </div>
+            <div>
+              <Label>Seuil min (FCFA)</Label>
+              <Input
+                type="number"
+                className="mt-1 bg-white dark:bg-gray-900"
+                value={fp.deposit.auto_transfer_min_balance}
+                onChange={(e) =>
+                  patchFlashpay({
+                    deposit: { ...fp.deposit, auto_transfer_min_balance: Number(e.target.value) || 0 },
+                  })
+                }
+              />
+            </div>
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -257,418 +313,259 @@ export function DeviceForm({
           </Badge>
         )}
 
-        <Accordion
-          type="multiple"
-          value={openAccordions}
-          onValueChange={setOpenAccordions}
-          className="space-y-2"
+        <FormSection
+          title="Identité & rattachement"
+          description="Identifiant du téléphone, agent propriétaire et réseau MoMo."
         >
-          <AccordionItem value="identity" className={flashpayTheme.accordionItem}>
-            <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Identité & rattachement</AccordionTrigger>
-            <AccordionContent className="space-y-4 pb-4">
-              <div>
-                <Label>device_id</Label>
-                <Input
-                  className={cn(
-                    "font-mono mt-1",
-                    sample && form.device_id.includes("sample") && "border-amber-400 ring-amber-200",
-                  )}
-                  value={form.device_id}
-                  readOnly={mode === "edit"}
-                  onChange={(e) => patch({ device_id: e.target.value })}
-                  placeholder="Identifiant saisi dans FlashPay"
-                />
-              </div>
-              <div>
-                <Label>Nom affiché</Label>
-                <Input
-                  className="mt-1"
-                  value={form.device_name}
-                  onChange={(e) => patch({ device_name: e.target.value })}
-                  placeholder="Ex. Téléphone Moov SIM1"
-                />
-              </div>
-              <div>
-                <Label>Propriétaire (agent)</Label>
-                <p className={`${flashpayTheme.mutedXs} mt-1 mb-2`}>
-                  Compte utilisateur (UUID) qui se connectera sur le téléphone FlashPay — recherche par nom, email ou téléphone.
-                </p>
-                <Popover open={userDropdownOpen} onOpenChange={setUserDropdownOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={userDropdownOpen}
-                      className={cn(
-                        "w-full justify-between font-normal mt-1",
-                        !form.user && "text-muted-foreground",
-                      )}
-                    >
-                      <span className="truncate text-left">
-                        {selectedUserLabel || "Sélectionner un agent…"}
-                      </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                    <Command shouldFilter={false}>
-                      <CommandInput
-                        placeholder="Rechercher par email, nom ou téléphone…"
-                        value={userSearch}
-                        onValueChange={setUserSearch}
-                      />
-                      <CommandList className="max-h-56 overflow-y-auto">
-                        <CommandEmpty>
-                          {loadingUsers ? (
-                            <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Recherche…
-                            </div>
-                          ) : userSearchError ? (
-                            userSearchError
-                          ) : (
-                            "Aucun utilisateur trouvé."
-                          )}
-                        </CommandEmpty>
-                        <CommandGroup>
-                          {!loadingUsers &&
-                            users.map((u) => (
-                              <CommandItem
-                                key={u.uid}
-                                value={u.uid}
-                                onSelect={() => {
-                                  patch({ user: u.uid })
-                                  setUserDropdownOpen(false)
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    form.user === u.uid ? "opacity-100" : "opacity-0",
-                                  )}
-                                />
-                                <div className="flex flex-col min-w-0">
-                                  <span className="font-medium truncate">
-                                    {u.display_name || u.email || u.phone || u.uid}
-                                  </span>
-                                  {(u.email || u.phone) && (
-                                    <span className={`${flashpayTheme.mutedXs} truncate`}>
-                                      {[u.email, u.phone].filter(Boolean).join(" · ")}
-                                    </span>
-                                  )}
-                                </div>
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                {form.user && (
-                  <p className={`${flashpayTheme.mutedXs} mt-2 font-mono break-all`}>UUID : {form.user}</p>
-                )}
-              </div>
-              <div>
-                <Label>Réseau MoMo</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
-                  {networks.map((n) => (
-                    <button
-                      key={n.uid}
-                      type="button"
-                      onClick={() => {
-                        patch({ network: n.uid })
-                        patchFlashpay({
-                          network_code: n.code,
-                          network_label: n.nom,
-                          country_code: n.country_name?.slice(0, 2)?.toUpperCase() || fp?.country_code || "CI",
-                        })
-                      }}
-                      className={cn(
-                        flashpayTheme.networkTile,
-                        form.network === n.uid ? flashpayTheme.networkSelected : flashpayTheme.unselectedTile,
-                      )}
-                    >
-                      <span className={cn("inline-block px-2 py-0.5 rounded text-xs border mb-1 font-semibold", networkChipClass(n.code))}>
-                        {n.code}
-                      </span>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">{n.nom}</p>
-                      <p className={flashpayTheme.mutedXs}>{n.country_name}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <Label>Slot SIM</Label>
-                <div className="flex gap-2 mt-2">
-                  {([0, 1] as const).map((slot) => {
-                    const selected = (fp?.sim_slot ?? 0) === slot
-                    return (
-                      <Button
-                        key={slot}
-                        type="button"
-                        variant="outline"
-                        className={cn(
-                          "min-w-[5.5rem] font-semibold",
-                          selected ? flashpayTheme.simActive : flashpayTheme.simInactive,
-                        )}
-                        onClick={() => patchFlashpay({ sim_slot: slot })}
-                      >
-                        SIM {slot + 1}
-                      </Button>
-                    )
-                  })}
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="state" className={flashpayTheme.accordionItem}>
-            <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">État & connectivité</AccordionTrigger>
-            <AccordionContent className="space-y-4 pb-4">
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-gray-600 p-4">
-                <div className="flex items-center gap-3">
-                  {form.is_paused ? <Pause className="text-orange-500" /> : <Play className="text-green-600" />}
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-100">Pause device</p>
-                    <p className={flashpayTheme.mutedXs}>L&apos;app n&apos;exécutera pas de transactions</p>
-                  </div>
-                </div>
-                <Switch checked={form.is_paused} onCheckedChange={(v) => patch({ is_paused: v })} />
-              </div>
-              <div>
-                <Label>Mode</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {(["deposit", "withdrawal", "both"] as const).map((m) => (
-                    <Button
-                      key={m}
-                      type="button"
-                      size="sm"
-                      variant={form.mode === m ? "default" : "outline"}
-                      className={form.mode === m ? flashpayTheme.accentBtn : ""}
-                      onClick={() => patch({ mode: m })}
-                    >
-                      {m === "deposit" ? "Dépôt" : m === "withdrawal" ? "Retrait" : "Les deux"}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              <div className="rounded-xl border border-slate-200 dark:border-gray-600 p-4 flex items-center gap-3">
-                {form.is_online ? (
-                  <Wifi className="h-8 w-8 text-green-600" />
-                ) : (
-                  <WifiOff className="h-8 w-8 text-slate-400" />
-                )}
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{form.is_online ? "En ligne" : "Hors ligne"}</p>
-                  <p className={flashpayTheme.mutedXs}>Dernière activité : {formatRelativeTime(form.last_seen)}</p>
-                </div>
-              </div>
-              <details>
-                <summary className="cursor-pointer text-sm text-slate-600 dark:text-gray-400">FCM token</summary>
-                <Textarea className="mt-2 font-mono text-xs" rows={2} value={form.fcm_token} readOnly />
-              </details>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="flashpay" className={flashpayTheme.accordionItem}>
-            <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Config FlashPay</AccordionTrigger>
-            <AccordionContent className="space-y-4 pb-4">
-              <div className="rounded-xl border border-slate-200 dark:border-gray-600 bg-slate-50/80 dark:bg-gray-900/40 p-4 space-y-3">
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Import / Export JSON</p>
-                <p className={flashpayTheme.mutedXs}>
-                  Collez une config <code className="text-xs">flashpay</code> ou un JSON yapson (ManualConfigPage).
-                </p>
-                <Textarea
-                  className="font-mono text-xs bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
-                  rows={6}
-                  placeholder='{"flashpay": { ... }}'
-                  value={configJsonImport}
-                  onChange={(e) => setConfigJsonImport(e.target.value)}
-                />
-                <div className="flex flex-wrap gap-2">
-                  <Button type="button" size="sm" variant="outline" onClick={handleImportConfigJson}>
-                    <Upload className="h-4 w-4 mr-2" /> Importer dans le formulaire
-                  </Button>
-                  <Button type="button" size="sm" variant="outline" onClick={handleExportConfigJson}>
-                    <Download className="h-4 w-4 mr-2" /> Exporter .json
-                  </Button>
-                  <Button type="button" size="sm" variant="outline" onClick={handleCopyConfigJson}>
-                    <ClipboardCopy className="h-4 w-4 mr-2" /> Copier JSON
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => configFileInputRef.current?.click()}
-                  >
-                    <Upload className="h-4 w-4 mr-2" /> Fichier .json
-                  </Button>
-                  <input
-                    ref={configFileInputRef}
-                    type="file"
-                    accept="application/json,.json"
-                    className="hidden"
-                    onChange={(e) => handleConfigFileUpload(e.target.files?.[0] ?? null)}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {DEVICE_PRESETS.map((p) => (
-                  <Button
-                    key={p.id}
-                    type="button"
-                    size="sm"
-                    variant={p.id === "moov-bj-yapson" ? "default" : "outline"}
-                    className={p.id === "moov-bj-yapson" ? flashpayTheme.accentBtn : ""}
-                    onClick={() => {
-                      setPresetId(p.id)
-                      setShowPresetConfirm(true)
-                    }}
-                  >
-                    {p.label}
-                  </Button>
-                ))}
-              </div>
-              <p className={flashpayTheme.mutedXs}>
-                Le template <strong>Moov Bénin (yapson)</strong> reprend l&apos;exemple ManualConfigPage migré (Moov BJ §5.3).
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Pays</Label>
-                  <Input
-                    className="mt-1"
-                    value={fp?.country_code || ""}
-                    onChange={(e) => patchFlashpay({ country_code: e.target.value.toUpperCase() })}
-                  />
-                </div>
-                <div>
-                  <Label>PIN MoMo</Label>
-                  <Input
-                    className="mt-1 font-mono"
-                    type="password"
-                    value={fp?.momo_pin || ""}
-                    onChange={(e) => patchFlashpay({ momo_pin: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                {(["deposit", "withdraw", "balance"] as OperationTab[]).map((tab) => (
-                  <Button
-                    key={tab}
-                    type="button"
-                    size="sm"
-                    variant={activeTab === tab ? "default" : "outline"}
-                    className={activeTab === tab ? flashpayTheme.tabActive : ""}
-                    onClick={() => setActiveTab(tab)}
-                  >
-                    {tab === "deposit" ? "Dépôt" : tab === "withdraw" ? "Retrait" : "Solde"}
-                    <Badge variant="secondary" className="ml-2 text-xs">
-                      {fp?.[tab]?.ussd_steps?.length ?? 0}
-                    </Badge>
-                  </Button>
-                ))}
-              </div>
-              {!fp ? (
+          <div>
+            <Label>device_id</Label>
+            <Input
+              className={cn(
+                "font-mono mt-1 bg-white dark:bg-gray-900",
+                sample && form.device_id.includes("sample") && "border-amber-400 ring-amber-200",
+              )}
+              value={form.device_id}
+              readOnly={mode === "edit"}
+              onChange={(e) => patch({ device_id: e.target.value })}
+              placeholder="Identifiant saisi dans FlashPay"
+            />
+          </div>
+          <div>
+            <Label>Nom affiché</Label>
+            <Input
+              className="mt-1 bg-white dark:bg-gray-900"
+              value={form.device_name}
+              onChange={(e) => patch({ device_name: e.target.value })}
+              placeholder="Ex. Téléphone Moov SIM1"
+            />
+          </div>
+          <div>
+            <Label>Propriétaire (agent)</Label>
+            <p className={`${flashpayTheme.mutedXs} mt-1 mb-2`}>
+              Compte utilisateur (UUID) qui se connectera sur le téléphone FlashPay — recherche par nom, email ou téléphone.
+            </p>
+            <Popover open={userDropdownOpen} onOpenChange={setUserDropdownOpen}>
+              <PopoverTrigger asChild>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() =>
-                    onChange({
-                      ...form,
-                      custom_settings: {
-                        ...form.custom_settings,
-                        flashpay: structuredClone(DEVICE_PRESETS[0].config),
-                      },
-                    })
-                  }
-                >
-                  Initialiser config FlashPay (Moov BJ)
-                </Button>
-              ) : flashpayOpen ? (
-                <>
-                  <UssdFlowBuilder
-                    steps={fp[activeTab]?.ussd_steps ?? []}
-                    onChange={(steps) => patchOperation(activeTab, steps)}
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-gray-600 p-3">
-                      <span className="text-sm text-gray-900 dark:text-gray-200">Session multi</span>
-                      <Switch
-                        checked={fp[activeTab]?.session_type === "multi"}
-                        onCheckedChange={(v) =>
-                          patchFlashpay({
-                            [activeTab]: {
-                              ...fp[activeTab],
-                              session_type: v ? "multi" : "single",
-                            },
-                          } as any)
-                        }
-                      />
-                    </div>
-                    {activeTab === "deposit" && (
-                      <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-gray-600 p-3">
-                        <span className="text-sm text-gray-900 dark:text-gray-200">Auto-transfer</span>
-                        <Switch
-                          checked={fp.deposit.auto_transfer_enabled}
-                          onCheckedChange={(v) =>
-                            patchFlashpay({
-                              deposit: { ...fp.deposit, auto_transfer_enabled: v },
-                            })
-                          }
-                        />
-                      </div>
-                    )}
-                  </div>
-                  {activeTab === "deposit" && fp.deposit.auto_transfer_enabled && (
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label>Destination</Label>
-                        <Input
-                          className="mt-1"
-                          value={fp.deposit.auto_transfer_to}
-                          onChange={(e) =>
-                            patchFlashpay({ deposit: { ...fp.deposit, auto_transfer_to: e.target.value } })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label>Seuil min (FCFA)</Label>
-                        <Input
-                          type="number"
-                          className="mt-1"
-                          value={fp.deposit.auto_transfer_min_balance}
-                          onChange={(e) =>
-                            patchFlashpay({
-                              deposit: { ...fp.deposit, auto_transfer_min_balance: Number(e.target.value) || 0 },
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
+                  role="combobox"
+                  aria-expanded={userDropdownOpen}
+                  className={cn(
+                    "w-full justify-between font-normal mt-1",
+                    !form.user && "text-muted-foreground",
                   )}
-                </>
-              ) : (
-                <p className={flashpayTheme.muted}>Ouvrez cette section pour éditer les étapes USSD.</p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
+                >
+                  <span className="truncate text-left">
+                    {selectedUserLabel || "Sélectionner un agent…"}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                <Command shouldFilter={false}>
+                  <CommandInput
+                    placeholder="Rechercher par email, nom ou téléphone…"
+                    value={userSearch}
+                    onValueChange={setUserSearch}
+                  />
+                  <CommandList className="max-h-56 overflow-y-auto">
+                    <CommandEmpty>
+                      {loadingUsers ? (
+                        <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Recherche…
+                        </div>
+                      ) : userSearchError ? (
+                        userSearchError
+                      ) : (
+                        "Aucun utilisateur trouvé."
+                      )}
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {!loadingUsers &&
+                        users.map((u) => (
+                          <CommandItem
+                            key={u.uid}
+                            value={u.uid}
+                            onSelect={() => {
+                              patch({ user: u.uid })
+                              setUserDropdownOpen(false)
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                form.user === u.uid ? "opacity-100" : "opacity-0",
+                              )}
+                            />
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-medium truncate">
+                                {u.display_name || u.email || u.phone || u.uid}
+                              </span>
+                              {(u.email || u.phone) && (
+                                <span className={`${flashpayTheme.mutedXs} truncate`}>
+                                  {[u.email, u.phone].filter(Boolean).join(" · ")}
+                                </span>
+                              )}
+                            </div>
+                          </CommandItem>
+                        ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {form.user && (
+              <p className={`${flashpayTheme.mutedXs} mt-2 font-mono break-all`}>UUID : {form.user}</p>
+            )}
+          </div>
+          <div>
+            <Label>Réseau MoMo</Label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+              {networks.map((n) => (
+                <button
+                  key={n.uid}
+                  type="button"
+                  onClick={() => {
+                    patch({ network: n.uid })
+                    patchFlashpay({
+                      network_code: n.code,
+                      network_label: n.nom,
+                      country_code: n.country_name?.slice(0, 2)?.toUpperCase() || fp?.country_code || "CI",
+                    })
+                  }}
+                  className={cn(
+                    flashpayTheme.networkTile,
+                    form.network === n.uid ? flashpayTheme.networkSelected : flashpayTheme.unselectedTile,
+                  )}
+                >
+                  <span className={cn("inline-block px-2 py-0.5 rounded text-xs border mb-1 font-semibold", networkChipClass(n.code))}>
+                    {n.code}
+                  </span>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{n.nom}</p>
+                  <p className={flashpayTheme.mutedXs}>{n.country_name}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <Label>Slot SIM</Label>
+            <div className="flex gap-2 mt-2">
+              {([0, 1] as const).map((slot) => {
+                const selected = (fp?.sim_slot ?? 0) === slot
+                return (
+                  <Button
+                    key={slot}
+                    type="button"
+                    variant="outline"
+                    className={cn(
+                      "min-w-[5.5rem] font-semibold",
+                      selected ? flashpayTheme.simActive : flashpayTheme.simInactive,
+                    )}
+                    onClick={() => patchFlashpay({ sim_slot: slot })}
+                  >
+                    SIM {slot + 1}
+                  </Button>
+                )
+              })}
+            </div>
+          </div>
+        </FormSection>
 
-          <AccordionItem value="advanced" className={flashpayTheme.accordionItem}>
-            <AccordionTrigger className="text-[#0B2545] dark:text-gray-100 font-semibold">Avancé</AccordionTrigger>
-            <AccordionContent className="pb-4 space-y-4">
-              {advancedOpen ? (
-                <AdvancedSettingsEditor
-                  settings={form.custom_settings}
-                  onApply={(settings) => patch({ custom_settings: settings })}
-                />
-              ) : (
-                <p className={flashpayTheme.mutedXs}>Ouvrez pour l&apos;éditeur JSON brut.</p>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <FormSection
+          title="Config FlashPay"
+          description="Séquences USSD pour dépôt, retrait et solde. Importez un JSON FlashPay ou yapson pour pré-remplir."
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="border-slate-300 dark:border-gray-600"
+              onClick={() => configFileInputRef.current?.click()}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Importer une config
+            </Button>
+            <input
+              ref={configFileInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(e) => handleConfigFileUpload(e.target.files?.[0] ?? null)}
+            />
+            <span className={flashpayTheme.mutedXs}>
+              Formats acceptés : FlashPay (<code className="text-xs">{"{ flashpay: … }"}</code>) ou yapson legacy.
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {DEVICE_PRESETS.map((p) => (
+              <Button
+                key={p.id}
+                type="button"
+                size="sm"
+                variant={p.id === "moov-bj-yapson" ? "default" : "outline"}
+                className={p.id === "moov-bj-yapson" ? flashpayTheme.accentBtn : ""}
+                onClick={() => {
+                  setPresetId(p.id)
+                  setShowPresetConfirm(true)
+                }}
+              >
+                {p.label}
+              </Button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label>Pays</Label>
+              <Input
+                className="mt-1 bg-white dark:bg-gray-900"
+                value={fp?.country_code || ""}
+                onChange={(e) => patchFlashpay({ country_code: e.target.value.toUpperCase() })}
+              />
+            </div>
+            <div>
+              <Label>PIN MoMo</Label>
+              <Input
+                className="mt-1 font-mono bg-white dark:bg-gray-900"
+                type="password"
+                value={fp?.momo_pin || ""}
+                onChange={(e) => patchFlashpay({ momo_pin: e.target.value })}
+              />
+            </div>
+          </div>
+
+          {!fp ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                onChange({
+                  ...form,
+                  custom_settings: {
+                    ...form.custom_settings,
+                    flashpay: structuredClone(DEVICE_PRESETS[0].config),
+                  },
+                })
+              }
+            >
+              Initialiser config FlashPay (Moov BJ)
+            </Button>
+          ) : (
+            <div className="space-y-4">
+              {(["deposit", "withdraw", "balance"] as OperationTab[]).map(renderOperationBlock)}
+            </div>
+          )}
+        </FormSection>
+
+        <FormSection title="Avancé" description="Édition JSON brute de custom_settings (réservé aux cas particuliers).">
+          <AdvancedSettingsEditor
+            settings={form.custom_settings}
+            onApply={(settings) => patch({ custom_settings: settings })}
+          />
+        </FormSection>
 
         <div className={`flex flex-col gap-1 text-sm ${flashpayTheme.muted}`}>
           <div className="flex items-center gap-2">
@@ -697,7 +594,6 @@ export function DeviceForm({
       <div className="space-y-4 xl:col-span-1">
         <DevicePreviewPanel
           form={form}
-          activeTab={activeTab}
           networkName={selectedNetwork?.nom}
           onPushConfig={mode === "edit" ? onPushConfig : undefined}
           pushing={pushing}

@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Copy, Loader2, MoreHorizontal, Save } from "lucide-react"
+import { ArrowLeft, Copy, Loader2, MoreHorizontal, Pause, Play, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -145,7 +146,22 @@ export default function FlashPayDeviceEditPage() {
               {dirty && <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">Modifications non enregistrées</p>}
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-gray-600 px-3 py-2">
+              {form.is_paused ? (
+                <Pause className="h-4 w-4 text-orange-500" />
+              ) : (
+                <Play className="h-4 w-4 text-green-600 dark:text-green-400" />
+              )}
+              <span className="text-sm text-gray-900 dark:text-gray-100">
+                {form.is_paused ? "En pause" : "Actif"}
+              </span>
+              <Switch
+                checked={!form.is_paused}
+                onCheckedChange={(active) => handleChange({ ...form, is_paused: !active })}
+                aria-label="Activer ou mettre en pause le device"
+              />
+            </div>
             <Button className={flashpayTheme.accentBtn} onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
               Enregistrer

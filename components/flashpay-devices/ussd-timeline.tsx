@@ -16,7 +16,7 @@ export function UssdTimeline({ steps, className }: UssdTimelineProps) {
   return (
     <div className={cn("flex flex-wrap items-center gap-x-1.5 gap-y-2", className)}>
       {steps.map((step, index) => (
-        <span key={`${index}-${step}`} className="inline-flex items-center gap-1.5">
+        <span key={index} className="inline-flex items-center gap-1.5">
           {index > 0 && (
             <span className="text-xs text-slate-400 dark:text-gray-500 select-none" aria-hidden>
               →

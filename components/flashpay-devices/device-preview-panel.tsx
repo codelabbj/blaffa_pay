@@ -90,7 +90,7 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
         <CardHeader className="pb-2">
           <CardTitle className={cardTitle}>Timelines USSD</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 bg-slate-50/50 dark:bg-gray-900/40 rounded-b-xl">
           {(["deposit", "withdraw", "balance"] as OperationTab[]).map((tab) => {
             const steps = fp?.[tab]?.ussd_steps ?? []
             return (

@@ -14,17 +14,20 @@ export function UssdTimeline({ steps, className }: UssdTimelineProps) {
   }
 
   return (
-    <div className={cn("flex flex-wrap items-center gap-x-1.5 gap-y-2", className)}>
+    <div className={cn("flex flex-wrap items-center gap-x-2 gap-y-2", className)}>
       {steps.map((step, index) => (
-        <span key={index} className="inline-flex items-center gap-1.5">
+        <span key={index} className="inline-flex items-center gap-2">
           {index > 0 && (
-            <span className="text-xs text-slate-400 dark:text-gray-500 select-none" aria-hidden>
+            <span
+              className="text-sm font-medium text-slate-500 dark:text-slate-300 select-none"
+              aria-hidden
+            >
               →
             </span>
           )}
           <span
             className={cn(
-              "inline-flex items-center rounded-md border px-2 py-0.5 font-mono text-xs font-medium",
+              "inline-flex items-center rounded-md border px-2.5 py-1 font-mono text-xs font-semibold leading-none",
               stepVisualClass(step),
             )}
           >

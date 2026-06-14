@@ -48,9 +48,9 @@ export function createEmptyFlashpayConfig(
 
 /** Classes Tailwind partagées — pages FlashPay (light / dark). */
 export const flashpayTheme = {
-  page: "p-6 lg:p-8",
+  page: "p-4 sm:p-6 lg:p-8",
   stickyHeader:
-    "sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-transparent py-2 -mx-6 px-6 lg:-mx-8 lg:px-8 mb-2",
+    "sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-transparent py-2 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 mb-2",
   title: "text-2xl font-semibold text-[#0B2545] dark:text-gray-100",
   titleSm: "text-xl font-semibold text-[#0B2545] dark:text-gray-100",
   muted: "text-sm text-slate-500 dark:text-gray-400",

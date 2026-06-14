@@ -31,6 +31,7 @@ import {
 import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { extractErrorMessages } from "@/components/ui/error-display"
+import { cn } from "@/lib/utils"
 export default function FlashPayDeviceEditPage() {
   const { uid } = useParams<{ uid: string }>()
   const apiFetch = useApi()
@@ -118,16 +119,16 @@ export default function FlashPayDeviceEditPage() {
   return (
     <div className={flashpayTheme.page}>
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${flashpayTheme.stickyHeader}`}>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
+        <div className={`flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between ${flashpayTheme.stickyHeader}`}>
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <Button variant="ghost" size="icon" className="shrink-0 touch-manipulation" asChild>
               <Link href="/dashboard/devices/flashpay">
                 <ArrowLeft className="h-5 w-5" />
               </Link>
             </Button>
-            <div>
-              <h1 className={flashpayTheme.titleSm}>{form.device_name || form.device_id}</h1>
-              <p className={`font-mono ${flashpayTheme.mutedXs}`}>
+            <div className="min-w-0 flex-1">
+              <h1 className={cn(flashpayTheme.titleSm, "truncate")}>{form.device_name || form.device_id}</h1>
+              <p className={cn("font-mono break-all", flashpayTheme.mutedXs)}>
                 {form.device_id} · {form.is_online ? "En ligne" : "Hors ligne"} · {formatRelativeTime(form.last_seen)}
               </p>
               {completion && (
@@ -146,8 +147,8 @@ export default function FlashPayDeviceEditPage() {
               {dirty && <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">Modifications non enregistrées</p>}
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-gray-600 px-3 py-2">
+          <div className="flex flex-col w-full sm:w-auto sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
+            <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 dark:border-gray-600 px-3 py-2">
               {form.is_paused ? (
                 <Pause className="h-4 w-4 text-orange-500" />
               ) : (
@@ -162,7 +163,7 @@ export default function FlashPayDeviceEditPage() {
                 aria-label="Activer ou mettre en pause le device"
               />
             </div>
-            <Button className={flashpayTheme.accentBtn} onClick={handleSave} disabled={saving}>
+            <Button className={cn(flashpayTheme.accentBtn, "w-full sm:w-auto touch-manipulation")} onClick={handleSave} disabled={saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
               Enregistrer
             </Button>

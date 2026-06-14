@@ -119,9 +119,23 @@ export async function bulkPushDeviceConfig(
   return { ok, failed: results.length - ok }
 }
 
-export async function fetchNetworks(apiFetch: ApiFetch, search?: string) {
+export async function fetchCountries(apiFetch: ApiFetch) {
   const qs = new URLSearchParams({ page_size: "100", is_active: "true" })
-  if (search) qs.set("search", search)
+  const data = await apiFetch(`${baseUrl()}/api/payments/countries/?${qs}`)
+  return Array.isArray(data) ? data : data.results ?? []
+}
+
+export async function fetchNetworks(
+  apiFetch: ApiFetch,
+  opts?: string | { search?: string; country?: string },
+) {
+  const qs = new URLSearchParams({ page_size: "100", is_active: "true" })
+  if (typeof opts === "string") {
+    qs.set("search", opts)
+  } else if (opts) {
+    if (opts.search) qs.set("search", opts.search)
+    if (opts.country) qs.set("country", opts.country)
+  }
   const data = await apiFetch(`${baseUrl()}/api/payments/networks/?${qs}`)
   return Array.isArray(data) ? data : data.results ?? []
 }

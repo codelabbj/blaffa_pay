@@ -22,7 +22,7 @@ import {
 import { UssdFlowBuilder } from "@/components/flashpay-devices/ussd-flow-builder"
 import { DevicePreviewPanel } from "@/components/flashpay-devices/device-preview-panel"
 import { AdvancedSettingsEditor } from "@/components/flashpay-devices/advanced-settings-editor"
-import { fetchAdminUsers, fetchNetworks } from "@/lib/flashpay-device-api"
+import { fetchAdminUsers, fetchCountries, fetchNetworks } from "@/lib/flashpay-device-api"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -56,7 +56,7 @@ function FormSection({
   children: ReactNode
 }) {
   return (
-    <section className={cn(flashpayTheme.card, "p-5 space-y-4")}>
+    <section className={cn(flashpayTheme.card, "p-4 sm:p-5 space-y-4")}>
       <div>
         <h2 className="text-lg font-semibold text-[#0B2545] dark:text-gray-100">{title}</h2>
         {description && <p className={cn(flashpayTheme.mutedXs, "mt-1")}>{description}</p>}
@@ -84,7 +84,10 @@ export function DeviceForm({
 }: DeviceFormProps) {
   const { toast } = useToast()
   const [users, setUsers] = useState<any[]>([])
+  const [countries, setCountries] = useState<any[]>([])
   const [networks, setNetworks] = useState<any[]>([])
+  const [selectedCountryUid, setSelectedCountryUid] = useState<string | null>(null)
+  const [loadingNetworks, setLoadingNetworks] = useState(false)
   const [userSearch, setUserSearch] = useState("")
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [loadingUsers, setLoadingUsers] = useState(false)
@@ -93,10 +96,68 @@ export function DeviceForm({
   const fp = form.custom_settings.flashpay
   const completion = computeCompletion(form)
   const sample = isSampleForm(form)
+  const locationInitialized = useRef(false)
 
   useEffect(() => {
-    fetchNetworks(apiFetch).then(setNetworks).catch(() => setNetworks([]))
-  }, [apiFetch])
+    if (locationInitialized.current) return
+    let cancelled = false
+    async function initLocation() {
+      try {
+        const countryList = await fetchCountries(apiFetch)
+        if (cancelled) return
+        setCountries(countryList)
+
+        if (form.network) {
+          const allNetworks = await fetchNetworks(apiFetch)
+          if (cancelled) return
+          const net = allNetworks.find((n: { uid: string }) => n.uid === form.network)
+          if (net?.country) {
+            setSelectedCountryUid(net.country)
+            locationInitialized.current = true
+            return
+          }
+        }
+
+        const code = fp?.country_code?.toUpperCase()
+        if (code) {
+          const match = countryList.find(
+            (c: { code?: string }) => c.code?.toUpperCase() === code,
+          )
+          if (match?.uid) setSelectedCountryUid(match.uid)
+        }
+        locationInitialized.current = true
+      } catch {
+        if (!cancelled) setCountries([])
+        locationInitialized.current = true
+      }
+    }
+    initLocation()
+    return () => {
+      cancelled = true
+    }
+  }, [apiFetch, form.network, fp?.country_code])
+
+  useEffect(() => {
+    if (!selectedCountryUid) {
+      setNetworks([])
+      return
+    }
+    let cancelled = false
+    setLoadingNetworks(true)
+    fetchNetworks(apiFetch, { country: selectedCountryUid })
+      .then((list) => {
+        if (!cancelled) setNetworks(list)
+      })
+      .catch(() => {
+        if (!cancelled) setNetworks([])
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingNetworks(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [apiFetch, selectedCountryUid])
 
   useEffect(() => {
     setLoadingUsers(true)
@@ -131,6 +192,11 @@ export function DeviceForm({
     [networks, form.network],
   )
 
+  const selectedCountry = useMemo(
+    () => countries.find((c) => c.uid === selectedCountryUid),
+    [countries, selectedCountryUid],
+  )
+
   const patch = (partial: Partial<DeviceFormValues>) => onChange({ ...form, ...partial })
 
   const patchFlashpay = (partial: Partial<FlashPayDeviceConfig>) => {
@@ -144,13 +210,32 @@ export function DeviceForm({
     })
   }
 
+  const selectCountry = (country: { uid: string; code?: string; nom?: string }) => {
+    const base = fp ?? createEmptyFlashpayConfig()
+    const changed = selectedCountryUid !== country.uid
+    setSelectedCountryUid(country.uid)
+    onChange({
+      ...form,
+      network: changed ? null : form.network,
+      custom_settings: compactCustomSettings({
+        ...form.custom_settings,
+        flashpay: {
+          ...base,
+          country_code: (country.code ?? base.country_code).toUpperCase(),
+          ...(changed ? { network_code: "", network_label: "" } : {}),
+        },
+      }),
+    })
+  }
+
   const selectNetwork = (network: {
     uid: string
     code?: string
     nom?: string
-    country_name?: string
+    country?: string
   }) => {
     const base = fp ?? createEmptyFlashpayConfig()
+    const country = countries.find((c) => c.uid === network.country)
     onChange({
       ...form,
       network: network.uid,
@@ -160,8 +245,7 @@ export function DeviceForm({
           ...base,
           network_code: network.code ?? base.network_code,
           network_label: network.nom ?? base.network_label,
-          country_code:
-            network.country_name?.slice(0, 2)?.toUpperCase() || base.country_code || "CI",
+          country_code: (country?.code ?? base.country_code).toUpperCase(),
         },
       }),
     })
@@ -292,8 +376,8 @@ export function DeviceForm({
   }
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-      <div className="xl:col-span-2 space-y-4">
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+      <div className="xl:col-span-2 space-y-4 min-w-0">
         {sample && mode === "create" && (
           <div className={`${flashpayTheme.sampleBanner} flex items-start gap-3`}>
             <Sparkles className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
@@ -310,7 +394,7 @@ export function DeviceForm({
 
         <FormSection
           title="Identité & rattachement"
-          description="Identifiant du téléphone, agent propriétaire et réseau MoMo."
+          description="Identifiant du téléphone, agent propriétaire, pays et réseau MoMo."
         >
           <div>
             <Label>device_id</Label>
@@ -416,30 +500,76 @@ export function DeviceForm({
             )}
           </div>
           <div>
+            <Label>Pays</Label>
+            <p className={`${flashpayTheme.mutedXs} mt-1 mb-2`}>
+              Choisissez le pays avant de sélectionner le réseau MoMo.
+            </p>
+            {countries.length === 0 ? (
+              <p className={flashpayTheme.muted}>Chargement des pays…</p>
+            ) : (
+              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-2">
+                {countries.map((country) => (
+                  <button
+                    key={country.uid}
+                    type="button"
+                    onClick={() => selectCountry(country)}
+                    className={cn(
+                      flashpayTheme.networkTile,
+                      "min-h-[3.5rem] touch-manipulation",
+                      selectedCountryUid === country.uid
+                        ? flashpayTheme.networkSelected
+                        : flashpayTheme.unselectedTile,
+                    )}
+                  >
+                    <span className="inline-block px-2 py-0.5 rounded text-xs border mb-1 font-mono font-semibold border-slate-300 dark:border-gray-500">
+                      {country.code}
+                    </span>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{country.nom}</p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div>
             <Label>Réseau MoMo</Label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
-              {networks.map((n) => (
-                <button
-                  key={n.uid}
-                  type="button"
-                  onClick={() => selectNetwork(n)}
-                  className={cn(
-                    flashpayTheme.networkTile,
-                    form.network === n.uid ? flashpayTheme.networkSelected : flashpayTheme.unselectedTile,
-                  )}
-                >
-                  <span className={cn("inline-block px-2 py-0.5 rounded text-xs border mb-1 font-semibold", networkChipClass(n.code))}>
-                    {n.code}
-                  </span>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{n.nom}</p>
-                  <p className={flashpayTheme.mutedXs}>{n.country_name}</p>
-                </button>
-              ))}
-            </div>
+            {!selectedCountryUid ? (
+              <p className={`${flashpayTheme.mutedXs} mt-2`}>
+                Sélectionnez un pays pour afficher les réseaux disponibles.
+              </p>
+            ) : loadingNetworks ? (
+              <div className="flex items-center gap-2 mt-2 text-sm text-slate-500 dark:text-gray-400">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Chargement des réseaux…
+              </div>
+            ) : networks.length === 0 ? (
+              <p className={`${flashpayTheme.mutedXs} mt-2`}>
+                Aucun réseau actif pour {selectedCountry?.nom ?? "ce pays"}.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
+                {networks.map((n) => (
+                  <button
+                    key={n.uid}
+                    type="button"
+                    onClick={() => selectNetwork(n)}
+                    className={cn(
+                      flashpayTheme.networkTile,
+                      "min-h-[3.75rem] touch-manipulation",
+                      form.network === n.uid ? flashpayTheme.networkSelected : flashpayTheme.unselectedTile,
+                    )}
+                  >
+                    <span className={cn("inline-block px-2 py-0.5 rounded text-xs border mb-1 font-semibold", networkChipClass(n.code))}>
+                      {n.code}
+                    </span>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{n.nom}</p>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <Label>Slot SIM</Label>
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-wrap gap-2 mt-2">
               {([0, 1] as const).map((slot) => {
                 const selected = (fp?.sim_slot ?? 0) === slot
                 return (
@@ -448,7 +578,7 @@ export function DeviceForm({
                     type="button"
                     variant="outline"
                     className={cn(
-                      "min-w-[5.5rem] font-semibold",
+                      "min-w-[5.5rem] flex-1 sm:flex-none font-semibold touch-manipulation",
                       selected ? flashpayTheme.simActive : flashpayTheme.simInactive,
                     )}
                     onClick={() => patchFlashpay({ sim_slot: slot })}
@@ -465,11 +595,11 @@ export function DeviceForm({
           title="Config FlashPay"
           description="Séquences USSD pour dépôt, retrait et solde. Importez un JSON FlashPay ou yapson pour pré-remplir."
         >
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
             <Button
               type="button"
               variant="outline"
-              className="border-slate-300 dark:border-gray-600"
+              className="w-full sm:w-auto border-slate-300 dark:border-gray-600 touch-manipulation"
               onClick={() => configFileInputRef.current?.click()}
             >
               <Upload className="h-4 w-4 mr-2" />
@@ -487,24 +617,20 @@ export function DeviceForm({
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <Label>Pays</Label>
-              <Input
-                className="mt-1 bg-white dark:bg-gray-900"
-                value={fp?.country_code || ""}
-                onChange={(e) => patchFlashpay({ country_code: e.target.value.toUpperCase() })}
-              />
-            </div>
-            <div>
-              <Label>PIN MoMo</Label>
-              <Input
-                className="mt-1 font-mono bg-white dark:bg-gray-900"
-                type="password"
-                value={fp?.momo_pin || ""}
-                onChange={(e) => patchFlashpay({ momo_pin: e.target.value })}
-              />
-            </div>
+          <div>
+            <Label>PIN MoMo</Label>
+            <Input
+              className="mt-1 font-mono bg-white dark:bg-gray-900"
+              type="password"
+              value={fp?.momo_pin || ""}
+              onChange={(e) => patchFlashpay({ momo_pin: e.target.value })}
+              autoComplete="off"
+            />
+            {selectedCountry && (
+              <p className={`${flashpayTheme.mutedXs} mt-1`}>
+                Pays configuré : {selectedCountry.nom} ({selectedCountry.code})
+              </p>
+            )}
           </div>
 
           {!fp ? (
@@ -561,7 +687,7 @@ export function DeviceForm({
         </div>
       </div>
 
-      <div className="space-y-4 xl:col-span-1">
+      <div className="space-y-4 xl:col-span-1 min-w-0">
         <DevicePreviewPanel
           form={form}
           networkName={selectedNetwork?.nom}

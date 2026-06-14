@@ -81,12 +81,12 @@ export const UssdFlowBuilder = memo(function UssdFlowBuilder({ steps, onChange, 
             <div
               key={index}
               className={cn(
-                "flex items-center gap-2 rounded-lg border p-2",
+                "flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-center sm:gap-2 sm:p-2",
                 stepRowClass(step),
                 !step.trim() && "border-red-400 dark:border-red-500",
               )}
             >
-              <div className="flex w-20 shrink-0 flex-col items-start gap-1">
+              <div className="flex w-full sm:w-20 shrink-0 items-center justify-between sm:flex-col sm:items-start sm:justify-start gap-1">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500 dark:text-gray-400">
                   Étape {index + 1}
                 </span>
@@ -102,10 +102,10 @@ export const UssdFlowBuilder = memo(function UssdFlowBuilder({ steps, onChange, 
               <Input
                 value={step}
                 onChange={(e) => updateStep(index, e.target.value)}
-                className="h-9 flex-1 font-mono text-sm bg-white dark:bg-gray-900 border-slate-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                className="h-10 sm:h-9 w-full min-w-0 flex-1 font-mono text-sm bg-white dark:bg-gray-900 border-slate-200 dark:border-gray-600 text-gray-900 dark:text-gray-100"
                 placeholder="*880# ou NUM, PIN…"
               />
-              <div className="flex shrink-0 flex-col gap-0.5">
+              <div className="flex shrink-0 items-center justify-end gap-1 sm:flex-col sm:gap-0.5">
                 <Button
                   type="button"
                   variant="ghost"

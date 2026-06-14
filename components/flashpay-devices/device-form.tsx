@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import { Sparkles, Upload, Check, ChevronsUpDown, Loader2 } from "lucide-react"
+import { Sparkles, Upload, Check, ChevronsUpDown, Loader2, Eye, EyeOff } from "lucide-react"
 import type { DeviceFormValues, FlashPayDeviceConfig, OperationTab } from "@/lib/types/flashpay-device"
 import {
   applyFlashpayConfigImport,
@@ -88,6 +88,7 @@ export function DeviceForm({
   const [networks, setNetworks] = useState<any[]>([])
   const [selectedCountryUid, setSelectedCountryUid] = useState<string | null>(null)
   const [loadingNetworks, setLoadingNetworks] = useState(false)
+  const [showMomoPin, setShowMomoPin] = useState(false)
   const [userSearch, setUserSearch] = useState("")
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [loadingUsers, setLoadingUsers] = useState(false)

@@ -620,13 +620,23 @@ export function DeviceForm({
 
           <div>
             <Label>PIN MoMo</Label>
-            <Input
-              className="mt-1 font-mono bg-white dark:bg-gray-900"
-              type="password"
-              value={fp?.momo_pin || ""}
-              onChange={(e) => patchFlashpay({ momo_pin: e.target.value })}
-              autoComplete="off"
-            />
+            <div className="relative mt-1">
+              <Input
+                className="pr-11 font-mono bg-white dark:bg-gray-900"
+                type={showMomoPin ? "text" : "password"}
+                value={fp?.momo_pin || ""}
+                onChange={(e) => patchFlashpay({ momo_pin: e.target.value })}
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-md p-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 touch-manipulation"
+                onClick={() => setShowMomoPin((v) => !v)}
+                aria-label={showMomoPin ? "Masquer le PIN MoMo" : "Afficher le PIN MoMo"}
+              >
+                {showMomoPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
             {selectedCountry && (
               <p className={`${flashpayTheme.mutedXs} mt-1`}>
                 Pays configuré : {selectedCountry.nom} ({selectedCountry.code})

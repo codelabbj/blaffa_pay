@@ -387,17 +387,17 @@ export function stepRowClass(step: string): string {
   return "border-l-4 border-l-slate-400 border-slate-200 dark:border-gray-600 bg-white dark:bg-gray-800/90"
 }
 
-/** Chip d'aperçu timeline — fonds opaques pour rester lisibles sur la carte (gray-800). */
+/** Chip d'aperçu timeline — classes scannées via lib/ (tailwind content). */
 export function stepVisualClass(step: string): string {
   const trimmed = step.trim()
   const u = trimmed.toUpperCase()
   if (["NUM", "AMOUNT", "PIN", "OPKEY"].includes(u))
-    return "border-amber-600 bg-amber-100 text-amber-950 shadow-sm dark:border-amber-300 dark:bg-amber-800 dark:text-amber-50"
+    return "border-amber-600 bg-amber-100 text-amber-950 shadow-sm dark:border-amber-200 dark:bg-amber-600 dark:text-white"
   if (trimmed.startsWith("*") || trimmed.startsWith("#"))
-    return "border-sky-600 bg-sky-100 text-sky-950 shadow-sm dark:border-sky-300 dark:bg-sky-800 dark:text-sky-50"
+    return "border-sky-600 bg-sky-100 text-sky-950 shadow-sm dark:border-sky-200 dark:bg-sky-600 dark:text-white"
   if (/^\d+$/.test(trimmed))
-    return "border-violet-600 bg-violet-100 text-violet-950 shadow-sm dark:border-violet-300 dark:bg-violet-800 dark:text-violet-50"
-  return "border-slate-500 bg-slate-200 text-slate-900 shadow-sm dark:border-slate-400 dark:bg-slate-600 dark:text-slate-50"
+    return "border-violet-600 bg-violet-100 text-violet-950 shadow-sm dark:border-violet-200 dark:bg-violet-600 dark:text-white"
+  return "border-slate-500 bg-slate-200 text-slate-900 shadow-sm dark:border-slate-300 dark:bg-slate-500 dark:text-white"
 }
 
 function isYapsonLegacyConfig(obj: Record<string, unknown>): boolean {

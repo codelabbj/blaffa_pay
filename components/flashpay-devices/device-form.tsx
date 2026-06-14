@@ -144,6 +144,29 @@ export function DeviceForm({
     })
   }
 
+  const selectNetwork = (network: {
+    uid: string
+    code?: string
+    nom?: string
+    country_name?: string
+  }) => {
+    const base = fp ?? createEmptyFlashpayConfig()
+    onChange({
+      ...form,
+      network: network.uid,
+      custom_settings: compactCustomSettings({
+        ...form.custom_settings,
+        flashpay: {
+          ...base,
+          network_code: network.code ?? base.network_code,
+          network_label: network.nom ?? base.network_label,
+          country_code:
+            network.country_name?.slice(0, 2)?.toUpperCase() || base.country_code || "CI",
+        },
+      }),
+    })
+  }
+
   const patchOperation = useCallback(
     (tab: OperationTab, steps: string[]) => {
       if (!fp) return
@@ -399,14 +422,7 @@ export function DeviceForm({
                 <button
                   key={n.uid}
                   type="button"
-                  onClick={() => {
-                    patch({ network: n.uid })
-                    patchFlashpay({
-                      network_code: n.code,
-                      network_label: n.nom,
-                      country_code: n.country_name?.slice(0, 2)?.toUpperCase() || fp?.country_code || "CI",
-                    })
-                  }}
+                  onClick={() => selectNetwork(n)}
                   className={cn(
                     flashpayTheme.networkTile,
                     form.network === n.uid ? flashpayTheme.networkSelected : flashpayTheme.unselectedTile,

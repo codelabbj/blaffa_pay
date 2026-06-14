@@ -6,19 +6,8 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { Sparkles, Upload, Check, ChevronsUpDown, Loader2 } from "lucide-react"
 import type { DeviceFormValues, FlashPayDeviceConfig, OperationTab } from "@/lib/types/flashpay-device"
-import { DEVICE_PRESETS } from "@/lib/flashpay-device-sample"
 import {
   applyFlashpayConfigImport,
   computeCompletion,
@@ -100,8 +89,6 @@ export function DeviceForm({
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
   const [loadingUsers, setLoadingUsers] = useState(false)
   const [userSearchError, setUserSearchError] = useState("")
-  const [presetId, setPresetId] = useState<string | null>(null)
-  const [showPresetConfirm, setShowPresetConfirm] = useState(false)
 
   const fp = form.custom_settings.flashpay
   const completion = computeCompletion(form)
@@ -173,21 +160,6 @@ export function DeviceForm({
     },
     [form, fp, onChange],
   )
-
-  const applyPreset = (presetId: string) => {
-    const preset = DEVICE_PRESETS.find((p) => p.id === presetId)
-    if (!preset) return
-    onChange({
-      ...form,
-      custom_settings: compactCustomSettings({
-        ...form.custom_settings,
-        flashpay: structuredClone(preset.config),
-        flashpay_updated_at: new Date().toISOString(),
-      }),
-    })
-    setPresetId(null)
-    setShowPresetConfirm(false)
-  }
 
   const configFileInputRef = useRef<HTMLInputElement>(null)
 
@@ -499,24 +471,6 @@ export function DeviceForm({
             </span>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {DEVICE_PRESETS.map((p) => (
-              <Button
-                key={p.id}
-                type="button"
-                size="sm"
-                variant={p.id === "moov-bj-yapson" ? "default" : "outline"}
-                className={p.id === "moov-bj-yapson" ? flashpayTheme.accentBtn : ""}
-                onClick={() => {
-                  setPresetId(p.id)
-                  setShowPresetConfirm(true)
-                }}
-              >
-                {p.label}
-              </Button>
-            ))}
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label>Pays</Label>
@@ -546,12 +500,12 @@ export function DeviceForm({
                   ...form,
                   custom_settings: {
                     ...form.custom_settings,
-                    flashpay: structuredClone(DEVICE_PRESETS[0].config),
+                    flashpay: createEmptyFlashpayConfig(),
                   },
                 })
               }
             >
-              Initialiser config FlashPay (Moov BJ)
+              Initialiser config FlashPay
             </Button>
           ) : (
             <div className="space-y-4">
@@ -599,23 +553,6 @@ export function DeviceForm({
           pushing={pushing}
         />
       </div>
-
-      <AlertDialog open={showPresetConfirm} onOpenChange={setShowPresetConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Appliquer le preset ?</AlertDialogTitle>
-            <AlertDialogDescription>
-              La configuration USSD actuelle sera remplacée par le template sélectionné.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={() => presetId && applyPreset(presetId)}>
-              Appliquer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

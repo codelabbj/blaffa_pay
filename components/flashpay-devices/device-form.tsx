@@ -7,15 +7,18 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Sparkles, Upload, Check, ChevronsUpDown, Loader2, Eye, EyeOff } from "lucide-react"
-import type { DeviceFormValues, FlashPayDeviceConfig, OperationTab } from "@/lib/types/flashpay-device"
+import type { DeviceFormValues, ExecutionMode, FlashPayDeviceConfig, OperationTab } from "@/lib/types/flashpay-device"
 import {
   applyFlashpayConfigImport,
   computeCompletion,
+  EXECUTION_MODE_OPTIONS,
   formatDeviceMode,
+  formatExecutionMode,
   getRequiredUssdOperations,
   compactCustomSettings,
   createEmptyFlashpayConfig,
   flashpayTheme,
+  isAppExecutionMode,
   isSampleForm,
   networkChipClass,
 } from "@/lib/flashpay-device-utils"
@@ -97,6 +100,7 @@ export function DeviceForm({
   const fp = form.custom_settings.flashpay
   const completion = computeCompletion(form)
   const sample = isSampleForm(form)
+  const appExecutionMode = isAppExecutionMode(fp?.execution_mode)
   const locationInitialized = useRef(false)
 
   useEffect(() => {
@@ -594,8 +598,35 @@ export function DeviceForm({
 
         <FormSection
           title="Config FlashPay"
-          description="Séquences USSD pour dépôt, retrait et solde. Importez un JSON FlashPay ou yapson pour pré-remplir."
+          description="Mode d'exécution (USSD ou application), PIN et séquences si applicable."
         >
+          <div>
+            <Label>Mode d&apos;exécution</Label>
+            <p className={`${flashpayTheme.mutedXs} mt-1 mb-2`}>
+              Définit comment le téléphone traite les transactions : codes USSD ou ouverture de l&apos;app Wave / Orange.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {EXECUTION_MODE_OPTIONS.map((opt) => {
+                const selected = (fp?.execution_mode ?? "ussd") === opt.id
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => patchFlashpay({ execution_mode: opt.id as ExecutionMode })}
+                    className={cn(
+                      flashpayTheme.networkTile,
+                      "min-h-[4rem] touch-manipulation text-left",
+                      selected ? flashpayTheme.networkSelected : flashpayTheme.unselectedTile,
+                    )}
+                  >
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">{opt.label}</p>
+                    <p className={`${flashpayTheme.mutedXs} mt-0.5`}>{opt.description}</p>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
             <Button
               type="button"
@@ -642,6 +673,11 @@ export function DeviceForm({
                 Pays configuré : {selectedCountry.nom} ({selectedCountry.code})
               </p>
             )}
+            {appExecutionMode && (
+              <p className={`${flashpayTheme.mutedXs} mt-2 text-amber-800 dark:text-amber-200`}>
+                Mode application : seul le PIN est requis sur le téléphone. Les séquences USSD ci-dessous sont ignorées.
+              </p>
+            )}
           </div>
 
           {!fp ? (
@@ -660,6 +696,10 @@ export function DeviceForm({
             >
               Initialiser config FlashPay
             </Button>
+          ) : appExecutionMode ? (
+            <p className={`${flashpayTheme.muted} text-sm`}>
+              Les blocs dépôt / retrait / solde USSD sont masqués en mode application ({formatExecutionMode(fp.execution_mode)}).
+            </p>
           ) : (
             <div className="space-y-4">
               {(["deposit", "withdraw", "balance"] as OperationTab[]).map(renderOperationBlock)}
@@ -685,9 +725,11 @@ export function DeviceForm({
           </div>
           <p className="text-xs">
             USSD requis :{" "}
-            {getRequiredUssdOperations(completion.mode)
-              .map((op) => (op === "deposit" ? "dépôt" : "retrait"))
-              .join(" + ")}
+            {appExecutionMode
+              ? "non (mode application)"
+              : getRequiredUssdOperations(completion.mode, fp?.execution_mode)
+                  .map((op) => (op === "deposit" ? "dépôt" : "retrait"))
+                  .join(" + ") || "aucun"}
           </p>
           <div className={flashpayTheme.progressTrack}>
             <div

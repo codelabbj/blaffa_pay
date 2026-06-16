@@ -2,6 +2,7 @@ import type {
   DeviceCustomSettings,
   DeviceFormValues,
   DeviceMode,
+  ExecutionMode,
   FlashPayDeviceConfig,
   FlashPayMeta,
   PaymentDevice,
@@ -10,6 +11,21 @@ import type {
 import { DEVICE_CREATE_SAMPLE, SAMPLE_DEVICE_ID_VALUE } from "@/lib/flashpay-device-sample"
 import { migrateYapsonToFlashpay } from "@/lib/yapson-config-migrate"
 import { cn } from "@/lib/utils"
+
+export const EXECUTION_MODE_OPTIONS: { id: ExecutionMode; label: string; description: string }[] = [
+  { id: "ussd", label: "USSD", description: "Séquences FlashPay (codes * / #)" },
+  { id: "wave_business", label: "Wave Business", description: "Application Wave Business" },
+  { id: "wave_personal", label: "Wave Personnel", description: "Application Wave perso" },
+  { id: "orange", label: "Orange Max it", description: "Application Orange Money" },
+]
+
+export function isAppExecutionMode(mode?: ExecutionMode | string | null): boolean {
+  return !!mode && mode !== "ussd"
+}
+
+export function formatExecutionMode(mode?: ExecutionMode | string | null): string {
+  return EXECUTION_MODE_OPTIONS.find((o) => o.id === mode)?.label ?? "USSD"
+}
 
 /** Config FlashPay minimale — permet Identité (SIM, réseau) sans ouvrir Config FlashPay avant. */
 export function createEmptyFlashpayConfig(
@@ -20,6 +36,7 @@ export function createEmptyFlashpayConfig(
     network_code: "",
     network_label: "",
     sim_slot: 0,
+    execution_mode: "ussd",
     momo_pin: "",
     deposit: {
       ussd_steps: [],
@@ -123,8 +140,11 @@ export function formatDeviceMode(mode: DeviceMode = "both"): string {
   }
 }
 
-/** Opérations USSD requises selon le mode device. */
-export function getRequiredUssdOperations(mode: DeviceMode = "both"): ("deposit" | "withdraw")[] {
+export function getRequiredUssdOperations(
+  mode: DeviceMode = "both",
+  executionMode?: ExecutionMode | string | null,
+): ("deposit" | "withdraw")[] {
+  if (isAppExecutionMode(executionMode)) return []
   switch (mode) {
     case "deposit":
       return ["deposit"]
@@ -142,8 +162,12 @@ export function hasUssdSteps(device: PaymentDevice | DeviceFormValues, operation
 }
 
 export function isDeviceConfigured(device: PaymentDevice | DeviceFormValues): boolean {
+  const fp = getFlashpayConfig(device)
+  if (isAppExecutionMode(fp?.execution_mode)) {
+    return !!fp?.momo_pin?.trim()
+  }
   const mode = device.mode ?? "both"
-  return getRequiredUssdOperations(mode).every((op) => hasUssdSteps(device, op))
+  return getRequiredUssdOperations(mode, fp?.execution_mode).every((op) => hasUssdSteps(device, op))
 }
 
 export function depositStepCount(device: PaymentDevice | DeviceFormValues): number {
@@ -164,7 +188,11 @@ export function ussdConfigSummary(device: PaymentDevice | DeviceFormValues): str
 }
 
 function ussdValidationError(device: PaymentDevice | DeviceFormValues): string | null {
-  const missing = getRequiredUssdOperations(device.mode ?? "both").filter((op) => !hasUssdSteps(device, op))
+  const fp = getFlashpayConfig(device)
+  if (isAppExecutionMode(fp?.execution_mode)) return null
+  const missing = getRequiredUssdOperations(device.mode ?? "both", fp?.execution_mode).filter(
+    (op) => !hasUssdSteps(device, op),
+  )
   if (missing.length === 0) return null
   if (missing.length === 2) return "Ajoutez au moins une étape USSD dépôt et retrait"
   return missing[0] === "deposit"
@@ -228,6 +256,10 @@ export function cloneDeviceAsNew(source: PaymentDevice): DeviceFormValues {
 }
 
 export function deviceToFormValues(device: PaymentDevice): DeviceFormValues {
+  const raw = structuredClone(device.custom_settings ?? {})
+  const fp = raw.flashpay
+    ? { ...createEmptyFlashpayConfig(), ...raw.flashpay, execution_mode: raw.flashpay.execution_mode ?? "ussd" }
+    : undefined
   return {
     uid: device.uid,
     device_id: device.device_id,
@@ -241,7 +273,10 @@ export function deviceToFormValues(device: PaymentDevice): DeviceFormValues {
     fcm_token: device.fcm_token || "",
     app_version: device.app_version || "",
     os_version: device.os_version || "",
-    custom_settings: compactCustomSettings(structuredClone(device.custom_settings ?? {})),
+    custom_settings: compactCustomSettings({
+      ...raw,
+      ...(fp ? { flashpay: fp } : {}),
+    }),
   }
 }
 
@@ -253,13 +288,14 @@ export function computeCompletion(device: DeviceFormValues | PaymentDevice): {
   mode: DeviceMode
 } {
   const mode = device.mode ?? "both"
+  const executionMode = getFlashpayConfig(device)?.execution_mode
   const checks: { ok: boolean; label: string }[] = [
     { ok: !!device.device_id?.trim(), label: "device_id" },
     { ok: !!device.user, label: "user" },
     { ok: !!device.network, label: "network" },
     { ok: !!getFlashpayConfig(device)?.momo_pin?.trim(), label: "momo_pin" },
   ]
-  for (const op of getRequiredUssdOperations(mode)) {
+  for (const op of getRequiredUssdOperations(mode, executionMode)) {
     checks.push({
       ok: hasUssdSteps(device, op),
       label: op === "deposit" ? "ussd_deposit" : "ussd_withdraw",
@@ -283,6 +319,9 @@ export function validateCreateForm(form: DeviceFormValues): string[] {
   if (form.device_id === SAMPLE_DEVICE_ID_VALUE) errors.push("Personnalisez le device_id (valeur d'exemple)")
   if (!form.user) errors.push("Sélectionnez le propriétaire (agent)")
   if (!form.network) errors.push("Sélectionnez un réseau")
+  if (!form.custom_settings.flashpay?.momo_pin?.trim()) {
+    errors.push("Le PIN MoMo est requis")
+  }
   const ussdErr = ussdValidationError(form)
   if (ussdErr) errors.push(ussdErr)
   return errors
@@ -291,6 +330,9 @@ export function validateCreateForm(form: DeviceFormValues): string[] {
 export function validateUpdateForm(form: DeviceFormValues): string[] {
   const errors: string[] = []
   if (!form.device_id.trim()) errors.push("Le device_id est requis")
+  if (!form.custom_settings.flashpay?.momo_pin?.trim()) {
+    errors.push("Le PIN MoMo est requis")
+  }
   const ussdErr = ussdValidationError(form)
   if (ussdErr) errors.push(ussdErr)
   return errors
@@ -466,7 +508,9 @@ export function applyFlashpayConfigImport(
         custom_settings: compactCustomSettings({
           ...form.custom_settings,
           flashpay: {
+            ...createEmptyFlashpayConfig(),
             ...structuredClone(flashpayPayload),
+            execution_mode: flashpayPayload.execution_mode ?? "ussd",
             momo_pin: form.custom_settings.flashpay?.momo_pin ?? "",
           },
           flashpay_meta: meta ?? compactFlashpayMeta(form.custom_settings.flashpay_meta),

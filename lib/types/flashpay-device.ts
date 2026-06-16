@@ -2,6 +2,9 @@ export type DeviceMode = "deposit" | "withdrawal" | "both"
 export type SessionType = "single" | "multi"
 export type OperationTab = "deposit" | "withdraw" | "balance"
 
+/** Comment le téléphone exécute les transactions (aligné app Android FlashPay). */
+export type ExecutionMode = "ussd" | "wave_business" | "wave_personal" | "orange"
+
 export interface FlashPayDepositConfig {
   ussd_steps: string[]
   session_type: SessionType
@@ -30,6 +33,8 @@ export interface FlashPayDeviceConfig {
   network_code: string
   network_label: string
   sim_slot: 0 | 1
+  /** ussd = séquences USSD ; wave_* / orange = application mobile (accessibilité). */
+  execution_mode: ExecutionMode
   momo_pin: string
   deposit: FlashPayDepositConfig
   withdraw: FlashPayWithdrawConfig

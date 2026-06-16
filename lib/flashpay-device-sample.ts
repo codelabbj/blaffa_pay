@@ -13,6 +13,7 @@ export const MTN_CI_FLASHPAY: FlashPayDeviceConfig = {
   network_code: "MTN",
   network_label: "MTN CI",
   sim_slot: 0,
+  execution_mode: "ussd",
   momo_pin: "1234",
   deposit: {
     ussd_steps: ["*133#", "1", "PIN", "AMOUNT", "NUM"],
@@ -42,6 +43,7 @@ export const ORANGE_CI_FLASHPAY: FlashPayDeviceConfig = {
   network_code: "ORANGE",
   network_label: "Orange CI",
   sim_slot: 0,
+  execution_mode: "ussd",
   momo_pin: "1234",
   deposit: {
     ussd_steps: ["#144#", "1", "PIN", "AMOUNT", "NUM"],

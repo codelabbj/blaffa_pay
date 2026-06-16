@@ -11,8 +11,10 @@ import {
   computeCompletion,
   flashpayTheme,
   formatDeviceMode,
+  formatExecutionMode,
   getRequiredUssdOperations,
   hasUssdSteps,
+  isAppExecutionMode,
 } from "@/lib/flashpay-device-utils"
 import { useToast } from "@/hooks/use-toast"
 
@@ -38,6 +40,7 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
   const { toast } = useToast()
   const fp = form.custom_settings.flashpay
   const { percent, missing, mode, done, total } = computeCompletion(form)
+  const appMode = isAppExecutionMode(fp?.execution_mode)
 
   const copyId = () => {
     navigator.clipboard.writeText(form.device_id)
@@ -48,7 +51,7 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
     { ok: !!form.device_id.trim(), label: "device_id unique" },
     { ok: !!form.user, label: "Agent propriétaire" },
     { ok: !!form.network, label: "Réseau" },
-    ...getRequiredUssdOperations(mode).map((op) => ({
+    ...getRequiredUssdOperations(mode, fp?.execution_mode).map((op) => ({
       ok: hasUssdSteps(form, op),
       label: op === "deposit" ? "USSD dépôt" : "USSD retrait",
     })),
@@ -68,17 +71,24 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
             FlashPay — {fp?.network_label || networkName || "Réseau"} · SIM {(fp?.sim_slot ?? 0) + 1}
           </p>
           <p className="text-slate-600 dark:text-gray-400">
+            Exécution : {formatExecutionMode(fp?.execution_mode)}
+          </p>
+          <p className="text-slate-600 dark:text-gray-400">
             {form.device_name || form.device_id} · {done}/{total} critères
           </p>
-          <p className="text-slate-600 dark:text-gray-400">
-            Dépôt: {(fp?.deposit?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes · {fp?.deposit?.session_type ?? "multi"}
-          </p>
-          <p className="text-slate-600 dark:text-gray-400">
-            Retrait: {(fp?.withdraw?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes
-          </p>
-          <p className="text-slate-600 dark:text-gray-400">
-            Solde: {(fp?.balance?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes
-          </p>
+          {!appMode && (
+            <>
+              <p className="text-slate-600 dark:text-gray-400">
+                Dépôt: {(fp?.deposit?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes · {fp?.deposit?.session_type ?? "multi"}
+              </p>
+              <p className="text-slate-600 dark:text-gray-400">
+                Retrait: {(fp?.withdraw?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes
+              </p>
+              <p className="text-slate-600 dark:text-gray-400">
+                Solde: {(fp?.balance?.ussd_steps?.filter((s) => s.trim()).length ?? 0)} étapes
+              </p>
+            </>
+          )}
           <p className="text-slate-600 dark:text-gray-400">PIN: {fp?.momo_pin ? "••••" : "—"}</p>
           <Badge variant="outline" className="mt-2 dark:border-gray-600">
             Complétion {percent}% · {formatDeviceMode(mode)}

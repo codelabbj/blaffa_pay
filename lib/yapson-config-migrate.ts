@@ -66,6 +66,7 @@ export function migrateYapsonToFlashpay(
       ? "Moov Bénin"
       : networkLabel.replace(/\b\w/g, (c) => c.toUpperCase()),
     sim_slot: options?.simSlot ?? 0,
+    execution_mode: "ussd",
     momo_pin: options?.momoPin ?? "",
     deposit: {
       ussd_steps: parseSteps(collection),

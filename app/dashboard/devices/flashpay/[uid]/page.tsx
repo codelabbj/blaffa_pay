@@ -100,7 +100,16 @@ export default function FlashPayDeviceEditPage() {
     if (!form?.device_id) return
     setPushing(true)
     try {
-      await pushDeviceConfig(apiFetch, form.device_id)
+      if (dirty && form.uid) {
+        const errors = validateUpdateForm(form)
+        if (errors.length) {
+          toast({ title: "Validation", description: errors[0], variant: "destructive" })
+          return
+        }
+        await updateDeviceStatus(apiFetch, form.uid, buildStatusPatchPayload(form))
+        setDirty(false)
+      }
+      await pushDeviceConfig(apiFetch, form.device_id, form.custom_settings.flashpay)
     } catch (e: any) {
       toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
     } finally {

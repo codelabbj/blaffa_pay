@@ -1,4 +1,4 @@
-import type { PaginatedResponse, PaymentDevice } from "@/lib/types/flashpay-device"
+import type { PaginatedResponse, PaymentDevice, FlashPayDeviceConfig } from "@/lib/types/flashpay-device"
 
 const baseUrl = () => process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || ""
 
@@ -65,13 +65,20 @@ export async function createDeviceStaff(
   })
 }
 
-export async function pushDeviceConfig(apiFetch: ApiFetch, deviceId: string): Promise<void> {
+export async function pushDeviceConfig(
+  apiFetch: ApiFetch,
+  deviceId: string,
+  flashpay?: FlashPayDeviceConfig,
+): Promise<void> {
+  const parameters: Record<string, unknown> = {}
+  if (flashpay) parameters.flashpay = flashpay
+
   await apiFetch(`${baseUrl()}/api/payments/remote-command/`, {
     method: "POST",
     body: JSON.stringify({
       command: "update_config",
       device_id: deviceId,
-      parameters: {},
+      parameters,
       priority: 1,
     }),
     successMessage: "Config poussée vers le mobile",
@@ -103,17 +110,20 @@ export async function bulkPushDeviceConfig(
   devices: PaymentDevice[],
 ): Promise<{ ok: number; failed: number }> {
   const results = await Promise.allSettled(
-    devices.map((d) =>
-      apiFetch(`${baseUrl()}/api/payments/remote-command/`, {
+    devices.map((d) => {
+      const flashpay = d.custom_settings?.flashpay
+      const parameters: Record<string, unknown> = {}
+      if (flashpay) parameters.flashpay = flashpay
+      return apiFetch(`${baseUrl()}/api/payments/remote-command/`, {
         method: "POST",
         body: JSON.stringify({
           command: "update_config",
           device_id: d.device_id,
-          parameters: {},
+          parameters,
           priority: 1,
         }),
-      }),
-    ),
+      })
+    }),
   )
   const ok = results.filter((r) => r.status === "fulfilled").length
   return { ok, failed: results.length - ok }

@@ -14,8 +14,17 @@ export function envBool(raw: string | undefined, defaultValue = true): boolean {
   return defaultValue
 }
 
+/** URL de base API, toujours avec un slash final (ex: https://api.example.com/). */
 export function getApiBaseUrl(): string {
-  return (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/$/, "")
+  const url = (process.env.NEXT_PUBLIC_API_BASE_URL || "").trim().replace(/\/+$/, "")
+  return url ? `${url}/` : ""
+}
+
+/** Construit une URL API complète à partir d'un chemin relatif. */
+export function apiUrl(path: string): string {
+  const normalized = path.replace(/^\//, "")
+  const base = getApiBaseUrl()
+  return base ? `${base}${normalized}` : `/${normalized}`
 }
 
 export function getApiToken(): string {

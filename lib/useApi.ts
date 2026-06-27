@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./api";
-import { getApiBaseUrl } from "./env-config";
+import { apiUrl } from "./env-config";
 import { toast } from "@/hooks/use-toast";
 
 // Helper function to get access token from both localStorage and cookies
@@ -27,7 +27,6 @@ function getAccessTokenFromCookie() {
 
 export function useApi() {
   const router = useRouter();
-  const baseUrl = getApiBaseUrl();
 
   const refreshAccessToken = useCallback(async () => {
     const refresh = getRefreshToken();
@@ -37,7 +36,7 @@ export function useApi() {
     }
 
     try {
-      const res = await fetch(`${baseUrl.replace(/\/$/, "")}/api/auth/token/refresh/`, {
+      const res = await fetch(apiUrl("api/auth/token/refresh/"), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refresh }),

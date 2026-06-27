@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getApiBaseUrl } from '@/lib/env-config'
+import { apiUrl } from '@/lib/env-config'
 
 export async function POST(request: Request) {
   const body = await request.json()
-  const baseUrl = getApiBaseUrl()
   // Proxy the login request to the backend
-  const fetchResponse = await fetch(`${baseUrl.replace(/\/$/, '')}/api/auth/login/`, {
+  const fetchResponse = await fetch(apiUrl('api/auth/login/'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),

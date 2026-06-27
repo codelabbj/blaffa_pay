@@ -9,12 +9,9 @@ import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ["latin"] })
 
-const appName = process.env.NEXT_PUBLIC_APP_NAME?.trim() || "Blaffa Pay"
-const appTagline = process.env.NEXT_PUBLIC_APP_TAGLINE?.trim() || "Admin Dashboard"
-
 export const metadata: Metadata = {
-  title: `${appName} - ${appTagline}`,
-  description: `${appTagline} for ${appName}`,
+  title: "Blaffa Pay - Admin Dashboard",
+  description: "Professional admin dashboard for Blaffa Pay",
     // generator: 'v0.dev'
 }
 

@@ -9,7 +9,6 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt, ShieldCheck, Layers } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 import { FeatureGate } from "@/components/feature-gate"
-import { getAppLogo, getAppName, getAppTagline } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -79,10 +78,6 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
   const isDeviceAuthorizationsActive = pathname.startsWith("/dashboard/device-authorizations")
   const isAggregatorsActive = pathname.startsWith("/dashboard/aggregators")
 
-  const appName = getAppName()
-  const appTagline = getAppTagline()
-  const appLogo = getAppLogo()
-
   const handleLogout = () => {
     clearTokens();
     if (typeof document !== 'undefined') {
@@ -102,7 +97,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
           <div className="flex h-20 items-center justify-between px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <img src={appLogo} alt={`${appName} Logo`} className="h-12 w-12" />
+                <img src="/logo.png" alt="Blaffa Pay Logo" className="h-12 w-12" />
                 <div className="absolute -top-1 -right-1">
                   {/* <div className="w-5 h-5 bg-gradient-to-r from-orange-400 to-green-500 rounded-full flex items-center justify-center">
                     <Sparkles className="h-2.5 w-2.5 text-white" />
@@ -111,10 +106,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </div>
               <div>
                 <h1 className="text-lg font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                  {appName}
+                  Blaffa Pay
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {appTagline}
+                  Admin Dashboard
                 </p>
               </div>
             </div>
@@ -705,7 +700,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
           <div className="flex h-20 items-center px-6 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <img src={appLogo} alt={`${appName} Logo`} className="h-12 w-12" />
+                <img src="/logo.png" alt="Blaffa Pay Logo" className="h-12 w-12" />
                 {/* <div className="absolute -top-1 -right-1">
                   <div className="w-5 h-5 bg-gradient-to-r from-orange-400 to-green-500 rounded-full flex items-center justify-center">
                     <Sparkles className="h-2.5 w-2.5 text-white" />
@@ -714,10 +709,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               </div>
               <div>
                 <h1 className="text-lg font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                  {appName}
+                  Blaffa Pay
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {appTagline}
+                  Admin Dashboard
                 </p>
               </div>
             </div>

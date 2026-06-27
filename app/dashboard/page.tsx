@@ -48,9 +48,10 @@ import {
   Layers
 } from "lucide-react";
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { getApiBaseUrl } from "@/lib/env-config"
+import { getApiBaseUrl, getAppName } from "@/lib/env-config"
 
 const baseUrl = getApiBaseUrl()
+const appName = getAppName()
 
 // Colors for charts and UI elements - using logo colors
 const COLORS = {
@@ -344,10 +345,10 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-                  <span>Tableau de bord administrateur</span>
+                  <span>{appName}</span>
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm sm:text-base lg:text-lg">
-                  <span>Aperçu en temps réel</span>
+                  <span>Tableau de bord administrateur</span>
                 </p>
               </div>
               <div className="flex items-center space-x-2 sm:space-x-4">

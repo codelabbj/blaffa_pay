@@ -14,17 +14,30 @@ export function envBool(raw: string | undefined, defaultValue = true): boolean {
   return defaultValue
 }
 
-/** URL de base API, toujours avec un slash final (ex: https://api.example.com/). */
-export function getApiBaseUrl(): string {
-  const url = (process.env.NEXT_PUBLIC_API_BASE_URL || "").trim().replace(/\/+$/, "")
-  return url ? `${url}/` : ""
+/** Nettoie une URL de base : trim + retire les slashes finaux. */
+export function normalizeApiBase(raw: string | undefined): string {
+  return (raw ?? "").trim().replace(/\/+$/, "")
 }
 
-/** Construit une URL API complète à partir d'un chemin relatif. */
+/**
+ * URL de base API avec slash final.
+ * Accepte dans .env : https://api.com ou https://api.com/ (équivalent).
+ */
+export function getApiBaseUrl(): string {
+  const base = normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL)
+  return base ? `${base}/` : ""
+}
+
+/**
+ * Joint intelligemment base + chemin :
+ * - ajoute le slash manquant entre les deux
+ * - retire les slashes en trop saisis par l'utilisateur
+ */
 export function apiUrl(path: string): string {
-  const normalized = path.replace(/^\//, "")
-  const base = getApiBaseUrl()
-  return base ? `${base}${normalized}` : `/${normalized}`
+  const base = normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL)
+  const normalizedPath = path.trim().replace(/^\/+/, "")
+  if (!base) return `/${normalizedPath}`
+  return `${base}/${normalizedPath}`
 }
 
 export function getApiToken(): string {
@@ -32,7 +45,9 @@ export function getApiToken(): string {
 }
 
 export function getWsUrl(): string {
-  return process.env.NEXT_PUBLIC_WS_URL || "wss://connect.yapson.net/ws/payment/"
+  const raw = process.env.NEXT_PUBLIC_WS_URL?.trim()
+  if (!raw) return "wss://connect.yapson.net/ws/payment/"
+  return raw.endsWith("/") ? raw : `${raw}/`
 }
 
 export const apiConfig = {

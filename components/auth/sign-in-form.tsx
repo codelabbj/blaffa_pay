@@ -16,7 +16,7 @@ import { Zap, Eye, EyeOff, Mail, Lock, Shield, ArrowRight, Sparkles, CheckCircle
 import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { getApiBaseUrl } from "@/lib/env-config"
+import { getApiBaseUrl, getAppName } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -41,6 +41,7 @@ export function SignInForm() {
   const router = useRouter()
   const { t } = useLanguage()
   const baseUrl = getApiBaseUrl()
+  const appName = getAppName()
   const [showPassword, setShowPassword] = useState(false)
   const apiFetch = useApi();
   const { toast } = useToast();
@@ -209,7 +210,7 @@ export function SignInForm() {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
           <h2 className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-green-500 bg-clip-text text-transparent">
-            Blaffa Pay
+            {appName}
           </h2>
         </div>
 
@@ -217,7 +218,7 @@ export function SignInForm() {
           <CardHeader className="space-y-4 pb-6">
             <div className="text-center space-y-2">
               <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                {flow === "login" && <span>{t("auth.welcome")} à Blaffa Pay</span>}
+                {flow === "login" && <span>{t("auth.welcome")} à {appName}</span>}
                 {flow === "forgot-password" && <span>Mot de passe oublié</span>}
                 {flow === "otp" && <span>Vérification OTP</span>}
                 {flow === "reset-password" && <span>Nouveau mot de passe</span>}

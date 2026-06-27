@@ -40,6 +40,38 @@ export function apiUrl(path: string): string {
   return `${base}/${normalizedPath}`
 }
 
+// --- Branding (white-label) ---
+
+export function getAppName(): string {
+  return (process.env.NEXT_PUBLIC_APP_NAME || "Blaffa Pay").trim()
+}
+
+export function getAppTagline(): string {
+  return (process.env.NEXT_PUBLIC_APP_TAGLINE || "Admin Dashboard").trim()
+}
+
+export function getAppLogo(): string {
+  return (process.env.NEXT_PUBLIC_APP_LOGO || "/logo.png").trim()
+}
+
+export function getAppShortName(): string {
+  const raw = process.env.NEXT_PUBLIC_APP_SHORT_NAME?.trim()
+  if (raw) return raw
+  return getAppName()
+    .split(/\s+/)
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "AP"
+}
+
+export function getAppCopyright(): string {
+  const custom = process.env.NEXT_PUBLIC_APP_COPYRIGHT?.trim()
+  if (custom) return custom
+  const year = process.env.NEXT_PUBLIC_APP_COPYRIGHT_YEAR?.trim() || String(new Date().getFullYear())
+  return `© ${year} ${getAppName()}. Tous droits réservés.`
+}
+
 export function getApiToken(): string {
   return process.env.NEXT_PUBLIC_API_TOKEN || ""
 }

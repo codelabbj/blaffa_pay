@@ -61,7 +61,7 @@ export function useApi() {
       console.log('Refresh token error:', error);
       throw error;
     }
-  }, [baseUrl]);
+  }, []);
 
   const clearAllAuth = useCallback(() => {
     clearTokens();

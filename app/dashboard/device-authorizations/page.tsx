@@ -71,13 +71,14 @@ import { DeviceSelectionModal } from "@/components/ui/device-selection-modal"
 import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { fr, enUS } from "date-fns/locale"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function DeviceAuthorizationsPage() {
     const { t, language } = useLanguage()
     const { toast } = useToast()
     const apiFetch = useApi()
     const router = useRouter()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
     const dateLocale = language === 'fr' ? fr : enUS
 
     // State for the list

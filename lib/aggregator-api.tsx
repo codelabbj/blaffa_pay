@@ -2,6 +2,7 @@
 
 import { useApi } from "./useApi"
 import { useCallback } from "react"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export interface AggregatorDashboardStats {
     users: {
@@ -129,7 +130,7 @@ export interface AggregatorTransaction {
 
 export function useAggregatorApi() {
     const apiFetch = useApi()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
 
     const getDashboardStats = useCallback(async () => {
         return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/dashboard/`)

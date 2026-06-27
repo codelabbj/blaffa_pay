@@ -31,6 +31,7 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -92,7 +93,7 @@ function MomoPayPageContent() {
   const [error, setError] = useState("")
   const [sortField, setSortField] = useState<"amount" | "recipient_phone" | "created_at" | "status" | "reference" | "payment_type" | null>((searchParams.get("sort_field") as any) || "created_at")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const { toast } = useToast()
   const apiFetch = useApi()
   const [detailModalOpen, setDetailModalOpen] = useState(false)

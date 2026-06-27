@@ -14,6 +14,7 @@ import { useApi } from '@/lib/useApi';
 import { Loader2, Edit, Save, X, User, Mail, Phone, Shield, Calendar, CheckCircle, XCircle, Lock } from 'lucide-react';
 import { CopyButton } from '@/components/ui/copy-button';
 import { extractErrorMessages } from '@/components/ui/error-display';
+import { getApiBaseUrl } from "@/lib/env-config"
 
 interface UserProfile {
   uid: string;
@@ -31,7 +32,7 @@ interface UserProfile {
   updated_at: string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+const baseUrl = getApiBaseUrl();
 
 export default function ProfilePage() {
   const router = useRouter();

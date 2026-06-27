@@ -1,4 +1,5 @@
-const baseUrl = () => process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || ""
+import { getApiBaseUrl } from "@/lib/env-config"
+const baseUrl = () => getApiBaseUrl()
 
 type ApiFetch = (input: RequestInfo, init?: RequestInit) => Promise<any>
 

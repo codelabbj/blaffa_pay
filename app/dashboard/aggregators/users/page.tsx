@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
 import { formatApiDateTime } from "@/lib/utils";
+import { getApiBaseUrl } from "@/lib/env-config"
 export default function AggregatorUsersPage() {
     const [data, setData] = useState<AggregatorListResponse | null>(null)
     const [loading, setLoading] = useState(true)
@@ -26,7 +27,7 @@ export default function AggregatorUsersPage() {
     const apiFetch = useApi()
     const { t } = useLanguage()
     const { toast } = useToast()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
 
     const fetchAggregators = async () => {
         setLoading(true)

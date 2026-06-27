@@ -7,6 +7,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { ArrowLeft, Users, Mail, Phone, Calendar, DollarSign, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming
 const COLORS = {
@@ -28,7 +29,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const apiFetch = useApi();
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const baseUrl = getApiBaseUrl();
   const router = useRouter();
 
   useEffect(() => {

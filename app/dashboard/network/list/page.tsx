@@ -15,9 +15,10 @@ import { Badge } from "@/components/ui/badge"
 import { Pencil } from "lucide-react"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
 import { CopyButton } from "@/components/ui/copy-button"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 // Colors for consistent theming - using logo colors
 const COLORS = {

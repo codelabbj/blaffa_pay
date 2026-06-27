@@ -35,6 +35,7 @@ import { extractErrorMessages } from "@/components/ui/error-display"
 import { format } from "date-fns"
 import { fr, enUS } from "date-fns/locale"
 import { cn } from "@/lib/utils"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function DeviceAuthorizationDetailPage() {
     const { id } = useParams()
@@ -42,7 +43,7 @@ export default function DeviceAuthorizationDetailPage() {
     const { toast } = useToast()
     const apiFetch = useApi()
     const router = useRouter()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
     const dateLocale = language === 'fr' ? fr : enUS
 
     const [loading, setLoading] = useState(true)

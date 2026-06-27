@@ -11,6 +11,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Copy, ArrowLeft, Save, RefreshCw, FileText, Phone, User, Calendar, DollarSign, Network, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming
 const COLORS = {
@@ -26,7 +27,7 @@ const COLORS = {
   indigo: '#6366F1'
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 export default function EditTransactionPage() {
   const { uid } = useParams()

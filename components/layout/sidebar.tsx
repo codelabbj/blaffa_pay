@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/providers/language-provider"
 import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt, ShieldCheck, Layers } from "lucide-react"
 import { clearTokens } from "@/lib/api"
+import { FeatureGate } from "@/components/feature-gate"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -117,6 +118,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             </Button>
           </div>
           <nav className="flex-1 space-y-2 px-4 py-6 overflow-y-auto min-h-0">
+            <FeatureGate feature="dashboard">
             <Link
               href="/dashboard"
               className={cn(
@@ -130,7 +132,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Home className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.dashboard")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="users">
             {/* Users Dropdown */}
             <div>
               <button
@@ -183,7 +187,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 </Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="transactions">
             <Link
               href="/dashboard/transactions"
               className={cn(
@@ -197,7 +203,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("nav.transactions")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="bulkDepositNetworks">
             <Link
               href="/dashboard/bulk-deposit-networks"
               className={cn(
@@ -211,7 +219,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("nav.bulkDepositNetworks")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="deviceAuthorizations">
             <Link
               href="/dashboard/device-authorizations"
               className={cn(
@@ -225,7 +235,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("nav.deviceAuthorizations")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="aggregators">
             {/* Aggregators Dropdown */}
             <div>
               <button
@@ -303,7 +315,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 </Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="country">
             <div>
               <button
                 className={cn(
@@ -343,7 +357,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}><span><span>{t("nav.countryCreate")}</span></span></Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="network">
             <div>
               <button
                 className={cn(
@@ -383,7 +399,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}><span><span>{t("nav.networkCreate")}</span></span></Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="phoneNumbers">
             <Link href="/dashboard/phone-number/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/phone-number/list"
@@ -393,7 +411,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Phone className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.phoneNumbers")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="devices">
             <div>
               <button
                 className={cn(
@@ -427,7 +447,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>FlashPay (config)</Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="smsLogs">
             <Link href="/dashboard/sms-logs/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/sms-logs/list"
@@ -437,7 +459,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <MessageCircle className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.smsLogs")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="fcmLogs">
             <Link href="/dashboard/fcm-logs/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/fcm-logs/list"
@@ -447,7 +471,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Bell className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.fcmLogs")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="partner">
             <Link href="/dashboard/partner" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/partner"
@@ -457,7 +483,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.partner")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="partnerTransfers">
             <Link href="/dashboard/partner-transfers" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/partner-transfers"
@@ -467,7 +495,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>Transferts Partenaires</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="platforms">
             <div>
               <button
                 className={cn(
@@ -507,7 +537,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}><span>Créer une Plateforme</span></Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="permissions">
             <div>
               <button
                 className={cn(
@@ -547,8 +579,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}><span>Créer une Permission</span></Link>
               </div>
             </div>
+            </FeatureGate>
 
             <div>
+            <FeatureGate feature="bettingTransactions">
               <Link href="/dashboard/betting-transactions" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isBettingTransactionsActive
@@ -558,8 +592,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Receipt className="mr-3 h-5 w-5 flex-shrink-0" />
                 Transactions de Paris
               </Link>
+            </FeatureGate>
             </div>
 
+            <FeatureGate feature="apiConfigPage">
             <div>
               <Link href="/dashboard/api-config" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
@@ -571,8 +607,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 Configuration API
               </Link>
             </div>
+            </FeatureGate>
 
             <div>
+            <FeatureGate feature="partnerPermissionsSummary">
               <Link href="/dashboard/partner-permissions-summary" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isPartnerPermissionsSummaryActive
@@ -582,8 +620,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Users className="mr-3 h-5 w-5 flex-shrink-0" />
                 Résumé Permissions
               </Link>
+            </FeatureGate>
             </div>
 
+            <FeatureGate feature="topup">
             <Link href="/dashboard/topup" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/topup"
@@ -593,7 +633,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("topup.title")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="earningManagement">
             <Link href="/dashboard/earning-management" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/earning-management"
@@ -603,7 +645,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("earning.title")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="waveBusiness">
             <Link
               href="/dashboard/wave-business-transaction"
               className={cn(
@@ -617,7 +661,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("Wave Business Transaction")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="momoPay">
             <Link
               href="/dashboard/momo-pay"
               className={cn(
@@ -631,6 +677,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Smartphone className="mr-3 h-5 w-5 flex-shrink-0" />
               MoMo Pay
             </Link>
+            </FeatureGate>
           </nav>
 
           <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">
@@ -672,6 +719,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
           </div>
 
           <nav className="flex-1 space-y-2 px-4 py-6 overflow-y-auto min-h-0">
+            <FeatureGate feature="dashboard">
             <Link
               href="/dashboard"
               className={cn(
@@ -684,7 +732,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Home className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.dashboard")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="users">
             {/* Users Dropdown */}
             <div>
               <button
@@ -735,7 +785,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 </Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="transactions">
             <Link
               href="/dashboard/transactions"
               className={cn(
@@ -748,7 +800,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("nav.transactions")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="bulkDepositNetworks">
             <Link
               href="/dashboard/bulk-deposit-networks"
               className={cn(
@@ -761,7 +815,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Shield className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("nav.bulkDepositNetworks")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="deviceAuthorizations">
             <Link
               href="/dashboard/device-authorizations"
               className={cn(
@@ -774,7 +830,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <ShieldCheck className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("nav.deviceAuthorizations")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="aggregators">
             {/* Aggregators Dropdown */}
             <div>
               <button
@@ -848,7 +906,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 </Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="country">
             <div>
               <button
                 className={cn(
@@ -888,7 +948,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}><span><span>{t("nav.countryCreate")}</span></span></Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="network">
             <div>
               <button
                 className={cn(
@@ -928,7 +990,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}><span>{t("nav.networkCreate")}</span></Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="phoneNumbers">
             <Link href="/dashboard/phone-number/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/phone-number/list"
@@ -938,7 +1002,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Phone className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.phoneNumbers")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="devices">
             <div>
               <button
                 className={cn(
@@ -972,7 +1038,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}>FlashPay (config)</Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="smsLogs">
             <Link href="/dashboard/sms-logs/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/sms-logs/list"
@@ -982,7 +1050,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <MessageCircle className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.smsLogs")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="fcmLogs">
             <Link href="/dashboard/fcm-logs/list" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/fcm-logs/list"
@@ -992,7 +1062,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Bell className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.fcmLogs")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="partner">
             <Link href="/dashboard/partner" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/partner"
@@ -1002,7 +1074,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <User className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>{t("nav.partner")}</span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="partnerTransfers">
             <Link href="/dashboard/partner-transfers" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/partner-transfers"
@@ -1012,7 +1086,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <ArrowUpDown className="mr-3 h-5 w-5 flex-shrink-0" />
               Transferts Partenaires
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="platforms">
             <div>
               <button
                 className={cn(
@@ -1052,7 +1128,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}><span>Créer une Plateforme</span></Link>
               </div>
             </div>
+            </FeatureGate>
 
+            <FeatureGate feature="permissions">
             <div>
               <button
                 className={cn(
@@ -1092,8 +1170,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 )}><span>Créer une Permission</span></Link>
               </div>
             </div>
+            </FeatureGate>
 
             <div>
+            <FeatureGate feature="bettingTransactions">
               <Link href="/dashboard/betting-transactions" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isBettingTransactionsActive
@@ -1103,8 +1183,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Receipt className="mr-3 h-5 w-5 flex-shrink-0" />
                 <span>Transactions de Paris</span>
               </Link>
+            </FeatureGate>
             </div>
 
+            <FeatureGate feature="apiConfigPage">
             <div>
               <Link href="/dashboard/api-config" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
@@ -1116,8 +1198,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <span>Configuration API</span>
               </Link>
             </div>
+            </FeatureGate>
 
             <div>
+            <FeatureGate feature="partnerPermissionsSummary">
               <Link href="/dashboard/partner-permissions-summary" className={cn(
                 "group flex items-center w-full px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
                 isPartnerPermissionsSummaryActive
@@ -1127,8 +1211,10 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
                 <Users className="mr-3 h-5 w-5 flex-shrink-0" />
                 <span>Résumé Permissions</span>
               </Link>
+            </FeatureGate>
             </div>
 
+            <FeatureGate feature="topup">
             <Link href="/dashboard/topup" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/topup"
@@ -1138,7 +1224,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <DollarSign className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("topup.title")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="earningManagement">
             <Link href="/dashboard/earning-management" className={cn(
               "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
               pathname === "/dashboard/earning-management"
@@ -1148,7 +1236,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <BarChart3 className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("earning.title")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="waveBusiness">
             <Link
               href="/dashboard/wave-business-transaction"
               className={cn(
@@ -1162,7 +1252,9 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Waves className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("Wave Business Transaction")}</span></span>
             </Link>
+            </FeatureGate>
 
+            <FeatureGate feature="momoPay">
             <Link
               href="/dashboard/momo-pay"
               className={cn(
@@ -1176,6 +1268,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
               <Smartphone className="mr-3 h-5 w-5 flex-shrink-0" />
               <span>MoMo Pay</span>
             </Link>
+            </FeatureGate>
           </nav>
 
           <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50">

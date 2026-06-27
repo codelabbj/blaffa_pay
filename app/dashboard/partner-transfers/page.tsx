@@ -125,7 +125,7 @@ function PartnerTransfersPageContent() {
   const [statsLoading, setStatsLoading] = useState(false)
   const { t } = useLanguage()
   const itemsPerPage = 20
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const { toast } = useToast()
   const apiFetch = useApi();
   const [detailModalOpen, setDetailModalOpen] = useState(false)
@@ -806,6 +806,7 @@ function PartnerTransfersPageContent() {
 
 
 import { Suspense } from 'react'
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function PartnerTransfersPage() {
   return (

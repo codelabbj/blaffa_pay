@@ -59,7 +59,7 @@ function UsersPageContent() {
   const [endDate, setEndDate] = useState<string | null>(searchParams.get("end_date"))
   const { t } = useLanguage()
   const itemsPerPage = 10
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const [viewType, setViewType] = useState("all")
   const { toast } = useToast()
   const [activatingUid, setActivatingUid] = useState<string | null>(null)
@@ -1225,6 +1225,7 @@ function UsersPageContent() {
 
 
 import { Suspense } from 'react'
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function UsersPage() {
   return (

@@ -17,7 +17,7 @@ import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 // Colors for consistent theming
 const COLORS = {
@@ -417,6 +417,7 @@ function TransactionLogsListPageContent() {
 
 
 import { Suspense } from 'react'
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function TransactionLogsListPage() {
   return (

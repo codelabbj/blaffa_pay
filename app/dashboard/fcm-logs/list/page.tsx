@@ -17,7 +17,7 @@ import { DateRangeFilter } from "@/components/ui/date-range-filter"
 
 
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -462,6 +462,7 @@ function FcmLogsListPageContent() {
 }
 
 import { Suspense } from 'react'
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function FcmLogsListPage() {
   return (

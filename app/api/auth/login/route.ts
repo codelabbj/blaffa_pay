@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
+import { getApiBaseUrl } from '@/lib/env-config'
 
 export async function POST(request: Request) {
   const body = await request.json()
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ''
+  const baseUrl = getApiBaseUrl()
   // Proxy the login request to the backend
   const fetchResponse = await fetch(`${baseUrl.replace(/\/$/, '')}/api/auth/login/`, {
     method: 'POST',

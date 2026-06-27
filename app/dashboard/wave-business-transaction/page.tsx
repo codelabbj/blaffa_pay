@@ -89,7 +89,7 @@ function WaveBusinessPageContent() {
   const [error, setError] = useState("")
   const [sortField, setSortField] = useState<"amount" | "recipient_phone" | "created_at" | "status" | "reference" | null>((searchParams.get("sort_field") as any) || "created_at")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const { toast } = useToast()
   const apiFetch = useApi()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
@@ -1033,6 +1033,7 @@ function WaveBusinessPageContent() {
 }
 
 import { Suspense } from 'react'
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function WaveBusinessPage() {
   return (

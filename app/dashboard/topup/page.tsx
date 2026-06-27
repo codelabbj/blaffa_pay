@@ -15,6 +15,7 @@ import { useApi } from "@/lib/useApi"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -45,7 +46,7 @@ export default function TopupPage() {
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
 	const { t } = useLanguage()
 	const itemsPerPage = 10
-	const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+	const baseUrl = getApiBaseUrl()
 	const { toast } = useToast()
 	const apiFetch = useApi();
 	const [detailModalOpen, setDetailModalOpen] = useState(false)

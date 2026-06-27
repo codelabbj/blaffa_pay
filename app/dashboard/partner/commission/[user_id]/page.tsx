@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DateRangeFilter } from "@/components/ui/date-range-filter";
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -40,7 +41,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
   const [lastPeriodEnd, setLastPeriodEnd] = useState<string | null>(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const apiFetch = useApi();
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const baseUrl = getApiBaseUrl();
   const router = useRouter();
 
   useEffect(() => {

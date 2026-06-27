@@ -12,6 +12,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { AggregatorIndividualStats } from "@/lib/aggregator-api"
 
 import { formatApiDateTime } from "@/lib/utils";
+import { getApiBaseUrl } from "@/lib/env-config"
 export default function AggregatorUserStatsPage() {
     const params = useParams()
     const router = useRouter()
@@ -22,7 +23,7 @@ export default function AggregatorUserStatsPage() {
 
     const apiFetch = useApi()
     const { t } = useLanguage()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
 
     const fetchStats = async () => {
         if (!uid) return

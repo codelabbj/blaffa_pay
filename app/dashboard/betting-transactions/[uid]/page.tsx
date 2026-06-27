@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -39,7 +40,7 @@ export default function BettingTransactionDetailsPage() {
   const [processingCancellation, setProcessingCancellation] = useState(false);
   const [adminNotes, setAdminNotes] = useState("");
   const apiFetch = useApi();
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const baseUrl = getApiBaseUrl();
   const router = useRouter();
   const { toast } = useToast();
 

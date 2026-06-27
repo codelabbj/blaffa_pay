@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 interface Partner {
   success: boolean;
@@ -103,7 +104,7 @@ export default function PartnerDetailsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const apiFetch = useApi();
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const baseUrl = getApiBaseUrl();
   const router = useRouter();
   const { toast } = useToast();
 

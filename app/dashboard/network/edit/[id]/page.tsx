@@ -12,8 +12,9 @@ import { useToast } from "@/hooks/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { ArrowLeft, Save, Loader2, Globe, Settings } from "lucide-react"
+import { getApiBaseUrl } from "@/lib/env-config"
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 // Colors for consistent theming - using logo colors
 const COLORS = {

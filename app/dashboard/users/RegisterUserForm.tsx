@@ -12,6 +12,7 @@ import { ArrowLeft, Save, Loader2, UserPlus, Mail, Phone, User, Shield } from "l
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { useRouter } from "next/navigation"
+import { getApiBaseUrl, getApiToken } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -50,8 +51,8 @@ export default function RegisterUserForm() {
   const router = useRouter();
 
   // Get base URL and token from env
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
-  const apiToken = process.env.NEXT_PUBLIC_API_TOKEN || ""
+  const baseUrl = getApiBaseUrl()
+  const apiToken = getApiToken()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, type, checked, value } = e.target;

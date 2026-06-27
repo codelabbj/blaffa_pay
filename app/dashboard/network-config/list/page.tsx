@@ -13,8 +13,9 @@ import { Search, ArrowUpDown, Settings, Filter, CheckCircle, XCircle, Globe, Plu
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DateRangeFilter } from "@/components/ui/date-range-filter"
+import { getApiBaseUrl } from "@/lib/env-config"
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 // Colors for consistent theming
 const COLORS = {

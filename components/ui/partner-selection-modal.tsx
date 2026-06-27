@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { Partner } from "@/lib/types/device-authorization"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 interface PartnerSelectionModalProps {
     open: boolean;
@@ -27,7 +28,7 @@ export function PartnerSelectionModal({
 }: PartnerSelectionModalProps) {
     const { t } = useLanguage()
     const apiFetch = useApi()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
 
     const [loading, setLoading] = useState(false)
     const [partners, setPartners] = useState<Partner[]>([])

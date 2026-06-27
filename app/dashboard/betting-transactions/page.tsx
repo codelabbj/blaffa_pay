@@ -19,6 +19,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 interface BettingTransaction {
   uid: string;
@@ -53,7 +54,7 @@ function BettingTransactionsPageContent() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
   const { t } = useLanguage()
   const itemsPerPage = 20
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const { toast } = useToast()
   const apiFetch = useApi();
   const [detailModalOpen, setDetailModalOpen] = useState(false)

@@ -16,6 +16,7 @@ import { Zap, Eye, EyeOff, Mail, Lock, Shield, ArrowRight, Sparkles, CheckCircle
 import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -39,7 +40,7 @@ export function SignInForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { t } = useLanguage()
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const [showPassword, setShowPassword] = useState(false)
   const apiFetch = useApi();
   const { toast } = useToast();

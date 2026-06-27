@@ -20,6 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Check, ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 interface BulkDepositNetwork {
     uid: string
@@ -49,7 +50,7 @@ export default function BulkDepositNetworksPage() {
     const { t } = useLanguage()
     const { toast } = useToast()
     const apiFetch = useApi()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
 
     // State for the list
     const [loading, setLoading] = useState(false)

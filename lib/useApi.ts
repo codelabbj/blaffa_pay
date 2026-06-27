@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./api";
+import { getApiBaseUrl } from "./env-config";
 import { toast } from "@/hooks/use-toast";
 
 // Helper function to get access token from both localStorage and cookies
@@ -26,7 +27,7 @@ function getAccessTokenFromCookie() {
 
 export function useApi() {
   const router = useRouter();
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+  const baseUrl = getApiBaseUrl();
 
   const refreshAccessToken = useCallback(async () => {
     const refresh = getRefreshToken();

@@ -16,6 +16,7 @@ import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -82,7 +83,7 @@ export default function EditPlatformPage() {
   const [error, setError] = useState("")
   const [fetchError, setFetchError] = useState("")
   const { t } = useLanguage()
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const { toast } = useToast()
   const apiFetch = useApi();
   const router = useRouter()

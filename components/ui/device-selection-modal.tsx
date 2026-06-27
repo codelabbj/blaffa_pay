@@ -9,6 +9,7 @@ import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { Device } from "@/lib/types/device-authorization"
 import { Badge } from "@/components/ui/badge"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 interface DeviceSelectionModalProps {
     open: boolean;
@@ -25,7 +26,7 @@ export function DeviceSelectionModal({
 }: DeviceSelectionModalProps) {
     const { t } = useLanguage()
     const apiFetch = useApi()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
 
     const [loading, setLoading] = useState(false)
     const [devices, setDevices] = useState<Device[]>([])

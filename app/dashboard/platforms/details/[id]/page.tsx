@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -67,7 +68,7 @@ export default function PlatformDetailsPage() {
   const [statsError, setStatsError] = useState("")
   const [toggleLoading, setToggleLoading] = useState(false)
   const { t } = useLanguage()
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const { toast } = useToast()
   const apiFetch = useApi();
   const router = useRouter()

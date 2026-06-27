@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { useLanguage } from "@/components/providers/language-provider"
 import { ArrowLeft, DollarSign, Phone, Network, FileText, CheckCircle, AlertTriangle, Loader2 } from "lucide-react"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming
 const COLORS = {
@@ -27,7 +28,7 @@ const COLORS = {
   indigo: '#6366F1'
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 export default function DepositPage() {
   const [networks, setNetworks] = useState<any[]>([])

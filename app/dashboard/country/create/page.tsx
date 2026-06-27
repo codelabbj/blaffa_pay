@@ -11,8 +11,9 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { ArrowLeft, Save, Loader2, Globe, CheckCircle } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
+import { getApiBaseUrl } from "@/lib/env-config"
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 // Colors for consistent theming - using logo colors
 const COLORS = {

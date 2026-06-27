@@ -93,7 +93,7 @@ function PermissionsListPageContent() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const { t } = useLanguage()
   const itemsPerPage = 20
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const { toast } = useToast()
   const apiFetch = useApi();
   
@@ -937,6 +937,7 @@ function PermissionsListPageContent() {
 
 
 import { Suspense } from 'react'
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function PermissionsListPage() {
   return (

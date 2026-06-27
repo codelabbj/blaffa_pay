@@ -13,6 +13,7 @@ import { ArrowLeft, Save, Loader2, Zap, Smartphone, Settings, CheckCircle, Alert
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 // Colors for consistent theming
 const COLORS = {
@@ -28,7 +29,7 @@ const COLORS = {
   indigo: '#6366F1'
 };
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 function RemoteCommandCreatePage() {
   const [command, setCommand] = useState("")

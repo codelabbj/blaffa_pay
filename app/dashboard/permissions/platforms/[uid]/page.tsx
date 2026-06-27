@@ -10,13 +10,14 @@ import { ArrowLeft, Users, User, DollarSign, BarChart3, CheckCircle, XCircle, Ca
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { useRouter, useParams } from "next/navigation"
+import { getApiBaseUrl } from "@/lib/env-config"
 
 export default function UserPlatformsPage() {
   const [userPlatformsData, setUserPlatformsData] = useState<any | null>(null)
   const [userPlatformsLoading, setUserPlatformsLoading] = useState(false)
   const [userPlatformsError, setUserPlatformsError] = useState("")
   const { t } = useLanguage()
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+  const baseUrl = getApiBaseUrl()
   const { toast } = useToast()
   const apiFetch = useApi()
   const router = useRouter()

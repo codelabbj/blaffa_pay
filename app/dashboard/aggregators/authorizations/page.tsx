@@ -18,6 +18,7 @@ import { toast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 import { formatApiDateTime } from "@/lib/utils";
+import { getApiBaseUrl } from "@/lib/env-config"
 export default function AggregatorAuthorizationsPage() {
     const [authorizations, setAuthorizations] = useState<AggregatorAuthorization[]>([])
     const [loading, setLoading] = useState(true)
@@ -46,7 +47,7 @@ export default function AggregatorAuthorizationsPage() {
     const apiFetch = useApi()
     const { t } = useLanguage()
     const [filterUser, setFilterUser] = useState("all")
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
 
     const fetchData = async () => {
         setLoading(true)

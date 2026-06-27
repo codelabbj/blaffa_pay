@@ -49,6 +49,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { BulkActionBar } from "@/components/data-table/bulk-action-bar"
 import { SortableHead } from "@/components/data-table/sortable-head"
 import { useTableSelection } from "@/hooks/use-table-selection"
+import { getApiBaseUrl } from "@/lib/env-config"
 import {
   bulkPaymentTransactionCancel,
   bulkPaymentTransactionFailed,
@@ -57,7 +58,7 @@ import {
 } from "@/lib/transaction-bulk-api"
 
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 // Colors for consistent theming - using logo colors
 const COLORS = {

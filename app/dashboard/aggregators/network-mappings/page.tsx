@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast"
 
 import { formatApiDateTime } from "@/lib/utils";
+import { getApiBaseUrl } from "@/lib/env-config"
 export default function NetworkMappingsPage() {
     const [mappings, setMappings] = useState<AggregatorNetworkMapping[]>([])
     const [loading, setLoading] = useState(true)
@@ -52,7 +53,7 @@ export default function NetworkMappingsPage() {
     const [isMounted, setIsMounted] = useState(false)
     const apiFetch = useApi()
     const { t } = useLanguage()
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+    const baseUrl = getApiBaseUrl()
 
     useEffect(() => {
         setIsMounted(true)

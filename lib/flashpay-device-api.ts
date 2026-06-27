@@ -1,6 +1,7 @@
 import type { PaginatedResponse, PaymentDevice, FlashPayDeviceConfig } from "@/lib/types/flashpay-device"
+import { getApiBaseUrl } from "@/lib/env-config"
 
-const baseUrl = () => process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || ""
+const baseUrl = () => getApiBaseUrl()
 
 type ApiFetch = (input: RequestInfo, init?: RequestInit & { showSuccessToast?: boolean; successMessage?: string }) => Promise<any>
 

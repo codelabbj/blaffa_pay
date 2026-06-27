@@ -48,8 +48,9 @@ import {
   Layers
 } from "lucide-react";
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { getApiBaseUrl } from "@/lib/env-config"
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const baseUrl = getApiBaseUrl()
 
 // Colors for charts and UI elements - using logo colors
 const COLORS = {

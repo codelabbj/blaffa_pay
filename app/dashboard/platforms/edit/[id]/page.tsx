@@ -96,7 +96,7 @@ export default function EditPlatformPage() {
       setFetchLoading(true)
       setFetchError("")
       try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformId}/`
+        const endpoint = `payments/betting/admin/platforms/${platformId}/`
         const data = await apiFetch(endpoint)
         setPlatform(data)
         
@@ -161,7 +161,7 @@ export default function EditPlatformPage() {
         headers["Content-Type"] = "application/json";
       }
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformId}/`
+      const endpoint = `payments/betting/admin/platforms/${platformId}/`
       const data = await apiFetch(endpoint, {
         method: "PATCH",
         headers: headers,

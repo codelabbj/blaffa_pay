@@ -74,13 +74,13 @@ export default function PhoneNumberListPage() {
             params.append("created_at__lte", endDate);
           }
           const query = params.toString().replace(/ordering=%2B/g, "ordering=+");
-          endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/numeros/?${query}`;
+          endpoint = `payments/numeros/?${query}`;
         } else {
           const params = new URLSearchParams({
             page: "1",
             page_size: "100",
           });
-          endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/numeros/?${params.toString()}`;
+          endpoint = `payments/numeros/?${params.toString()}`;
         }
         const data = await apiFetch(endpoint)
         setNumbers(Array.isArray(data) ? data : data.results || [])
@@ -109,7 +109,7 @@ export default function PhoneNumberListPage() {
   useEffect(() => {
     const fetchNetworks = async () => {
       try {
-        const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`)
+        const data = await apiFetch(`payments/networks/`)
         setNetworks(Array.isArray(data) ? data : data.results || [])
         toast({
           title: t("phoneNumbers.networksLoaded"),

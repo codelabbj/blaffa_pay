@@ -106,7 +106,7 @@ export default function CreatePermissionPage() {
       const queryParams = new URLSearchParams()
       if (search) queryParams.append("search", search)
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${search ? `?${queryParams.toString()}` : ""}`
+      const endpoint = `auth/admin/users/partners/${search ? `?${queryParams.toString()}` : ""}`
       const data = await apiFetch(endpoint)
       setPartners(data.partners || [])
     } catch (err: any) {
@@ -126,7 +126,7 @@ export default function CreatePermissionPage() {
       const queryParams = new URLSearchParams()
       if (search) queryParams.append("search", search)
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${search ? `?${queryParams.toString()}` : ""}`
+      const endpoint = `payments/betting/admin/platforms/${search ? `?${queryParams.toString()}` : ""}`
       const data = await apiFetch(endpoint)
       setPlatforms(data.results || [])
     } catch (err: any) {
@@ -199,7 +199,7 @@ export default function CreatePermissionPage() {
         can_withdraw: form.can_withdraw,
       }
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/permissions/`
+      const endpoint = `payments/betting/admin/permissions/`
       const data = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

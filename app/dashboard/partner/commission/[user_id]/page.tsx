@@ -49,7 +49,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
       setLoading(true);
       setError("");
       try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/admin/users/${userId}/commission-stats/`;
+        const endpoint = `payments/admin/users/${userId}/commission-stats/`;
         const data = await apiFetch(endpoint);
         setStats(data);
         // Find last period_end from commission_history
@@ -93,7 +93,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
         // period_end: null,
         admin_notes: adminNote,
       };
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/admin/users/${userId}/pay-commission/`;
+      const endpoint = `payments/admin/users/${userId}/pay-commission/`;
       await apiFetch(endpoint, {
         method: "POST",
         body: JSON.stringify(payload),

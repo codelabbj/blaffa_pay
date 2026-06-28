@@ -113,7 +113,7 @@ export default function PartnerDetailsPage() {
       setLoading(true);
       setError("");
       try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/permissions/user_platforms/?user_uid=${userUid}`;
+        const endpoint = `payments/betting/admin/permissions/user_platforms/?user_uid=${userUid}`;
         const data = await apiFetch(endpoint);
         setPartner(data);
       } catch (err: any) {

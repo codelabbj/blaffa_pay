@@ -35,7 +35,7 @@ export function DeviceSelectionModal({
     const fetchDevices = useCallback(async () => {
         setLoading(true)
         try {
-            const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/stats/devices/`)
+            const response = await apiFetch(`payments/stats/devices/`)
             const data = Array.isArray(response) ? response : (response.results || [])
             setDevices(data)
         } catch (err) {

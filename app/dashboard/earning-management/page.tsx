@@ -104,7 +104,7 @@ function EarningManagementPageContent() {
 				const orderingParam = sortField
 					? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
 					: ""
-				const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/admin/commission-payments/?${params.toString()}${orderingParam}`
+				const endpoint = `payments/admin/commission-payments/?${params.toString()}${orderingParam}`
 				const data = await apiFetch(endpoint)
 				setEarnings(data.results || [])
 				setTotalCount(data.count || 0)

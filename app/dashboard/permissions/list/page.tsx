@@ -142,7 +142,7 @@ function PermissionsListPageContent() {
         const orderingParam = sortField
           ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
           : ""
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/permissions/?${params.toString()}${orderingParam}`
+        const endpoint = `payments/betting/admin/permissions/?${params.toString()}${orderingParam}`
         const data = await apiFetch(endpoint)
         setPermissions(data.results || [])
         setTotalCount(data.count || 0)
@@ -219,7 +219,7 @@ function PermissionsListPageContent() {
         is_active: editForm.is_active,
       }
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/permissions/${editPermission.uid}/`
+      const endpoint = `payments/betting/admin/permissions/${editPermission.uid}/`
       const data = await apiFetch(endpoint, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

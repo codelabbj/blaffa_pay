@@ -81,7 +81,7 @@ export default function PlatformDetailsPage() {
       setLoading(true)
       setError("")
       try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformId}/`
+        const endpoint = `payments/betting/admin/platforms/${platformId}/`
         const data = await apiFetch(endpoint)
         setPlatform(data)
       } catch (err: any) {
@@ -103,7 +103,7 @@ export default function PlatformDetailsPage() {
       setStatsLoading(true)
       setStatsError("")
       try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformId}/stats/`
+        const endpoint = `payments/betting/admin/platforms/${platformId}/stats/`
         const data = await apiFetch(endpoint)
         setPlatformStats(data)
       } catch (err: any) {
@@ -123,7 +123,7 @@ export default function PlatformDetailsPage() {
     
     setToggleLoading(true)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platform.uid}/toggle_status/`
+      const endpoint = `payments/betting/admin/platforms/${platform.uid}/toggle_status/`
       const data = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

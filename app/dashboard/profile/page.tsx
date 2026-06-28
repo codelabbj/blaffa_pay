@@ -63,7 +63,7 @@ export default function ProfilePage() {
     }
     const fetchProfile = async () => {
       try {
-        const data = await apiFetch(`${baseUrl}/api/auth/profile/`);
+        const data = await apiFetch(`auth/profile/`);
         setProfile(data);
         setFormData({
           first_name: data.first_name,
@@ -105,7 +105,7 @@ export default function ProfilePage() {
 
     setPasswordLoading(true);
     try {
-      await apiFetch(`${baseUrl}/api/auth/password-update/`, {
+      await apiFetch(`auth/password-update/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ export default function ProfilePage() {
     setLoading(true);
 
     try {
-      const updatedProfile = await apiFetch(`${baseUrl}/api/auth/profile/`, {
+      const updatedProfile = await apiFetch(`auth/profile/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

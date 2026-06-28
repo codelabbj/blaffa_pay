@@ -57,9 +57,9 @@ export default function AggregatorAuthorizationsPage() {
 
         try {
             const [authData, userData, networkData] = await Promise.all([
-                apiFetch(`${baseUrl}/api/aggregator/admin/user-authorizations/?${queryParams.toString()}`),
-                apiFetch(`${baseUrl}/api/auth/admin/users/aggregators/`),
-                apiFetch(`${baseUrl}/api/payments/networks/`)
+                apiFetch(`aggregator/admin/user-authorizations/?${queryParams.toString()}`),
+                apiFetch(`auth/admin/users/aggregators/`),
+                apiFetch(`payments/networks/`)
             ])
             setAuthorizations(authData.results || [])
             setUsers(userData.aggregators || [])
@@ -79,7 +79,7 @@ export default function AggregatorAuthorizationsPage() {
         e.preventDefault()
         setFormLoading(true)
         try {
-            await apiFetch(`${baseUrl}/api/aggregator/admin/user-authorizations/`, {
+            await apiFetch(`aggregator/admin/user-authorizations/`, {
                 method: 'POST',
                 body: JSON.stringify(formData)
             })
@@ -98,7 +98,7 @@ export default function AggregatorAuthorizationsPage() {
         if (!selectedAuth) return
         setFormLoading(true)
         try {
-            await apiFetch(`${baseUrl}/api/aggregator/admin/user-authorizations/${selectedAuth.uid}/`, {
+            await apiFetch(`aggregator/admin/user-authorizations/${selectedAuth.uid}/`, {
                 method: 'PATCH',
                 body: JSON.stringify(formData)
             })
@@ -128,7 +128,7 @@ export default function AggregatorAuthorizationsPage() {
         if (!confirm(t("aggregators.confirmRevoke"))) return
 
         try {
-            await apiFetch(`${baseUrl}/api/aggregator/admin/user-authorizations/${uid}/`, {
+            await apiFetch(`aggregator/admin/user-authorizations/${uid}/`, {
                 method: 'DELETE'
             })
             toast({

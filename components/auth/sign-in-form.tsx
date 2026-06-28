@@ -16,7 +16,7 @@ import { Zap, Eye, EyeOff, Mail, Lock, Shield, ArrowRight, Sparkles, CheckCircle
 import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { getApiBaseUrl, getAppName } from "@/lib/env-config"
+import { getAppName } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -40,7 +40,6 @@ export function SignInForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { t } = useLanguage()
-  const baseUrl = getApiBaseUrl()
   const appName = getAppName()
   const [showPassword, setShowPassword] = useState(false)
   const apiFetch = useApi();
@@ -57,7 +56,7 @@ export function SignInForm() {
     setError("")
     setLoading(true)
     try {
-      const data = await apiFetch(`${baseUrl}/api/auth/login/`, {
+      const data = await apiFetch(`auth/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, password }),
@@ -130,7 +129,7 @@ export function SignInForm() {
     setError("")
     setLoading(true)
     try {
-      const response = await apiFetch(`${baseUrl}/api/auth/password-reset/`, {
+      const response = await apiFetch(`auth/password-reset/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier }),
@@ -175,7 +174,7 @@ export function SignInForm() {
     }
     setLoading(true)
     try {
-      const response = await apiFetch(`${baseUrl}/api/auth/password-reset/confirm/`, {
+      const response = await apiFetch(`auth/password-reset/confirm/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

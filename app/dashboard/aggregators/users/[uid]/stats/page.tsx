@@ -30,7 +30,7 @@ export default function AggregatorUserStatsPage() {
         setLoading(true)
         setError("")
         try {
-            const data = await apiFetch(`${baseUrl}/api/auth/admin/users/aggregators/${uid}/stats/`)
+            const data = await apiFetch(`auth/admin/users/aggregators/${uid}/stats/`)
             setStats(data)
         } catch (err: any) {
             setError(extractErrorMessages(err) || t("common.failedToLoad"))

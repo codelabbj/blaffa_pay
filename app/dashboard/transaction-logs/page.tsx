@@ -116,7 +116,7 @@ function TransactionLogsListPageContent() {
         if (startDate) params.append("created_at__gte", startDate)
         if (endDate) params.append("created_at__lte", endDate)
 
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transaction-logs/?${params.toString()}`
+        const endpoint = `payments/transaction-logs/?${params.toString()}`
         const data = await apiFetch(endpoint)
 
         // API shape example from user: { count, next, previous, results: [] }

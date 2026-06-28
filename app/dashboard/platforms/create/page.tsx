@@ -168,7 +168,7 @@ export default function CreatePlatformPage() {
         headers["Content-Type"] = "application/json";
       }
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/`
+      const endpoint = `payments/betting/admin/platforms/`
       const data = await apiFetch(endpoint, {
         method: "POST",
         headers: headers,

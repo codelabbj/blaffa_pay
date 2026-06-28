@@ -64,8 +64,8 @@ export default function NetworkMappingsPage() {
         setError("")
         try {
             const [mappingData, networkData] = await Promise.all([
-                apiFetch(`${baseUrl}/api/aggregator/admin/network-mappings/`),
-                apiFetch(`${baseUrl}/api/payments/networks/`)
+                apiFetch(`aggregator/admin/network-mappings/`),
+                apiFetch(`payments/networks/`)
 
             ])
             setMappings(mappingData.results || [])
@@ -85,7 +85,7 @@ export default function NetworkMappingsPage() {
         e.preventDefault()
         setFormLoading(true)
         try {
-            await apiFetch(`${baseUrl}/api/aggregator/admin/network-mappings/`, {
+            await apiFetch(`aggregator/admin/network-mappings/`, {
                 method: 'POST',
                 body: JSON.stringify(formData)
             })
@@ -104,7 +104,7 @@ export default function NetworkMappingsPage() {
         if (!selectedMapping) return
         setFormLoading(true)
         try {
-            await apiFetch(`${baseUrl}/api/aggregator/admin/network-mappings/${selectedMapping.uid}/`, {
+            await apiFetch(`aggregator/admin/network-mappings/${selectedMapping.uid}/`, {
                 method: 'PATCH',
                 body: JSON.stringify(formData)
             })

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./api";
-import { apiUrl } from "./env-config";
+import { apiUrl, resolveApiUrl } from "./env-config";
 import { toast } from "@/hooks/use-toast";
 
 // Helper function to get access token from both localStorage and cookies
@@ -72,6 +72,13 @@ export function useApi() {
   }, []);
 
   const apiFetch = useCallback(async (input: RequestInfo, init: RequestInit & { showSuccessToast?: boolean; successMessage?: string } = {}) => {
+    const resolvedInput: RequestInfo =
+      typeof input === "string"
+        ? resolveApiUrl(input)
+        : input instanceof Request
+          ? new Request(resolveApiUrl(input.url), input)
+          : input
+
     // Try to get access token from both localStorage and cookies
     let accessToken = getAccessTokenFromStorage() || getAccessTokenFromCookie();
 
@@ -81,7 +88,7 @@ export function useApi() {
     // Determine if we should attach the access token
     // We don't want to send tokens for auth-related public endpoints (login, password reset)
     // as an invalid/expired token might cause the backend to reject the request
-    const urlString = typeof input === 'string' ? input : (input instanceof Request ? input.url : '');
+    const urlString = typeof resolvedInput === 'string' ? resolvedInput : (resolvedInput instanceof Request ? resolvedInput.url : '');
     const isPublicAuthEndpoint = urlString.includes('/api/auth/login/') || 
                                   urlString.includes('/api/auth/password-reset/');
 
@@ -125,7 +132,7 @@ export function useApi() {
       console.log('[useApi] GET request detected - success toast will NOT be shown');
     }
 
-    let res = await fetch(input, { ...fetchInit, headers });
+    let res = await fetch(resolvedInput, { ...fetchInit, headers });
     let data;
 
     // Check if response is OK before trying to parse JSON
@@ -156,7 +163,7 @@ export function useApi() {
         headers.set('Authorization', `Bearer ${accessToken}`);
 
         // Retry the original request with new token
-        res = await fetch(input, { ...fetchInit, headers });
+        res = await fetch(resolvedInput, { ...fetchInit, headers });
         try {
           data = await res.clone().json();
         } catch (e) {

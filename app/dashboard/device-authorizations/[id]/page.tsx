@@ -57,7 +57,7 @@ export default function DeviceAuthorizationDetailPage() {
     const fetchDetail = useCallback(async () => {
         setLoading(true)
         try {
-            const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/device-authorizations/${id}/`)
+            const response = await apiFetch(`payments/betting/admin/device-authorizations/${id}/`)
             setData(response)
             setNotes(response.notes || "")
             setIsActive(response.is_active)
@@ -79,7 +79,7 @@ export default function DeviceAuthorizationDetailPage() {
     const handleUpdate = async () => {
         setSaving(true)
         try {
-            await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/device-authorizations/${id}/`, {
+            await apiFetch(`payments/betting/admin/device-authorizations/${id}/`, {
                 method: "PATCH",
                 body: JSON.stringify({
                     notes,

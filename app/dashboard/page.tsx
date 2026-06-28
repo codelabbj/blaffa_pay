@@ -48,9 +48,8 @@ import {
   Layers
 } from "lucide-react";
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { getApiBaseUrl, getAppName } from "@/lib/env-config"
+import { getAppName, apiUrl } from "@/lib/env-config"
 
-const baseUrl = getApiBaseUrl()
 const appName = getAppName()
 
 // Colors for charts and UI elements - using logo colors
@@ -113,7 +112,7 @@ export default function DashboardPage() {
     setAuthError("");
     setShowAuthModal(false);
     try {
-      const data = await apiFetch(`${baseUrl}/api/auth/admin/notifications/stats/`);
+      const data = await apiFetch(`auth/admin/notifications/stats/`);
       setStats(data);
     } catch (err: any) {
       let backendError = extractErrorMessages(err) || "Échec du chargement des statistiques";
@@ -144,7 +143,7 @@ export default function DashboardPage() {
       // Fetch summary data
       setSummaryLoading(true);
       try {
-        const res = await apiFetch(`${baseUrl}/api/payments/dashboard/summary/`);
+        const res = await apiFetch(`payments/dashboard/summary/`);
         setSummary(res);
       } catch (err: any) {
         setSummaryError("Échec du chargement du résumé des paiements");
@@ -155,7 +154,7 @@ export default function DashboardPage() {
       // Fetch transaction stats
       setTransactionStatsLoading(true);
       try {
-        const res = await apiFetch(`${baseUrl}/api/payments/stats/transactions/`);
+        const res = await apiFetch(`payments/stats/transactions/`);
         setTransactionStats(res);
       } catch (err: any) {
         setTransactionStatsError("Échec du chargement des statistiques de transactions");
@@ -166,7 +165,7 @@ export default function DashboardPage() {
       // Fetch system events
       setSystemEventsLoading(true);
       try {
-        const res = await apiFetch(`${baseUrl}/api/payments/system-events/`);
+        const res = await apiFetch(`payments/system-events/`);
         setSystemEvents(res.results || []);
       } catch (err: any) {
         setSystemEventsError("Échec du chargement des événements système");
@@ -177,7 +176,7 @@ export default function DashboardPage() {
       // Fetch balance operations stats
       setBalanceOpsLoading(true);
       try {
-        const res = await apiFetch(`${baseUrl}/api/payments/admin/balance-operations/stats/`);
+        const res = await apiFetch(`payments/admin/balance-operations/stats/`);
         setBalanceOps(res);
       } catch (err: any) {
         setBalanceOpsError("Échec du chargement des statistiques d'opérations de solde");
@@ -188,7 +187,7 @@ export default function DashboardPage() {
       // Fetch recharge requests stats
       setRechargeLoading(true);
       try {
-        const res = await apiFetch(`${baseUrl}/api/payments/user/recharge_requests/stats/`);
+        const res = await apiFetch(`payments/user/recharge_requests/stats/`);
         setRechargeStats(res);
       } catch (err: any) {
         setRechargeError("Échec du chargement des statistiques de recharge");
@@ -199,7 +198,7 @@ export default function DashboardPage() {
       // Fetch MoMo Pay stats
       setMomoPayLoading(true);
       try {
-        const res = await apiFetch(`${baseUrl}/api/payments/momo-pay-transactions/stats/`);
+        const res = await apiFetch(`payments/momo-pay-transactions/stats/`);
         setMomoPayStats(res);
       } catch (err: any) {
         setMomoPayError("Échec du chargement des statistiques MoMo Pay");
@@ -210,7 +209,7 @@ export default function DashboardPage() {
       // Fetch Wave Business stats
       setWaveLoading(true);
       try {
-        const res = await apiFetch(`${baseUrl}/api/payments/wave-business-transactions/stats/`);
+        const res = await apiFetch(`payments/wave-business-transactions/stats/`);
         setWaveStats(res);
       } catch (err: any) {
         setWaveError("Échec du chargement des statistiques Wave Business");
@@ -231,11 +230,11 @@ export default function DashboardPage() {
     };
 
     fetchAllData();
-  }, [apiFetch, baseUrl]);
+  }, [apiFetch]);
 
   useEffect(() => {
     fetchStats();
-  }, [apiFetch, baseUrl]);
+  }, [apiFetch]);
 
   // Prepare chart data
   const prepareFinancialChartData = () => {

@@ -75,13 +75,13 @@ export default function CountryListPage() {
           }
           // Keep '+' literal for ordering (avoid %2B)
           let query = params.toString().replace(/ordering=%2B/g, "ordering=+");
-          endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/countries/?${query}`;
+          endpoint = `payments/countries/?${query}`;
         } else {
           const params = new URLSearchParams({
             page: "1",
             page_size: "100",
           });
-          endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/countries/?${params.toString()}`;
+          endpoint = `payments/countries/?${params.toString()}`;
         }
         const data = await apiFetch(endpoint)
         setCountries(Array.isArray(data) ? data : data.results || [])

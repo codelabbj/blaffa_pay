@@ -51,7 +51,7 @@ export function PartnerSelectionModal({
             })
             if (search) params.append("search", search)
 
-            const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}`)
+            const response = await apiFetch(`auth/admin/users/partners/?${params.toString()}`)
             const data = response.partners || response.results || response.users || (Array.isArray(response) ? response : [])
             setPartners(data)
         } catch (err) {

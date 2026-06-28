@@ -118,7 +118,7 @@ function SmsLogsListPageContent() {
         }
         
         const query = params.toString().replace(/ordering=%2B/g, "ordering=+")
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/sms-logs/?${query}`
+        const endpoint = `payments/sms-logs/?${query}`
         
         const data = await apiFetch(endpoint)
         

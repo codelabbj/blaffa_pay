@@ -112,7 +112,7 @@ function ApiConfigPageContent() {
         const orderingParam = sortField
           ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
           : "&ordering=-created_at"
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/api-config/?${params.toString()}${orderingParam}`
+        const endpoint = `payments/betting/admin/api-config/?${params.toString()}${orderingParam}`
         const data = await apiFetch(endpoint)
         setConfigs(data.results || [])
         setTotalCount(data.count || 0)
@@ -206,11 +206,11 @@ function ApiConfigPageContent() {
       let endpoint, method
       if (editConfig) {
         // Update existing config
-        endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/api-config/${editConfig.uid}/`
+        endpoint = `payments/betting/admin/api-config/${editConfig.uid}/`
         method = "PATCH"
       } else {
         // Create new config
-        endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/api-config/`
+        endpoint = `payments/betting/admin/api-config/`
         method = "POST"
       }
 

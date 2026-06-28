@@ -50,7 +50,7 @@ export default function NetworkCreatePage() {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/countries/`)
+        const data = await apiFetch(`payments/countries/`)
         setCountries(Array.isArray(data) ? data : data.results || [])
         toast({
           title: t("network.countriesLoaded"),
@@ -101,7 +101,7 @@ export default function NetworkCreatePage() {
         headers["Content-Type"] = "application/json";
       }
 
-      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`, {
+      await apiFetch(`payments/networks/`, {
         method: "POST",
         headers: headers,
         body: body

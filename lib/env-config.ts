@@ -19,24 +19,49 @@ export function normalizeApiBase(raw: string | undefined): string {
   return (raw ?? "").trim().replace(/\/+$/, "")
 }
 
-/**
- * URL de base API sans slash final.
- * Préférer apiUrl() pour construire les URLs complètes.
- */
-export function getApiBaseUrl(): string {
+function readApiBaseFromEnv(): string {
   return normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL)
 }
 
 /**
- * Joint intelligemment base + chemin :
- * - ajoute le slash manquant entre les deux
- * - retire les slashes en trop saisis par l'utilisateur
+ * URL de base API (sans slash final).
+ * Pour les appels HTTP, utiliser apiUrl() — gère les / automatiquement.
+ */
+export function getApiBaseUrl(): string {
+  return readApiBaseFromEnv()
+}
+
+/**
+ * Joint base (.env) + chemin — smart slash :
+ * - .env avec ou sans / final → OK
+ * - chemin avec ou sans / initial → OK
+ * - jamais de double slash (net//api)
+ *
+ * @example apiUrl("api/auth/login/")  → https://api.com/api/auth/login/
+ * @example apiUrl("/api/auth/login/") → https://api.com/api/auth/login/
  */
 export function apiUrl(path: string): string {
-  const base = normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL)
+  const base = readApiBaseFromEnv()
   const normalizedPath = path.trim().replace(/^\/+/, "")
   if (!base) return `/${normalizedPath}`
   return `${base}/${normalizedPath}`
+}
+
+/**
+ * Pour apiFetch / fetch : chemin relatif → URL complète.
+ * Ajoute api/ si absent, gère les / en trop.
+ */
+export function resolveApiUrl(input: string): string {
+  if (/^https?:\/\//i.test(input)) return input
+  const path = input.trim().replace(/^\/+/, "")
+  const apiPath = path.startsWith("api/") ? path : `api/${path}`
+  return apiUrl(apiPath)
+}
+
+/** URL absolue pour fichiers médias sur le même host que l'API. */
+export function mediaUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path
+  return apiUrl(path.trim().replace(/^\/+/, ""))
 }
 
 // --- Branding (white-label) ---

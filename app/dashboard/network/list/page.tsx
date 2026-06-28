@@ -82,13 +82,13 @@ export default function NetworkListPage() {
             params.append("created_at__lte", endDate);
           }
           const query = params.toString().replace(/ordering=%2B/g, "ordering=+");
-          endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/networks/?${query}`;
+          endpoint = `payments/networks/?${query}`;
         } else {
           const params = new URLSearchParams({
             page: "1",
             page_size: "100",
           });
-          endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/networks/?${params.toString()}`;
+          endpoint = `payments/networks/?${params.toString()}`;
         }
         const data = await apiFetch(endpoint)
         setNetworks(Array.isArray(data) ? data : data.results || [])
@@ -118,7 +118,7 @@ export default function NetworkListPage() {
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/countries/`)
+        const data = await apiFetch(`payments/countries/`)
         setCountries(Array.isArray(data) ? data : data.results || [])
         toast({
           title: t("network.countriesLoaded"),

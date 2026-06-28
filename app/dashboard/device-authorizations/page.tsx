@@ -114,7 +114,7 @@ export default function DeviceAuthorizationsPage() {
             if (searchTerm) params.append("search", searchTerm)
             if (statusFilter !== "all") params.append("is_active", statusFilter)
 
-            const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/device-authorizations/?${params.toString()}`)
+            const response = await apiFetch(`payments/betting/admin/device-authorizations/?${params.toString()}`)
             setData(response.results || [])
             setTotalCount(response.count || 0)
         } catch (err) {
@@ -144,7 +144,7 @@ export default function DeviceAuthorizationsPage() {
 
         setCreateLoading(true)
         try {
-            await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/device-authorizations/`, {
+            await apiFetch(`payments/betting/admin/device-authorizations/`, {
                 method: "POST",
                 body: JSON.stringify({
                     partner: selectedPartner.uid,
@@ -170,7 +170,7 @@ export default function DeviceAuthorizationsPage() {
 
     const handleToggleStatus = async (uid: string, currentStatus: boolean) => {
         try {
-            await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/device-authorizations/${uid}/`, {
+            await apiFetch(`payments/betting/admin/device-authorizations/${uid}/`, {
                 method: "PATCH",
                 body: JSON.stringify({ is_active: !currentStatus }),
                 successMessage: t("deviceAuthorizations.toggleSuccess"),

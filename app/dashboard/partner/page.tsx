@@ -216,7 +216,7 @@ function PartnerPageContent() {
 			const orderingParam = sortField
 				? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
 				: ""
-			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}${orderingParam}`
+			const endpoint = `auth/admin/users/partners/?${params.toString()}${orderingParam}`
 			const data = await apiFetch(endpoint)
 			setPartners(data.partners || [])
 			setTotalCount(data.pagination?.total_count || 0)
@@ -250,7 +250,7 @@ function PartnerPageContent() {
 		setDetailError("")
 		setDetailPartner(null)
 		try {
-			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${uid}/`
+			const endpoint = `auth/admin/users/partners/${uid}/`
 			const data = await apiFetch(endpoint)
 			setDetailPartner(data)
 		} catch (err: any) {
@@ -269,7 +269,7 @@ function PartnerPageContent() {
 		setTransferPartner(partner)
 		setPartnerTransfers([])
 		try {
-			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/partner-transfers/by_partner/?partner_uid=${partner.uid}`
+			const endpoint = `payments/betting/admin/partner-transfers/by_partner/?partner_uid=${partner.uid}`
 			const data = await apiFetch(endpoint)
 			setPartnerTransfers(data.results || [])
 		} catch (err: any) {
@@ -301,7 +301,7 @@ function PartnerPageContent() {
 			} else {
 				// Build endpoint with page parameter
 				const params = new URLSearchParams({ page: page.toString() })
-				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/account-transactions/${partner.uid}/?${params.toString()}`
+				endpoint = `payments/account-transactions/${partner.uid}/?${params.toString()}`
 			}
 
 			const data = await apiFetch(endpoint, {
@@ -333,7 +333,7 @@ function PartnerPageContent() {
 
 		try {
 			// Get partner commission config
-			const configEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/get_partner_config/?partner_uid=${partner.uid}`
+			const configEndpoint = `payments/betting/admin/commission-configs/get_partner_config/?partner_uid=${partner.uid}`
 			const configData = await apiFetch(configEndpoint)
 
 			if (configData.success && configData.has_config) {
@@ -356,7 +356,7 @@ function PartnerPageContent() {
 			}
 
 			// Get partner-specific stats
-			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${partner.uid}`
+			const statsEndpoint = `payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${partner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
 			setBettingCommissionStats(statsData)
 		} catch (err: any) {
@@ -385,11 +385,11 @@ function PartnerPageContent() {
 			let endpoint, method
 			if (bettingCommissionConfig) {
 				// Update existing config
-				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/${bettingCommissionConfig.uid}/`
+				endpoint = `payments/betting/admin/commission-configs/${bettingCommissionConfig.uid}/`
 				method = "PATCH"
 			} else {
 				// Create new config
-				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/`
+				endpoint = `payments/betting/admin/commission-configs/`
 				method = "POST"
 			}
 
@@ -425,7 +425,7 @@ function PartnerPageContent() {
 				amount: bettingCommissionPaymentForm.amount ? parseFloat(bettingCommissionPaymentForm.amount) : null,
 			}
 
-			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/pay_commissions/`
+			const endpoint = `payments/betting/admin/commissions/pay_commissions/`
 			const data = await apiFetch(endpoint, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -437,7 +437,7 @@ function PartnerPageContent() {
 			setBettingCommissionPaymentForm({ admin_notes: "", amount: "" })
 
 			// Refresh partner-specific stats
-			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${bettingCommissionPartner.uid}`
+			const statsEndpoint = `payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${bettingCommissionPartner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
 			setBettingCommissionStats(statsData)
 		} catch (err: any) {
@@ -475,7 +475,7 @@ function PartnerPageContent() {
 				notes: grantPermissionForm.notes,
 			}
 
-			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${grantPermissionForm.uid}/grant_permission/`
+			const endpoint = `auth/admin/users/partners/${grantPermissionForm.uid}/grant_permission/`
 			const data = await apiFetch(endpoint, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },

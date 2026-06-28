@@ -203,7 +203,7 @@ function BettingTransactionsPageContent() {
       const orderingParam = sortField
         ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
         : "&ordering=-created_at"
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/?${params.toString()}${orderingParam}`
+      const endpoint = `payments/betting/admin/transactions/?${params.toString()}${orderingParam}`
       const data = await apiFetch(endpoint)
       setTransactions(data.results || [])
       setTotalCount(data.count || 0)
@@ -228,7 +228,7 @@ function BettingTransactionsPageContent() {
   useEffect(() => {
     const fetchNetworks = async () => {
       try {
-        const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`)
+        const data = await apiFetch(`payments/networks/`)
         setNetworks(data.results || [])
       } catch (err) {
         console.error("Failed to load networks", err)
@@ -244,7 +244,7 @@ function BettingTransactionsPageContent() {
         const params = new URLSearchParams()
         if (startDate) params.append("date_from", startDate)
         if (endDate) params.append("date_to", endDate)
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/stats/?${params.toString()}`
+        const endpoint = `payments/betting/admin/transactions/stats/?${params.toString()}`
         const data = await apiFetch(endpoint)
         setStats(data)
       } catch (err: any) {
@@ -267,7 +267,7 @@ function BettingTransactionsPageContent() {
     setDetailError("")
     setDetailTransaction(null)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transaction.uid}/`
+      const endpoint = `payments/betting/admin/transactions/${transaction.uid}/`
       const data = await apiFetch(endpoint)
       setDetailTransaction(data)
     } catch (err: any) {
@@ -294,7 +294,7 @@ function BettingTransactionsPageContent() {
         admin_notes: (refundReason || "Aucune note fournie").trim(),
       }
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${targetTransaction.uid}/refund-partner/`
+      const endpoint = `payments/betting/admin/transactions/${targetTransaction.uid}/refund-partner/`
       const data = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -334,7 +334,7 @@ function BettingTransactionsPageContent() {
     setSuccessLoading(true)
     setSuccessError("")
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${successTransaction.uid}/mark-as-success/`
+      const endpoint = `payments/betting/admin/transactions/${successTransaction.uid}/mark-as-success/`
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -379,7 +379,7 @@ function BettingTransactionsPageContent() {
     setFailedLoading(true)
     setFailedError("")
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${failedTransaction.uid}/mark-as-failed/`
+      const endpoint = `payments/betting/admin/transactions/${failedTransaction.uid}/mark-as-failed/`
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -408,7 +408,7 @@ function BettingTransactionsPageContent() {
     setProcessCancellationLoading(true)
     setProcessCancellationError("")
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${targetTransaction.uid}/process_cancellation/`
+      const endpoint = `payments/betting/admin/transactions/${targetTransaction.uid}/process_cancellation/`
       const payload = {
         success: approve,
         admin_notes: processCancellationNotes || (approve ? "Cancellation approved" : "Cancellation rejected")

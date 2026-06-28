@@ -98,7 +98,7 @@ export default function TopupPage() {
 				const orderingParam = sortField
 					? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
 					: ""
-				const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/recharge-requests/?${params.toString()}${orderingParam}`
+				const endpoint = `payments/recharge-requests/?${params.toString()}${orderingParam}`
 				const data = await apiFetch(endpoint)
 				setTopups(data.results || [])
 				setTotalCount(data.count || 0)
@@ -669,7 +669,7 @@ export default function TopupPage() {
 									setPendingAction(true);
 									setActionError("");
 									try {
-										const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/recharge-requests/${actionTopup.uid}/${actionType}/`;
+										const endpoint = `payments/recharge-requests/${actionTopup.uid}/${actionType}/`;
 										const payload =
 											actionType === "approve"
 												? { admin_notes: adminNotes }

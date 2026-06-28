@@ -107,7 +107,7 @@ function PartnerPermissionsSummaryPageContent() {
       setLoading(true)
       setError("")
       try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/permissions/user_platforms_summary/`
+        const endpoint = `payments/betting/admin/permissions/user_platforms_summary/`
         const data = await apiFetch(endpoint)
         let filteredPartners = data.partners || []
         

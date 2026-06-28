@@ -158,7 +158,7 @@ function PartnerTransfersPageContent() {
         const orderingParam = sortField
           ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
           : ""
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/partner-transfers/?${params.toString()}${orderingParam}`
+        const endpoint = `payments/betting/admin/partner-transfers/?${params.toString()}${orderingParam}`
         const data = await apiFetch(endpoint)
         setTransfers(data.results || [])
         setTotalCount(data.count || 0)
@@ -189,7 +189,7 @@ function PartnerTransfersPageContent() {
         if (endDate) {
           params.append("created_at__lt", endDate)
         }
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/partner-transfers/statistics/?${params.toString()}`
+        const endpoint = `payments/betting/admin/partner-transfers/statistics/?${params.toString()}`
         const data = await apiFetch(endpoint)
         setStats(data)
       } catch (err: any) {

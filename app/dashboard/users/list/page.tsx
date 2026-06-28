@@ -166,8 +166,8 @@ function UsersPageContent() {
           : "";
         endpoint =
           viewType === "pending"
-            ? `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/pending/?${params.toString()}${orderingParam}`
-            : `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/?${params.toString()}${orderingParam}`;
+            ? `auth/admin/users/pending/?${params.toString()}${orderingParam}`
+            : `auth/admin/users/?${params.toString()}${orderingParam}`;
       } else {
         const params = new URLSearchParams({
           page: currentPage.toString(),
@@ -175,8 +175,8 @@ function UsersPageContent() {
         });
         endpoint =
           viewType === "pending"
-            ? `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/pending/?${params.toString()}`
-            : `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/?${params.toString()}`;
+            ? `auth/admin/users/pending/?${params.toString()}`
+            : `auth/admin/users/?${params.toString()}`;
       }
       console.log("User API endpoint:", endpoint);
       const data = await apiFetch(endpoint);
@@ -238,7 +238,7 @@ function UsersPageContent() {
     if (!user.uid) return
     setActivatingUid(user.uid)
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${user.uid}/activate/`, {
+      const data = await apiFetch(`auth/admin/users/${user.uid}/activate/`, {
         method: "PATCH",
         successMessage: "Utilisateur activé avec succès"
       })
@@ -255,7 +255,7 @@ function UsersPageContent() {
     if (!user.uid) return
     setDeactivatingUid(user.uid)
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${user.uid}/deactivate/`, {
+      const data = await apiFetch(`auth/admin/users/${user.uid}/deactivate/`, {
         method: "PATCH",
         successMessage: "Utilisateur désactivé avec succès"
       })
@@ -284,7 +284,7 @@ function UsersPageContent() {
     if (selectedUids.length === 0) return
     setLoading(true)
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/bulk-action/`, {
+      const data = await apiFetch(`auth/admin/users/bulk-action/`, {
         method: "POST",
         body: JSON.stringify({ action, user_ids: selectedUids }),
         successMessage: "Action en lot terminée"
@@ -306,7 +306,7 @@ function UsersPageContent() {
     setDetailError("")
     setDetailUser(null)
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${uid}/`)
+      const data = await apiFetch(`auth/admin/users/${uid}/`)
       setDetailUser({
         ...data,
         can_process_momo: data.can_process_momo ?? true,
@@ -332,7 +332,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingEmail(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email_verified: true }),
@@ -351,7 +351,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingPhone(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone_verified: true }),
@@ -370,7 +370,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingEmail(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email_verified: verify }),
@@ -389,7 +389,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingPhone(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone_verified: verify }),
@@ -408,7 +408,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingPartner(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_partner: isPartner }),
@@ -427,7 +427,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingUssd(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ can_process_ussd_transaction: canProcessUssd }),
@@ -446,7 +446,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingMomo(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ can_process_momo: canProcessMomo }),
@@ -465,7 +465,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingMobcash(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ can_process_mobcash: canProcessMobcash }),
@@ -484,7 +484,7 @@ function UsersPageContent() {
     if (!detailUser?.uid) return;
     setVerifyingBulkPayment(true);
     try {
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+      const data = await apiFetch(`auth/admin/users/${detailUser.uid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ can_process_bulk_payment: canProcessBulkPayment }),

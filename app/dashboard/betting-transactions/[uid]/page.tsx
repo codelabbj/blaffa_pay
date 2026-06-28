@@ -51,7 +51,7 @@ export default function BettingTransactionDetailsPage() {
       setLoading(true);
       setError("");
       try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transactionUid}/`;
+        const endpoint = `payments/betting/admin/transactions/${transactionUid}/`;
         const data = await apiFetch(endpoint);
         setTransaction(data);
       } catch (err: any) {
@@ -68,7 +68,7 @@ export default function BettingTransactionDetailsPage() {
     
     setProcessingCancellation(true);
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transactionUid}/process_cancellation/`;
+      const endpoint = `payments/betting/admin/transactions/${transactionUid}/process_cancellation/`;
       const payload = {
         success: approve,
         admin_notes: adminNotes || (approve ? "Cancellation approved" : "Cancellation rejected")

@@ -127,7 +127,7 @@ function PlatformsListPageContent() {
         const orderingParam = sortField
           ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
           : ""
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/?${params.toString()}${orderingParam}`
+        const endpoint = `payments/betting/admin/platforms/?${params.toString()}${orderingParam}`
         const data = await apiFetch(endpoint)
         setPlatforms(data.results || [])
         setTotalCount(data.count || 0)
@@ -162,7 +162,7 @@ function PlatformsListPageContent() {
   const handleToggleStatus = async (platform: Platform) => {
     setToggleLoading(platform.uid)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platform.uid}/toggle_status/`
+      const endpoint = `payments/betting/admin/platforms/${platform.uid}/toggle_status/`
       const data = await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -193,7 +193,7 @@ function PlatformsListPageContent() {
 
     setDeleteLoading(platformToDelete.uid)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platformToDelete.uid}/`
+      const endpoint = `payments/betting/admin/platforms/${platformToDelete.uid}/`
       await apiFetch(endpoint, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },

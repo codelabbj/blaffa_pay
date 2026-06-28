@@ -98,7 +98,7 @@ export default function RegisterUserForm() {
         can_process_mobcash: form.can_process_mobcash,
         can_process_bulk_payment: form.can_process_bulk_payment,
       }
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/register/`, {
+      const data = await apiFetch(`auth/register/`, {
         method: "POST",
         headers,
         body: JSON.stringify(submitBody),

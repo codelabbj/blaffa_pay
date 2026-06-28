@@ -33,7 +33,7 @@ export default function UserPlatformsPage() {
       setUserPlatformsError("")
       setUserPlatformsData(null)
       try {
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/permissions/user_platforms/?user_uid=${userUid}`
+        const endpoint = `payments/betting/admin/permissions/user_platforms/?user_uid=${userUid}`
         const data = await apiFetch(endpoint)
         setUserPlatformsData(data)
       } catch (err: any) {

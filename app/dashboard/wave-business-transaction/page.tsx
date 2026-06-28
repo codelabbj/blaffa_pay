@@ -229,7 +229,7 @@ function WaveBusinessPageContent() {
         params.append("ordering", sortDirection === "desc" ? `-${sortField}` : sortField)
       }
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/wave-business-transactions/?${params.toString()}`
+      const endpoint = `payments/wave-business-transactions/?${params.toString()}`
       const data: ApiResponse = await apiFetch(endpoint)
 
       setTransactions(data.results || [])
@@ -360,7 +360,7 @@ function WaveBusinessPageContent() {
     if (!selectedTransactionForSuccess) return
     setSuccessLoading(true)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/${selectedTransactionForSuccess.uid}/success/`
+      const endpoint = `payments/transactions/${selectedTransactionForSuccess.uid}/success/`
       await apiFetch(endpoint, {
         method: 'POST',
         headers: {
@@ -397,7 +397,7 @@ function WaveBusinessPageContent() {
     if (!selectedTransactionForFailed) return
     setFailedLoading(true)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/${selectedTransactionForFailed.uid}/mark-failed/`
+      const endpoint = `payments/transactions/${selectedTransactionForFailed.uid}/mark-failed/`
       await apiFetch(endpoint, {
         method: 'POST',
         headers: {

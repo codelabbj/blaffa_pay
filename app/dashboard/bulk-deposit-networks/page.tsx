@@ -90,7 +90,7 @@ export default function BulkDepositNetworksPage() {
             if (networkFilter) params.append("network", networkFilter)
             if (isActiveFilter !== "all") params.append("is_active", isActiveFilter)
 
-            const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/admin/bulk-deposit-networks/?${params.toString()}`)
+            const response = await apiFetch(`payments/admin/bulk-deposit-networks/?${params.toString()}`)
             setData(response.results || [])
             setTotalCount(response.count || 0)
         } catch (err) {
@@ -113,7 +113,7 @@ export default function BulkDepositNetworksPage() {
         try {
             const params = new URLSearchParams({ page_size: "50" })
             if (search) params.append("search", search)
-            const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/?${params.toString()}`)
+            const response = await apiFetch(`auth/admin/users/?${params.toString()}`)
             const usersData = response.results || response.users || []
             setUsers(usersData)
         } catch (err) {
@@ -141,7 +141,7 @@ export default function BulkDepositNetworksPage() {
     const fetchNetworks = async () => {
         setLoadingNetworks(true)
         try {
-            const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`)
+            const response = await apiFetch(`payments/networks/`)
             // The API endpoint for networks might vary, let's assume it returns a list or results
             const networkData = response.results || response || []
             setNetworks(networkData.map((n: any) => ({
@@ -169,7 +169,7 @@ export default function BulkDepositNetworksPage() {
 
         setCreateLoading(true)
         try {
-            await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/admin/bulk-deposit-networks/`, {
+            await apiFetch(`payments/admin/bulk-deposit-networks/`, {
                 method: "POST",
                 body: JSON.stringify({
                     user: selectedUser,
@@ -194,7 +194,7 @@ export default function BulkDepositNetworksPage() {
 
     const handleToggleStatus = async (uid: string, currentStatus: boolean) => {
         try {
-            await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/admin/bulk-deposit-networks/${uid}/`, {
+            await apiFetch(`payments/admin/bulk-deposit-networks/${uid}/`, {
                 method: "PATCH",
                 body: JSON.stringify({ is_active: !currentStatus }),
                 successMessage: `Statut mis à jour avec succès`,

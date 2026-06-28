@@ -247,7 +247,7 @@ function MomoPayPageContent() {
         params.append("ordering", sortDirection === "desc" ? `-${sortField}` : sortField)
       }
 
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/?${params.toString()}`
+      const endpoint = `payments/momo-pay-transactions/?${params.toString()}`
       const data: ApiResponse = await apiFetch(endpoint)
 
       setTransactions(data.results || [])
@@ -397,7 +397,7 @@ function MomoPayPageContent() {
     setDetailLoading(true)
 
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${transaction.uid}/`
+      const endpoint = `payments/momo-pay-transactions/${transaction.uid}/`
       const data: MomoPayTransaction = await apiFetch(endpoint)
       setDetailTransaction(data)
       toast({
@@ -427,7 +427,7 @@ function MomoPayPageContent() {
   const handleCancelTransaction = async (transactionUid: string) => {
     setCancelLoading(true)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${transactionUid}/cancel/`
+      const endpoint = `payments/momo-pay-transactions/${transactionUid}/cancel/`
       await apiFetch(endpoint, {
         method: 'POST'
       })
@@ -457,7 +457,7 @@ function MomoPayPageContent() {
     if (!selectedTransactionForSuccess) return
     setSuccessLoading(true)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/${selectedTransactionForSuccess.uid}/success/`
+      const endpoint = `payments/transactions/${selectedTransactionForSuccess.uid}/success/`
       await apiFetch(endpoint, {
         method: 'POST',
         headers: {
@@ -494,7 +494,7 @@ function MomoPayPageContent() {
     if (!selectedTransactionForFailed) return
     setFailedLoading(true)
     try {
-      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transactions/${selectedTransactionForFailed.uid}/mark-failed/`
+      const endpoint = `payments/transactions/${selectedTransactionForFailed.uid}/mark-failed/`
       await apiFetch(endpoint, {
         method: 'POST',
         headers: {

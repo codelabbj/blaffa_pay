@@ -49,7 +49,7 @@ function RemoteCommandCreatePage() {
   useEffect(() => {
     const fetchDevices = async () => {
       try {
-        const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/stats/devices/`)
+        const data = await apiFetch(`payments/stats/devices/`)
         setDevices(Array.isArray(data) ? data : data.results || [])
       } catch (err) {
         setDevices([])
@@ -87,7 +87,7 @@ function RemoteCommandCreatePage() {
       // })
       
       // Send via API instead
-      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/remote-command/`, {
+      const data = await apiFetch(`payments/remote-command/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ command, device_id: deviceId, parameters: paramsObj, priority }),

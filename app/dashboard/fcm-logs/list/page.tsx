@@ -117,7 +117,7 @@ function FcmLogsListPageContent() {
         }
         
         const query = params.toString().replace(/ordering=%2B/g, "ordering=+")
-        const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/fcm-logs/?${query}`
+        const endpoint = `payments/fcm-logs/?${query}`
         
         const data = await apiFetch(endpoint)
         

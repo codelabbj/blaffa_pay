@@ -75,13 +75,13 @@ export default function DevicesListPage() {
             params.append("created_at__lte", endDate);
           }
           const query = params.toString().replace(/ordering=%2B/g, "ordering=+");
-          endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/stats/devices/?${query}`;
+          endpoint = `payments/stats/devices/?${query}`;
         } else {
           const params = new URLSearchParams({
             page: "1",
             page_size: "100",
           });
-          endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/stats/devices/?${params.toString()}`;
+          endpoint = `payments/stats/devices/?${params.toString()}`;
         }
         // Test error handling - uncomment to test
         // throw new Error('{"detail":"Method \"GET\" not allowed."}')

@@ -255,7 +255,7 @@ function TransactionsPageContent() {
   useEffect(() => {
     const fetchNetworks = async () => {
       try {
-        const data = await apiFetch(`${baseUrl}api/payments/networks/`)
+        const data = await apiFetch(`${baseUrl}/api/payments/networks/`)
         setNetworks(data.results || [])
       } catch (err) {
         console.error("Failed to load networks", err)
@@ -375,7 +375,7 @@ function TransactionsPageContent() {
     setEditLoading(true)
     setEditError("")
     try {
-      const endpoint = `${baseUrl}api/payments/transactions/${editTransaction.uid}/`
+      const endpoint = `${baseUrl}/api/payments/transactions/${editTransaction.uid}/`
       await apiFetch(endpoint, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -413,7 +413,7 @@ function TransactionsPageContent() {
     setLoading(true)
     setError("")
     try {
-      const endpoint = `${baseUrl}api/payments/transactions/${deleteUid}/`
+      const endpoint = `${baseUrl}/api/payments/transactions/${deleteUid}/`
       await apiFetch(endpoint, {
         method: "DELETE",
         successMessage: t("transactions.transactionDeletedSuccessfully") || "Transaction supprimée avec succès"
@@ -529,7 +529,7 @@ function TransactionsPageContent() {
       return
     }
     try {
-      const endpoint = `${baseUrl}api/payments/transactions/${tx.uid}/assign/`
+      const endpoint = `${baseUrl}/api/payments/transactions/${tx.uid}/assign/`
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -563,7 +563,7 @@ function TransactionsPageContent() {
     setRetryLoading(true)
     setRetryError("")
     try {
-      const endpoint = `${baseUrl}api/payments/transactions/${retryTransaction.uid}/retry/`
+      const endpoint = `${baseUrl}/api/payments/transactions/${retryTransaction.uid}/retry/`
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -597,7 +597,7 @@ function TransactionsPageContent() {
     setCancelLoading(true)
     setCancelError("")
     try {
-      const endpoint = `${baseUrl}api/payments/transactions/${cancelTransaction.uid}/cancel/`
+      const endpoint = `${baseUrl}/api/payments/transactions/${cancelTransaction.uid}/cancel/`
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -630,7 +630,7 @@ function TransactionsPageContent() {
     setSuccessLoading(true)
     setSuccessError("")
     try {
-      const endpoint = `${baseUrl}api/payments/transactions/${successTransaction.uid}/success/`
+      const endpoint = `${baseUrl}/api/payments/transactions/${successTransaction.uid}/success/`
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -663,7 +663,7 @@ function TransactionsPageContent() {
     setFailedLoading(true)
     setFailedError("")
     try {
-      const endpoint = `${baseUrl}api/payments/transactions/${failedTransaction.uid}/mark-failed/`
+      const endpoint = `${baseUrl}/api/payments/transactions/${failedTransaction.uid}/mark-failed/`
       await apiFetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

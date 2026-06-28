@@ -20,12 +20,11 @@ export function normalizeApiBase(raw: string | undefined): string {
 }
 
 /**
- * URL de base API avec slash final.
- * Accepte dans .env : https://api.com ou https://api.com/ (équivalent).
+ * URL de base API sans slash final.
+ * Préférer apiUrl() pour construire les URLs complètes.
  */
 export function getApiBaseUrl(): string {
-  const base = normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL)
-  return base ? `${base}/` : ""
+  return normalizeApiBase(process.env.NEXT_PUBLIC_API_BASE_URL)
 }
 
 /**

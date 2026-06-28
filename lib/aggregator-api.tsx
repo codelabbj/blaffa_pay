@@ -2,7 +2,7 @@
 
 import { useApi } from "./useApi"
 import { useCallback } from "react"
-import { getApiBaseUrl } from "@/lib/env-config"
+import { apiUrl } from "@/lib/env-config"
 
 export interface AggregatorDashboardStats {
     users: {
@@ -130,20 +130,19 @@ export interface AggregatorTransaction {
 
 export function useAggregatorApi() {
     const apiFetch = useApi()
-    const baseUrl = getApiBaseUrl()
 
     const getDashboardStats = useCallback(async () => {
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/dashboard/`)
-    }, [apiFetch, baseUrl])
+        return await apiFetch(apiUrl("api/aggregator/admin/dashboard/"))
+    }, [apiFetch])
 
     const getAggregatorUsers = useCallback(async (params?: URLSearchParams) => {
         const queryString = params ? `?${params.toString()}` : ""
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/?is_aggregator=true&${queryString.replace(/^\?/, "")}`)
-    }, [apiFetch, baseUrl])
+        return await apiFetch(apiUrl(`api/auth/admin/users/?is_aggregator=true&${queryString.replace(/^\?/, "")}`))
+    }, [apiFetch])
 
     const getUserStats = useCallback(async (uid: string) => {
         try {
-            return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/aggregators/${uid}/stats/`)
+            return await apiFetch(apiUrl(`api/auth/admin/users/aggregators/${uid}/stats/`))
         } catch (err: any) {
             console.warn("getUserStats failed:", err)
             if (err && err.error) {
@@ -152,55 +151,55 @@ export function useAggregatorApi() {
             if (err instanceof Error) return err
             return new Error("Failed to fetch user stats")
         }
-    }, [apiFetch, baseUrl])
+    }, [apiFetch])
 
     const listAuthorizations = useCallback(async (uid?: string) => {
         const queryString = uid ? `?user=${uid}` : ""
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/user-authorizations/${queryString}`)
-    }, [apiFetch, baseUrl])
+        return await apiFetch(apiUrl(`api/aggregator/admin/user-authorizations/${queryString}`))
+    }, [apiFetch])
 
     const grantAuthorization = useCallback(async (payload: Partial<UserAuthorization>) => {
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/user-authorizations/`, {
+        return await apiFetch(apiUrl("api/aggregator/admin/user-authorizations/"), {
             method: "POST",
             body: JSON.stringify(payload),
         })
-    }, [apiFetch, baseUrl])
+    }, [apiFetch])
 
     const updateAuthorization = useCallback(async (uid: string, payload: Partial<UserAuthorization>) => {
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/user-authorizations/${uid}/`, {
+        return await apiFetch(apiUrl(`api/aggregator/admin/user-authorizations/${uid}/`), {
             method: "PATCH",
             body: JSON.stringify(payload),
         })
-    }, [apiFetch, baseUrl])
+    }, [apiFetch])
 
     const listNetworkMappings = useCallback(async (params?: URLSearchParams) => {
         const queryString = params ? `?${params.toString()}` : ""
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/network-mappings/${queryString}`)
-    }, [apiFetch, baseUrl])
+        return await apiFetch(apiUrl(`api/aggregator/admin/network-mappings/${queryString}`))
+    }, [apiFetch])
 
     const getNetworks = useCallback(async (params?: URLSearchParams) => {
         const queryString = params ? `?${params.toString()}` : ""
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/${queryString}`)
-    }, [apiFetch, baseUrl])
+        return await apiFetch(apiUrl(`api/payments/networks/${queryString}`))
+    }, [apiFetch])
 
     const createNetworkMapping = useCallback(async (payload: Partial<NetworkMapping>) => {
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/network-mappings/`, {
+        return await apiFetch(apiUrl("api/aggregator/admin/network-mappings/"), {
             method: "POST",
             body: JSON.stringify(payload),
         })
-    }, [apiFetch, baseUrl])
+    }, [apiFetch])
 
     const updateNetworkMapping = useCallback(async (uid: string, payload: Partial<NetworkMapping>) => {
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/network-mappings/${uid}/`, {
+        return await apiFetch(apiUrl(`api/aggregator/admin/network-mappings/${uid}/`), {
             method: "PATCH",
             body: JSON.stringify(payload),
         })
-    }, [apiFetch, baseUrl])
+    }, [apiFetch])
 
     const listTransactions = useCallback(async (params?: URLSearchParams) => {
         const queryString = params ? `?${params.toString()}` : ""
-        return await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/aggregator/admin/transactions/${queryString}`)
-    }, [apiFetch, baseUrl])
+        return await apiFetch(apiUrl(`api/aggregator/admin/transactions/${queryString}`))
+    }, [apiFetch])
 
     return {
         getDashboardStats,

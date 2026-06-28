@@ -56,7 +56,7 @@ export default function EditTransactionPage() {
       setLoading(true)
       setError("")
       try {
-        const data = await apiFetch(`${baseUrl}api/payments/transactions/${uid}/`)
+        const data = await apiFetch(`${baseUrl}/api/payments/transactions/${uid}/`)
         setTransaction(data)
         setForm({
           recipient_name: data.recipient_name || data.display_recipient_name || "",
@@ -79,7 +79,7 @@ export default function EditTransactionPage() {
     setLogsLoading(true)
     setLogsError("")
     try {
-      const data = await apiFetch(`${baseUrl}api/payments/transaction-logs/?transaction=${uid}`)
+      const data = await apiFetch(`${baseUrl}/api/payments/transaction-logs/?transaction=${uid}`)
       const items = Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : []
       setLogs(items)
     } catch (err: any) {
@@ -119,7 +119,7 @@ export default function EditTransactionPage() {
         raw_sms: form.raw_sms,
         processed_by_phone: form.processed_by_phone,
       }
-      await apiFetch(`${baseUrl}api/payments/transactions/${uid}/`, {
+      await apiFetch(`${baseUrl}/api/payments/transactions/${uid}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

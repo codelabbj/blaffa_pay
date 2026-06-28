@@ -57,7 +57,7 @@ export function SignInForm() {
     setError("")
     setLoading(true)
     try {
-      const data = await apiFetch(`${baseUrl}api/auth/login/`, {
+      const data = await apiFetch(`${baseUrl}/api/auth/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, password }),
@@ -130,7 +130,7 @@ export function SignInForm() {
     setError("")
     setLoading(true)
     try {
-      const response = await apiFetch(`${baseUrl}api/auth/password-reset/`, {
+      const response = await apiFetch(`${baseUrl}/api/auth/password-reset/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier }),
@@ -175,7 +175,7 @@ export function SignInForm() {
     }
     setLoading(true)
     try {
-      const response = await apiFetch(`${baseUrl}api/auth/password-reset/confirm/`, {
+      const response = await apiFetch(`${baseUrl}/api/auth/password-reset/confirm/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,5 +1,4 @@
-import { getApiBaseUrl } from "@/lib/env-config"
-const baseUrl = () => getApiBaseUrl()
+import { apiUrl } from "@/lib/env-config"
 
 type ApiFetch = (input: RequestInfo, init?: RequestInit) => Promise<any>
 
@@ -23,7 +22,7 @@ export async function bulkPaymentTransactionCancel(
 ): Promise<BulkResult> {
   return runBulk(
     uids.map((uid) =>
-      apiFetch(`${baseUrl()}/api/payments/transactions/${uid}/cancel/`, {
+      apiFetch(apiUrl(`api/payments/transactions/${uid}/cancel/`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason }),
@@ -39,7 +38,7 @@ export async function bulkPaymentTransactionSuccess(
 ): Promise<BulkResult> {
   return runBulk(
     uids.map((uid) =>
-      apiFetch(`${baseUrl()}/api/payments/transactions/${uid}/success/`, {
+      apiFetch(apiUrl(`api/payments/transactions/${uid}/success/`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason }),
@@ -55,7 +54,7 @@ export async function bulkPaymentTransactionFailed(
 ): Promise<BulkResult> {
   return runBulk(
     uids.map((uid) =>
-      apiFetch(`${baseUrl()}/api/payments/transactions/${uid}/mark-failed/`, {
+      apiFetch(apiUrl(`api/payments/transactions/${uid}/mark-failed/`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason }),
@@ -70,7 +69,7 @@ export async function bulkWaveBusinessCancel(
 ): Promise<BulkResult> {
   return runBulk(
     uids.map((uid) =>
-      apiFetch(`${baseUrl()}/api/payments/wave-business-transactions/${uid}/cancel/`, {
+      apiFetch(apiUrl(`api/payments/wave-business-transactions/${uid}/cancel/`), {
         method: "POST",
       }),
     ),
@@ -83,7 +82,7 @@ export async function bulkMomoPayCancel(
 ): Promise<BulkResult> {
   return runBulk(
     uids.map((uid) =>
-      apiFetch(`${baseUrl()}/api/payments/momo-pay-transactions/${uid}/cancel/`, {
+      apiFetch(apiUrl(`api/payments/momo-pay-transactions/${uid}/cancel/`), {
         method: "POST",
       }),
     ),

@@ -33,7 +33,7 @@ export default function AggregatorUsersPage() {
         setLoading(true)
         setError("")
         try {
-            const data = await apiFetch(`${baseUrl}api/auth/admin/users/aggregators/?page=${page}&ordering=-created_at`)
+            const data = await apiFetch(`${baseUrl}/api/auth/admin/users/aggregators/?page=${page}&ordering=-created_at`)
             setData(data)
         } catch (err: any) {
             setError(extractErrorMessages(err) || t("common.failedToLoad"))
@@ -51,7 +51,7 @@ export default function AggregatorUsersPage() {
         if (!confirm(confirmMsg)) return
 
         try {
-            await apiFetch(`${baseUrl}api/auth/admin/users/aggregators/${uid}/`, {
+            await apiFetch(`${baseUrl}/api/auth/admin/users/aggregators/${uid}/`, {
                 method: 'PATCH',
                 body: JSON.stringify({ is_active: !currentStatus })
             })

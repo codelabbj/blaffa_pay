@@ -64,6 +64,29 @@ export async function createDeviceStaff(
   })
 }
 
+export async function deleteDevice(
+  apiFetch: ApiFetch,
+  uid: string,
+  opts?: { showSuccessToast?: boolean },
+): Promise<void> {
+  await apiFetch(apiUrl(`api/payments/devices/${uid}/`), {
+    method: "DELETE",
+    successMessage: "Device supprimé",
+    showSuccessToast: opts?.showSuccessToast,
+  })
+}
+
+export async function bulkDeleteDevices(
+  apiFetch: ApiFetch,
+  devices: PaymentDevice[],
+): Promise<{ ok: number; failed: number }> {
+  const results = await Promise.allSettled(
+    devices.map((d) => deleteDevice(apiFetch, d.uid, { showSuccessToast: false })),
+  )
+  const ok = results.filter((r) => r.status === "fulfilled").length
+  return { ok, failed: results.length - ok }
+}
+
 export async function pushDeviceConfig(
   apiFetch: ApiFetch,
   deviceId: string,

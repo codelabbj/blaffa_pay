@@ -3,15 +3,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Copy, Loader2, MoreHorizontal, Pause, Play, Save } from "lucide-react"
+import { ArrowLeft, Copy, Loader2, MoreHorizontal, Pause, Play, Save, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { DeviceForm } from "@/components/flashpay-devices/device-form"
 import type { DeviceFormValues } from "@/lib/types/flashpay-device"
 import {
@@ -24,6 +35,7 @@ import {
   validateUpdateForm,
 } from "@/lib/flashpay-device-utils"
 import {
+  deleteDevice,
   fetchDeviceByUid,
   pushDeviceConfig,
   updateDeviceStatus,
@@ -43,6 +55,8 @@ export default function FlashPayDeviceEditPage() {
   const [saving, setSaving] = useState(false)
   const [pushing, setPushing] = useState(false)
   const [dirty, setDirty] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   const completion = useMemo(() => (form ? computeCompletion(form) : null), [form])
 
@@ -117,6 +131,20 @@ export default function FlashPayDeviceEditPage() {
     }
   }
 
+  const handleDelete = async () => {
+    if (!form?.uid) return
+    setDeleting(true)
+    try {
+      await deleteDevice(apiFetch, form.uid)
+      router.push("/dashboard/devices/flashpay")
+    } catch (e: any) {
+      toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
+    } finally {
+      setDeleting(false)
+      setDeleteOpen(false)
+    }
+  }
+
   if (loading || !form) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -187,6 +215,13 @@ export default function FlashPayDeviceEditPage() {
                   <Copy className="h-4 w-4 mr-2" /> Dupliquer
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handlePush}>Pousser config mobile</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" /> Supprimer
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -202,6 +237,28 @@ export default function FlashPayDeviceEditPage() {
           pushing={pushing}
         />
       </div>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer le device</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer{" "}
+              <strong>{form.device_name || form.device_id}</strong> ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? "Suppression..." : "Supprimer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

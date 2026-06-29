@@ -18,6 +18,7 @@ import {
   Search,
   Smartphone,
   Sparkles,
+  Trash2,
   X,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -44,16 +45,29 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DevicePickerDrawer } from "@/components/flashpay-devices/device-picker-drawer"
 import {
+  bulkDeleteDevices,
   bulkPushDeviceConfig,
   bulkToggleDevicePause,
+  deleteDevice,
   fetchNetworks,
   fetchStaffDevices,
   pushDeviceConfig,
@@ -147,6 +161,8 @@ export default function FlashPayDevicesPage() {
   const [sort, setSort] = useState<DeviceSortState>(DEFAULT_DEVICE_SORT)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<PaymentDevice[] | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const kpiFilter = activeKpiFromFilters(filters)
 
@@ -286,6 +302,30 @@ export default function FlashPayDevicesPage() {
       toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
     } finally {
       setBulkLoading(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget?.length) return
+    setDeleting(true)
+    try {
+      if (deleteTarget.length === 1) {
+        await deleteDevice(apiFetch, deleteTarget[0].uid)
+      } else {
+        const { ok, failed } = await bulkDeleteDevices(apiFetch, deleteTarget)
+        toast({
+          title: "Suppression groupée",
+          description: `${ok} supprimé(s)${failed ? `, ${failed} échec(s)` : ""}`,
+          variant: failed ? "destructive" : "default",
+        })
+      }
+      setDeleteTarget(null)
+      setSelected(new Set())
+      load()
+    } catch (e: any) {
+      toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -478,6 +518,15 @@ export default function FlashPayDevicesPage() {
                 >
                   <Radio className="h-4 w-4 mr-1" /> Pousser config
                 </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={bulkLoading}
+                  className="text-red-600 border-red-200 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/20"
+                  onClick={() => setDeleteTarget(selectedDevices)}
+                >
+                  <Trash2 className="h-4 w-4 mr-1" /> Supprimer
+                </Button>
                 <Button size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
                   Annuler
                 </Button>
@@ -619,6 +668,13 @@ export default function FlashPayDevicesPage() {
                                 {device.is_paused ? "Reprendre" : "Mettre en pause"}
                               </span>
                             </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-red-600 focus:text-red-600"
+                              onClick={() => setDeleteTarget([device])}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" /> Supprimer
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -637,6 +693,39 @@ export default function FlashPayDevicesPage() {
         devices={devices}
         onSelect={(d) => router.push(`/dashboard/devices/flashpay/new?from=${d.uid}`)}
       />
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {deleteTarget && deleteTarget.length > 1
+                ? `Supprimer ${deleteTarget.length} devices`
+                : "Supprimer le device"}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget && deleteTarget.length === 1 ? (
+                <>
+                  Êtes-vous sûr de vouloir supprimer{" "}
+                  <strong>{deleteTarget[0].device_name || deleteTarget[0].device_id}</strong> ?
+                  Cette action est irréversible.
+                </>
+              ) : (
+                <>Êtes-vous sûr de vouloir supprimer les devices sélectionnés ? Cette action est irréversible.</>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? "Suppression..." : "Supprimer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

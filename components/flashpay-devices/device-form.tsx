@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Sparkles, Upload, Check, ChevronsUpDown, Loader2, Eye, EyeOff } from "lucide-react"
-import type { DeviceFormValues, ExecutionMode, FlashPayDeviceConfig, OperationTab } from "@/lib/types/flashpay-device"
+import type { DeviceFormValues, ExecutionMode, FlashPayDeviceConfig, OperationTab, SmsSenderConfig } from "@/lib/types/flashpay-device"
 import {
   applyFlashpayConfigImport,
   computeCompletion,
@@ -17,6 +17,7 @@ import {
   getRequiredUssdOperations,
   compactCustomSettings,
   createEmptyFlashpayConfig,
+  defaultSmsSenderConfig,
   flashpayTheme,
   isAppExecutionMode,
   isSampleForm,
@@ -211,6 +212,18 @@ export function DeviceForm({
       custom_settings: compactCustomSettings({
         ...form.custom_settings,
         flashpay: { ...base, ...partial },
+      }),
+    })
+  }
+
+  const smsSender = form.custom_settings.sms_sender ?? defaultSmsSenderConfig()
+
+  const patchSmsSender = (partial: Partial<SmsSenderConfig>) => {
+    onChange({
+      ...form,
+      custom_settings: compactCustomSettings({
+        ...form.custom_settings,
+        sms_sender: { ...smsSender, ...partial },
       }),
     })
   }
@@ -594,6 +607,40 @@ export function DeviceForm({
               })}
             </div>
           </div>
+        </FormSection>
+
+        <FormSection
+          title="Émetteur SMS"
+          description="Active ce device pour envoyer des SMS sortants via FlashPay."
+        >
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-gray-600 px-4 py-3">
+            <div>
+              <p className="font-medium text-gray-900 dark:text-gray-100">Device émetteur SMS</p>
+              <p className={flashpayTheme.mutedXs}>
+                Le téléphone récupère les demandes, envoie le SMS et confirme le statut au serveur.
+              </p>
+            </div>
+            <Switch
+              checked={smsSender.enabled}
+              onCheckedChange={(enabled) => patchSmsSender({ enabled })}
+              aria-label="Activer émetteur SMS"
+            />
+          </div>
+          {smsSender.enabled && (
+            <div className="max-w-xs">
+              <Label>Limite journalière</Label>
+              <Input
+                type="number"
+                min={1}
+                max={5000}
+                className="mt-1"
+                value={smsSender.daily_limit ?? 500}
+                onChange={(e) =>
+                  patchSmsSender({ daily_limit: Math.max(1, parseInt(e.target.value, 10) || 500) })
+                }
+              />
+            </div>
+          )}
         </FormSection>
 
         <FormSection

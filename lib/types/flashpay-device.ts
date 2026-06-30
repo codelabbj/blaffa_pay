@@ -48,10 +48,16 @@ export interface FlashPayMeta {
   cloned_at?: string
 }
 
+export interface SmsSenderConfig {
+  enabled: boolean
+  daily_limit?: number
+}
+
 export interface DeviceCustomSettings {
   flashpay?: FlashPayDeviceConfig
   flashpay_updated_at?: string
   flashpay_meta?: FlashPayMeta
+  sms_sender?: SmsSenderConfig
   [key: string]: unknown
 }
 

@@ -13,6 +13,7 @@ import {
   Pause,
   Play,
   Plus,
+  MessageSquare,
   Radio,
   RefreshCw,
   Search,
@@ -95,6 +96,7 @@ import {
   formatRelativeTime,
   isDeviceConfigured,
   isDeviceEffectivelyOnline,
+  isSmsSenderDevice,
   networkChipClass,
   networkInitials,
   ussdConfigSummary,
@@ -340,6 +342,11 @@ export default function FlashPayDevicesPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" className={flashpayTheme.navyOutline} asChild>
+              <Link href="/dashboard/devices/flashpay/sms-outbound">
+                <MessageSquare className="h-4 w-4 mr-2" /> SMS sortants
+              </Link>
+            </Button>
             <Button variant="outline" className={flashpayTheme.navyOutline} onClick={() => setPickerOpen(true)}>
               <Copy className="h-4 w-4 mr-2" /> Depuis modèle
             </Button>
@@ -614,9 +621,14 @@ export default function FlashPayDevicesPage() {
                           <div className="h-9 w-9 rounded-full bg-[#0B2545] text-white text-xs font-bold flex items-center justify-center">
                             {networkInitials(device.network_name, device.custom_settings?.flashpay?.network_code)}
                           </div>
-                          <div>
+                            <div>
                             <p className="font-semibold text-[#0B2545] dark:text-gray-100">{device.device_name || "—"}</p>
                             <p className="font-mono text-xs text-slate-500 dark:text-gray-400">{device.device_id}</p>
+                            {isSmsSenderDevice(device) && (
+                              <Badge variant="outline" className="mt-1 text-xs border-violet-300 text-violet-800">
+                                Émetteur SMS
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </TableCell>

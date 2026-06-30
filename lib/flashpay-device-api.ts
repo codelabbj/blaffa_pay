@@ -87,6 +87,51 @@ export async function bulkDeleteDevices(
   return { ok, failed: results.length - ok }
 }
 
+export interface OutboundSmsJob {
+  uid: string
+  device?: string | null
+  device_id?: string | null
+  client_user?: string
+  client_user_name?: string
+  to_phone: string
+  message: string
+  status: "pending" | "claimed" | "sent" | "failed" | "cancelled"
+  status_display?: string
+  claimed_at?: string | null
+  sent_at?: string | null
+  finished_at?: string | null
+  error_message?: string | null
+  retry_count?: number
+  created_at?: string
+}
+
+export async function fetchOutboundSmsJobs(
+  apiFetch: ApiFetch,
+  params?: Record<string, string>,
+): Promise<OutboundSmsJob[]> {
+  const qs = new URLSearchParams({ page_size: "50", ...params })
+  const data = await apiFetch(apiUrl(`api/payments/outbound-sms/?${qs}`))
+  if (Array.isArray(data)) return data
+  return (data as PaginatedResponse<OutboundSmsJob>).results ?? []
+}
+
+export async function createOutboundSmsJob(
+  apiFetch: ApiFetch,
+  payload: {
+    device?: string
+    client_user?: string
+    to_phone: string
+    message: string
+    idempotency_key?: string
+  },
+): Promise<OutboundSmsJob> {
+  return apiFetch(apiUrl("api/payments/outbound-sms/"), {
+    method: "POST",
+    body: JSON.stringify(payload),
+    successMessage: "Demande SMS créée",
+  })
+}
+
 export async function pushDeviceConfig(
   apiFetch: ApiFetch,
   deviceId: string,

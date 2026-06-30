@@ -7,6 +7,7 @@ import type {
   FlashPayMeta,
   PaymentDevice,
   DeviceKpiFilter,
+  SmsSenderConfig,
 } from "@/lib/types/flashpay-device"
 import { DEVICE_CREATE_SAMPLE, SAMPLE_DEVICE_ID_VALUE } from "@/lib/flashpay-device-sample"
 import { migrateYapsonToFlashpay } from "@/lib/yapson-config-migrate"
@@ -119,6 +120,14 @@ export function compactFlashpayMeta(meta?: FlashPayMeta): FlashPayMeta | undefin
   if (meta.cloned_from_device_id) out.cloned_from_device_id = meta.cloned_from_device_id
   if (meta.cloned_at) out.cloned_at = meta.cloned_at
   return Object.keys(out).length > 0 ? out : undefined
+}
+
+export function isSmsSenderDevice(device: PaymentDevice | DeviceFormValues): boolean {
+  return Boolean(device.custom_settings?.sms_sender?.enabled)
+}
+
+export function defaultSmsSenderConfig(): SmsSenderConfig {
+  return { enabled: false, daily_limit: 500 }
 }
 
 export function compactCustomSettings(settings: DeviceCustomSettings): DeviceCustomSettings {
@@ -276,6 +285,7 @@ export function deviceToFormValues(device: PaymentDevice): DeviceFormValues {
     custom_settings: compactCustomSettings({
       ...raw,
       ...(fp ? { flashpay: fp } : {}),
+      sms_sender: raw.sms_sender ?? defaultSmsSenderConfig(),
     }),
   }
 }

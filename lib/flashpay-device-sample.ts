@@ -96,6 +96,7 @@ export const DEVICE_CREATE_SAMPLE: DeviceFormValues = {
     flashpay_meta: {
       is_sample: true,
     },
+    sms_sender: { enabled: false, daily_limit: 500 },
   },
 }
 

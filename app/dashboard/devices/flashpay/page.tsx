@@ -343,7 +343,7 @@ export default function FlashPayDevicesPage() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" className={flashpayTheme.navyOutline} asChild>
-              <Link href="/dashboard/devices/flashpay/sms-outbound">
+              <Link href="/dashboard/sms-outbound">
                 <MessageSquare className="h-4 w-4 mr-2" /> SMS sortants
               </Link>
             </Button>

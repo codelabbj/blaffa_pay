@@ -6,7 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/providers/language-provider"
-import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt, ShieldCheck, Layers } from "lucide-react"
+import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, Home, DollarSign, Waves, Sparkles, Smartphone, ArrowUpDown, Gamepad2, Shield, Receipt, ShieldCheck, Layers, Send } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 import { FeatureGate } from "@/components/feature-gate"
 import { getAppLogo, getAppName, getAppTagline } from "@/lib/env-config"
@@ -59,6 +59,7 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
 
   const isDevicesActive = pathname.startsWith("/dashboard/devices")
   const isFlashPayDevicesActive = pathname.startsWith("/dashboard/devices/flashpay")
+  const isOutboundSmsActive = pathname.startsWith("/dashboard/sms-outbound")
 
   const isNetworkConfigActive = pathname.startsWith("/dashboard/network-config")
   const isNetworkConfigListActive = pathname === "/dashboard/network-config/list"
@@ -207,6 +208,22 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             >
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("nav.transactions")}</span></span>
+            </Link>
+            </FeatureGate>
+
+            <FeatureGate feature="outboundSms">
+            <Link
+              href="/dashboard/sms-outbound"
+              className={cn(
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
+                isOutboundSmsActive
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
+              )}
+              onClick={onToggleMobileSidebar}
+            >
+              <Send className="mr-3 h-5 w-5 flex-shrink-0" />
+              <span>{t("nav.outboundSms")}</span>
             </Link>
             </FeatureGate>
 
@@ -804,6 +821,21 @@ export function Sidebar({ mobileSidebarOpen = false, onToggleMobileSidebar }: Si
             >
               <CreditCard className="mr-3 h-5 w-5 flex-shrink-0" />
               <span><span>{t("nav.transactions")}</span></span>
+            </Link>
+            </FeatureGate>
+
+            <FeatureGate feature="outboundSms">
+            <Link
+              href="/dashboard/sms-outbound"
+              className={cn(
+                "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors duration-150",
+                isOutboundSmsActive
+                  ? "bg-orange-500 text-white"
+                  : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800",
+              )}
+            >
+              <Send className="mr-3 h-5 w-5 flex-shrink-0" />
+              <span>{t("nav.outboundSms")}</span>
             </Link>
             </FeatureGate>
 

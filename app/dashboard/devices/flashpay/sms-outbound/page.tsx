@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast"
 import { extractErrorMessages } from "@/components/ui/error-display"
 import {
   createOutboundSmsJob,
+  fetchNetworks,
   fetchOutboundSmsJobs,
   fetchStaffDevices,
   type OutboundSmsJob,
@@ -45,20 +46,33 @@ export default function OutboundSmsPage() {
   const [sending, setSending] = useState(false)
   const [statusFilter, setStatusFilter] = useState("all")
   const [deviceUid, setDeviceUid] = useState("")
+  const [networkUid, setNetworkUid] = useState("")
+  const [networks, setNetworks] = useState<{ uid: string; nom: string; code?: string }[]>([])
   const [toPhone, setToPhone] = useState("")
   const [message, setMessage] = useState("")
 
-  const smsDevices = useMemo(() => devices.filter(isSmsSenderDevice), [devices])
+  const smsDevices = useMemo(() => {
+    let list = devices.filter(isSmsSenderDevice)
+    if (networkUid) list = list.filter((d) => d.network === networkUid)
+    return list
+  }, [devices, networkUid])
+
+  const smsNetworks = useMemo(() => {
+    const ids = new Set(devices.filter(isSmsSenderDevice).map((d) => d.network).filter(Boolean))
+    return networks.filter((n) => ids.has(n.uid))
+  }, [devices, networks])
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [jobList, deviceList] = await Promise.all([
+      const [jobList, deviceList, networkList] = await Promise.all([
         fetchOutboundSmsJobs(apiFetch, statusFilter !== "all" ? { status: statusFilter } : undefined),
         fetchStaffDevices(apiFetch),
+        fetchNetworks(apiFetch),
       ])
       setJobs(jobList)
       setDevices(deviceList)
+      setNetworks(networkList)
     } catch (e: unknown) {
       toast({ title: "Erreur", description: extractErrorMessages(e), variant: "destructive" })
     } finally {
@@ -81,6 +95,7 @@ export default function OutboundSmsPage() {
         to_phone: toPhone.trim(),
         message: message.trim(),
         ...(deviceUid ? { device: deviceUid } : {}),
+        ...(networkUid && !deviceUid ? { network: networkUid } : {}),
       })
       setToPhone("")
       setMessage("")
@@ -123,30 +138,60 @@ export default function OutboundSmsPage() {
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
+                <Label>Réseau émetteur (optionnel)</Label>
+                <Select
+                  value={networkUid || "__auto__"}
+                  onValueChange={(v) => {
+                    const next = v === "__auto__" ? "" : v
+                    setNetworkUid(next)
+                    if (next && deviceUid) {
+                      const dev = devices.find((d) => d.uid === deviceUid)
+                      if (dev?.network && dev.network !== next) setDeviceUid("")
+                    }
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Tous réseaux" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__auto__">Tous réseaux — premier device dispo</SelectItem>
+                    {smsNetworks.map((n) => (
+                      <SelectItem key={n.uid} value={n.uid}>
+                        {n.nom} {n.code ? `(${n.code})` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className={`${flashpayTheme.mutedXs} mt-2`}>
+                  Laissez vide pour le premier émetteur SMS disponible. Utile si plusieurs SIM (Orange, Moov…).
+                </p>
+              </div>
+              <div>
                 <Label>Device émetteur (optionnel)</Label>
                 <Select value={deviceUid || "__auto__"} onValueChange={(v) => setDeviceUid(v === "__auto__" ? "" : v)}>
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Auto — premier device dispo" />
+                    <SelectValue placeholder="Auto — par réseau ou premier dispo" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__auto__">Auto — premier device dispo</SelectItem>
+                    <SelectItem value="__auto__">Auto — par réseau ou premier dispo</SelectItem>
                     {smsDevices.map((d) => (
                       <SelectItem key={d.uid} value={d.uid}>
                         {d.device_name || d.device_id}
+                        {d.network_name ? ` · ${d.network_name}` : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 {smsDevices.length === 0 && (
                   <p className={`${flashpayTheme.mutedXs} mt-2`}>
-                    Aucun device émetteur SMS. Activez l&apos;option dans la fiche device FlashPay.
+                    Aucun device émetteur SMS pour ce filtre.
                   </p>
                 )}
               </div>
-              <div>
-                <Label>Destinataire</Label>
-                <Input className="mt-1" placeholder="+22670123456" value={toPhone} onChange={(e) => setToPhone(e.target.value)} />
-              </div>
+            </div>
+            <div>
+              <Label>Destinataire</Label>
+              <Input className="mt-1" placeholder="+22670123456" value={toPhone} onChange={(e) => setToPhone(e.target.value)} />
             </div>
             <div>
               <Label>Message</Label>
@@ -197,6 +242,7 @@ export default function OutboundSmsPage() {
                     <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{job.message}</p>
                     <p className={`text-xs ${flashpayTheme.muted}`}>
                       {job.device_id ? `Device: ${job.device_id}` : "Device: auto"}
+                      {job.network_name ? ` · ${job.network_name}` : ""}
                       {job.error_message ? ` · ${job.error_message}` : ""}
                     </p>
                   </div>

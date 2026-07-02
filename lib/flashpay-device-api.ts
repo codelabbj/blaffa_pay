@@ -91,6 +91,9 @@ export interface OutboundSmsJob {
   uid: string
   device?: string | null
   device_id?: string | null
+  network?: string | null
+  network_name?: string | null
+  network_code?: string | null
   client_user?: string
   client_user_name?: string
   to_phone: string
@@ -119,6 +122,7 @@ export async function createOutboundSmsJob(
   apiFetch: ApiFetch,
   payload: {
     device?: string
+    network?: string
     client_user?: string
     to_phone: string
     message: string

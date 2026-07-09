@@ -61,9 +61,17 @@ interface PlatformForm {
   max_deposit_amount: string;
   min_withdrawal_amount: string;
   max_withdrawal_amount: string;
+  deposit_commission_rate: string;
+  withdrawal_commission_rate: string;
   description: string;
   is_active: boolean;
   logo: File | null;
+}
+
+function parseOptionalCommission(value: string): string | null {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  return parseFloat(trimmed).toFixed(2)
 }
 
 export default function CreatePlatformPage() {
@@ -74,6 +82,8 @@ export default function CreatePlatformPage() {
     max_deposit_amount: "",
     min_withdrawal_amount: "",
     max_withdrawal_amount: "",
+    deposit_commission_rate: "",
+    withdrawal_commission_rate: "",
     description: "",
     is_active: true,
     logo: null,
@@ -149,12 +159,16 @@ export default function CreatePlatformPage() {
         formData.append("max_deposit_amount", parseFloat(form.max_deposit_amount).toFixed(2));
         formData.append("min_withdrawal_amount", parseFloat(form.min_withdrawal_amount).toFixed(2));
         formData.append("max_withdrawal_amount", parseFloat(form.max_withdrawal_amount).toFixed(2));
+        const depositRate = parseOptionalCommission(form.deposit_commission_rate);
+        const withdrawalRate = parseOptionalCommission(form.withdrawal_commission_rate);
+        if (depositRate !== null) formData.append("deposit_commission_rate", depositRate);
+        if (withdrawalRate !== null) formData.append("withdrawal_commission_rate", withdrawalRate);
         formData.append("description", form.description);
         formData.append("is_active", String(form.is_active));
         formData.append("logo", form.logo);
         body = formData;
       } else {
-        const payload = {
+        const payload: Record<string, unknown> = {
           name: form.name,
           external_id: form.external_id,
           min_deposit_amount: parseFloat(form.min_deposit_amount).toFixed(2),
@@ -164,6 +178,10 @@ export default function CreatePlatformPage() {
           description: form.description,
           is_active: form.is_active,
         }
+        const depositRate = parseOptionalCommission(form.deposit_commission_rate);
+        const withdrawalRate = parseOptionalCommission(form.withdrawal_commission_rate);
+        if (depositRate !== null) payload.deposit_commission_rate = depositRate;
+        if (withdrawalRate !== null) payload.withdrawal_commission_rate = withdrawalRate;
         body = JSON.stringify(payload);
         headers["Content-Type"] = "application/json";
       }
@@ -198,6 +216,8 @@ export default function CreatePlatformPage() {
       max_deposit_amount: "",
       min_withdrawal_amount: "",
       max_withdrawal_amount: "",
+      deposit_commission_rate: "",
+      withdrawal_commission_rate: "",
       description: "",
       is_active: true,
       logo: null,
@@ -455,6 +475,44 @@ export default function CreatePlatformPage() {
                           onChange={(e) => handleInputChange("max_withdrawal_amount", e.target.value)}
                           placeholder="300000.00"
                           required
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Commission Rates (optional) */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Commissions (optionnel)</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Laissez vide pour utiliser le taux partner, puis 1% par défaut.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="deposit_commission_rate">Commission dépôt (%)</Label>
+                        <Input
+                          id="deposit_commission_rate"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={form.deposit_commission_rate}
+                          onChange={(e) => handleInputChange("deposit_commission_rate", e.target.value)}
+                          placeholder="Ex: 1.5 (vide = fallback)"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="withdrawal_commission_rate">Commission retrait (%)</Label>
+                        <Input
+                          id="withdrawal_commission_rate"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={form.withdrawal_commission_rate}
+                          onChange={(e) => handleInputChange("withdrawal_commission_rate", e.target.value)}
+                          placeholder="Ex: 0.8 (vide = fallback)"
                           className="mt-1"
                         />
                       </div>

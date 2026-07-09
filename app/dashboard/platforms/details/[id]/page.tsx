@@ -37,6 +37,8 @@ interface Platform {
   max_deposit_amount: string;
   min_withdrawal_amount: string;
   max_withdrawal_amount: string;
+  deposit_commission_rate: string | null;
+  withdrawal_commission_rate: string | null;
   description: string;
   created_by: number;
   created_by_name: string;
@@ -353,6 +355,26 @@ export default function PlatformDetailsPage() {
                           </p>
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Commission Rates */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
+                      <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-4">Commission Dépôt</h4>
+                      <p className="text-xl font-bold text-blue-600">
+                        {platform.deposit_commission_rate != null
+                          ? `${parseFloat(platform.deposit_commission_rate).toFixed(2)}%`
+                          : "Fallback (partner / 1%)"}
+                      </p>
+                    </div>
+                    <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg">
+                      <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-4">Commission Retrait</h4>
+                      <p className="text-xl font-bold text-purple-600">
+                        {platform.withdrawal_commission_rate != null
+                          ? `${parseFloat(platform.withdrawal_commission_rate).toFixed(2)}%`
+                          : "Fallback (partner / 1%)"}
+                      </p>
                     </div>
                   </div>
 

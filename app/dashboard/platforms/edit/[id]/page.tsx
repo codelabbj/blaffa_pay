@@ -42,6 +42,8 @@ interface Platform {
   max_deposit_amount: string;
   min_withdrawal_amount: string;
   max_withdrawal_amount: string;
+  deposit_commission_rate: string | null;
+  withdrawal_commission_rate: string | null;
   description: string;
   created_by: number;
   created_by_name: string;
@@ -57,9 +59,17 @@ interface PlatformForm {
   max_deposit_amount: string;
   min_withdrawal_amount: string;
   max_withdrawal_amount: string;
+  deposit_commission_rate: string;
+  withdrawal_commission_rate: string;
   description: string;
   is_active: boolean;
   logo: File | null;
+}
+
+function parseOptionalCommission(value: string): string | null {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  return parseFloat(trimmed).toFixed(2)
 }
 
 export default function EditPlatformPage() {
@@ -72,6 +82,8 @@ export default function EditPlatformPage() {
     max_deposit_amount: "",
     min_withdrawal_amount: "",
     max_withdrawal_amount: "",
+    deposit_commission_rate: "",
+    withdrawal_commission_rate: "",
     description: "",
     is_active: true,
     logo: null,
@@ -107,6 +119,8 @@ export default function EditPlatformPage() {
           max_deposit_amount: data.max_deposit_amount || "",
           min_withdrawal_amount: data.min_withdrawal_amount || "",
           max_withdrawal_amount: data.max_withdrawal_amount || "",
+          deposit_commission_rate: data.deposit_commission_rate ?? "",
+          withdrawal_commission_rate: data.withdrawal_commission_rate ?? "",
           description: data.description || "",
           is_active: data.is_active ?? true,
           logo: null,
@@ -136,6 +150,9 @@ export default function EditPlatformPage() {
       let body: any;
       let headers: Record<string, string> = {};
 
+      const depositRate = parseOptionalCommission(form.deposit_commission_rate);
+      const withdrawalRate = parseOptionalCommission(form.withdrawal_commission_rate);
+
       if (form.logo) {
         const formData = new FormData();
         formData.append("name", form.name);
@@ -143,17 +160,21 @@ export default function EditPlatformPage() {
         formData.append("max_deposit_amount", parseFloat(form.max_deposit_amount).toFixed(2));
         formData.append("min_withdrawal_amount", parseFloat(form.min_withdrawal_amount).toFixed(2));
         formData.append("max_withdrawal_amount", parseFloat(form.max_withdrawal_amount).toFixed(2));
+        formData.append("deposit_commission_rate", depositRate ?? "");
+        formData.append("withdrawal_commission_rate", withdrawalRate ?? "");
         formData.append("description", form.description);
         formData.append("is_active", String(form.is_active));
         formData.append("logo", form.logo);
         body = formData;
       } else {
-        const payload = {
+        const payload: Record<string, unknown> = {
           name: form.name,
           min_deposit_amount: parseFloat(form.min_deposit_amount).toFixed(2),
           max_deposit_amount: parseFloat(form.max_deposit_amount).toFixed(2),
           min_withdrawal_amount: parseFloat(form.min_withdrawal_amount).toFixed(2),
           max_withdrawal_amount: parseFloat(form.max_withdrawal_amount).toFixed(2),
+          deposit_commission_rate: depositRate,
+          withdrawal_commission_rate: withdrawalRate,
           description: form.description,
           is_active: form.is_active,
         }
@@ -191,6 +212,8 @@ export default function EditPlatformPage() {
         max_deposit_amount: platform.max_deposit_amount || "",
         min_withdrawal_amount: platform.min_withdrawal_amount || "",
         max_withdrawal_amount: platform.max_withdrawal_amount || "",
+        deposit_commission_rate: platform.deposit_commission_rate ?? "",
+        withdrawal_commission_rate: platform.withdrawal_commission_rate ?? "",
         description: platform.description || "",
         is_active: platform.is_active ?? true,
         logo: null,
@@ -499,6 +522,44 @@ export default function EditPlatformPage() {
                           onChange={(e) => handleInputChange("max_withdrawal_amount", e.target.value)}
                           placeholder="300000.00"
                           required
+                          className="mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Commission Rates (optional) */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Commissions (optionnel)</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Laissez vide pour réinitialiser au fallback (taux partner, puis 1%).
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="deposit_commission_rate">Commission dépôt (%)</Label>
+                        <Input
+                          id="deposit_commission_rate"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={form.deposit_commission_rate}
+                          onChange={(e) => handleInputChange("deposit_commission_rate", e.target.value)}
+                          placeholder="Vide = fallback"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="withdrawal_commission_rate">Commission retrait (%)</Label>
+                        <Input
+                          id="withdrawal_commission_rate"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          value={form.withdrawal_commission_rate}
+                          onChange={(e) => handleInputChange("withdrawal_commission_rate", e.target.value)}
+                          placeholder="Vide = fallback"
                           className="mt-1"
                         />
                       </div>

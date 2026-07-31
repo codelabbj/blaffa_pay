@@ -105,4 +105,15 @@ export interface PaginatedResponse<T> {
   results: T[]
 }
 
+/** Solde MoMo / SIM reporté par FlashPay (DeviceBalance). */
+export interface DeviceBalance {
+  device_id: string
+  device_name: string
+  balance_key: string
+  amount: number | null
+  raw: string
+  checked_at: string | null
+  updated_at: string | null
+}
+
 export type DeviceKpiFilter = "all" | "online" | "paused" | "unconfigured"

@@ -69,12 +69,15 @@ import {
   bulkPushDeviceConfig,
   bulkToggleDevicePause,
   deleteDevice,
+  fetchDeviceBalances,
   fetchNetworks,
   fetchStaffDevices,
+  formatDeviceBalanceAmount,
+  indexBalancesByDeviceId,
   pushDeviceConfig,
   toggleDevicePause,
 } from "@/lib/flashpay-device-api"
-import type { PaymentDevice } from "@/lib/types/flashpay-device"
+import type { DeviceBalance, PaymentDevice } from "@/lib/types/flashpay-device"
 import {
   activeKpiFromFilters,
   applyClientConfigFilter,
@@ -154,6 +157,7 @@ export default function FlashPayDevicesPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [devices, setDevices] = useState<PaymentDevice[]>([])
+  const [balancesByDeviceId, setBalancesByDeviceId] = useState<Record<string, DeviceBalance>>({})
   const [networks, setNetworks] = useState<{ uid: string; nom: string }[]>([])
   const [loading, setLoading] = useState(true)
   const [bulkLoading, setBulkLoading] = useState(false)
@@ -186,8 +190,12 @@ export default function FlashPayDevicesPage() {
       try {
         const apiFilters = { ...filters, search: debouncedSearch }
         const params = buildDeviceListApiParams(apiFilters, sort)
-        const data = await fetchStaffDevices(apiFetch, params)
+        const [data, balances] = await Promise.all([
+          fetchStaffDevices(apiFetch, params),
+          fetchDeviceBalances(apiFetch).catch(() => [] as DeviceBalance[]),
+        ])
         setDevices(data)
+        setBalancesByDeviceId(indexBalancesByDeviceId(balances))
         setSelected(new Set())
       } catch (e: any) {
         if (!opts?.silent) {
@@ -593,13 +601,16 @@ export default function FlashPayDevicesPage() {
                     <SortableHead label="Device" field="device_name" sort={sort} onSort={handleSort} />
                     <TableHead>Agent</TableHead>
                     <TableHead>Réseau</TableHead>
+                    <TableHead>Solde</TableHead>
                     <SortableHead label="Config" field="mode" sort={sort} onSort={handleSort} />
                     <SortableHead label="Activité" field="last_seen" sort={sort} onSort={handleSort} />
                     <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {displayed.map((device) => (
+                  {displayed.map((device) => {
+                    const bal = balancesByDeviceId[device.device_id]
+                    return (
                     <TableRow
                       key={device.uid}
                       className={flashpayTheme.tableRowHover}
@@ -637,6 +648,20 @@ export default function FlashPayDevicesPage() {
                         <Badge variant="outline" className={networkChipClass(device.custom_settings?.flashpay?.network_code)}>
                           {device.network_name || "—"}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {bal ? (
+                          <div>
+                            <p className="font-semibold tabular-nums text-[#0B2545] dark:text-gray-100">
+                              {formatDeviceBalanceAmount(bal.amount)}
+                            </p>
+                            <p className={`text-xs ${flashpayTheme.muted}`}>
+                              {formatRelativeTime(bal.checked_at)}
+                            </p>
+                          </div>
+                        ) : (
+                          <span className={`text-sm ${flashpayTheme.muted}`}>—</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         {(() => {
@@ -691,7 +716,8 @@ export default function FlashPayDevicesPage() {
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    )
+                  })}
                 </TableBody>
               </Table>
             )}

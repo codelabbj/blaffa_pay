@@ -640,6 +640,11 @@ export default function FlashPayDevicesPage() {
                                 Émetteur SMS
                               </Badge>
                             )}
+                            {device.accepts_banktransfert && (
+                              <Badge variant="outline" className="mt-1 ml-1 text-xs border-sky-300 text-sky-800 dark:border-sky-700 dark:text-sky-300">
+                                BankTransfert
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </TableCell>

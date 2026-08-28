@@ -607,6 +607,19 @@ export function DeviceForm({
               })}
             </div>
           </div>
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 dark:border-gray-600 px-4 py-3">
+            <div>
+              <p className="font-medium text-gray-900 dark:text-gray-100">BankTransfert possible</p>
+              <p className={flashpayTheme.mutedXs}>
+                Ce device peut recevoir les opérations BankTransfert (1win).
+              </p>
+            </div>
+            <Switch
+              checked={Boolean(form.accepts_banktransfert)}
+              onCheckedChange={(accepts_banktransfert) => patch({ accepts_banktransfert })}
+              aria-label="BankTransfert possible"
+            />
+          </div>
         </FormSection>
 
         <FormSection

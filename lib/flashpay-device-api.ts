@@ -1,4 +1,4 @@
-import type { PaginatedResponse, PaymentDevice, FlashPayDeviceConfig } from "@/lib/types/flashpay-device"
+import type { PaginatedResponse, PaymentDevice, FlashPayDeviceConfig, DeviceBalance } from "@/lib/types/flashpay-device"
 import { apiUrl } from "@/lib/env-config"
 
 type ApiFetch = (input: RequestInfo, init?: RequestInit & { showSuccessToast?: boolean; successMessage?: string }) => Promise<any>
@@ -28,6 +28,28 @@ export async function fetchStaffDevices(
   }
 
   return all
+}
+
+/** Soldes devices (staff = tous ; user = ses devices). Tri API : plus récent d'abord. */
+export async function fetchDeviceBalances(apiFetch: ApiFetch): Promise<DeviceBalance[]> {
+  const data = await apiFetch(apiUrl("api/flashpay/devices/balances/"))
+  return Array.isArray(data) ? data : []
+}
+
+/** Map device_id → solde le plus récent. */
+export function indexBalancesByDeviceId(balances: DeviceBalance[]): Record<string, DeviceBalance> {
+  const map: Record<string, DeviceBalance> = {}
+  for (const b of balances) {
+    const key = (b.device_id || b.balance_key || "").trim()
+    if (!key || map[key]) continue
+    map[key] = b
+  }
+  return map
+}
+
+export function formatDeviceBalanceAmount(amount: number | null | undefined): string {
+  if (amount == null || Number.isNaN(Number(amount))) return "—"
+  return `${Number(amount).toLocaleString("fr-FR")} F`
 }
 
 export async function fetchDeviceByUid(apiFetch: ApiFetch, uid: string): Promise<PaymentDevice | null> {

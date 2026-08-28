@@ -72,6 +72,8 @@ export interface PaymentDevice {
   network_name?: string
   is_paused: boolean
   mode: DeviceMode
+  /** Si true, ce device peut traiter BankTransfert. */
+  accepts_banktransfert?: boolean
   is_online: boolean
   last_seen?: string | null
   fcm_token?: string
@@ -90,6 +92,7 @@ export interface DeviceFormValues {
   network: string | null
   is_paused: boolean
   mode: DeviceMode
+  accepts_banktransfert: boolean
   is_online: boolean
   last_seen?: string | null
   fcm_token: string
@@ -103,6 +106,17 @@ export interface PaginatedResponse<T> {
   next?: string | null
   previous?: string | null
   results: T[]
+}
+
+/** Solde MoMo / SIM reporté par FlashPay (DeviceBalance). */
+export interface DeviceBalance {
+  device_id: string
+  device_name: string
+  balance_key: string
+  amount: number | null
+  raw: string
+  checked_at: string | null
+  updated_at: string | null
 }
 
 export type DeviceKpiFilter = "all" | "online" | "paused" | "unconfigured"

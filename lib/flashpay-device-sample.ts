@@ -87,6 +87,7 @@ export const DEVICE_CREATE_SAMPLE: DeviceFormValues = {
   network: null,
   is_paused: false,
   mode: "both",
+  accepts_banktransfert: false,
   is_online: false,
   fcm_token: "",
   app_version: "",

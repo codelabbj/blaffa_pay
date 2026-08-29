@@ -16,7 +16,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { getApiBaseUrl } from "@/lib/env-config"
+import { getApiBaseUrl, getExternalPlatformsUrl } from "@/lib/env-config"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -107,7 +107,7 @@ export default function CreatePlatformPage() {
       setExternalPlatformsLoading(true)
       setExternalPlatformsError("")
       try {
-        const response = await fetch("https://api.blaffa.net/blaffa/app_name?type=blaffapay")
+        const response = await fetch(getExternalPlatformsUrl())
         if (!response.ok) {
           throw new Error("Failed to fetch external platforms")
         }

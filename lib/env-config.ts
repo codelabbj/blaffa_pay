@@ -106,6 +106,14 @@ export function getWsUrl(): string {
   return raw.endsWith("/") ? raw : `${raw}/`
 }
 
+/** URL catalogue plateformes externes (app_name). Défaut Blaffa. */
+export function getExternalPlatformsUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_EXTERNAL_PLATFORMS_URL?.trim() ||
+    "https://api.blaffa.net/blaffa/app_name?type=blaffapay"
+  )
+}
+
 export const apiConfig = {
   get baseUrl() {
     return getApiBaseUrl()

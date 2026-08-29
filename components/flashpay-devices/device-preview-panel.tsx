@@ -13,6 +13,7 @@ import {
   formatDeviceMode,
   formatExecutionMode,
   getRequiredUssdOperations,
+  hasMomoPin,
   hasUssdSteps,
   isAppExecutionMode,
 } from "@/lib/flashpay-device-utils"
@@ -55,7 +56,7 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
       ok: hasUssdSteps(form, op),
       label: op === "deposit" ? "USSD dépôt" : "USSD retrait",
     })),
-    { ok: !!fp?.momo_pin?.trim(), label: "PIN MoMo" },
+    { ok: hasMomoPin(fp), label: "PIN MoMo" },
   ]
 
   const cardTitle = "text-base text-[#0B2545] dark:text-gray-100"
@@ -89,7 +90,7 @@ export const DevicePreviewPanel = memo(function DevicePreviewPanel({
               </p>
             </>
           )}
-          <p className="text-slate-600 dark:text-bodydark2">PIN: {fp?.momo_pin ? "••••" : "—"}</p>
+          <p className="text-slate-600 dark:text-bodydark2">PIN: {hasMomoPin(fp) ? "••••" : "—"}</p>
           <Badge variant="outline" className="mt-2 dark:border-strokedark">
             Complétion {percent}% · {formatDeviceMode(mode)}
           </Badge>

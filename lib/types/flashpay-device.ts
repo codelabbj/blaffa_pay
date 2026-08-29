@@ -36,6 +36,8 @@ export interface FlashPayDeviceConfig {
   /** ussd = séquences USSD ; wave_* / orange = application mobile (accessibilité). */
   execution_mode: ExecutionMode
   momo_pin: string
+  /** Présent sur les GET API : le PIN est retiré (sécurité), ce flag indique s'il est en base. */
+  momo_pin_set?: boolean
   deposit: FlashPayDepositConfig
   withdraw: FlashPayWithdrawConfig
   balance: FlashPayBalanceConfig

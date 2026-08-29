@@ -716,7 +716,13 @@ export function DeviceForm({
                 className="pr-11 font-mono bg-white dark:bg-boxdark-2"
                 type={showMomoPin ? "text" : "password"}
                 value={fp?.momo_pin || ""}
-                onChange={(e) => patchFlashpay({ momo_pin: e.target.value })}
+                onChange={(e) =>
+                  patchFlashpay({
+                    momo_pin: e.target.value,
+                    ...(e.target.value.trim() ? { momo_pin_set: true } : {}),
+                  })
+                }
+                placeholder={fp?.momo_pin_set && !fp?.momo_pin?.trim() ? "•••• (déjà enregistré)" : undefined}
                 autoComplete="off"
               />
               <button
@@ -728,6 +734,11 @@ export function DeviceForm({
                 {showMomoPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {fp?.momo_pin_set && !fp?.momo_pin?.trim() && (
+              <p className={`${flashpayTheme.mutedXs} mt-1`}>
+                PIN déjà en base — laissez vide pour le conserver, ou saisissez-en un nouveau.
+              </p>
+            )}
             {selectedCountry && (
               <p className={`${flashpayTheme.mutedXs} mt-1`}>
                 Pays configuré : {selectedCountry.nom} ({selectedCountry.code})

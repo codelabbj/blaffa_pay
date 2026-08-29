@@ -170,10 +170,17 @@ export function hasUssdSteps(device: PaymentDevice | DeviceFormValues, operation
   return steps.filter((s) => s.trim()).length > 0
 }
 
+/** PIN saisi dans le formulaire, ou déjà enregistré côté serveur (momo_pin_set). */
+export function hasMomoPin(fp: FlashPayDeviceConfig | null | undefined): boolean {
+  if (!fp) return false
+  if (fp.momo_pin?.trim()) return true
+  return fp.momo_pin_set === true
+}
+
 export function isDeviceConfigured(device: PaymentDevice | DeviceFormValues): boolean {
   const fp = getFlashpayConfig(device)
   if (isAppExecutionMode(fp?.execution_mode)) {
-    return !!fp?.momo_pin?.trim()
+    return hasMomoPin(fp)
   }
   const mode = device.mode ?? "both"
   return getRequiredUssdOperations(mode, fp?.execution_mode).every((op) => hasUssdSteps(device, op))
@@ -305,7 +312,7 @@ export function computeCompletion(device: DeviceFormValues | PaymentDevice): {
     { ok: !!device.device_id?.trim(), label: "device_id" },
     { ok: !!device.user, label: "user" },
     { ok: !!device.network, label: "network" },
-    { ok: !!getFlashpayConfig(device)?.momo_pin?.trim(), label: "momo_pin" },
+    { ok: hasMomoPin(getFlashpayConfig(device)), label: "momo_pin" },
   ]
   for (const op of getRequiredUssdOperations(mode, executionMode)) {
     checks.push({
@@ -331,7 +338,7 @@ export function validateCreateForm(form: DeviceFormValues): string[] {
   if (form.device_id === SAMPLE_DEVICE_ID_VALUE) errors.push("Personnalisez le device_id (valeur d'exemple)")
   if (!form.user) errors.push("Sélectionnez le propriétaire (agent)")
   if (!form.network) errors.push("Sélectionnez un réseau")
-  if (!form.custom_settings.flashpay?.momo_pin?.trim()) {
+  if (!hasMomoPin(form.custom_settings.flashpay)) {
     errors.push("Le PIN MoMo est requis")
   }
   const ussdErr = ussdValidationError(form)
@@ -342,7 +349,7 @@ export function validateCreateForm(form: DeviceFormValues): string[] {
 export function validateUpdateForm(form: DeviceFormValues): string[] {
   const errors: string[] = []
   if (!form.device_id.trim()) errors.push("Le device_id est requis")
-  if (!form.custom_settings.flashpay?.momo_pin?.trim()) {
+  if (!hasMomoPin(form.custom_settings.flashpay)) {
     errors.push("Le PIN MoMo est requis")
   }
   const ussdErr = ussdValidationError(form)
@@ -379,6 +386,15 @@ export function filterDevicesByKpi(devices: PaymentDevice[], filter: DeviceKpiFi
   }
 }
 
+/** Ne renvoie pas un momo_pin vide : évite d'écraser le PIN déjà en base après un GET redacté. */
+export function flashpayPayloadForSave(fp: FlashPayDeviceConfig): FlashPayDeviceConfig {
+  const { momo_pin_set: _set, ...rest } = fp
+  const pin = rest.momo_pin?.trim() ?? ""
+  if (pin) return { ...rest, momo_pin: pin, updated_by: "admin" as const }
+  const { momo_pin: _empty, ...withoutPin } = rest
+  return { ...withoutPin, updated_by: "admin" as const } as FlashPayDeviceConfig
+}
+
 export function buildStatusPatchPayload(form: DeviceFormValues) {
   const now = new Date().toISOString()
   const flashpay = form.custom_settings.flashpay
@@ -389,7 +405,7 @@ export function buildStatusPatchPayload(form: DeviceFormValues) {
     accepts_banktransfert: form.accepts_banktransfert,
     custom_settings: compactCustomSettings({
       ...form.custom_settings,
-      flashpay: flashpay ? { ...flashpay, updated_by: "admin" as const } : undefined,
+      flashpay: flashpay ? flashpayPayloadForSave(flashpay) : undefined,
       flashpay_updated_at: now,
     }),
   }
@@ -412,7 +428,7 @@ export function buildCreatePayload(form: DeviceFormValues) {
     os_version: form.os_version || "",
     custom_settings: compactCustomSettings({
       ...form.custom_settings,
-      flashpay: flashpay ? { ...flashpay, updated_by: "admin" as const } : undefined,
+      flashpay: flashpay ? flashpayPayloadForSave(flashpay) : undefined,
       flashpay_updated_at: now,
       flashpay_meta: compactFlashpayMeta({
         ...form.custom_settings.flashpay_meta,

@@ -1,5 +1,6 @@
 import type { PaginatedResponse, PaymentDevice, FlashPayDeviceConfig, DeviceBalance } from "@/lib/types/flashpay-device"
 import { apiUrl } from "@/lib/env-config"
+import { flashpayPayloadForSave } from "@/lib/flashpay-device-utils"
 
 type ApiFetch = (input: RequestInfo, init?: RequestInit & { showSuccessToast?: boolean; successMessage?: string }) => Promise<any>
 
@@ -164,7 +165,7 @@ export async function pushDeviceConfig(
   flashpay?: FlashPayDeviceConfig,
 ): Promise<void> {
   const parameters: Record<string, unknown> = {}
-  if (flashpay) parameters.flashpay = flashpay
+  if (flashpay) parameters.flashpay = flashpayPayloadForSave(flashpay)
 
   await apiFetch(apiUrl("api/payments/remote-command/"), {
     method: "POST",
@@ -206,7 +207,7 @@ export async function bulkPushDeviceConfig(
     devices.map((d) => {
       const flashpay = d.custom_settings?.flashpay
       const parameters: Record<string, unknown> = {}
-      if (flashpay) parameters.flashpay = flashpay
+      if (flashpay) parameters.flashpay = flashpayPayloadForSave(flashpay)
       return apiFetch(apiUrl("api/payments/remote-command/"), {
         method: "POST",
         body: JSON.stringify({

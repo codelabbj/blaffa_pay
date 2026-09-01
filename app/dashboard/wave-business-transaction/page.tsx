@@ -61,6 +61,8 @@ interface WaveBusinessTransaction {
   is_expired: boolean
   created_at: string
   updated_at: string
+  validation_source?: string | null
+  wave_account?: string | null
 }
 
 interface ApiResponse {
@@ -901,9 +903,36 @@ function WaveBusinessPageContent() {
                   </div>
 
                   <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center p-3 bg-gray-50 dark:bg-boxdark-2/50 rounded-lg">
-                    <span className="text-sm font-medium">Notifications FCM</span>
-                    <span className="text-sm">{detailTransaction.fcm_notifications.length} notification(s)</span>
+                    <span className="text-sm font-medium">Preuves / notifications</span>
+                    <span className="text-sm">{detailTransaction.fcm_notifications?.length || 0} entrée(s)</span>
                   </div>
+
+                  {detailTransaction.validation_source && (
+                    <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center p-3 bg-gray-50 dark:bg-boxdark-2/50 rounded-lg">
+                      <span className="text-sm font-medium">Source validation</span>
+                      <Badge variant="outline">
+                        {detailTransaction.validation_source === "wave_api"
+                          ? "API Wave Business"
+                          : "Notification"}
+                      </Badge>
+                    </div>
+                  )}
+
+                  {detailTransaction.fcm_notifications?.length > 0 && (
+                    <div className="p-3 bg-gray-50 dark:bg-boxdark-2/50 rounded-lg space-y-2">
+                      <div className="text-sm font-medium">Détail preuve</div>
+                      {detailTransaction.fcm_notifications.map((n: any, i: number) => (
+                        <div key={i} className="text-xs text-body dark:text-bodydark2 border-t border-stroke dark:border-strokedark pt-2">
+                          <div className="font-medium mb-1">
+                            {n.source === "wave_api" ? "API Wave" : "Notification"} — {n.timestamp || ""}
+                          </div>
+                          <pre className="whitespace-pre-wrap break-all text-[11px]">
+                            {n.data?.original_body || n.data?.summary || JSON.stringify(n.data, null, 2)}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   <div className="p-3 bg-gray-50 dark:bg-boxdark-2/50 rounded-lg">
                     <div className="text-sm font-medium mb-2">URL de callback</div>

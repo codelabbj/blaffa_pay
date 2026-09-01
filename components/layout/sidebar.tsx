@@ -245,7 +245,12 @@ function SidebarInner({ onNavClick }: { onNavClick?: () => void }) {
           </FeatureGate>
 
           <FeatureGate feature="waveBusiness">
-            <li><NavItem href="/dashboard/wave-business-transaction" icon={<Waves />} label="Wave Business" active={has("/dashboard/wave-business-transaction")} onClick={onNavClick} /></li>
+            <li>
+              <DropdownNav icon={<Waves />} label="Wave Business" active={has("/dashboard/wave-business")} open={!!drops.wave} onToggle={() => toggle("wave")}>
+                <SubItem href="/dashboard/wave-business-accounts" label="Comptes API" active={is("/dashboard/wave-business-accounts")} onClick={onNavClick} />
+                <SubItem href="/dashboard/wave-business-transaction" label="Transactions" active={has("/dashboard/wave-business-transaction")} onClick={onNavClick} />
+              </DropdownNav>
+            </li>
           </FeatureGate>
 
           <FeatureGate feature="topup">

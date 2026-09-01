@@ -167,6 +167,7 @@ export const routeFeatureMap: { prefix: string; feature: FeatureKey }[] = [
   { prefix: "/dashboard/bulk-deposit-networks", feature: "bulkDepositNetworks" },
   { prefix: "/dashboard/device-authorizations", feature: "deviceAuthorizations" },
   { prefix: "/dashboard/betting-transactions", feature: "bettingTransactions" },
+  { prefix: "/dashboard/wave-business-accounts", feature: "waveBusiness" },
   { prefix: "/dashboard/wave-business-transaction", feature: "waveBusiness" },
   { prefix: "/dashboard/network-config", feature: "networkConfig" },
   { prefix: "/dashboard/transaction-logs", feature: "transactionLogs" },

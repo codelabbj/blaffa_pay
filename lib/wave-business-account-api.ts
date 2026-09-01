@@ -18,13 +18,6 @@ export async function fetchWaveBusinessAccounts(apiFetch: ApiFetch): Promise<Wav
   return data?.results ?? []
 }
 
-export async function fetchDefaultWaveBusinessAccount(
-  apiFetch: ApiFetch,
-): Promise<WaveBusinessAccount | null> {
-  const data = await apiFetch(apiUrl(`${BASE}/default/`))
-  return data?.account ?? null
-}
-
 export async function createWaveBusinessAccount(
   apiFetch: ApiFetch,
   payload: WaveBusinessAccountCreatePayload,

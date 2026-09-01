@@ -44,12 +44,13 @@ import {
   Unlink,
   Trash2,
   Waves,
-  Star,
+  User,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react"
 import { useApi } from "@/lib/useApi"
 import { extractErrorMessages } from "@/components/ui/error-display"
-import { fetchStaffDevices } from "@/lib/flashpay-device-api"
-import type { PaymentDevice } from "@/lib/types/flashpay-device"
+import { fetchAdminUsers } from "@/lib/flashpay-device-api"
 import type { WaveBusinessAccount, WaveValidationMode } from "@/lib/types/wave-business-account"
 import { VALIDATION_MODE_OPTIONS } from "@/lib/types/wave-business-account"
 import {
@@ -64,11 +65,22 @@ import { AccountStatusBadge, ValidationModeLabel } from "@/components/wave-busin
 import { WaveConnectWizard } from "@/components/wave-business/connect-wizard"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { cn } from "@/lib/utils"
+
+interface AdminUserOption {
+  uid: string
+  username?: string
+  email?: string
+  phone?: string
+  display_name?: string
+}
 
 function WaveBusinessAccountsContent() {
   const apiFetch = useApi()
   const [accounts, setAccounts] = useState<WaveBusinessAccount[]>([])
-  const [devices, setDevices] = useState<PaymentDevice[]>([])
+  const [isStaff, setIsStaff] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string[]>([])
 
@@ -77,8 +89,11 @@ function WaveBusinessAccountsContent() {
   const [label, setLabel] = useState("")
   const [mobile, setMobile] = useState("")
   const [validationMode, setValidationMode] = useState<WaveValidationMode>("both")
-  const [isDefault, setIsDefault] = useState(false)
-  const [linkedDeviceId, setLinkedDeviceId] = useState<string>("")
+  const [selectedOwnerUid, setSelectedOwnerUid] = useState("")
+  const [ownerSearch, setOwnerSearch] = useState("")
+  const [ownerPickerOpen, setOwnerPickerOpen] = useState(false)
+  const [users, setUsers] = useState<AdminUserOption[]>([])
+  const [loadingUsers, setLoadingUsers] = useState(false)
 
   const [connectOpen, setConnectOpen] = useState(false)
   const [connectAccount, setConnectAccount] = useState<WaveBusinessAccount | null>(null)
@@ -102,31 +117,61 @@ function WaveBusinessAccountsContent() {
     }
   }, [apiFetch])
 
-  const loadDevices = useCallback(async () => {
+  const loadUsers = useCallback(async (search?: string) => {
+    if (!isStaff) return
+    setLoadingUsers(true)
     try {
-      const list = await fetchStaffDevices(apiFetch)
-      setDevices(list)
+      const list = await fetchAdminUsers(apiFetch, search)
+      setUsers(list)
     } catch {
-      setDevices([])
+      setUsers([])
+    } finally {
+      setLoadingUsers(false)
     }
-  }, [apiFetch])
+  }, [apiFetch, isStaff])
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("user")
+      if (raw) {
+        const user = JSON.parse(raw)
+        setIsStaff(Boolean(user?.is_staff || user?.is_superuser))
+      }
+    } catch {
+      setIsStaff(false)
+    }
+  }, [])
 
   useEffect(() => {
     loadAccounts()
-    loadDevices()
-  }, [loadAccounts, loadDevices])
+  }, [loadAccounts])
+
+  useEffect(() => {
+    if (createOpen && isStaff) {
+      loadUsers(ownerSearch)
+    }
+  }, [createOpen, isStaff, ownerSearch, loadUsers])
 
   const resetCreateForm = () => {
     setLabel("")
     setMobile("")
     setValidationMode("both")
-    setIsDefault(false)
-    setLinkedDeviceId("")
+    setSelectedOwnerUid("")
+    setOwnerSearch("")
   }
+
+  const selectedOwner = users.find((u) => u.uid === selectedOwnerUid)
+
+  const ownerLabel = (user: AdminUserOption) =>
+    user.display_name || user.username || user.email || user.phone || user.uid
 
   const handleCreate = async () => {
     if (!mobile.trim()) {
       setError(["Numéro mobile requis"])
+      return
+    }
+    if (isStaff && !selectedOwnerUid) {
+      setError(["Sélectionnez l'utilisateur propriétaire du compte"])
       return
     }
     setCreateLoading(true)
@@ -136,8 +181,7 @@ function WaveBusinessAccountsContent() {
         label: label.trim() || undefined,
         mobile: mobile.trim(),
         validation_mode: validationMode,
-        is_default: isDefault,
-        linked_device_id: linkedDeviceId || undefined,
+        owner_uid: isStaff ? selectedOwnerUid : undefined,
       })
       setCreateOpen(false)
       resetCreateForm()
@@ -205,19 +249,6 @@ function WaveBusinessAccountsContent() {
     }
   }
 
-  const handleSetDefault = async (account: WaveBusinessAccount) => {
-    try {
-      await updateWaveBusinessAccount(apiFetch, account.uid, { is_default: true })
-      await loadAccounts()
-    } catch (err) {
-      setError(extractErrorMessages(err))
-    }
-  }
-
-  const waveDevices = devices.filter(
-    (d) => d.custom_settings?.flashpay?.execution_mode === "wave_business",
-  )
-
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -267,6 +298,7 @@ function WaveBusinessAccountsContent() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Libellé</TableHead>
+                    {isStaff && <TableHead>Utilisateur</TableHead>}
                     <TableHead>Mobile</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead>Mode</TableHead>
@@ -279,13 +311,18 @@ function WaveBusinessAccountsContent() {
                   {accounts.map((account) => (
                     <TableRow key={account.uid}>
                       <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          {account.is_default && (
-                            <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                          )}
-                          {account.label || "—"}
-                        </div>
+                        {account.label || "—"}
                       </TableCell>
+                      {isStaff && (
+                        <TableCell className="text-sm">
+                          <div className="flex flex-col">
+                            <span>{account.owner_username || "—"}</span>
+                            <span className="text-xs text-bodydark2">
+                              {account.owner_email || account.owner_uid}
+                            </span>
+                          </div>
+                        </TableCell>
+                      )}
                       <TableCell>{account.mobile_masked || account.mobile}</TableCell>
                       <TableCell>
                         <AccountStatusBadge status={account.status} />
@@ -339,12 +376,6 @@ function WaveBusinessAccountsContent() {
                             <DropdownMenuItem onClick={() => openEdit(account)}>
                               Modifier le mode
                             </DropdownMenuItem>
-                            {!account.is_default && (
-                              <DropdownMenuItem onClick={() => handleSetDefault(account)}>
-                                <Star className="h-4 w-4 mr-2" />
-                                Définir par défaut
-                              </DropdownMenuItem>
-                            )}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-red-600"
@@ -372,6 +403,68 @@ function WaveBusinessAccountsContent() {
             <DialogTitle>Nouveau compte Wave Business</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            {isStaff && (
+              <div className="space-y-2">
+                <Label>Utilisateur propriétaire *</Label>
+                <Popover open={ownerPickerOpen} onOpenChange={setOwnerPickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between font-normal"
+                    >
+                      {selectedOwner ? ownerLabel(selectedOwner) : "Sélectionner un utilisateur"}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Rechercher..."
+                        value={ownerSearch}
+                        onValueChange={setOwnerSearch}
+                      />
+                      <CommandList>
+                        <CommandEmpty>
+                          {loadingUsers ? "Chargement..." : "Aucun utilisateur"}
+                        </CommandEmpty>
+                        <CommandGroup>
+                          {users.map((user) => (
+                            <CommandItem
+                              key={user.uid}
+                              value={user.uid}
+                              onSelect={() => {
+                                setSelectedOwnerUid(user.uid)
+                                setOwnerPickerOpen(false)
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedOwnerUid === user.uid ? "opacity-100" : "opacity-0",
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span>{ownerLabel(user)}</span>
+                                {(user.email || user.phone) && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {[user.email, user.phone].filter(Boolean).join(" · ")}
+                                  </span>
+                                )}
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <p className="text-xs text-bodydark2 flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  Le compte Wave sera lié à cet utilisateur FlashPay.
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Libellé</Label>
               <Input
@@ -408,28 +501,6 @@ function WaveBusinessAccountsContent() {
               <p className="text-xs text-bodydark2">
                 {VALIDATION_MODE_OPTIONS.find((o) => o.value === validationMode)?.description}
               </p>
-            </div>
-            {(validationMode === "notification" || validationMode === "both") && (
-              <div className="space-y-2">
-                <Label>Device FlashPay (optionnel)</Label>
-                <Select value={linkedDeviceId || "_none"} onValueChange={(v) => setLinkedDeviceId(v === "_none" ? "" : v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Aucun" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="_none">Aucun</SelectItem>
-                    {waveDevices.map((d) => (
-                      <SelectItem key={d.device_id} value={d.device_id}>
-                        {d.device_name || d.device_id}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            <div className="flex items-center justify-between">
-              <Label htmlFor="is-default">Compte par défaut</Label>
-              <Switch id="is-default" checked={isDefault} onCheckedChange={setIsDefault} />
             </div>
           </div>
           <DialogFooter>

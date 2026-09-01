@@ -9,9 +9,9 @@ export interface WaveBusinessAccount {
   mobile_masked: string
   status: WaveBusinessAccountStatus
   validation_mode: WaveValidationMode
-  linked_device: string | null
-  linked_device_id: string | null
-  is_default: boolean
+  owner_uid: string
+  owner_username: string
+  owner_email: string
   is_listening: boolean
   wallet_opaque_id: string
   last_poll_at: string | null
@@ -26,18 +26,15 @@ export interface WaveBusinessAccountCreatePayload {
   label?: string
   mobile: string
   validation_mode?: WaveValidationMode
-  is_default?: boolean
   pin?: string
-  linked_device_id?: string
+  owner_uid?: string
 }
 
 export interface WaveBusinessAccountUpdatePayload {
   label?: string
   validation_mode?: WaveValidationMode
-  is_default?: boolean
   is_listening?: boolean
   pin?: string
-  linked_device_id?: string
 }
 
 export const VALIDATION_MODE_OPTIONS: {

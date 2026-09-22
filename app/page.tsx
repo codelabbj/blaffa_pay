@@ -3,6 +3,7 @@ import { SignInForm } from "@/components/auth/sign-in-form"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useLanguage } from "@/components/providers/language-provider"
+import { setAccessCookie } from "@/lib/api"
 
 export default function SignInPage() {
   const router = useRouter()
@@ -12,11 +13,14 @@ export default function SignInPage() {
 
   useEffect(() => {
     setMounted(true)
-    // Check for accessToken cookie
-    if (typeof document !== 'undefined') {
-      const hasToken = document.cookie.split(';').some(cookie => cookie.trim().startsWith('accessToken='))
-      if (hasToken) {
-        router.push('/dashboard')
+    if (typeof document !== "undefined") {
+      const cookieToken = document.cookie.split(";").some((cookie) => cookie.trim().startsWith("accessToken="))
+      const storedAccess = localStorage.getItem("accessToken")
+      if (storedAccess && !cookieToken) {
+        setAccessCookie(storedAccess)
+      }
+      if (cookieToken || storedAccess) {
+        router.push("/dashboard")
       } else {
         setChecking(false)
       }

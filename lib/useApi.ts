@@ -54,7 +54,8 @@ export function useApi() {
         throw new Error('No access token in refresh response');
       }
 
-      setTokens({ access: data.access, refresh });
+      // ROTATE_REFRESH_TOKENS : le nouveau refresh doit remplacer l'ancien (blacklist).
+      setTokens({ access: data.access, refresh: data.refresh || refresh });
       console.log('Token refreshed successfully');
       return data.access;
     } catch (error) {
@@ -65,10 +66,6 @@ export function useApi() {
 
   const clearAllAuth = useCallback(() => {
     clearTokens();
-    // Remove accessToken cookie
-    if (typeof document !== 'undefined') {
-      document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict';
-    }
   }, []);
 
   const apiFetch = useCallback(async (input: RequestInfo, init: RequestInit & { showSuccessToast?: boolean; successMessage?: string } = {}) => {
@@ -132,59 +129,52 @@ export function useApi() {
       console.log('[useApi] GET request detected - success toast will NOT be shown');
     }
 
-    let res = await fetch(resolvedInput, { ...fetchInit, headers });
-    let data;
-
-    // Check if response is OK before trying to parse JSON
-    // This ensures we throw errors for 500, 404, etc. even if response is not JSON
-    if (!res.ok) {
+    const parseBody = async (response: Response) => {
       try {
-        data = await res.clone().json();
-      } catch (e) {
-        // If we can't parse JSON from an error response, throw a generic error
-        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        return await response.clone().json();
+      } catch {
+        return undefined;
       }
-      // Throw the parsed error data
-      throw data;
-    }
+    };
 
-    try {
-      data = await res.clone().json();
-    } catch (e) {
-      // If not JSON but response is OK, just return the response
-      return res;
-    }
+    let res = await fetch(resolvedInput, { ...fetchInit, headers });
+    let data = await parseBody(res);
 
-    // If token is invalid/expired, try to refresh and retry once
-    if (data?.code === 'token_not_valid' || res.status === 401) {
+    const isUnauthorized = (response: Response, body: any) =>
+      response.status === 401 || body?.code === "token_not_valid";
+
+    // Refresh AVANT de throw : le throw précoce empêchait tout refresh.
+    if (isUnauthorized(res, data) && !isPublicAuthEndpoint) {
       try {
-        console.log('Token expired, attempting refresh...');
+        console.log("Token expired, attempting refresh...");
         accessToken = await refreshAccessToken();
-        headers.set('Authorization', `Bearer ${accessToken}`);
-
-        // Retry the original request with new token
+        headers.set("Authorization", `Bearer ${accessToken}`);
         res = await fetch(resolvedInput, { ...fetchInit, headers });
-        try {
-          data = await res.clone().json();
-        } catch (e) {
-          // If not JSON, just return the response without showing any toast
-          // Success toasts will only show for JSON responses below
-          return res;
-        }
-
-        // If still unauthorized after refresh, force logout
-        if (data?.code === 'token_not_valid' || res.status === 401) {
-          console.log('Token refresh failed, logging out...');
+        data = await parseBody(res);
+        if (isUnauthorized(res, data)) {
+          console.log("Token refresh failed, logging out...");
           clearAllAuth();
-          router.push('/');
-          throw new Error('Authentication failed after token refresh');
+          router.push("/");
+          throw new Error("Authentication failed after token refresh");
         }
       } catch (refreshErr) {
-        console.log('Token refresh error:', refreshErr);
+        if (refreshErr instanceof Error && refreshErr.message.startsWith("Authentication failed")) {
+          throw refreshErr;
+        }
+        console.log("Token refresh error:", refreshErr);
         clearAllAuth();
-        router.push('/');
-        throw new Error('Token refresh failed');
+        router.push("/");
+        throw new Error("Token refresh failed");
       }
+    }
+
+    if (!res.ok) {
+      if (data !== undefined) throw data;
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+
+    if (data === undefined) {
+      return res;
     }
 
     // Show success toast for successful non-GET requests only

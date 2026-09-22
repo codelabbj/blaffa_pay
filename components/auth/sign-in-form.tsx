@@ -17,6 +17,7 @@ import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { getAppName } from "@/lib/env-config"
+import { setTokens } from "@/lib/api"
 
 // Colors for consistent theming - using logo colors
 const COLORS = {
@@ -87,16 +88,13 @@ export function SignInForm() {
         setLoading(false)
         return
       }
-      localStorage.setItem("accessToken", data.access)
-      localStorage.setItem("refreshToken", data.refresh)
       localStorage.setItem("user", JSON.stringify(data.user))
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true")
-        document.cookie = `accessToken=${data.access}; path=/; max-age=86400; secure; samesite=strict`;
       } else {
         localStorage.removeItem("rememberMe")
-        document.cookie = `accessToken=${data.access}; path=/; secure; samesite=strict`;
       }
+      setTokens({ access: data.access, refresh: data.refresh })
       toast({
         title: t("auth.loginSuccess"),
         description: t("auth.loggedInSuccessfully"),

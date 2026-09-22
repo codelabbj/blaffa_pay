@@ -25,9 +25,6 @@ export function Header({ onMobileMenuClick }: HeaderProps) {
 
   const handleLogout = () => {
     clearTokens()
-    if (typeof document !== "undefined")
-      document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict"
-    localStorage.removeItem("isAuthenticated")
     router.push("/")
   }
 

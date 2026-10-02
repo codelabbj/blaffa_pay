@@ -35,6 +35,8 @@ export interface FlashPayDeviceConfig {
   sim_slot: 0 | 1
   /** ussd = séquences USSD ; wave_* / orange = application mobile (accessibilité). */
   execution_mode: ExecutionMode
+  /** Wave Personnel : transfert auto vers le coffre à chaque retrait (défaut true). */
+  wave_coffre_enabled?: boolean
   momo_pin: string
   /** Présent sur les GET API : le PIN est retiré (sécurité), ce flag indique s'il est en base. */
   momo_pin_set?: boolean

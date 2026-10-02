@@ -79,6 +79,41 @@ function truncate(str: string, n: number) {
   return str.length > n ? str.slice(0, n - 1) + "…" : str;
 }
 
+const PROOF_PREFIX = /^(?:FCM_MATCH_|SMS_MATCH_(?:WEBSOCKET)?|APP_PAGE_|LOOKBACK_|EXPIRE_CLAIM_|RATTRAPAGE_)/i
+
+function stripProofPrefix(text: string) {
+  return (text || "").replace(PROOF_PREFIX, "").trim()
+}
+
+function isOperatorProof(text: string) {
+  const raw = (text || "").trim()
+  if (!raw) return false
+  const upper = raw.toUpperCase()
+  if (upper.startsWith("FCM_MATCH_") || upper.startsWith("SMS_MATCH_") || upper.startsWith("LOOKBACK_") || upper.startsWith("EXPIRE_CLAIM_")) {
+    return true
+  }
+  return false
+}
+
+function isKeywordProof(text: string) {
+  const raw = (text || "").trim()
+  if (!raw) return false
+  const upper = raw.toUpperCase()
+  if (upper.startsWith("APP_PAGE_")) return true
+  const body = stripProofPrefix(raw).toLowerCase()
+  return body.includes("mot-clé") || body.includes("mot-cle") || body.includes("mot cle") || body.includes("page chang")
+}
+
+function successProof(tx: { raw_sms?: string | null; confirmation_message?: string | null }) {
+  const raw = (tx.raw_sms || "").trim()
+  const conf = (tx.confirmation_message || "").trim()
+  if (isOperatorProof(raw)) return stripProofPrefix(raw)
+  if (isKeywordProof(raw)) return stripProofPrefix(raw)
+  if (isOperatorProof(conf)) return stripProofPrefix(conf)
+  if (isKeywordProof(conf)) return stripProofPrefix(conf)
+  return ""
+}
+
 function formatAmount(x: any) {
   const n = Number(x || 0);
   if (Number.isNaN(n)) return "0";
@@ -1166,7 +1201,7 @@ function TransactionsPageContent() {
                           </div>
                         </div>
                       )}
-                      {transaction.confirmation_message && !transaction.error_message && isPaid && (
+                      {transaction.confirmation_message && !transaction.error_message && isPaid && !isKeywordProof(transaction.confirmation_message) && (
                         <div className="mt-3 rounded-xl bg-green-50 dark:bg-green-900/15 border border-green-200 dark:border-green-700/40 px-3 py-2.5 text-green-800 dark:text-green-300">
                           <div className="flex items-start gap-2">
                             <CheckCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
@@ -1174,7 +1209,17 @@ function TransactionsPageContent() {
                           </div>
                         </div>
                       )}
-                      {isPaid && !transaction.error_message && !transaction.confirmation_message && (
+                      {isPaid && successProof(transaction) && (
+                        <div className="mt-3 rounded-xl bg-green-50 dark:bg-green-900/15 border border-green-200 dark:border-green-700/40 px-3 py-2.5 text-green-900 dark:text-green-200">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-green-700 dark:text-green-400">
+                            Preuve de succès
+                          </div>
+                          <div className="mt-1 text-sm font-medium leading-snug whitespace-pre-wrap break-words">
+                            {successProof(transaction)}
+                          </div>
+                        </div>
+                      )}
+                      {isPaid && !transaction.error_message && !transaction.confirmation_message && !successProof(transaction) && (
                         <div className="mt-3 rounded-xl bg-red-50 dark:bg-red-900/15 border border-red-200 dark:border-red-700/40 px-3 py-2.5 text-red-800 dark:text-red-300">
                           <div className="flex items-start gap-2">
                             <div className="text-sm font-bold leading-snug">
@@ -1279,7 +1324,7 @@ function TransactionsPageContent() {
                         )
                       })()}
 
-                      {transaction.raw_sms && (
+                      {transaction.raw_sms && !successProof(transaction) && (
                         <div className="mt-2 text-xs text-red-600 dark:text-red-400 font-medium">
                           [DEJA PAYE] ⚠️ <span>{truncate(transaction.raw_sms, 120)}</span>
                         </div>

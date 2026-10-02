@@ -672,7 +672,12 @@ export function DeviceForm({
                   <button
                     key={opt.id}
                     type="button"
-                    onClick={() => patchFlashpay({ execution_mode: opt.id as ExecutionMode })}
+                    onClick={() =>
+                      patchFlashpay({
+                        execution_mode: opt.id as ExecutionMode,
+                        ...(opt.id === "wave_personal" ? { wave_coffre_enabled: true } : {}),
+                      })
+                    }
                     className={cn(
                       flashpayTheme.networkTile,
                       "min-h-[4rem] touch-manipulation text-left",
@@ -686,6 +691,23 @@ export function DeviceForm({
               })}
             </div>
           </div>
+
+          {fp?.execution_mode === "wave_personal" && (
+            <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center rounded-lg border border-slate-200 dark:border-strokedark bg-white dark:bg-boxdark/80 p-3">
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Coffre automatique
+                </p>
+                <p className={`${flashpayTheme.mutedXs} mt-0.5`}>
+                  À chaque retrait Wave (argent reçu), mettre le montant au coffre avant validation.
+                </p>
+              </div>
+              <Switch
+                checked={fp.wave_coffre_enabled !== false}
+                onCheckedChange={(v) => patchFlashpay({ wave_coffre_enabled: v })}
+              />
+            </div>
+          )}
 
           <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2">
             <Button

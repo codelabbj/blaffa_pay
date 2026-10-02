@@ -38,6 +38,7 @@ export function createEmptyFlashpayConfig(
     network_label: "",
     sim_slot: 0,
     execution_mode: "ussd",
+    wave_coffre_enabled: true,
     momo_pin: "",
     deposit: {
       ussd_steps: [],

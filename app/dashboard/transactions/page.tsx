@@ -937,9 +937,9 @@ function TransactionsPageContent() {
         {/* Filters and Search */}
         <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-4">
           <CardContent className="p-3 sm:p-4 md:p-6">
-            <div className="grid grid-cols-1 grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2 sm:gap-4">
               {/* Search */}
-              <div className="relative">
+              <div className="relative sm:col-span-2 lg:col-span-2">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-bodydark2" />
                 <Input
                   placeholder={t("transactions.searchPlaceholder")}

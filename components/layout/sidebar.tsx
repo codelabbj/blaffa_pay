@@ -134,7 +134,11 @@ function SidebarInner({ onNavClick }: { onNavClick?: () => void }) {
           </FeatureGate>
 
           <FeatureGate feature="transactions">
-            <li><NavItem href="/dashboard/transactions" icon={<ArrowLeftRight />} label={t("nav.transactions")} active={has("/dashboard/transactions")} onClick={onNavClick} /></li>
+            <li><NavItem href="/dashboard/transactions" icon={<ArrowLeftRight />} label={t("nav.transactions")} active={has("/dashboard/transactions") && !has("/dashboard/betting-transactions")} onClick={onNavClick} /></li>
+          </FeatureGate>
+
+          <FeatureGate feature="bettingTransactions">
+            <li><NavItem href="/dashboard/betting-transactions" icon={<Receipt />} label="Transactions Paris" active={has("/dashboard/betting-transactions")} onClick={onNavClick} /></li>
           </FeatureGate>
 
           <FeatureGate feature="outboundSms">
@@ -213,10 +217,6 @@ function SidebarInner({ onNavClick }: { onNavClick?: () => void }) {
                 <SubItem href="/dashboard/platforms/create" label="Créer" active={is("/dashboard/platforms/create")} onClick={onNavClick} />
               </DropdownNav>
             </li>
-          </FeatureGate>
-
-          <FeatureGate feature="bettingTransactions">
-            <li><NavItem href="/dashboard/betting-transactions" icon={<Receipt />} label="Transactions Paris" active={has("/dashboard/betting-transactions")} onClick={onNavClick} /></li>
           </FeatureGate>
 
           <FeatureGate feature="permissions">

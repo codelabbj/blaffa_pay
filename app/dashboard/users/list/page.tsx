@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, MoreHorizontal, ArrowUpDown, Users, Filter, Eye, CheckCircle, XCircle, Clock, Shield, Mail, Phone, UserCheck } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, MoreHorizontal, ArrowUpDown, Users, Filter, Eye, CheckCircle, XCircle, Clock, Shield, Mail, Phone, UserCheck, Plus } from "lucide-react"
+import Link from "next/link"
 import { useToast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -522,6 +523,12 @@ function UsersPageContent() {
                   </span>
                 </div>
               </div>
+              <Link href="/dashboard/users/register">
+                <Button className="bg-gradient-to-r from-primary to-primary text-white text-xs sm:text-sm">
+                  <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+                  Nouvel utilisateur
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -529,9 +536,9 @@ function UsersPageContent() {
         {/* Filters and Search */}
         <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-4">
           <CardContent className="p-3 sm:p-4 md:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-4">
               {/* Search */}
-              <div className="relative">
+              <div className="relative sm:col-span-2">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-bodydark2" />
                 <Input
                   placeholder="Rechercher des utilisateurs..."

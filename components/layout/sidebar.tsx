@@ -8,7 +8,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import {
   BarChart3, Users, CreditCard, LogOut, X, ChevronDown, ChevronUp,
   Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal,
-  User, Home, DollarSign, Waves, Smartphone, ArrowUpDown, Gamepad2,
+  User, Home, DollarSign, Waves, Smartphone, ArrowUpDown, Gamepad2, UserCheck, Zap,
   Shield, Receipt, ShieldCheck, Layers, Send, ArrowLeftRight,
 } from "lucide-react"
 import { clearTokens } from "@/lib/api"
@@ -125,12 +125,7 @@ function SidebarInner({ onNavClick }: { onNavClick?: () => void }) {
           </FeatureGate>
 
           <FeatureGate feature="users">
-            <li>
-              <DropdownNav icon={<Users />} label={t("nav.users")} active={has("/dashboard/users")} open={!!drops.users} onToggle={() => toggle("users")}>
-                <SubItem href="/dashboard/users/register" label={t("nav.register")} active={is("/dashboard/users/register")} onClick={onNavClick} />
-                <SubItem href="/dashboard/users/list" label={t("nav.userList")} active={is("/dashboard/users/list")} onClick={onNavClick} />
-              </DropdownNav>
-            </li>
+            <li><NavItem href="/dashboard/users/list" icon={<Users />} label={t("nav.users")} active={has("/dashboard/users")} onClick={onNavClick} /></li>
           </FeatureGate>
 
           <FeatureGate feature="transactions">
@@ -139,6 +134,14 @@ function SidebarInner({ onNavClick }: { onNavClick?: () => void }) {
 
           <FeatureGate feature="bettingTransactions">
             <li><NavItem href="/dashboard/betting-transactions" icon={<Receipt />} label="Transactions Paris" active={has("/dashboard/betting-transactions")} onClick={onNavClick} /></li>
+          </FeatureGate>
+
+          <FeatureGate feature="partnerPermissionsSummary">
+            <li><NavItem href="/dashboard/partner-permissions-summary" icon={<UserCheck />} label="Utilisateurs Paris" active={has("/dashboard/partner-permissions-summary")} onClick={onNavClick} /></li>
+          </FeatureGate>
+
+          <FeatureGate feature="autoRecharge">
+            <li><NavItem href="/dashboard/auto-recharge" icon={<Zap />} label="Recharges auto" active={has("/dashboard/auto-recharge")} onClick={onNavClick} /></li>
           </FeatureGate>
 
           <FeatureGate feature="outboundSms">

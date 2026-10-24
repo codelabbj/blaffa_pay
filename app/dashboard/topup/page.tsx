@@ -216,6 +216,52 @@ export default function TopupPage() {
           </div>
         </div>
 
+        {/* Filters — avant les stats pour rester visible */}
+        <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-4">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+              <div className="relative sm:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-bodydark2" />
+                <Input
+                  placeholder={t("topup.search") || "Rechercher..."}
+                  value={searchTerm}
+                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
+                  className="pl-10 bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark"
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setCurrentPage(1) }}>
+                <SelectTrigger className="bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark">
+                  <SelectValue placeholder="Tous les statuts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="pending">En attente</SelectItem>
+                  <SelectItem value="approved">Approuve</SelectItem>
+                  <SelectItem value="rejected">Rejete</SelectItem>
+                  <SelectItem value="proof_submitted">Preuve soumise</SelectItem>
+                  <SelectItem value="expired">Expire</SelectItem>
+                </SelectContent>
+              </Select>
+              <DateRangeFilter
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
+                onClear={() => { setStartDate(null); setEndDate(null) }}
+                placeholder="Filtrer par date"
+                className="col-span-1 sm:col-span-2 lg:col-span-1"
+              />
+            </div>
+            {hasActiveFilters && (
+              <div className="flex justify-end mt-3 pt-3 border-t border-gray-100 dark:border-strokedark">
+                <Button type="button" variant="ghost" size="sm" onClick={() => { setSearchTerm(""); setStatusFilter("all"); setStartDate(null); setEndDate(null); setCurrentPage(1) }}>
+                  <X className="h-4 w-4 mr-1" /> Effacer filtres
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Summary Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 sm:mb-6">
           <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -252,52 +298,6 @@ export default function TopupPage() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Filters */}
-        <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-4">
-          <CardContent className="p-3 sm:p-4 md:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-bodydark2" />
-                <Input
-                  placeholder={t("topup.search") || "Rechercher..."}
-                  value={searchTerm}
-                  onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1) }}
-                  className="pl-10 bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setCurrentPage(1) }}>
-                <SelectTrigger className="bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark">
-                  <SelectValue placeholder="Tous les statuts" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="pending">En attente</SelectItem>
-                  <SelectItem value="approved">Approuve</SelectItem>
-                  <SelectItem value="rejected">Rejete</SelectItem>
-                  <SelectItem value="proof_submitted">Preuve soumise</SelectItem>
-                  <SelectItem value="expired">Expire</SelectItem>
-                </SelectContent>
-              </Select>
-              <DateRangeFilter
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-                onClear={() => { setStartDate(null); setEndDate(null) }}
-                placeholder="Filtrer par date"
-                className="col-span-1 sm:col-span-2 md:col-span-2"
-              />
-            </div>
-            {hasActiveFilters && (
-              <div className="flex justify-end mt-3 pt-3 border-t border-gray-100 dark:border-strokedark">
-                <Button type="button" variant="ghost" size="sm" onClick={() => { setSearchTerm(""); setStatusFilter("all"); setStartDate(null); setEndDate(null); setCurrentPage(1) }}>
-                  <X className="h-4 w-4 mr-1" /> Effacer filtres
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
 
         {/* Recharge Card List */}
         <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

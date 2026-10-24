@@ -220,10 +220,10 @@ function PartnerPermissionsSummaryPageContent() {
           <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center">
             <div>
               <h1 className="text-base font-bold sm:text-lg sm:text-2xl bg-gradient-to-r from-primary to-meta-3 bg-clip-text text-transparent">
-                Résumé Permissions Partenaires
+                Utilisateurs Paris
               </h1>
               <p className="text-body dark:text-bodydark mt-2 text-lg">
-                Vue d'ensemble des permissions et transactions des partenaires
+                Partenaires et utilisateurs qui font des paris sportifs
               </p>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
@@ -239,8 +239,53 @@ function PartnerPermissionsSummaryPageContent() {
           </div>
         </div>
 
+        {/* Filters and Search — avant les stats pour rester visible */}
+        <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-4">
+          <CardContent className="p-3 sm:p-4 md:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+              {/* Search */}
+              <div className="relative sm:col-span-2">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-bodydark2" />
+                <Input
+                  placeholder="Rechercher des partenaires..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark"
+                />
+              </div>
+
+              {/* Status Filter */}
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark">
+                  <SelectValue placeholder="Filtrer par statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous les statuts</SelectItem>
+                  <SelectItem value="active">Actif</SelectItem>
+                  <SelectItem value="inactive">Inactif</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Sort */}
+              <Select 
+                value={sortField || ""} 
+                onValueChange={(value) => setSortField(value as "display_name" | "email" | "is_active" | null)}
+              >
+                <SelectTrigger className="bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark">
+                  <SelectValue placeholder="Trier par" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="display_name">Nom</SelectItem>
+                  <SelectItem value="email">E-mail</SelectItem>
+                  <SelectItem value="is_active">Statut</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:p-4 md:p-6 mb-4 sm:mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
           <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -305,51 +350,6 @@ function PartnerPermissionsSummaryPageContent() {
             </CardContent>
           </Card>
         </div>
-
-        {/* Filters and Search */}
-        <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-4">
-          <CardContent className="p-3 sm:p-4 md:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-bodydark2" />
-                <Input
-                  placeholder="Rechercher des partenaires..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark"
-                />
-              </div>
-
-              {/* Status Filter */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark">
-                  <SelectValue placeholder="Filtrer par statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous les statuts</SelectItem>
-                  <SelectItem value="active">Actif</SelectItem>
-                  <SelectItem value="inactive">Inactif</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Sort */}
-              <Select 
-                value={sortField || ""} 
-                onValueChange={(value) => setSortField(value as "display_name" | "email" | "is_active" | null)}
-              >
-                <SelectTrigger className="bg-gray-50 dark:bg-meta-4 border-stroke dark:border-strokedark">
-                  <SelectValue placeholder="Trier par" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="display_name">Nom</SelectItem>
-                  <SelectItem value="email">E-mail</SelectItem>
-                  <SelectItem value="is_active">Statut</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Partners Table */}
         <Card className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">

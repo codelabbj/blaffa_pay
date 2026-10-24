@@ -67,6 +67,7 @@ const translations = {
     "nav.aggregatorNetworkMappings": "Network Mappings",
     "nav.aggregatorTransactions": "Transactions",
     "nav.topup": "Top Up",
+    "nav.autoRecharge": "Auto recharges",
     "nav.profile": "Profile",
     "nav.earningManagement": "Earning Management",
 
@@ -1194,6 +1195,7 @@ const translations = {
     "nav.aggregatorNetworkMappings": "Configuration Réseaux",
     "nav.aggregatorTransactions": "Transactions",
     "nav.topup": "Recharger",
+    "nav.autoRecharge": "Recharges auto",
     "nav.profile": "Profil",
     "nav.earningManagement": "Gestion des gains",
 

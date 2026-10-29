@@ -9,6 +9,7 @@ export interface WaveBusinessAccount {
   mobile_masked: string
   status: WaveBusinessAccountStatus
   validation_mode: WaveValidationMode
+  payout_enabled: boolean
   owner_uid: string
   owner_username: string
   owner_email: string
@@ -26,6 +27,7 @@ export interface WaveBusinessAccountCreatePayload {
   label?: string
   mobile: string
   validation_mode?: WaveValidationMode
+  payout_enabled?: boolean
   pin?: string
   owner_uid?: string
 }
@@ -33,6 +35,7 @@ export interface WaveBusinessAccountCreatePayload {
 export interface WaveBusinessAccountUpdatePayload {
   label?: string
   validation_mode?: WaveValidationMode
+  payout_enabled?: boolean
   is_listening?: boolean
   pin?: string
 }

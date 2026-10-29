@@ -89,6 +89,7 @@ function WaveBusinessAccountsContent() {
   const [label, setLabel] = useState("")
   const [mobile, setMobile] = useState("")
   const [validationMode, setValidationMode] = useState<WaveValidationMode>("both")
+  const [payoutEnabled, setPayoutEnabled] = useState(false)
   const [selectedOwnerUid, setSelectedOwnerUid] = useState("")
   const [ownerSearch, setOwnerSearch] = useState("")
   const [ownerPickerOpen, setOwnerPickerOpen] = useState(false)
@@ -101,6 +102,7 @@ function WaveBusinessAccountsContent() {
   const [editOpen, setEditOpen] = useState(false)
   const [editAccount, setEditAccount] = useState<WaveBusinessAccount | null>(null)
   const [editMode, setEditMode] = useState<WaveValidationMode>("both")
+  const [editPayout, setEditPayout] = useState(false)
   const [editListening, setEditListening] = useState(true)
   const [editSaving, setEditSaving] = useState(false)
 
@@ -156,6 +158,7 @@ function WaveBusinessAccountsContent() {
     setLabel("")
     setMobile("")
     setValidationMode("both")
+    setPayoutEnabled(false)
     setSelectedOwnerUid("")
     setOwnerSearch("")
   }
@@ -181,6 +184,7 @@ function WaveBusinessAccountsContent() {
         label: label.trim() || undefined,
         mobile: mobile.trim(),
         validation_mode: validationMode,
+        payout_enabled: payoutEnabled,
         owner_uid: isStaff ? selectedOwnerUid : undefined,
       })
       setCreateOpen(false)
@@ -200,6 +204,7 @@ function WaveBusinessAccountsContent() {
   const openEdit = (account: WaveBusinessAccount) => {
     setEditAccount(account)
     setEditMode(account.validation_mode)
+    setEditPayout(account.payout_enabled)
     setEditListening(account.is_listening)
     setEditOpen(true)
   }
@@ -210,6 +215,7 @@ function WaveBusinessAccountsContent() {
     try {
       await updateWaveBusinessAccount(apiFetch, editAccount.uid, {
         validation_mode: editMode,
+        payout_enabled: editPayout,
         is_listening: editListening,
       })
       setEditOpen(false)
@@ -302,6 +308,7 @@ function WaveBusinessAccountsContent() {
                     <TableHead>Mobile</TableHead>
                     <TableHead>Statut</TableHead>
                     <TableHead>Mode</TableHead>
+                    <TableHead>Retraits API</TableHead>
                     <TableHead>Poll</TableHead>
                     <TableHead>Dernier poll</TableHead>
                     <TableHead className="w-12" />
@@ -329,6 +336,13 @@ function WaveBusinessAccountsContent() {
                       </TableCell>
                       <TableCell>
                         <ValidationModeLabel mode={account.validation_mode} />
+                      </TableCell>
+                      <TableCell>
+                        {account.payout_enabled ? (
+                          <span className="text-green-600 text-sm">Activés</span>
+                        ) : (
+                          <span className="text-bodydark2 text-sm">—</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         {account.is_listening ? (
@@ -502,6 +516,15 @@ function WaveBusinessAccountsContent() {
                 {VALIDATION_MODE_OPTIONS.find((o) => o.value === validationMode)?.description}
               </p>
             </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div>
+                <Label>Retraits Wave via API</Label>
+                <p className="text-xs text-body dark:text-bodydark2">
+                  Payer automatiquement les retraits Wave avec ce compte.
+                </p>
+              </div>
+              <Switch checked={payoutEnabled} onCheckedChange={setPayoutEnabled} />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setCreateOpen(false)}>
@@ -559,6 +582,15 @@ function WaveBusinessAccountsContent() {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <div>
+                <Label>Retraits Wave via API</Label>
+                <p className="text-xs text-body dark:text-bodydark2">
+                  Autoriser ce compte à payer les retraits Wave.
+                </p>
+              </div>
+              <Switch checked={editPayout} onCheckedChange={setEditPayout} />
             </div>
             {editAccount?.status === "online" && editMode !== "notification" && (
               <div className="flex items-center justify-between">

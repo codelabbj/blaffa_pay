@@ -14,6 +14,8 @@ export interface FlashPayDepositConfig {
   auto_transfer_enabled: boolean
   auto_transfer_to: string
   auto_transfer_min_balance: number
+  /** Vide = réutilise la séquence dépôt. */
+  auto_transfer_ussd_steps: string[]
 }
 
 export interface FlashPayWithdrawConfig {

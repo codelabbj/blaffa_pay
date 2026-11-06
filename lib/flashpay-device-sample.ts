@@ -24,6 +24,7 @@ export const MTN_CI_FLASHPAY: FlashPayDeviceConfig = {
     auto_transfer_enabled: false,
     auto_transfer_to: "",
     auto_transfer_min_balance: 0,
+    auto_transfer_ussd_steps: [],
   },
   withdraw: {
     ussd_steps: ["*133#", "2", "PIN", "AMOUNT"],
@@ -54,6 +55,7 @@ export const ORANGE_CI_FLASHPAY: FlashPayDeviceConfig = {
     auto_transfer_enabled: false,
     auto_transfer_to: "",
     auto_transfer_min_balance: 0,
+    auto_transfer_ussd_steps: [],
   },
   withdraw: {
     ussd_steps: ["#144#", "2", "PIN", "AMOUNT"],

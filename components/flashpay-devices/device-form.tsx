@@ -26,7 +26,12 @@ import {
 import { UssdFlowBuilder } from "@/components/flashpay-devices/ussd-flow-builder"
 import { DevicePreviewPanel } from "@/components/flashpay-devices/device-preview-panel"
 import { AdvancedSettingsEditor } from "@/components/flashpay-devices/advanced-settings-editor"
-import { fetchAdminUsers, fetchCountries, fetchNetworks } from "@/lib/flashpay-device-api"
+import {
+  fetchAdminUsers,
+  fetchCountries,
+  fetchNetworks,
+  fetchStaffDevices,
+} from "@/lib/flashpay-device-api"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -103,6 +108,7 @@ export function DeviceForm({
   const sample = isSampleForm(form)
   const appExecutionMode = isAppExecutionMode(fp?.execution_mode)
   const locationInitialized = useRef(false)
+  const ownerCountryAppliedFor = useRef<string | null>(null)
 
   useEffect(() => {
     if (locationInitialized.current) return
@@ -124,12 +130,15 @@ export function DeviceForm({
           }
         }
 
-        const code = fp?.country_code?.toUpperCase()
-        if (code) {
-          const match = countryList.find(
-            (c: { code?: string }) => c.code?.toUpperCase() === code,
-          )
-          if (match?.uid) setSelectedCountryUid(match.uid)
+        // Sample Moov BJ : ne pas verrouiller le pays — on attend le propriétaire.
+        if (!(mode === "create" && sample)) {
+          const code = fp?.country_code?.toUpperCase()
+          if (code) {
+            const match = countryList.find(
+              (c: { code?: string }) => c.code?.toUpperCase() === code,
+            )
+            if (match?.uid) setSelectedCountryUid(match.uid)
+          }
         }
         locationInitialized.current = true
       } catch {
@@ -141,7 +150,78 @@ export function DeviceForm({
     return () => {
       cancelled = true
     }
-  }, [apiFetch, form.network, fp?.country_code])
+  }, [apiFetch, form.network, fp?.country_code, mode, sample])
+
+  // Création : pays par défaut = celui du compte propriétaire (devices existants).
+  useEffect(() => {
+    if (mode !== "create") return
+    if (!form.user) {
+      ownerCountryAppliedFor.current = null
+      return
+    }
+    if (countries.length === 0) return
+    if (ownerCountryAppliedFor.current === form.user) return
+    const ownerUid = form.user
+    let cancelled = false
+    ;(async () => {
+      try {
+        const devices = await fetchStaffDevices(apiFetch, {
+          search: ownerUid,
+        })
+        if (cancelled) return
+        const mine = devices.filter((d) => {
+          const u = (d as { user?: string | { uid?: string } }).user
+          if (!u) return false
+          if (typeof u === "string") return u === ownerUid
+          return u.uid === ownerUid
+        })
+        const pool = mine.length ? mine : []
+        const codeCounts = new Map<string, number>()
+        for (const d of pool) {
+          const code = (
+            d.custom_settings?.flashpay?.country_code ||
+            (typeof d.network === "object" && d.network && "country_code" in d.network
+              ? String((d.network as { country_code?: string }).country_code || "")
+              : "")
+          )
+            .toUpperCase()
+            .trim()
+          if (!code) continue
+          codeCounts.set(code, (codeCounts.get(code) || 0) + 1)
+        }
+        const best = [...codeCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0]
+        ownerCountryAppliedFor.current = ownerUid
+        if (!best) return
+        const match = countries.find(
+          (c: { code?: string; uid: string; nom?: string }) =>
+            c.code?.toUpperCase() === best,
+        )
+        if (!match) return
+        const base = fp ?? createEmptyFlashpayConfig()
+        setSelectedCountryUid(match.uid)
+        onChange({
+          ...form,
+          network: null,
+          custom_settings: compactCustomSettings({
+            ...form.custom_settings,
+            flashpay: {
+              ...base,
+              country_code: (match.code ?? base.country_code).toUpperCase(),
+              network_code: "",
+              network_label: "",
+            },
+          }),
+        })
+      } catch {
+        ownerCountryAppliedFor.current = ownerUid
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+    // Intentionnel : ne pas re-déclencher sur chaque frappe du formulaire.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiFetch, mode, form.user, countries])
 
   useEffect(() => {
     if (!selectedCountryUid) {
@@ -363,30 +443,91 @@ export function DeviceForm({
         </div>
 
         {tab === "deposit" && fp.deposit.auto_transfer_enabled && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <Label>Destination auto-transfer</Label>
-              <Input
-                className="mt-1 bg-white dark:bg-boxdark-2"
-                value={fp.deposit.auto_transfer_to}
-                onChange={(e) =>
-                  patchFlashpay({ deposit: { ...fp.deposit, auto_transfer_to: e.target.value } })
-                }
-              />
+          <div className="space-y-4 rounded-xl border border-slate-200 dark:border-strokedark bg-white dark:bg-boxdark/60 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3 sm:items-center">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  Séquence USSD auto-transfer
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">
+                  Même saisie que dépôt / retrait. Vide = séquence Dépôt par défaut.
+                </p>
+              </div>
+              <Badge variant="secondary" className="dark:bg-meta-4 dark:text-gray-200">
+                {(fp.deposit.auto_transfer_ussd_steps ?? []).filter((s) => s.trim()).length ||
+                  "défaut dépôt"}
+              </Badge>
             </div>
-            <div>
-              <Label>Seuil min (FCFA)</Label>
-              <Input
-                type="number"
-                className="mt-1 bg-white dark:bg-boxdark-2"
-                value={fp.deposit.auto_transfer_min_balance}
-                onChange={(e) =>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label>Destination auto-transfer</Label>
+                <Input
+                  className="mt-1 bg-white dark:bg-boxdark-2"
+                  value={fp.deposit.auto_transfer_to}
+                  onChange={(e) =>
+                    patchFlashpay({ deposit: { ...fp.deposit, auto_transfer_to: e.target.value } })
+                  }
+                />
+              </div>
+              <div>
+                <Label>Seuil min (FCFA)</Label>
+                <Input
+                  type="number"
+                  className="mt-1 bg-white dark:bg-boxdark-2"
+                  value={fp.deposit.auto_transfer_min_balance}
+                  onChange={(e) =>
+                    patchFlashpay({
+                      deposit: {
+                        ...fp.deposit,
+                        auto_transfer_min_balance: Number(e.target.value) || 0,
+                      },
+                    })
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                onClick={() =>
                   patchFlashpay({
-                    deposit: { ...fp.deposit, auto_transfer_min_balance: Number(e.target.value) || 0 },
+                    deposit: {
+                      ...fp.deposit,
+                      auto_transfer_ussd_steps: [...(fp.deposit.ussd_steps ?? [])],
+                    },
                   })
                 }
-              />
+              >
+                Copier séquence dépôt
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 text-xs"
+                onClick={() =>
+                  patchFlashpay({
+                    deposit: { ...fp.deposit, auto_transfer_ussd_steps: [] },
+                  })
+                }
+              >
+                Remettre défaut (dépôt)
+              </Button>
             </div>
+
+            <UssdFlowBuilder
+              steps={fp.deposit.auto_transfer_ussd_steps ?? []}
+              onChange={(next) =>
+                patchFlashpay({
+                  deposit: { ...fp.deposit, auto_transfer_ussd_steps: next },
+                })
+              }
+            />
           </div>
         )}
       </div>

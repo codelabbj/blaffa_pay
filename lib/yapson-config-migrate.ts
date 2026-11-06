@@ -7,11 +7,11 @@ export const YAPSON_LEGACY_MOOV_BJ = {
   erroKeyWords:
     "Indisponble, reessayer plus tard, indisponible, invalide MMI, 111 pour assistance, Veuillez contacter",
   verifyBallance: true,
-  collection: "*855#\n1\n01\n1\nNUMBER\nNUMBER\nAMOUNT\n00\nCODE",
+  collection: "*811#\n2\n02\nNUMBER\nNUMBER\nAMOUNT\nCODE",
   country: "BJ",
-  disburment: "*855#\n2\n02\nNUMBER\nNUMBER\nAMOUNT\nCODE",
+  disburment: "*811#\n1\n01\n1\nNUMBER\nNUMBER\nAMOUNT\nCODE",
   network: "moov benin",
-  solde: "*855#\n7\n1\nCODE",
+  solde: "*811#\n7\n1\nCODE",
   collectionInSingleSession: false,
   ballanceInSingleSession: true,
   disbursmentInSingleSession: false,
@@ -21,8 +21,8 @@ export const YAPSON_LEGACY_MOOV_BJ = {
   checkBallanceAfterDisbursmnent: false,
   collectionSmsKeyWord: "Vous avez envoye",
   disbursmentSmsKeyWord: "TAX AIB",
-  merchantCollection: "*855#\n1\n01\n1\nNUMBER\nNUMBER\nAMOUNT\n00\nCODE",
-  merchantDisburment: "*855#\n2\n02\nNUMBER\nNUMBER\nAMOUNT\nCODE",
+  merchantCollection: "*811#\n2\n02\nNUMBER\nNUMBER\nAMOUNT\nCODE",
+  merchantDisburment: "*811#\n1\n01\n1\nNUMBER\nNUMBER\nAMOUNT\nCODE",
   _exported_from: "ManualConfigPage_v1.0",
 } as const
 
@@ -77,6 +77,7 @@ export function migrateYapsonToFlashpay(
       auto_transfer_enabled: false,
       auto_transfer_to: "",
       auto_transfer_min_balance: 0,
+      auto_transfer_ussd_steps: [],
     },
     withdraw: {
       ussd_steps: parseSteps(disburment),

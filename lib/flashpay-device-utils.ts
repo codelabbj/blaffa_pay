@@ -49,6 +49,7 @@ export function createEmptyFlashpayConfig(
       auto_transfer_enabled: false,
       auto_transfer_to: "",
       auto_transfer_min_balance: 0,
+      auto_transfer_ussd_steps: [],
     },
     withdraw: {
       ussd_steps: [],

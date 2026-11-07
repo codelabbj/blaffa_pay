@@ -27,16 +27,21 @@ export function WaveConnectWizard({ account, onConnected, onCancel }: ConnectWiz
   const apiFetch = useApi()
   const [step, setStep] = useState<Step>("start")
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string[]>([])
+  const [error, setError] = useState("")
   const [pin, setPin] = useState("")
   const [otp, setOtp] = useState("")
   const [mobileMasked, setMobileMasked] = useState(account.mobile_masked)
+  const accountUid = String(account?.uid || "").trim()
 
   const handleStart = async () => {
+    if (!accountUid) {
+      setError("Compte invalide (uid manquant). Actualisez la liste puis réessayez.")
+      return
+    }
     setLoading(true)
-    setError([])
+    setError("")
     try {
-      const res = await waveAccountConnectStart(apiFetch, account.uid)
+      const res = await waveAccountConnectStart(apiFetch, accountUid)
       if (res.mobile_masked) setMobileMasked(res.mobile_masked)
       setStep("pin")
     } catch (err) {
@@ -47,14 +52,18 @@ export function WaveConnectWizard({ account, onConnected, onCancel }: ConnectWiz
   }
 
   const handlePin = async () => {
+    if (!accountUid) {
+      setError("Compte invalide (uid manquant). Actualisez la liste puis réessayez.")
+      return
+    }
     if (!pin || pin.length < 4) {
-      setError(["PIN requis (4 chiffres)"])
+      setError("PIN requis (4 chiffres)")
       return
     }
     setLoading(true)
-    setError([])
+    setError("")
     try {
-      await waveAccountConnectPin(apiFetch, account.uid, pin)
+      await waveAccountConnectPin(apiFetch, accountUid, pin)
       setStep("otp")
       setOtp("")
     } catch (err) {
@@ -65,17 +74,22 @@ export function WaveConnectWizard({ account, onConnected, onCancel }: ConnectWiz
   }
 
   const handleOtp = async () => {
+    if (!accountUid) {
+      setError("Compte invalide (uid manquant). Actualisez la liste puis réessayez.")
+      return
+    }
     if (!otp || otp.length < 4) {
-      setError(["Code SMS requis"])
+      setError("Code SMS requis")
       return
     }
     setLoading(true)
-    setError([])
+    setError("")
     try {
-      const res = await waveAccountConnectOtp(apiFetch, account.uid, otp)
+      const res = await waveAccountConnectOtp(apiFetch, accountUid, otp)
       setStep("done")
       onConnected({
         ...account,
+        uid: accountUid,
         status: "online",
         is_listening: res.is_listening,
         wallet_opaque_id: res.wallet_opaque_id,
@@ -99,11 +113,11 @@ export function WaveConnectWizard({ account, onConnected, onCancel }: ConnectWiz
         </p>
       </div>
 
-      {error.length > 0 && (
+      {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
-          {error.join(" · ")}
+          {error}
         </div>
-      )}
+      ) : null}
 
       {step === "start" && (
         <div className="space-y-4 text-center">
@@ -113,7 +127,7 @@ export function WaveConnectWizard({ account, onConnected, onCancel }: ConnectWiz
           <p className="text-sm text-body dark:text-bodydark2">
             Démarrez la connexion à Wave Business. Vous devrez saisir votre PIN puis le code SMS.
           </p>
-          <Button onClick={handleStart} disabled={loading} className="w-full">
+          <Button onClick={handleStart} disabled={loading || !accountUid} className="w-full">
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             Démarrer la connexion
           </Button>

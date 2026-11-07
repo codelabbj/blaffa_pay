@@ -17,6 +17,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -82,7 +83,7 @@ function WaveBusinessAccountsContent() {
   const [accounts, setAccounts] = useState<WaveBusinessAccount[]>([])
   const [isStaff, setIsStaff] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string[]>([])
+  const [error, setError] = useState("")
 
   const [createOpen, setCreateOpen] = useState(false)
   const [createLoading, setCreateLoading] = useState(false)
@@ -108,7 +109,7 @@ function WaveBusinessAccountsContent() {
 
   const loadAccounts = useCallback(async () => {
     setLoading(true)
-    setError([])
+    setError("")
     try {
       const list = await fetchWaveBusinessAccounts(apiFetch)
       setAccounts(list)
@@ -170,15 +171,15 @@ function WaveBusinessAccountsContent() {
 
   const handleCreate = async () => {
     if (!mobile.trim()) {
-      setError(["Numéro mobile requis"])
+      setError("Numéro mobile requis")
       return
     }
     if (isStaff && !selectedOwnerUid) {
-      setError(["Sélectionnez l'utilisateur propriétaire du compte"])
+      setError("Sélectionnez l'utilisateur propriétaire du compte")
       return
     }
     setCreateLoading(true)
-    setError([])
+    setError("")
     try {
       const created = await createWaveBusinessAccount(apiFetch, {
         label: label.trim() || undefined,
@@ -191,6 +192,13 @@ function WaveBusinessAccountsContent() {
       resetCreateForm()
       await loadAccounts()
       if (validationMode !== "notification") {
+        const uid = String(created?.uid || "").trim()
+        if (!uid) {
+          setError(
+            "Compte créé, mais uid manquant dans la réponse. Cliquez Connecter sur la ligne du compte.",
+          )
+          return
+        }
         setConnectAccount(created)
         setConnectOpen(true)
       }
@@ -279,11 +287,11 @@ function WaveBusinessAccountsContent() {
         </div>
       </div>
 
-      {error.length > 0 && (
+      {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
-          {error.join(" · ")}
+          {error}
         </div>
-      )}
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -367,6 +375,12 @@ function WaveBusinessAccountsContent() {
                             {account.status !== "online" && (
                               <DropdownMenuItem
                                 onClick={() => {
+                                  if (!String(account.uid || "").trim()) {
+                                    setError(
+                                      "Compte sans uid — actualisez la page puis réessayez.",
+                                    )
+                                    return
+                                  }
                                   setConnectAccount(account)
                                   setConnectOpen(true)
                                 }}
@@ -543,6 +557,9 @@ function WaveBusinessAccountsContent() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Connexion Wave Business</DialogTitle>
+            <DialogDescription>
+              PIN Wave puis code SMS pour activer le compte API.
+            </DialogDescription>
           </DialogHeader>
           {connectAccount && (
             <WaveConnectWizard

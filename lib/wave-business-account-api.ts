@@ -12,10 +12,33 @@ type ApiFetch = (
 
 const BASE = "api/payments/wave-business-accounts"
 
+/** 404 / not found = aucun compte Wave Business (état vide, pas une erreur UI). */
+function isNoBusinessAccountError(err: unknown): boolean {
+  if (err == null) return false
+  if (typeof err === "string") {
+    return /404|not found|aucun|no .+business/i.test(err)
+  }
+  if (err instanceof Error) {
+    return /404|not found/i.test(err.message)
+  }
+  if (typeof err === "object") {
+    const o = err as Record<string, unknown>
+    if (o.status === 404 || o.status_code === 404) return true
+    const detail = String(o.detail ?? o.message ?? o.error ?? "")
+    return /404|not found/i.test(detail)
+  }
+  return false
+}
+
 export async function fetchWaveBusinessAccounts(apiFetch: ApiFetch): Promise<WaveBusinessAccount[]> {
-  const data = await apiFetch(apiUrl(`${BASE}/`))
-  if (Array.isArray(data)) return data
-  return data?.results ?? []
+  try {
+    const data = await apiFetch(apiUrl(`${BASE}/`))
+    if (Array.isArray(data)) return data
+    return data?.results ?? []
+  } catch (err) {
+    if (isNoBusinessAccountError(err)) return []
+    throw err
+  }
 }
 
 export async function createWaveBusinessAccount(

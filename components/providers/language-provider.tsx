@@ -930,6 +930,8 @@ const translations = {
     "deviceAuthorizations.updateSuccess": "Authorization updated successfully",
     "deviceAuthorizations.notesPlaceholder": "Optional notes...",
     "deviceAuthorizations.selectPartnerAndDevice": "Please select a partner and a device",
+    "deviceAuthorizations.alreadyAuthorized": "Already authorized",
+    "deviceAuthorizations.selectPartnerFirst": "Please select a partner first",
 
     // Aggregators
     "aggregator.manageAggregatorAccounts": "Manage high-volume processing accounts",
@@ -2069,6 +2071,8 @@ const translations = {
     "deviceAuthorizations.updateSuccess": "Autorisation mise à jour avec succès",
     "deviceAuthorizations.notesPlaceholder": "Notes facultatives...",
     "deviceAuthorizations.selectPartnerAndDevice": "Veuillez sélectionner un partenaire et un appareil",
+    "deviceAuthorizations.alreadyAuthorized": "Déjà autorisé",
+    "deviceAuthorizations.selectPartnerFirst": "Veuillez d'abord sélectionner un partenaire",
 
     // Aggregators
     "aggregator.manageAggregatorAccounts": "Gérer les comptes de traitement à haut volume",

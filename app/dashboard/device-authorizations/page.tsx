@@ -103,6 +103,7 @@ export default function DeviceAuthorizationsPage() {
     // Selection Modals State
     const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false)
     const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false)
+    const [authorizedDeviceUids, setAuthorizedDeviceUids] = useState<string[]>([])
 
     const fetchAuthorizations = useCallback(async () => {
         setLoading(true)
@@ -131,6 +132,47 @@ export default function DeviceAuthorizationsPage() {
     useEffect(() => {
         fetchAuthorizations()
     }, [fetchAuthorizations])
+
+    const fetchPartnerAuthorizedDevices = useCallback(async (partnerUid: string) => {
+        try {
+            const response = await apiFetch(
+                `payments/betting/admin/device-authorizations/by_partner/?partner_id=${encodeURIComponent(partnerUid)}`
+            )
+            const rows = Array.isArray(response) ? response : (response.results || [])
+            const uids = rows
+                .map((row: { origin_device_uid?: string; device_uid?: string }) =>
+                    String(row.origin_device_uid || row.device_uid || "").trim()
+                )
+                .filter(Boolean)
+            setAuthorizedDeviceUids(uids)
+            return uids
+        } catch (err) {
+            console.error("Failed to fetch partner device authorizations", err)
+            setAuthorizedDeviceUids([])
+            return [] as string[]
+        }
+    }, [apiFetch, baseUrl])
+
+    const handlePartnerSelect = useCallback(async (partner: Partner) => {
+        setSelectedPartner(partner)
+        setSelectedDevice(null)
+        const uids = await fetchPartnerAuthorizedDevices(partner.uid)
+        // Si un device était déjà choisi et devient interdit, il est déjà clear ci-dessus.
+        void uids
+    }, [fetchPartnerAuthorizedDevices])
+
+    const openDeviceModal = () => {
+        if (!selectedPartner) {
+            toast({
+                title: t("common.errorOccurred"),
+                description: t("deviceAuthorizations.selectPartnerFirst"),
+                variant: "destructive",
+            })
+            return
+        }
+        void fetchPartnerAuthorizedDevices(selectedPartner.uid)
+        setIsDeviceModalOpen(true)
+    }
 
     const handleCreate = async () => {
         if (!selectedPartner || !selectedDevice) {
@@ -188,6 +230,7 @@ export default function DeviceAuthorizationsPage() {
     const resetForm = () => {
         setSelectedPartner(null)
         setSelectedDevice(null)
+        setAuthorizedDeviceUids([])
         setNotes("")
         setIsActive(true)
     }
@@ -449,7 +492,7 @@ export default function DeviceAuthorizationsPage() {
                                 </Label>
                                 <Button
                                     variant="outline"
-                                    onClick={() => setIsDeviceModalOpen(true)}
+                                    onClick={openDeviceModal}
                                     className="w-full justify-between font-normal h-11 bg-slate-50/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800"
                                 >
                                     {selectedDevice ? (
@@ -519,7 +562,7 @@ export default function DeviceAuthorizationsPage() {
             <PartnerSelectionModal
                 open={isPartnerModalOpen}
                 onOpenChange={setIsPartnerModalOpen}
-                onSelect={setSelectedPartner}
+                onSelect={handlePartnerSelect}
                 selectedPartnerUid={selectedPartner?.uid}
             />
             <DeviceSelectionModal
@@ -527,6 +570,7 @@ export default function DeviceAuthorizationsPage() {
                 onOpenChange={setIsDeviceModalOpen}
                 onSelect={setSelectedDevice}
                 selectedDeviceUid={selectedDevice?.uid}
+                disabledDeviceUids={authorizedDeviceUids}
             />
         </div>
     )

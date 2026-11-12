@@ -16,6 +16,8 @@ interface DeviceSelectionModalProps {
     onOpenChange: (open: boolean) => void;
     onSelect: (device: Device) => void;
     selectedDeviceUid?: string;
+    /** UIDs déjà autorisés pour le partenaire sélectionné — grisés, non cliquables. */
+    disabledDeviceUids?: string[];
 }
 
 export function DeviceSelectionModal({
@@ -23,6 +25,7 @@ export function DeviceSelectionModal({
     onOpenChange,
     onSelect,
     selectedDeviceUid,
+    disabledDeviceUids = [],
 }: DeviceSelectionModalProps) {
     const { t } = useLanguage()
     const apiFetch = useApi()
@@ -50,6 +53,8 @@ export function DeviceSelectionModal({
             fetchDevices()
         }
     }, [open, fetchDevices])
+
+    const disabledSet = new Set(disabledDeviceUids.map(String))
 
     // Simple local filtering for devices since we fetch them all
     const filteredDevices = devices.filter(device =>
@@ -80,29 +85,44 @@ export function DeviceSelectionModal({
                                 )}
                             </CommandEmpty>
                             <CommandGroup>
-                                {filteredDevices.map((device) => (
+                                {filteredDevices.map((device) => {
+                                    const alreadyAuthorized = disabledSet.has(String(device.uid))
+                                    return (
                                     <CommandItem
                                         key={device.uid}
+                                        disabled={alreadyAuthorized}
                                         onSelect={() => {
+                                            if (alreadyAuthorized) return
                                             onSelect(device)
                                             onOpenChange(false)
                                         }}
-                                        className="flex flex-wrap items-start justify-between gap-3 sm:items-center py-3 cursor-pointer"
+                                        className={
+                                            alreadyAuthorized
+                                                ? "flex flex-wrap items-start justify-between gap-3 sm:items-center py-3 opacity-45 cursor-not-allowed grayscale"
+                                                : "flex flex-wrap items-start justify-between gap-3 sm:items-center py-3 cursor-pointer"
+                                        }
                                     >
                                         <div className="flex flex-col">
                                             <span className="font-medium">{device.device_name || device.device_id}</span>
                                             <span className="text-xs text-muted-foreground">{device.device_id}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <Badge variant={device.is_online ? 'success' : 'secondary'} className="text-[10px]">
-                                                {device.is_online ? <span>{t('common.online')}</span> : <span>{t('common.offline')}</span>}
-                                            </Badge>
-                                            {selectedDeviceUid === device.uid && (
+                                            {alreadyAuthorized ? (
+                                                <Badge variant="secondary" className="text-[10px]">
+                                                    <span>{t("deviceAuthorizations.alreadyAuthorized")}</span>
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant={device.is_online ? 'success' : 'secondary'} className="text-[10px]">
+                                                    {device.is_online ? <span>{t('common.online')}</span> : <span>{t('common.offline')}</span>}
+                                                </Badge>
+                                            )}
+                                            {selectedDeviceUid === device.uid && !alreadyAuthorized && (
                                                 <Check className="h-4 w-4 text-primary" />
                                             )}
                                         </div>
                                     </CommandItem>
-                                ))}
+                                    )
+                                })}
                             </CommandGroup>
                         </CommandList>
                     </Command>

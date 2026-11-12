@@ -96,7 +96,7 @@ export default function DeviceAuthorizationsPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [createLoading, setCreateLoading] = useState(false)
     const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null)
-    const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
+    const [selectedDevices, setSelectedDevices] = useState<Device[]>([])
     const [notes, setNotes] = useState("")
     const [isActive, setIsActive] = useState(true)
 
@@ -155,10 +155,8 @@ export default function DeviceAuthorizationsPage() {
 
     const handlePartnerSelect = useCallback(async (partner: Partner) => {
         setSelectedPartner(partner)
-        setSelectedDevice(null)
-        const uids = await fetchPartnerAuthorizedDevices(partner.uid)
-        // Si un device était déjà choisi et devient interdit, il est déjà clear ci-dessus.
-        void uids
+        setSelectedDevices([])
+        await fetchPartnerAuthorizedDevices(partner.uid)
     }, [fetchPartnerAuthorizedDevices])
 
     const openDeviceModal = () => {
@@ -175,7 +173,7 @@ export default function DeviceAuthorizationsPage() {
     }
 
     const handleCreate = async () => {
-        if (!selectedPartner || !selectedDevice) {
+        if (!selectedPartner || selectedDevices.length === 0) {
             toast({
                 title: t("common.errorOccurred"),
                 description: t("deviceAuthorizations.selectPartnerAndDevice"),
@@ -186,15 +184,34 @@ export default function DeviceAuthorizationsPage() {
 
         setCreateLoading(true)
         try {
-            await apiFetch(`payments/betting/admin/device-authorizations/`, {
-                method: "POST",
-                body: JSON.stringify({
-                    partner: selectedPartner.uid,
-                    origin_device: selectedDevice.uid,
-                    notes,
-                    is_active: isActive,
-                }),
-                successMessage: t("deviceAuthorizations.createSuccess"),
+            const results = await Promise.allSettled(
+                selectedDevices.map((device) =>
+                    apiFetch(`payments/betting/admin/device-authorizations/`, {
+                        method: "POST",
+                        body: JSON.stringify({
+                            partner: selectedPartner.uid,
+                            origin_device: device.uid,
+                            notes,
+                            is_active: isActive,
+                        }),
+                        showSuccessToast: false,
+                    })
+                )
+            )
+            const ok = results.filter((r) => r.status === "fulfilled").length
+            const failed = results.length - ok
+            if (ok === 0) {
+                const firstError = results.find((r) => r.status === "rejected") as PromiseRejectedResult | undefined
+                throw firstError?.reason || new Error(t("common.failedToCreate"))
+            }
+            toast({
+                title: t("common.success"),
+                description:
+                    failed > 0
+                        ? t("deviceAuthorizations.createPartialSuccess")
+                            .replace("{ok}", String(ok))
+                            .replace("{failed}", String(failed))
+                        : t("deviceAuthorizations.createBulkSuccess").replace("{count}", String(ok)),
             })
             setIsCreateModalOpen(false)
             resetForm()
@@ -229,10 +246,14 @@ export default function DeviceAuthorizationsPage() {
 
     const resetForm = () => {
         setSelectedPartner(null)
-        setSelectedDevice(null)
+        setSelectedDevices([])
         setAuthorizedDeviceUids([])
         setNotes("")
         setIsActive(true)
+    }
+
+    const removeSelectedDevice = (uid: string) => {
+        setSelectedDevices((prev) => prev.filter((d) => String(d.uid) !== String(uid)))
     }
 
     const totalPages = Math.ceil(totalCount / itemsPerPage)
@@ -488,24 +509,48 @@ export default function DeviceAuthorizationsPage() {
 
                             <div className="space-y-2">
                                 <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                                    {t("deviceAuthorizations.device")}
+                                    {t("deviceAuthorizations.devices")}
                                 </Label>
                                 <Button
                                     variant="outline"
                                     onClick={openDeviceModal}
                                     className="w-full justify-between font-normal h-11 bg-slate-50/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800"
                                 >
-                                    {selectedDevice ? (
-                                        <div className="flex flex-col items-start">
-                                            <span className="font-semibold text-slate-900 dark:text-slate-100">
-                                                {selectedDevice.device_name || selectedDevice.device_id}
-                                            </span>
-                                        </div>
+                                    {selectedDevices.length > 0 ? (
+                                        <span className="font-semibold text-slate-900 dark:text-slate-100">
+                                            {t("deviceAuthorizations.nDevicesSelected").replace(
+                                                "{count}",
+                                                String(selectedDevices.length),
+                                            )}
+                                        </span>
                                     ) : (
-                                        <span className="text-slate-400">{t("deviceAuthorizations.selectDevice")}</span>
+                                        <span className="text-slate-400">{t("deviceAuthorizations.selectDevices")}</span>
                                     )}
                                     <Settings2 className="h-4 w-4 opacity-50" />
                                 </Button>
+                                {selectedDevices.length > 0 && (
+                                    <div className="flex flex-wrap gap-2 pt-1">
+                                        {selectedDevices.map((device) => (
+                                            <Badge
+                                                key={device.uid}
+                                                variant="secondary"
+                                                className="gap-1 pr-1 max-w-full"
+                                            >
+                                                <span className="truncate max-w-[180px]">
+                                                    {device.device_name || device.device_id}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    className="rounded-sm px-1 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                                                    onClick={() => removeSelectedDevice(String(device.uid))}
+                                                    aria-label={t("common.remove") || "Remove"}
+                                                >
+                                                    ×
+                                                </button>
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -545,11 +590,16 @@ export default function DeviceAuthorizationsPage() {
                         </DialogClose>
                         <Button
                             onClick={handleCreate}
-                            disabled={createLoading || !selectedPartner || !selectedDevice}
+                            disabled={createLoading || !selectedPartner || selectedDevices.length === 0}
                             className="bg-primary hover:bg-opacity-90 text-white min-w-[120px]"
                         >
                             {createLoading ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : selectedDevices.length > 1 ? (
+                                t("deviceAuthorizations.createBulk").replace(
+                                    "{count}",
+                                    String(selectedDevices.length),
+                                )
                             ) : (
                                 t("deviceAuthorizations.create")
                             )}
@@ -568,8 +618,8 @@ export default function DeviceAuthorizationsPage() {
             <DeviceSelectionModal
                 open={isDeviceModalOpen}
                 onOpenChange={setIsDeviceModalOpen}
-                onSelect={setSelectedDevice}
-                selectedDeviceUid={selectedDevice?.uid}
+                onSelect={setSelectedDevices}
+                selectedDeviceUids={selectedDevices.map((d) => String(d.uid))}
                 disabledDeviceUids={authorizedDeviceUids}
             />
         </div>

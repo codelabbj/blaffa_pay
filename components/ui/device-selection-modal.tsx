@@ -108,8 +108,8 @@ export function DeviceSelectionModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[520px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-[520px] max-h-[min(90dvh,720px)] p-0 gap-0 overflow-hidden flex flex-col">
+                <DialogHeader className="shrink-0 px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
                     <DialogTitle>
                         <span>{t("deviceAuthorizations.selectDevices")}</span>
                     </DialogTitle>
@@ -117,8 +117,8 @@ export function DeviceSelectionModal({
                         {t("deviceAuthorizations.selectDevicesHint")}
                     </p>
                 </DialogHeader>
-                <div className="py-2 space-y-3">
-                    <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-h-0 px-4 sm:px-6 pb-2 space-y-3 flex flex-col">
+                    <div className="shrink-0 flex items-center justify-between gap-2">
                         <Button
                             type="button"
                             variant="outline"
@@ -134,12 +134,12 @@ export function DeviceSelectionModal({
                             {draftUids.length} {t("deviceAuthorizations.selectedCount")}
                         </Badge>
                     </div>
-                    <Command shouldFilter={false}>
+                    <Command shouldFilter={false} className="flex-1 min-h-0 overflow-hidden border rounded-md">
                         <CommandInput
                             placeholder={t("common.search")}
                             onValueChange={setSearchTerm}
                         />
-                        <CommandList className="max-h-[320px]">
+                        <CommandList className="max-h-[min(42dvh,360px)] overflow-y-auto overscroll-contain">
                             <CommandEmpty>
                                 {loading ? (
                                     <div className="flex items-center justify-center py-6">
@@ -209,7 +209,7 @@ export function DeviceSelectionModal({
                         </CommandList>
                     </Command>
                 </div>
-                <DialogFooter className="gap-2 sm:gap-2">
+                <DialogFooter className="shrink-0 gap-2 sm:gap-2 border-t bg-background px-4 py-3 sm:px-6 sticky bottom-0">
                     <DialogClose asChild>
                         <Button variant="outline">
                             <span>{t("common.cancel")}</span>

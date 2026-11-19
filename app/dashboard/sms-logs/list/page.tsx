@@ -314,7 +314,7 @@ function SmsLogsListPageContent() {
             log.device_name || log.device_id || "",
             log.network_name || log.network_code || "",
             log.country_code || "",
-            log.sms_type_display || log.sms_type || "",
+            typeLabel(log),
             log.status_display || log.status || "",
             log.associated_transaction || log.transaction_reference ? "yes" : "no",
             log.transaction_reference || log.associated_external_id || "",
@@ -353,10 +353,40 @@ function SmsLogsListPageContent() {
     }
   }
 
+  /** Infère dépôt/retrait depuis le corps si le backend a laissé `unknown`. */
+  const inferSmsType = (log: any): string => {
+    const raw = String(log?.sms_type || "").trim().toLowerCase()
+    if (raw && raw !== "unknown") return raw
+    const blob = String(log?.content || log?.message || "").toLowerCase()
+    if (!blob) return raw || "unknown"
+    if (
+      /votre transfert\b/.test(blob) ||
+      /a\s+r[eé]ussi/.test(blob) ||
+      /\benvoy[eé]\b/.test(blob) ||
+      /\bretrait\b/.test(blob) ||
+      /\bwithdraw/.test(blob)
+    ) {
+      return "withdrawal"
+    }
+    if (
+      /vous avez re[cç]u/.test(blob) ||
+      /transfert de .+ re[cç]u/.test(blob) ||
+      /\bre[cç]u un transfert\b/.test(blob) ||
+      /\breceived\b/.test(blob) ||
+      /\bd[eé]p[oô]t\b/.test(blob)
+    ) {
+      return "deposit"
+    }
+    return raw || "unknown"
+  }
+
   const typeLabel = (log: any) => {
-    if (log.sms_type_display) return log.sms_type_display
-    const hit = SMS_TYPE_OPTIONS.find((o) => o.value === log.sms_type)
-    return hit?.label || log.sms_type || "Inconnu"
+    const key = inferSmsType(log)
+    const hit = SMS_TYPE_OPTIONS.find((o) => o.value === key)
+    if (hit && hit.value !== "all") return hit.label
+    const display = String(log.sms_type_display || "").trim()
+    if (display && display.toLowerCase() !== "inconnu") return display
+    return key || "Inconnu"
   }
 
   return (
@@ -642,17 +672,22 @@ function SmsLogsListPageContent() {
                           ) : null}
                         </TableCell>
                         <TableCell data-label="Type">
-                          <Badge
-                            className={
-                              log.sms_type === "deposit"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
-                                : log.sms_type === "withdrawal"
-                                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300"
-                                  : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                            }
-                          >
-                            {typeLabel(log)}
-                          </Badge>
+                          {(() => {
+                            const kind = inferSmsType(log)
+                            return (
+                              <Badge
+                                className={
+                                  kind === "deposit"
+                                    ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                                    : kind === "withdrawal"
+                                      ? "bg-blue-100 text-blue-900 dark:bg-blue-900/20 dark:text-blue-300"
+                                      : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                                }
+                              >
+                                {typeLabel(log)}
+                              </Badge>
+                            )
+                          })()}
                         </TableCell>
                         <TableCell data-label="Expéditeur">
                           <div className="flex items-center space-x-2">

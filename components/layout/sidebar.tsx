@@ -193,6 +193,7 @@ function SidebarInner({ onNavClick }: { onNavClick?: () => void }) {
             <li>
               <DropdownNav icon={<Monitor />} label={t("nav.devices")} active={has("/dashboard/devices")} open={!!drops.devices} onToggle={() => toggle("devices")}>
                 <SubItem href="/dashboard/devices/flashpay" label="FlashPay" active={has("/dashboard/devices/flashpay")} onClick={onNavClick} />
+                <SubItem href="/dashboard/devices/health" label="Santé (accessibilité)" active={has("/dashboard/devices/health")} onClick={onNavClick} />
               </DropdownNav>
             </li>
           </FeatureGate>
